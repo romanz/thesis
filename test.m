@@ -3,7 +3,11 @@ clc;
 e = 0.5;
 A = [1 e; e 1];
 f = [1 1]';
-[R, g] = jacobi(A, f, 1)
-v = randn(2,1);
-v = apply(v, R, g, 12)
-u = A \ f
+[B] = jacobi(A);
+v = [0 0]';
+
+res = @(v) repmat(f, [1 size(v, 2)]) - A*v;
+[v, V] = iterate(v, 0.1*B, res, 100);
+
+u = A \ f, v
+plot(sum(res(V).^2))
