@@ -1,4 +1,4 @@
-% Iterate T times using B on residual(v)
+% Iterate T times using B on residual(v).
 % [V, HISTORY] = ITERATE(V, B, RESIDUAL, T)
 function [v, history] = iterate(v, B, residual, T)
 history = zeros(numel(v), T);
