@@ -68,7 +68,8 @@ V = U0;
 tic;
 for t = 1:T
     U = V(K);
-    V(2:end-1, 2:end-1) = sum(S .* U, 3);
+    U = sum(S .* U, 3);
+    V(2:end-1, 2:end-1) = U;
 end
 toc;
 W = U0;
