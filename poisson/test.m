@@ -4,32 +4,35 @@ function test
 % Laplacian is discretized on a grid, and Jacobi iteration is used for solution.
 
 clc
-sz = [17 9]; % We use NDGRID convention (X is 1st, Y is 2nd)
-[X, Y] = create_grid( linspace(-2, 2, sz(1)), linspace(-1, 1, sz(2)) );
+sz = 2.^[4 4]+1; % We use NDGRID convention (X is 1st, Y is 2nd)
+[X, Y] = create_grid( linspace(-1, 1, sz(1)), linspace(-1, 1, sz(2)) );
 [U, L] = create_sol(); % The ideal solution and its Laplacian.
 
 % We actually solve the linear system: Av = f
 [A, I] = create_laplacian(X, Y, sz);
 V0 = U(X, Y); % The ideal solution (for boundary condition)
-V0(I) = 0; % "Fill" the interior with initial guess
+V = V0; % Initial guess.
+V(I) = 0; % "Fill" the interior with initial guess
 F = L(X, Y); % right hand side of the equation
-V = jacobi(A, V0, F, I, 100)
-mesh(X, Y, V); xlabel('X'); ylabel('Y'); 
+V = jacobi(A, V, F, 1000);
+mesh(X, Y, V0 - V); xlabel('X'); ylabel('Y'); 
 save poisson_test
 
-function [v] = jacobi(A, v, f, I, T)
+function [v] = jacobi(A, v, f, T)
 %% Jacobi iteration:
 % Av = (D+T)v = f
 % Dv = f-Tv = (f - Av) + Dv
 % v' = v + D^{-1} (f - Av)
 d = diag(A);
-r = zeros(size(v));
-dv = zeros(size(v));
+I = find(d);
+f = f(I); % Restrict RHS.
+A = A(I, :); % Restric operator.
+d = 1 ./ d(I); % Restrict the inverse.
 for t = 1:T
     Av = A*v(:); % Apply A on v.
-    r(I) = f(I) - Av(I); % Compute residual.
-    dv(I) = r(I) ./ d(I); % Compute an update.
-    v(I) = v(I) + dv(I); % Update v's interior.
+    r = f - Av; % Compute residual.
+    dv = r .* d; % Compute an update.
+    v(I) = v(I) + dv; % Update v's interior.
 end
 
 function [U, L] = create_sol()
