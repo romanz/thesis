@@ -4,7 +4,7 @@ function test
 % Laplacian is discretized on a grid, and Jacobi iteration is used for solution.
 
 clc
-sz = 2.^[4 4]+1; % We use NDGRID convention (X is 1st, Y is 2nd)
+sz = 2.^[7 7]+1; % We use NDGRID convention (X is 1st, Y is 2nd)
 [X, Y] = create_grid( linspace(-1, 1, sz(1)), linspace(-1, 1, sz(2)) );
 [U, L] = create_sol(); % The ideal solution and its Laplacian.
 
@@ -14,7 +14,7 @@ V0 = U(X, Y); % The ideal solution (for boundary condition)
 V = V0; % Initial guess.
 V(I) = 0; % "Fill" the interior with initial guess
 F = L(X, Y); % right hand side of the equation
-V = jacobi(A, V, F, 100);
+V = jacobi(A, V, F, 10000);
 mesh(X, Y, V0 - V); xlabel('X'); ylabel('Y'); 
 save poisson_test
 
@@ -52,7 +52,6 @@ function [X, Y] = create_grid(x, y)
 function [A, I] = create_laplacian(X, Y, sz)
 %% Laplacian discretization using sparse matrix
 N = prod(sz);
-A = sparse(N, N);
 K = true(sz);
 if sz(1) > 1, K(1, :) = false; K(end, :) = false; end
 if sz(2) > 1, K(:, 1) = false; K(:, end) = false; end
@@ -60,6 +59,7 @@ K = find(K); % Fill only interior points
 stencil = [-1 1  0  0 0; ...
             0 0  0 -1 1];
 stencil_size = size(stencil, 2);
+A = spalloc(N, N, N * stencil_size); % Preallocate sparse matrix.
 for k = K(:).'
     [i, j] = ind2sub(sz, k);
     i = i + stencil(1, :).';
