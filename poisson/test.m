@@ -14,7 +14,7 @@ V0 = U(X, Y); % The ideal solution (for boundary condition)
 V = V0; % Initial guess.
 V(I) = 0; % "Fill" the interior with initial guess
 F = L(X, Y); % right hand side of the equation
-V = jacobi(A, V, F, 1000);
+V = jacobi(A, V, F, 100);
 mesh(X, Y, V0 - V); xlabel('X'); ylabel('Y'); 
 save poisson_test
 
@@ -40,7 +40,7 @@ function [U, L] = create_sol()
 % - F is the function itself (for boundary conditions).
 % - L is the Laplacian of F.
 % It may be useful for solver's verification.
-U = @(X, Y) 0*X+10;
+U = @(X, Y) 0*X+1;
 L = @(X, Y) 0*X;
 
 function [X, Y] = create_grid(x, y)
@@ -57,8 +57,8 @@ K = true(sz);
 if sz(1) > 1, K(1, :) = false; K(end, :) = false; end
 if sz(2) > 1, K(:, 1) = false; K(:, end) = false; end
 K = find(K); % Fill only interior points
-stencil = [-1  0 0 0 1; ...
-            0 -1 0 1 0];
+stencil = [-1 1  0  0 0; ...
+            0 0  0 -1 1];
 stencil_size = size(stencil, 2);
 for k = K(:).'
     [i, j] = ind2sub(sz, k);
@@ -68,8 +68,8 @@ for k = K(:).'
     x = X(m);
     y = Y(m);    
     P = [ones(stencil_size, 1), x, y, x.*y, x.^2, y.^2] \ eye(stencil_size);
-    P = sum(P(end-1:end, :));
+    P = sum(P(end-1:end, :)); % Laplacian coefficients.
     A(k, m) = P;
 end
-I = any(A, 2); % Find out interior points
+I = any(A, 2); % Marks interior points
 
