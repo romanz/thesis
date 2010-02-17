@@ -1,0 +1,16 @@
+17/02/2010
+
+A should be symmetric - since the continuous problem is self-adjoint
+Conservation laws (Gauss Flux Law -> Stokes Theorem) should hold in discrete world too.
+Operator null space can be interesting - DC / rigid rotations.
+Uniform grid - OK for 3rd order poly.
+Non-uniform grid - OK for 2nd order poly.
+
+
+* Sparse matrix is not needed for regular grid - use variable matrix instead
+* Add doc. for interior idea.
+* Red Black G.S.
+* Pre-define index matrices, for grid sampling
+* Verify 2nd order convergence
+
+
