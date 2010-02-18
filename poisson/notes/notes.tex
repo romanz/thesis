@@ -1,0 +1,112 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath} % Required for \eqref
+\usepackage{amssymb} % Required for \mathbb
+\usepackage{units}   % Required for \nicefrac
+\usepackage{float}   % Required for algorithm and floating environments
+\usepackage{graphicx}% Required for figures and imagesf
+
+%-------------------------------------------
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{acknowledgment}[theorem]{Acknowledgment}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+%-------------------------------------------
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+\floatname{program}{Algorithm}
+%-------------------------------------------
+\newcommand{\diag}{\ensuremath{\mathrm{diag}}}
+\newcommand{\MSE}[1]{\ensuremath{\mathrm{MSE}\left(#1\right)}}
+\newcommand{\trace}[1]{\ensuremath{\mathrm{trace}\left( #1 \right)}}
+\newcommand{\norm}[1]{\ensuremath{\left\|#1\right\|_2^2}}
+\newcommand{\func}[2]{\ensuremath{\mathrm{#1}\left( #2 \right)}}
+\newcommand{\normzero}[1]{\ensuremath{\left\|#1\right\|_0}}
+\newcommand\eps \epsilon
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand\RR[1]{\mathbb{R}^{#1}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\real}{\ensuremath{\mathbb{R}}}
+\newcommand{\conv}{\ensuremath{\ast}}
+\newcommand{\cl}[1]{\ensuremath{\mathcal{#1}}}
+\newcommand{\suppsize}[1]{\ensuremath{|\mathcal{#1}|}}
+\newcommand{\vect}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\matr}[1]{\ensuremath{\mathbf{#1}}}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{mathrsfs}
+
+\providecommand\Laplacian{\nabla^2}
+\providecommand\bnabla{\boldsymbol{\nabla}}
+\providecommand\bcdot{\boldsymbol{\cdot}}
+\providecommand\bv{\boldsymbol{v}}
+\providecommand\bV{\boldsymbol{V}}
+\providecommand\be{\boldsymbol{\hat{e}}}
+\providecommand\bn{\boldsymbol{\hat{n}}}
+\providecommand\bk{\boldsymbol{\hat{k}}}
+\providecommand\bj{\boldsymbol{j}}
+\providecommand\bi{\boldsymbol{i}}
+\providecommand\bI{\boldsymbol{I}}
+\providecommand\bJ{\boldsymbol{J}}
+\providecommand\bx{\boldsymbol{x}}
+\providecommand\bzero{\boldsymbol{0}}
+
+\providecommand\tI{\mathsf{I}}
+\providecommand\tS{\mathsfbi{S}}
+\providecommand\unit{\boldsymbol{\hat{\imath}}}
+
+\providecommand\dd{\mathrm{d}}
+\providecommand\ee{\mathrm{e}}
+
+\setlength{\textheight}{8.7in}
+\setlength{\columnsep}{2.0pc}
+\setlength{\textwidth}{6.6in}
+% \setlength{\footheight}{0.2in}
+\setlength{\topmargin}{0.05in}
+\setlength{\headheight}{0.2in}
+\setlength{\headsep}{0.1in}
+\setlength{\evensidemargin}{0in}
+\setlength{\oddsidemargin}{0in}
+% \setlength{\parindent}{1pc} 
+\setlength{\parindent}{0.0 in}
+\setlength{\parskip}{0.1 in} 
+\title{Notes on numerical methods for PDEs}
+\author{Roman Zeyde}
+
+\begin{document}
+\maketitle
+\section{PDEs}
+\subsection{Laplace equation (follows from Gauss' law)}
+The electric potential satisfies the elliptic equation
+\begin{equation}
+	\bnabla \bcdot (C \bnabla \varPhi) = 0; \label{Phi eqn}
+\end{equation}
+$C$ is salt concentration, playing the role of $\eps$, 
+in Maxwell's equation (where $\vect{E} = -\bnabla \varPhi$):
+\begin{equation}
+\bnabla \bcdot \eps \vect{E} = \rho_{free}
+\end{equation} 
+
+We assume regular grid $\{(x_i, y_j)\}$,
+where $i\in\{0 \ldots n\}$ and $j\in\{0 \ldots m\}$. The maximal and the
+minimal index' values correspond to the boundary of the problem.
+
+We express the differential operator as:
+\begin{equation}
+C_{i+1/2,j} \cdot \frac{\varPhi_{i+1,j}-\varPhi_{i,j}}{x_{i+1}-x_{i}} - 
+C_{i-1/2,j} \cdot \frac{\varPhi_{i,j}-\varPhi_{i-1,j}}{x_{i}-x_{i-1}} +
+C_{i,j+1/2} \cdot \frac{\varPhi_{i,j+1}-\varPhi_{i,j}}{y_{i+1}-y_{i}} - 
+C_{i,j-1/2} \cdot \frac{\varPhi_{i,j}-\varPhi_{i,j-1}}{y_{i}-y_{i-1}}
+\end{equation}
+where $C_{i\pm 1/2,j} = (C_{i,j} + C_{i\pm 1,j})/2$ and 
+$C_{i,j\pm 1/2} = (C_{i,j} + C_{i,j\pm 1})/2$.
+\subsection{Diffusion--advection equation}
+The salt concentration $C$ is governed by the 
+\begin{equation}
+	\Laplacian C  = \alpha \, \bV \bcdot \bnabla C ; \label{C eqn}
+\end{equation}
+\section{Iterative solver}
+\end{document}
