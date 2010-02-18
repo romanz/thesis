@@ -92,21 +92,32 @@ in Maxwell's equation (where $\vect{E} = -\bnabla \varPhi$):
 
 We assume regular grid $\{(x_i, y_j)\}$,
 where $i\in\{0 \ldots n\}$ and $j\in\{0 \ldots m\}$. The maximal and the
-minimal index' values correspond to the boundary of the problem.
+minimal indices' values correspond to the boundary of the problem.
 
-We express the differential operator as:
-\begin{equation}
+We approximate the differential operator as:
+\begin{eqnarray}
+\bnabla \bcdot (C \bnabla \varPhi) 
+&\approx &\frac{2}{x_{i+1,j} - x_{i-1,j}} \left(
 C_{i+1/2,j} \cdot \frac{\varPhi_{i+1,j}-\varPhi_{i,j}}{x_{i+1}-x_{i}} - 
-C_{i-1/2,j} \cdot \frac{\varPhi_{i,j}-\varPhi_{i-1,j}}{x_{i}-x_{i-1}} +
-C_{i,j+1/2} \cdot \frac{\varPhi_{i,j+1}-\varPhi_{i,j}}{y_{i+1}-y_{i}} - 
+C_{i-1/2,j} \cdot \frac{\varPhi_{i,j}-\varPhi_{i-1,j}}{x_{i}-x_{i-1}}
+\right) + \\
+&&\frac{2}{y_{i,j+1} - y_{i,j-1}} \left(C_{i,j+1/2} \cdot \frac{\varPhi_{i,j+1}-\varPhi_{i,j}}{y_{i+1}-y_{i}} - 
 C_{i,j-1/2} \cdot \frac{\varPhi_{i,j}-\varPhi_{i,j-1}}{y_{i}-y_{i-1}}
-\end{equation}
+\right)
+\end{eqnarray}
 where $C_{i\pm 1/2,j} = (C_{i,j} + C_{i\pm 1,j})/2$ and 
 $C_{i,j\pm 1/2} = (C_{i,j} + C_{i,j\pm 1})/2$.
-\subsection{Diffusion--advection equation}
-The salt concentration $C$ is governed by the 
-\begin{equation}
-	\Laplacian C  = \alpha \, \bV \bcdot \bnabla C ; \label{C eqn}
-\end{equation}
-\section{Iterative solver}
+
+The algebraic system above can be written as $\matr{A} \vect{v} = \vect{f}$, 
+where $\matr{A}$ depends on the grid and current $C$ values. 
+$\vect{f}$ can be chosen to be any function, which is useful for testing the solver.
+We initialize $\vect{v}$ to any function, and employ Jacobi iterations 
+(by writing $\matr{A} = \matr{D} + \matr{T}$, where $\matr{D}$ is diagonal):
+\begin{eqnarray}
+\vect{f} &=& \matr{A}\vect{v} = \matr{D}\vect{v} + \matr{T}\vect{v} \\
+\matr{D}\vect{v} &=& \vect{f} - \matr{T}\vect{v} = \vect{f} - \matr{A}\vect{v} + \matr{D}\vect{v} \\
+\vect{v}' &=& \vect{v} + \matr{D}^{-1}(\vect{f} - \matr{A}\vect{v})
+\end{eqnarray}
+
+%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
