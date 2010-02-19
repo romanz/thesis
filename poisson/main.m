@@ -3,8 +3,8 @@
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
 
 % Create grid for the solver.
-x = linspace(-1, 1, 1+2^5); 
-y = linspace(-1, 1, 1+2^5); 
+x = logspace(0, 1, 1+2^5); 
+y = linspace(1, 10, 1+2^5); 
 
 % We use NDGRID convention (X is 1st, Y is 2nd)
 [X, Y] = ndgrid(x, y);
@@ -14,9 +14,9 @@ sz = [numel(x) numel(y)];
 % - U is the function itself (for boundary conditions).
 % - L is the Laplacian of F.
 % It is useful for solver's verification.
-U = @(X, Y) 0*X  +   (X.^2 + Y.^2) - 1;
-L = @(X, Y) 0*X  +   4;
-C = @(X, Y) 0*X  +   1;
+U = @(X, Y) zeros(sz)  +   X + 2*Y;
+L = @(X, Y) zeros(sz)  +   10;
+C = @(X, Y) zeros(sz)  +   4*X + 3*Y;
 
 % We actually solve the linear system: Av = f
 fprintf('Compute Laplacian operator... '); tic;
