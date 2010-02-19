@@ -23,7 +23,7 @@ for k = K(:).'
         j = j + [ 0; 0; 0];    
         m = sub2ind(sz, i, j);
         x = X(m);
-        x = P * x; % [x3-x2; x1-x3; x2-x1]
+        x = P * x(:); % [x3-x2; x1-x3; x2-x1]
         x = x / prod(x);
         A(k, m) = A(k, m) + x.';
     end
@@ -34,7 +34,7 @@ for k = K(:).'
         j = j + [-1; 0; 1];
         m = sub2ind(sz, i, j);
         y = Y(m);
-        y = P * y; % [y3-y2; y1-y3; y2-y1]
+        y = P * y(:); % [y3-y2; y1-y3; y2-y1]
         y = y / prod(y);
         A(k, m) = A(k, m) + y.';
     end
