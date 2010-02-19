@@ -3,14 +3,14 @@
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
 
 % Create grid for solver
-sz = 1+[2.^4, 2.^5]; % We use NDGRID convention (X is 1st, Y is 2nd)
+sz = 1+[2.^4, 2.^4]; % We use NDGRID convention (X is 1st, Y is 2nd)
 [X, Y] = ndgrid( linspace(-1, 1, sz(1)), linspace(-1, 1, sz(2)) );
 
 % Create solutions for the specific diff. eq. instance.
 % - U is the function itself (for boundary conditions).
 % - L is the Laplacian of F.
 % It is useful for solver's verification.
-U = @(X, Y) 0*X  +   X.^3 .* Y - X .* Y.^3;
+U = @(X, Y) 0*X  +   X.^3 .* Y - X .* Y.^3 + 0.5;
 L = @(X, Y) 0*X;
 
 % We actually solve the linear system: Av = f
@@ -21,7 +21,7 @@ Vi = V0; % Initial guess.
 Vi(I) = 0; % "Fill" the interior with initial guess
 F = L(X, Y); % right hand side of the equation
 fprintf('Apply Jacobi solver... '); tic;
-Vf = jacobi(A, Vi, F, 10000); fprintf('(%.3fs)\n', toc);
+Vf = jacobi(A, Vi, F, 5000); fprintf('(%.3fs)\n', toc);
 
 %% Show results
 subplot 121; 
