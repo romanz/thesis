@@ -1,4 +1,4 @@
-function [A, I] = laplacian(X, Y, sz)
+function [A, I] = laplacian(X, Y, C, sz)
 %% Laplacian discretization using sparse matrix
 N = prod(sz);
 I = true(sz);
@@ -13,30 +13,25 @@ if sz(2) > 1
 end
 
 K = find(I); % Fill only interior points
-A = spalloc(N, N, 5*N); % Preallocate sparse matrix.
-P = [0 -1 1; 1 0 -1; -1 1 0]; % Used for interpolation
+% Preallocate sparse matrices:
+Dxx = spalloc(N, N, 3*N); 
+Dyy = spalloc(N, N, 3*N); 
+
 % For each interior point - compute its row in A
 for k = K(:).'
-    if sz(1) > 1
-        [i, j] = ind2sub(sz, k);
-        i = i + [-1; 0; 1];
-        j = j + [ 0; 0; 0];    
-        m = sub2ind(sz, i, j);
-        x = X(m);
-        x = P * x(:); % [x3-x2; x1-x3; x2-x1]
-        x = x / prod(x);
-        A(k, m) = A(k, m) + x.';
+    [i, j] = ind2sub(sz, k);
+    if sz(1) > 1 % apply X derivative
+        Dxx(k, sub2ind(sz, i+[1;0;-1], j+[0;0;0])) = ...
+            ((C(i+1, j) + C(i, j)) * [1;-1; 0] / (X(i+1, j) - X(i, j)) - ...
+             (C(i, j) + C(i-1, j)) * [0; 1;-1] / (X(i, j) - X(i-1, j))) / ...
+             (X(i+1, j) - X(i-1, j));
     end
 
-    if sz(2) > 1
-        [i, j] = ind2sub(sz, k);
-        i = i + [ 0; 0; 0];
-        j = j + [-1; 0; 1];
-        m = sub2ind(sz, i, j);
-        y = Y(m);
-        y = P * y(:); % [y3-y2; y1-y3; y2-y1]
-        y = y / prod(y);
-        A(k, m) = A(k, m) + y.';
+    if sz(2) > 1 % apply Y derivative
+        Dyy(k, sub2ind(sz, i+[0;0;0], j+[1;0;-1])) = ...
+            ((C(i, j+1) + C(i, j)) * [1;-1; 0] / (Y(i, j+1) - Y(i, j)) - ...
+             (C(i, j) + C(i, j-1)) * [0; 1;-1] / (Y(i, j) - Y(i, j-1))) / ...
+             (Y(i, j+1) - Y(i, j-1));
     end
 end
-A = -2*A; % Fix missing factor and sign-reverse.
+A = Dxx + Dyy;
