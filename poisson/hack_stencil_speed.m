@@ -28,14 +28,16 @@ V1 = V;
 
 % Sparse
 sz = [N N];
-A = spalloc(N*N, N*N, 5*N);
+S = 5;
 V = V0;
-for i = 1:N-2
-    for j = 1:N-2
-        P = sub2ind(sz, i + [-1 0 0 0 1] + 1, j + [0 -1 0 1 0] + 1);
-        A(sub2ind(sz, i + 1, j + 1), P) = [H4(i, j) H2(i, j) H1(i, j) H3(i, j) H5(i, j)];
-    end
-end
+[I, J] = ndgrid(1:N-2, 1:N-2);
+I = I(:); J = J(:);
+P = sub2ind(sz, ...
+    repmat(I, [1 S]) + repmat([-1 0 0 0 1], size(I)) + 1, ...
+    repmat(J, [1 S]) + repmat([0 -1 0 1 0], size(J)) + 1);
+K = sub2ind(sz, repmat(I, [1 S]) + 1, repmat(J, [1 S]) + 1);
+H = [H4(:) H2(:) H1(:) H3(:) H5(:)];
+A = sparse(K(:), P(:), H(:), N*N, N*N);
 I = any(A, 2);
 A = A(I, :);
 V = V(:);
