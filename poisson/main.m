@@ -6,7 +6,7 @@
 x = logspace( -1, 0, 1+2^6); 
 y = linspace(0.1, 1, 1+2^5); 
 % # of iterations
-T = 20000;
+T = 5000;
 
 % We use NDGRID convention (X is 1st, Y is 2nd)
 [X, Y] = ndgrid(x, y);
@@ -28,8 +28,8 @@ Vi = V0; % Initial guess.
 Vi(I) = 0; % "Fill" the interior with initial guess
 
 F = L(X, Y); % right hand side of the equation
-fprintf('Apply Jacobi solver... '); tic;
-Vf = jacobi(A, Vi, F, I, T); fprintf('(%.3fs)\n', toc);
+fprintf('Apply iterative solver... '); tic;
+Vf = jacobi(A, Vi, F, I, T, 'redblack'); fprintf('(%.3fs)\n', toc);
 
 % Save and show the results.
 mat_file = 'results.mat';
