@@ -1,25 +1,25 @@
-function [v] = jacobi(A, v, f, T)
+function [v] = jacobi(A, v, f, interior, T)
 %% Jacobi iteration:
 % Av = (D+T)v = f
 % Dv = f-Tv = (f - Av) + Dv
-% v' = v + D^{-1} (f - Av)
-I = any(A, 2); % the interior of the grid (has non-zero on its row).
-d = diag(A);
+% J := D^{-1}
+% v' = v + J (f - Av) = (I - JA)v + Jf = Rv + d
+D = diag(A);
+f = f(interior); % Restrict RHS.
+A = A(interior, :); % Restric operator.
 
-f = f(I); % Restrict RHS.
-A = A(I, :); % Restric operator.
+k = nnz(interior);
+J = sparse(1:k, 1:k, 1 ./ D(interior)); % Restrict the inverse.
 
-k = nnz(I); % # of the interior points in the grid.
-R = sparse(1:k, 1:k, 1 ./ d(I)); % Restrict the inverse.
+R = speye(size(A, 2));
+R = R(interior, :) - J * A;
+d = J * f;
 
 % Keep the original size and convert to column vectors:
 sz = size(v); 
 v = v(:);
 f = f(:);
 for t = 1:T
-    Av = A*v; % Apply A on v.
-    r = f - Av; % Compute residual.
-    dv = R * r; % Compute an update.
-    v(I) = v(I) + dv; % Update v's interior.
+    v(interior) = R * v + d; % Update v's interior.
 end
 v = reshape(v, sz);
