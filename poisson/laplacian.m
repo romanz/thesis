@@ -1,37 +1,46 @@
-function [A, I] = laplacian(X, Y, C, sz)
+function [A, interior] = laplacian(X, Y, C, sz)
 %% Laplacian discretization using sparse matrix
 N = prod(sz);
-I = true(sz);
+interior = true(sz);
 % Compute interior points' indices (special handling of 1D)
 if sz(1) > 1
-    I(1, :) = false; 
-    I(end, :) = false; 
+    interior(1, :) = false; 
+    interior(end, :) = false; 
 end
 if sz(2) > 1
-    I(:, 1) = false; 
-    I(:, end) = false; 
+    interior(:, 1) = false; 
+    interior(:, end) = false; 
 end
+ind = @(I, J) sub2ind(sz, I, J);
+K = find(interior); % Fill only interior points
+K = K(:);
+[I, J] = ind2sub(sz, K);
 
-K = find(I); % Fill only interior points
-% Preallocate sparse matrices:
-Dxx = spalloc(N, N, 3*N); 
-Dyy = spalloc(N, N, 3*N); 
+Kr = ind(I+1, J);
+Kl = ind(I-1, J);
+Ku = ind(I, J+1);
+Kd = ind(I, J-1);
 
-% For each interior point - compute its row in A
-for k = K(:).'
-    [i, j] = ind2sub(sz, k);
-    if sz(1) > 1 % apply X derivative
-        Dxx(k, sub2ind(sz, i+[1;0;-1], j+[0;0;0])) = ...
-            ((C(i+1, j) + C(i, j)) * [1;-1; 0] / (X(i+1, j) - X(i, j)) - ...
-             (C(i, j) + C(i-1, j)) * [0; 1;-1] / (X(i, j) - X(i-1, j))) / ...
-             (X(i+1, j) - X(i-1, j));
-    end
+% Build Laplacian sparse matrix:
+Dxx = ...
+ ( C(Kr) + C(K) ) ./ (( X(Kr) - X(K) ).*( X(Kr) - X(Kl) )) * [1 -1 0] -  ...
+ ( C(K) + C(Kl) ) ./ (( X(K) - X(Kl) ).*( X(Kr) - X(Kl) )) * [0 1 -1];
 
-    if sz(2) > 1 % apply Y derivative
-        Dyy(k, sub2ind(sz, i+[0;0;0], j+[1;0;-1])) = ...
-            ((C(i, j+1) + C(i, j)) * [1;-1; 0] / (Y(i, j+1) - Y(i, j)) - ...
-             (C(i, j) + C(i, j-1)) * [0; 1;-1] / (Y(i, j) - Y(i, j-1))) / ...
-             (Y(i, j+1) - Y(i, j-1));
-    end
-end
+Dyy = ...
+ ( C(Ku) + C(K) ) ./ (( Y(Ku) - Y(K) ).*( Y(Ku) - Y(Kd) )) * [1 -1 0] -  ...
+ ( C(K) + C(Kd) ) ./ (( Y(K) - Y(Kd) ).*( Y(Ku) - Y(Kd) )) * [0 1 -1];
+
+
+D = repmat([1 0 -1], [numel(K) 1]);
+I = repmat(I, [1 3]);
+J = repmat(J, [1 3]);
+K = repmat(K, [1 3]);
+
+P = ind(I + D, J);
+Dxx = sparse(K, P, Dxx, N, N);
+
+P = ind(I, J + D);
+Dyy = sparse(K, P, Dyy, N, N);
+
 A = Dxx + Dyy;
+% full(A) 
