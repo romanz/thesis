@@ -1,4 +1,3 @@
-function main(x, y, T)
 %% Simulate and solve Poisson Equation on a 2D grid using Relaxation
 % The equation to solve is: Laplacian(u) = f.
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
