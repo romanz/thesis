@@ -3,8 +3,8 @@
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
 
 % Create grid for the solver.
-x = logspace(0, 1, 1+2^5); 
-y = linspace(1, 10, 1+2^5); 
+x = linspace(-1, 1, 1+2^4) / 2; 
+y = linspace(-1, 1, 1+2^4) / 2; 
 
 % We use NDGRID convention (X is 1st, Y is 2nd)
 [X, Y] = ndgrid(x, y);
@@ -14,9 +14,13 @@ sz = [numel(x) numel(y)];
 % - U is the function itself (for boundary conditions).
 % - L is the Laplacian of F.
 % It is useful for solver's verification.
-U = @(X, Y) zeros(sz)  +   X + 2*Y;
-L = @(X, Y) zeros(sz)  +   10;
-C = @(X, Y) zeros(sz)  +   4*X + 3*Y;
+XY = X .* Y;
+U = @(X, Y) zeros(sz)  +   exp(X) + sin(Y);
+C = @(X, Y) zeros(sz)  +   cos(XY);
+L = @(X, Y) zeros(sz)  +   exp(X) .* (cos(XY) - Y.*sin(XY)) ...
+                          - sin(Y) .* cos(XY) - X .* cos(Y) .* sin(XY);
+% # of iterations
+T = 10000;
 
 % We actually solve the linear system: Av = f
 fprintf('Compute Laplacian operator... '); tic;
@@ -24,9 +28,12 @@ fprintf('Compute Laplacian operator... '); tic;
 V0 = U(X, Y); % The ideal solution (for boundary condition)
 Vi = V0; % Initial guess.
 Vi(I) = 0; % "Fill" the interior with initial guess
+
 F = L(X, Y); % right hand side of the equation
 fprintf('Apply Jacobi solver... '); tic;
-Vf = jacobi(A, Vi, F, 10e3); fprintf('(%.3fs)\n', toc);
+Vf = jacobi(A, Vi, F, I, T); fprintf('(%.3fs)\n', toc);
 
-% Show the results
-show(X, Y, Vf, V0)
+% Save and show the results.
+mat_file = 'results.mat';
+save(mat_file)
+show(mat_file)
