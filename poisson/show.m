@@ -1,22 +1,22 @@
-function show(X, Y, Vf, V0)
+function show(mat_file)
 %% Show solver's results
-sz = size(Vf);
+load(mat_file)
+
 subplot 121; 
-if sz(1) > 1 && sz(2) > 1
-    mesh(X, Y, Vf); 
-    xlabel('X'); 
-    ylabel('Y'); 
-else
-    plot([X(:) Y(:)] * (sz.' > 1), Vf(:)); % 1D plot hack
-end
-title('Solution'); 
+mesh_plot(X, Y, Vf, sprintf('Solution (%d iterations)', T));
 
 subplot 122; 
 E = V0 - Vf;
+e = norm(E(:), inf);
+mesh_plot(X, Y, E, sprintf('Error (L_\\infty = %.2e)', e))
+
+function mesh_plot(X, Y, Z, t)
+sz = size(Z).';
 if sz(1) > 1 && sz(2) > 1
-    mesh(X, Y, E);  xlabel('X'); ylabel('Y');
+    mesh(X, Y, Z);  
+    xlabel('X'); 
+    ylabel('Y');
 else
-    plot([X(:) Y(:)] * (sz.' > 1), E(:)); % 1D plot hack
+    plot([X(:) Y(:)] * (sz > 1), Z(:)); % 1D plot hack
 end
-E = abs(E(:));
-title(sprintf('Error (L_\\infty = %.2e)', max(E)))
+title(t);
