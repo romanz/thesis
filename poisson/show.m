@@ -1,4 +1,4 @@
-function show(mat_file)
+function [e] = show(mat_file)
 %% Show solver's results
 load(mat_file)
 
