@@ -3,8 +3,8 @@
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
 
 % Create grid for the solver.
-x = logspace( -1, 0, 1+2^5); 
-y = linspace(0.1, 1, 1+2^4); 
+x = logspace( -1, 0, 1+2^6); 
+y = linspace(0.1, 1, 1+2^5); 
 % # of iterations
 T = 20000;
 
@@ -17,8 +17,8 @@ sz = [numel(x) numel(y)];
 % - L is the Laplacian of F.
 % It is useful for solver's verification.
 U = @(X, Y) zeros(sz)  +   sin(X) + cos(Y);
-C = @(X, Y) zeros(sz)  +   exp(X + Y);
-L = @(X, Y) zeros(sz)  +   -exp(X + Y) .* (sin(X) - cos(X) + cos(Y) + sin(Y));
+C = @(X, Y) zeros(sz)  +   exp(X - Y);
+L = @(X, Y) zeros(sz)  +   -exp(X - Y) .* (sin(X) - cos(X) + cos(Y) - sin(Y));
 
 % We actually solve the linear system: Av = f
 fprintf('Compute Laplacian operator... '); tic;
