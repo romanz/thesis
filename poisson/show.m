@@ -8,7 +8,7 @@ mesh_plot(X, Y, Vf, sprintf('Solution (%d iterations)', T));
 subplot 122; 
 E = V0 - Vf;
 e = norm(E(:), inf);
-mesh_plot(X, Y, E, sprintf('Error (L_\\infty = %.2e)', e))
+mesh_plot(X, Y, E, sprintf('Error (L_\\infty = %.3e)', e))
 
 function mesh_plot(X, Y, Z, t)
 sz = size(Z).';
