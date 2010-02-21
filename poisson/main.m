@@ -3,10 +3,11 @@
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
 
 % Create grid for the solver.
-x = logspace( -1, 0, 1+2^6); 
-y = linspace(0.1, 1, 1+2^5); 
+m = 6;
+x = logspace( -1, 0, 1+2^m*2); 
+y = linspace(0.1, 1, 1+2^m); 
 % # of iterations
-T = 5000;
+T = 25e3;
 
 % We use NDGRID convention (X is 1st, Y is 2nd)
 [X, Y] = ndgrid(x, y);
