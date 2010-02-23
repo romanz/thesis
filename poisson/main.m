@@ -32,8 +32,12 @@ Vi = V0; % Initial guess.
 Vi(I) = 0; % "Fill" the interior with initial guess
 
 F = L(X, Y); % right hand side of the equation
-fprintf('Apply iterative %s solver... ', type); tic;
-Vf = jacobi(A, Vi, F, I, T, type); fprintf('(%.3fs)\n', toc);
+fprintf('Construct iterative %s solver... ', type); tic;
+[C, d] = jacobi(A, Vi, F, I); fprintf('(%.3fs)\n', toc);
+
+fprintf('Apply %d iterations... ', T); tic;
+[Vf] = iterate(Vi, C, d, T, type); fprintf('(%.3fs)\n', toc);
+
 
 % Save and show the results.
 mat_file = 'results.mat';
