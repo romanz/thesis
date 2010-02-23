@@ -9,7 +9,8 @@ x = logspace( -1, 0, 1+2^m*2);
 y = linspace(0.1, 1, 1+2^m); 
 % # of iterations
 T = 12e3;
-type = 'RedBlack';
+% type = 'RedBlack';
+type = 'Jacobi';
 
 % We use NDGRID convention (X is 1st, Y is 2nd)
 [X, Y] = ndgrid(x, y);
