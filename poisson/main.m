@@ -1,13 +1,15 @@
+function main
 %% Simulate and solve Poisson Equation on a 2D grid using Relaxation
 % The equation to solve is: Laplacian(u) = f.
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
 
 % Create grid for the solver.
-m = 6;
+m = 5;
 x = logspace( -1, 0, 1+2^m*2); 
 y = linspace(0.1, 1, 1+2^m); 
 % # of iterations
-T = 25e3;
+T = 12e3;
+type = 'RedBlack';
 
 % We use NDGRID convention (X is 1st, Y is 2nd)
 [X, Y] = ndgrid(x, y);
@@ -29,8 +31,8 @@ Vi = V0; % Initial guess.
 Vi(I) = 0; % "Fill" the interior with initial guess
 
 F = L(X, Y); % right hand side of the equation
-fprintf('Apply iterative solver... '); tic;
-Vf = jacobi(A, Vi, F, I, T, 'redblack'); fprintf('(%.3fs)\n', toc);
+fprintf('Apply iterative %s solver... ', type); tic;
+Vf = jacobi(A, Vi, F, I, T, type); fprintf('(%.3fs)\n', toc);
 
 % Save and show the results.
 mat_file = 'results.mat';

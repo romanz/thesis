@@ -23,7 +23,7 @@ v = v(:);
 if nargin < 6
     type = ''; % Use plain Jacobi iteration.
 end
-if strcmp(type, 'redblack')
+if strcmpi(type, 'redblack')
     % Prepare Checkerboard pattern
     P = cumsum(ones(sz), 1) + cumsum(ones(sz), 2);
     P = logical(mod(P(:), 2)); 
@@ -36,7 +36,7 @@ if strcmp(type, 'redblack')
     C_black = C(black(interior), :);
     d_black = d(black(interior));
     % Iterate:
-    for t = 1:T
+    for t = 1:T/2
         v(red) = C_red * v + d_red; % Update v's red interior.
         v(black) = C_black * v + d_black; % Update v's black interior.
     end
