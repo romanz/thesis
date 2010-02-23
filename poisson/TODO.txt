@@ -14,3 +14,24 @@ Non-uniform grid - OK for 2nd order poly.
 * Verify 2nd order convergence
 
 
+23/02/2010
+
+Symmetry: The effect of Ui in eq. #j is the same as Uj in eq. #i.
+If the grid is non-uniform, we should pre-multiply with D from left: [DAv = Df]
+Each equation must be rescaled by (x_{i+1} - x_{i-1})(y_{j+1} - y_{j-1}).
+Renaming:
+ T -> iters
+ v -> u
+ A-D -> C/E
+ J -> Dinv
+ R -> S/M
+ Dxx + Dyy -> stencil
+Explain ind2sub() and stencil creation.
+Compute residual with vector norm L2 and semilogy()
+MPE/RRE
+Eliminate boundary conditions from Laplacian.
+Move non-homogenous boundary conditions to RHS
+Keep the diagonal correct (for Jacobi iteration).
+
+Try extend to MG.
+Add diffusion-convection equation for C(x,y).
