@@ -1,4 +1,4 @@
-function v = iterate(v, C, d, iters, type)
+function [v, residuals] = iterate(v, C, d, iters, type)
 % Apply an iterative scheme to solve v' = Cv + d.
 
 if nargin < 4
@@ -8,7 +8,7 @@ end
 % Keep the original size and convert to column vector:
 sz = size(v); 
 v = v(:);
-
+residuals = zeros(iters, 1);
 if strcmpi(type, 'redblack')
     % Prepare Checkerboard pattern
     P = cumsum(ones(sz), 1) + cumsum(ones(sz), 2);
@@ -22,13 +22,17 @@ if strcmpi(type, 'redblack')
     C_black = C(black, :);
     d_black = d(black);
     % Iterate:
-    for t = 1:iters/2
+    for iter = 1:iters
+        v_old = v;
         v(red) = C_red * v + d_red; % Update v's red interior.
         v(black) = C_black * v + d_black; % Update v's black interior.
+        residuals(iter) = norm(v - v_old);        
     end
 else
-    for t = 1:iters
+    for iter = 1:iters
+        v_old = v;
         v = C * v + d; % Update v's interior.
+        residuals(iter) = norm(v - v_old);        
     end
 end
 v = reshape(v, sz);
