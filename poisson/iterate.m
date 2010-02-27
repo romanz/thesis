@@ -1,4 +1,4 @@
-function v = iterate(v, C, d, T, type)
+function v = iterate(v, C, d, iters, type)
 % Apply an iterative scheme to solve v' = Cv + d.
 
 if nargin < 4
@@ -22,12 +22,12 @@ if strcmpi(type, 'redblack')
     C_black = C(black, :);
     d_black = d(black);
     % Iterate:
-    for t = 1:T/2
+    for t = 1:iters/2
         v(red) = C_red * v + d_red; % Update v's red interior.
         v(black) = C_black * v + d_black; % Update v's black interior.
     end
 else
-    for t = 1:T
+    for t = 1:iters
         v = C * v + d; % Update v's interior.
     end
 end

@@ -3,7 +3,7 @@ function [e] = show(mat_file)
 load(mat_file)
 
 subplot 121; 
-visualize(X, Y, Vf, sprintf('Solution (%d iterations)', T));
+visualize(X, Y, Vf, sprintf('Solution (%d iterations)', iters));
 
 subplot 122; 
 E = V0 - Vf;
@@ -17,6 +17,6 @@ if sz(1) > 1 && sz(2) > 1
     xlabel('X'); 
     ylabel('Y');
 else
-    plot([X(:) Y(:)] * (sz > 1), Z(:)); % 1D plot hack
+    plot([X(:) Y(:)] * (sz > 1), Z(:), '-'); % 1D plot hack
 end
 title(t);
