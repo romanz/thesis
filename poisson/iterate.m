@@ -18,9 +18,9 @@ if strcmpi(type, 'redblack')
     black = ~P;
     % Split {C,d} into their red and black version:
     C_red = C(red, :);
-    d_red = d(red);    
+    d_red = d(red, :);    
     C_black = C(black, :);
-    d_black = d(black);
+    d_black = d(black, :);
     % Iterate:
     for iter = 1:iters
         v_old = v;
