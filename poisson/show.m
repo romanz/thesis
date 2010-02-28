@@ -14,7 +14,9 @@ visualize(X, Y, E, sprintf('Error (L_\\infty = %.3e)', e))
 
 subplot 133; 
 semilogy(1:iters, residuals);
-title('Residual L_2 norm'); xlabel('Iteration #');
+stop_iter = find(residuals, 1, 'last');
+title(sprintf('Residual L_2 norm\n(after %d iterations)', stop_iter)); 
+xlabel('Iteration #');
 
 function visualize(X, Y, Z, t)
 sz = size(Z).';
