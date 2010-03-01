@@ -27,8 +27,7 @@ L = @(X, Y) zeros(sz)  +   -exp(X - Y) .* (sin(X) - cos(X) - cos(Y) + sin(Y));
 
 % We actually solve the linear system: Av = f
 fprintf('Compute Laplacian operator... '); tic;
-[A, I] = laplacian(sz, X, Y, C(X, Y));
-F = L(X, Y); % Right-hand side
+[A, F, I] = laplacian(sz, X, Y, C(X, Y), L(X, Y));
 V0 = U(X, Y); % The ideal solution (for boundary condition)
 [A, F] = boundary(A, F, ~I, V0(~I));
 A = A(I, I); F = F(I);
