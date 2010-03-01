@@ -1,4 +1,4 @@
-function [A, F] = boundary(A, F, J, V)
+function [A, F] = boundary_dirichlet(A, F, J, V)
 if islogical(J)
     J = find(J);
 end
