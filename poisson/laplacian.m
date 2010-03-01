@@ -26,11 +26,12 @@ if sz(1) > 1 % for X
      col(( C(K) + C(Kl) ) ./ (( X(K) - X(Kl) ))) * [0 1 -1];
     P = ind(Ip + Dp, Jp);
     Dxx = sparse(Kp, P, Dxx, N, N);
-    
+    % The denumerator is separated, for A to be symmetric
     P = ind(I, J);
-    F = reshape( sparse(P, P, (X(Kr) - X(Kl)), N, N) * F(:), size(F));
+    Mxx = sparse(P, P, (X(Kr) - X(Kl)), N, N);
 else
     Dxx = sparse(N, N);
+    Mxx = speye(N, N);
 end
 
 if sz(2) > 1 % for Y
@@ -41,11 +42,12 @@ if sz(2) > 1 % for Y
      col(( C(K) + C(Kd) ) ./ (( Y(K) - Y(Kd) ))) * [0 1 -1];
     P = ind(Ip, Jp + Dp);
     Dyy = sparse(Kp, P, Dyy, N, N);
-
+    % The denumerator is separated, for A to be symmetric
     P = ind(I, J);
-    F = reshape( sparse(P, P, ( Y(Ku) - Y(Kd)), N, N) * F(:), size(F));
+    Myy = sparse(P, P, (Y(Ku) - Y(Kd)), N, N);
 else
     Dyy = sparse(N, N);
+    Myy = speye(N, N);
 end
-
-A = Dxx + Dyy;
+A = Myy*Dxx + Mxx*Dyy;
+F = Mxx * Myy * F(:);

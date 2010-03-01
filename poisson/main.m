@@ -4,8 +4,8 @@ function main
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
 
 % Create grid for the solver.
-m = 6;
-x = linspace(0.1, 1, 1+2^m); 
+m = 4;
+x = logspace( -1, 0, 1+2^m); 
 y = logspace( -1, 0, 1+2^m*2); 
 
 % # of iterations
