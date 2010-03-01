@@ -46,4 +46,4 @@ fprintf('(%.3fs)\n', toc);
 mat_file = 'results.mat';
 save(mat_file)
 show(mat_file)
-% norm(A - A', 'fro')
+assert(nnz(A - A') == 0)
