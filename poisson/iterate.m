@@ -33,6 +33,7 @@ else
         v_old = v;
         v = C * v + d; % Update v's interior.
         residuals(iter) = norm(v - v_old);        
+        % CR: it's not really the residual.
     end
 end
 v = reshape(v, sz);

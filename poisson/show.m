@@ -1,6 +1,7 @@
 function [e] = show(mat_file)
 %% Show solver's results
 load(mat_file)
+V0 = U(X, Y); % The original continuous solution
 V = V0;
 V(I) = Vf;
 
