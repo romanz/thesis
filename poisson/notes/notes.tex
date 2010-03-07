@@ -120,5 +120,15 @@ We initialize $\vect{v}$ to any function, and employ Jacobi iterations
 (\matr{I} - \matr{D}^{-1}\matr{A}) \vect{v} + \matr{D}^{-1}\vect{f}
 \end{eqnarray}
 
+\subsection{Boundary conditions}
+Dirichlet $v_{i} = B_i$ are substituted into RHS.
+
+Neumann are used via quadratic approximation:
+\begin{eqnarray}
+  f(x) &=& ax^2 + bx + c \\
+  f(x_0 \pm \Delta x) &=& a(x_0 \pm \Delta x)^2 + b(x_0 \pm \Delta x) + c \\
+  \frac{f(x_0 + \Delta x) - f(x_0 - \Delta x)}{2\Delta x} &=& 2a x_0 + b = f'(x_0)
+\end{eqnarray}
+
 %%%%%%%%%%%%%%%%%%%%%%%
 \end{document} 

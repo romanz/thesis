@@ -1,7 +1,8 @@
 function [A, F] = boundary_dirichlet(A, F, J, X, Y, U)
-if islogical(J)
-    J = find(J);
-end
+% Substitute Dirichlet boundary conditions v(j) = U(X(j), Y(j)) 
+% into Av = f linear system, where U = @(X, Y) is a function handle
+% and J is logical boundary grid.
+J = find(J);
 for k = 1:numel(J)
     j = J(k); % variable #j (to be eliminated)
     u = U(X(j), Y(j)); % its value (as a boundary point)

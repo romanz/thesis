@@ -1,15 +1,23 @@
-function [A, F] = boundary_neumann(A, F, Jb, Ji, dV)
-if islogical(Jb)
-    Jb = find(Jb);
+function [A, F] = boundary_neumann(A, F, J, delta, X, Y, Ux, Uy)
+sz = size(J);
+J = find(J);
+for k = 1:numel(J)
+    % Jb - boundary variable (to be eliminated)
+    % Ji - interior variable, such that: U(Jb) - U(Ji) = dU
+    Jb = J(k);
+    Ji = shift_index(sz, Jb, -delta);
+    Xc = (X(Jb) + X(Ji))/2;
+    Yc = (Y(Jb) + Y(Ji))/2;
+    dU = Ux(Xc, Yc) .* (X(Jb) - X(Ji)) + ...
+         Uy(Xc, Yc) .* (Y(Jb) - Y(Ji));
+    I = find( A(:, Jb) ); % corresponding equations
+    F(I) = F(I) - A(I, Jb) * dU; % update RHS
+    A(I, Ji) = A(I, Ji) + A(I, Jb); % update LHS
+    A(I, Jb) = 0; % Eliminate this variable from A.
 end
-if islogical(Ji)
-    Ji = find(Ji);
-end
-for k = 1:numel(dV)
-    % Jb(k) - boundary variable (to be eliminated)
-    % Ji(k) - interior variable, such that: V(Jb(k)) - V(Ji(k)) = dV(k)
-    I = find( A(:, Jb(k)) ); % corresponding equations
-    F(I) = F(I) - A(I, Jb(k)) * dV(k); % update RHS
-    A(I, Ji(k)) = A(I, Ji(k)) + A(I, Jb(k)); % update LHS
-    A(I, Jb(k)) = 0; % Eliminate this variable from A.
-end
+
+function index = shift_index(sz, index, delta)
+[i, j] = ind2sub(sz, index);
+di = delta(1);
+dj = delta(2);
+index = sub2ind(sz, i + di, j + dj);
