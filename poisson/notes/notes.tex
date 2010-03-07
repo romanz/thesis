@@ -70,9 +70,9 @@
 \setlength{\headsep}{0.1in}
 \setlength{\evensidemargin}{0in}
 \setlength{\oddsidemargin}{0in}
-% \setlength{\parindent}{1pc} 
+% \setlength{\parindent}{1pc}
 \setlength{\parindent}{0.0 in}
-\setlength{\parskip}{0.1 in} 
+\setlength{\parskip}{0.1 in}
 \title{Notes on numerical methods for PDEs}
 \author{Roman Zeyde}
 
@@ -84,11 +84,11 @@ The electric potential satisfies the elliptic equation
 \begin{equation}
 	\bnabla \bcdot (C \bnabla \varPhi) = 0; \label{Phi eqn}
 \end{equation}
-$C$ is salt concentration, playing the role of $\eps$, 
+$C$ is salt concentration, playing the role of $\eps$,
 in Maxwell's equation (where $\vect{E} = -\bnabla \varPhi$):
 \begin{equation}
 \bnabla \bcdot \eps \vect{E} = \rho_{free}
-\end{equation} 
+\end{equation}
 
 We assume regular grid $\{(x_i, y_j)\}$,
 where $i\in\{0 \ldots n\}$ and $j\in\{0 \ldots m\}$. The maximal and the
@@ -96,28 +96,29 @@ minimal indices' values correspond to the boundary of the problem.
 
 We approximate the differential operator as:
 \begin{eqnarray}
-\bnabla \bcdot (C \bnabla \varPhi) 
+\left[ \bnabla \bcdot (C \bnabla \varPhi) \right]_{i,j}
 &\approx &\frac{2}{x_{i+1,j} - x_{i-1,j}} \left(
-C_{i+1/2,j} \cdot \frac{\varPhi_{i+1,j}-\varPhi_{i,j}}{x_{i+1}-x_{i}} - 
+C_{i+1/2,j} \cdot \frac{\varPhi_{i+1,j}-\varPhi_{i,j}}{x_{i+1}-x_{i}} -
 C_{i-1/2,j} \cdot \frac{\varPhi_{i,j}-\varPhi_{i-1,j}}{x_{i}-x_{i-1}}
 \right) + \\
-&&\frac{2}{y_{i,j+1} - y_{i,j-1}} \left(C_{i,j+1/2} \cdot \frac{\varPhi_{i,j+1}-\varPhi_{i,j}}{y_{i+1}-y_{i}} - 
+&&\frac{2}{y_{i,j+1} - y_{i,j-1}} \left(C_{i,j+1/2} \cdot \frac{\varPhi_{i,j+1}-\varPhi_{i,j}}{y_{i+1}-y_{i}} -
 C_{i,j-1/2} \cdot \frac{\varPhi_{i,j}-\varPhi_{i,j-1}}{y_{i}-y_{i-1}}
 \right)
 \end{eqnarray}
-where $C_{i\pm 1/2,j} = (C_{i,j} + C_{i\pm 1,j})/2$ and 
-$C_{i,j\pm 1/2} = (C_{i,j} + C_{i,j\pm 1})/2$.
+where $2C_{i\pm 1/2,j} = C_{i,j} + C_{i\pm 1,j}$ and
+$2C_{i,j\pm 1/2} = C_{i,j} + C_{i,j\pm 1}$.
 
-The algebraic system above can be written as $\matr{A} \vect{v} = \vect{f}$, 
-where $\matr{A}$ depends on the grid and current $C$ values. 
+The algebraic system above can be written as $\matr{A} \vect{v} = \vect{f}$,
+where $\matr{A}$ depends on the grid and current $C$ values.
 $\vect{f}$ can be chosen to be any function, which is useful for testing the solver.
-We initialize $\vect{v}$ to any function, and employ Jacobi iterations 
-(by writing $\matr{A} = \matr{D} + \matr{T}$, where $\matr{D}$ is diagonal):
+We initialize $\vect{v}$ to any function, and employ Jacobi iterations
+(by writing $\matr{A} = \matr{D} + (\matr{A-D})$, where $\matr{D}$ is diagonal):
 \begin{eqnarray}
-\vect{f} &=& \matr{A}\vect{v} = \matr{D}\vect{v} + \matr{T}\vect{v} \\
-\matr{D}\vect{v} &=& \vect{f} - \matr{T}\vect{v} = \vect{f} - \matr{A}\vect{v} + \matr{D}\vect{v} \\
-\vect{v}' &=& \vect{v} + \matr{D}^{-1}(\vect{f} - \matr{A}\vect{v})
+\vect{f} &=& \matr{A}\vect{v} = \matr{D}\vect{v} + (\matr{A-D})\vect{v} \\
+\matr{D}\vect{v} &=& \vect{f} - (\matr{A-D})\vect{v} = \vect{f} - \matr{A}\vect{v} + \matr{D}\vect{v} \\
+\vect{v}' &=& \vect{v} + \matr{D}^{-1}(\vect{f} - \matr{A}\vect{v}) = 
+(\matr{I} - \matr{D}^{-1}\matr{A}) \vect{v} + \matr{D}^{-1}\vect{f}
 \end{eqnarray}
 
 %%%%%%%%%%%%%%%%%%%%%%%
-\end{document}
+\end{document} 

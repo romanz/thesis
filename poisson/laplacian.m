@@ -33,6 +33,7 @@ else
     Dxx = sparse(N, N);
     Mxx = speye(N, N);
 end
+% Laplacian for X direction is (pinv(Mxx) * Dxx)
 
 if sz(2) > 1 % for Y
     Ku = ind(I, J+1); % Up
@@ -49,5 +50,8 @@ else
     Dyy = sparse(N, N);
     Myy = speye(N, N);
 end
-A = Myy*Dxx + Mxx*Dyy;
+% Laplacian for Y direction is (pinv(Myy) * Dyy)
+
+% pinv(Mxx) * Dxx + pinv(Myy) * Dyy = F
+A = Myy * Dxx + Mxx * Dyy;
 F = Mxx * Myy * F(:);

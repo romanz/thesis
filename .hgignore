@@ -3,3 +3,5 @@ syntax:glob
 *.dvi
 *.aux
 *.log
+*.bbl
+*.blg
