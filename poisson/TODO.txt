@@ -33,5 +33,6 @@ Eliminate boundary conditions from Laplacian.
 Move non-homogenous boundary conditions to RHS
 Keep the diagonal correct (for Jacobi iteration).
 
+Note that if A has non-constant diagonal, Dinv*A is not symmetric.
 Try extend to MG.
 Add diffusion-convection equation for C(x,y).
