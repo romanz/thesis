@@ -27,6 +27,7 @@ if sz(1) > 1 % for X
     P = ind(Ip + Dp, Jp);
     Dxx = sparse(Kp, P, Dxx, N, N);
     % The denumerator is separated, for A to be symmetric
+    % (since the original operator is self-adjoint).
     P = ind(I, J);
     Mxx = sparse(P, P, (X(Kr) - X(Kl)), N, N);
 else
@@ -44,6 +45,7 @@ if sz(2) > 1 % for Y
     P = ind(Ip, Jp + Dp);
     Dyy = sparse(Kp, P, Dyy, N, N);
     % The denumerator is separated, for A to be symmetric
+    % (since the original operator is self-adjoint).
     P = ind(I, J);
     Myy = sparse(P, P, (Y(Ku) - Y(Kd)), N, N);
 else
