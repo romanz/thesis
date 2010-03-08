@@ -16,8 +16,9 @@ function [x0, residuals] = extrapolate(x0, F, k, L, method)
     % Perform L cycles of extrapolation method
     residuals = zeros(L, 1);
     for t = 1:L
-        % Compute vectors (k+2)
+        % Compute (k+2) vectors, including x0
         Q(:, 1) = F( x0 );        
+        residuals(t) = norm(x0 - Q(:, 1), 2); 
         for i = 1:k 
             Q(:, i+1) = F( Q(:, i) );
         end
@@ -33,7 +34,6 @@ function [x0, residuals] = extrapolate(x0, F, k, L, method)
         xi = 1 - cumsum(gamma(1:k)); % s.t. x0' = x0 + U * xi
         eta = R(1:k, 1:k) * xi; % since U = Q * R
         x0 = x0 + Q(:, 1:k) * eta; % s.t. x0' = x0 + Q * R * xi
-        residuals(t) = norm(eta, 2); % = norm(x_new - x_old)
     end
 end
 
