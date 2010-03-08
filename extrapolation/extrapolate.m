@@ -1,10 +1,5 @@
 % Extrapolate iterative method F using specified method.
 % Use L cycles of k-order extrapolation, starting from x0.
-%
-% Roman Zeyde, Computer Science Department
-% Technion -- Israel Institute of Technology
-% romanz@cs.technion.ac.il
-
 function [x0, residuals] = extrapolate(x0, F, k, L, method)
     N = numel(x0);
     Q = zeros(N, k+1);

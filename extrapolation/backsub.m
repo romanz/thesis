@@ -1,11 +1,6 @@
 % BACKSUB Performs backsubstitution to solve Ax = b.
 %   x = BACKSUB(A, b), where A must be 
 %   lower/upper-diagonal matrix.
-%
-% Roman Zeyde, Computer Science Department
-% Technion -- Israel Institute of Technology
-% romanz@cs.technion.ac.il
-
 function x = backsub(A, b)
 
 N = numel(b);

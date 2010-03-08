@@ -1,9 +1,4 @@
 % Main simulation script
-%
-% Roman Zeyde, Computer Science Department
-% Technion -- Israel Institute of Technology
-% romanz@cs.technion.ac.il
-
 N = 1000; % Problem dimension
 T = sparse(N, N);
 T(sub2ind([N N], 1:N, 1:N))   = [5 repmat(6, [1 N-2]) 5];
