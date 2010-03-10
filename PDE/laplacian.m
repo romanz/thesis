@@ -14,9 +14,9 @@ K = K(:);
 Dp = repmat([1 0 -1], [numel(K) 1]);
 Ip = repmat(I, [1 3]);
 Jp = repmat(J, [1 3]);
-Kp = repmat(K, [1 3]);
+Kp = repmat(K, [1 3]); % interior variables' indices, for 1D Laplacian stencil
 
-% Build Laplacian sparse matrix:
+% Build 2D Laplacian sparse matrix:
 
 if sz(1) > 1 % for X
     Kr = ind(I+1, J); % Left
@@ -24,12 +24,11 @@ if sz(1) > 1 % for X
     Dxx = ... % Laplacian stencil in X direction
      col(( C(Kr) + C(K) ) ./ (( X(Kr) - X(K) ))) * [1 -1 0] -  ...
      col(( C(K) + C(Kl) ) ./ (( X(K) - X(Kl) ))) * [0 1 -1];
-    P = ind(Ip + Dp, Jp);
+    P = ind(Ip + Dp, Jp); % column indices
     Dxx = sparse(Kp, P, Dxx, N, N);
     % The denumerator is separated, for A to be symmetric
     % (since the original operator is self-adjoint).
-    P = ind(I, J);
-    Mxx = sparse(P, P, (X(Kr) - X(Kl)), N, N);
+    Mxx = sparse(K, K, (X(Kr) - X(Kl)), N, N);
 else
     Dxx = sparse(N, N);
     Mxx = speye(N, N);
@@ -42,12 +41,11 @@ if sz(2) > 1 % for Y
     Dyy = ... % Laplacian stencil in Y direction
      col(( C(Ku) + C(K) ) ./ (( Y(Ku) - Y(K) ))) * [1 -1 0] -  ...
      col(( C(K) + C(Kd) ) ./ (( Y(K) - Y(Kd) ))) * [0 1 -1];
-    P = ind(Ip, Jp + Dp);
+    P = ind(Ip, Jp + Dp); % column indices
     Dyy = sparse(Kp, P, Dyy, N, N);
     % The denumerator is separated, for A to be symmetric
     % (since the original operator is self-adjoint).
-    P = ind(I, J);
-    Myy = sparse(P, P, (Y(Ku) - Y(Kd)), N, N);
+    Myy = sparse(K, K, (Y(Ku) - Y(Kd)), N, N);
 else
     Dyy = sparse(N, N);
     Myy = speye(N, N);
