@@ -33,7 +33,10 @@ L = @(X, Y) -exp(X - Y) .* (sin(X) - cos(X) - cos(Y) + sin(Y));
 
 %% We actually solve the linear system: Av = f
 fprintf('Compute Laplacian on %d x %d grid... ', numel(x), numel(y)); tic;
-[A, f, I] = laplacian(sz, X, Y, C(X, Y), L(X, Y));
+[A, M, I] = laplacian(sz, X, Y, C(X, Y));
+f = L(X, Y); % Right-hand side of the equation
+f = M * f(:); % Multiply by preconditioner
+f = reshape(f, sz);
 
 % Add boundary conditions for X:
 if sz(1) > 1
@@ -62,7 +65,7 @@ assert(nnz(A(~I, :)) == 0);
 assert(nnz(A(:, ~I)) == 0); 
 % Verify that all entries are valid real numbers:
 assert(nnz(isnan(A) | isinf(A)) == 0)
-% Verify that the matrix is symmetric (since the original operator is self-adjoint):
+% Verify that the matrix is symmetric (the original operator is self-adjoint):
 assert(nnz(A - A') == 0)
 
 %% Restrict the problem to interior variables and constuct iteration matrix
