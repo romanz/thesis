@@ -11,12 +11,13 @@ ind = @(I, J) sub2ind(sz, I, J);
 K = find(interior); % Fill only interior points
 K = K(:);
 [I, J] = ind2sub(sz, K);
-Dp = repmat([1 0 -1], [numel(K) 1]);
+Dp = repmat([1 0 -1], [numel(K) 1]); 
+% NOTE: The stencil is constructed as: [forward, middle, backward] coefficients.
 Ip = repmat(I, [1 3]);
 Jp = repmat(J, [1 3]);
 Kp = repmat(K, [1 3]); % interior variables' indices, for 1D Laplacian stencil
 
-% Build 2D Laplacian sparse matrix:
+% Build 2D sparse matrix A = "Dxx/Mxx" + "Dyy/Myy":
 
 if sz(1) > 1 % for X
     Kr = ind(I+1, J); % Left
@@ -52,7 +53,7 @@ else
 end
 % Laplacian for Y direction is (pinv(Myy) * Dyy)
 
-% % The actual Laplcian matrix is:
+% % The actual Laplacian matrix is:
 % A = dinv(Mxx) * Dxx + dinv(Myy) * Dyy;
 
 % Pre-multiply it by (Mxx * Myy) for symmetry of A.
