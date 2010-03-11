@@ -86,8 +86,9 @@ Vi = randn(nnz(I), 1); % Initial guess.
 
 fprintf('Apply %s solver [%d]... ', iter_type, iters); tic;
 if any(strcmpi(iter_type, {'MPE', 'RRE'}))
-    cycle = 20; % NOTE: each iteration actually computes cycle+1 vectors.
-    [Vf, residuals] = extrapolate(Vi, @(v) T*v + d, cycle, iters/cycle, iter_type);
+    cycle = 20; % Actually each iteration computes (cycle + 1) vectors.
+    iters = iters / cycle;
+    [Vf, residuals] = extrapolate(Vi, @(v) T*v + d, cycle, iters, iter_type);
 else
     [Vf, residuals] = iterate(Vi, A, f, R, iters, iter_type); 
 end
