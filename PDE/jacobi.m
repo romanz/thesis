@@ -5,8 +5,8 @@ function [R, T, d] = jacobi(A, f) %#ok<INUSD>
 % R := D^{-1}
 % v' = v + R (f - Av) = (I - R A)v + R f
 % v' = Tv + d
-N = numel(f);
-D = diag(A);
-R = sparse(1:N, 1:N, 1./D);
+d = diag(A); % Vector of diagonal elements of A
+N = numel(d);
+R = sparse(1:N, 1:N, 1./d);
 T = speye(N) - R * A;
 d = R * f;

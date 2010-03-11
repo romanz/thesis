@@ -52,6 +52,10 @@ else
 end
 % Laplacian for Y direction is (pinv(Myy) * Dyy)
 
-% pinv(Mxx) * Dxx + pinv(Myy) * Dyy = F
+% % The actual Laplcian matrix is:
+% A = dinv(Mxx) * Dxx + dinv(Myy) * Dyy;
+
+% Pre-multiply it by (Mxx * Myy) for symmetry of A.
+M = Mxx * Myy;
 A = Myy * Dxx + Mxx * Dyy;
-F = Mxx * Myy * F(:);
+F = M * F(:);

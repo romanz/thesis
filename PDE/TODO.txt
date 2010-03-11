@@ -37,3 +37,8 @@ Note that if A has non-constant diagonal, Dinv*A is not symmetric.
 We should use another finite difference scheme for Neumann.
 Try extend to MG.
 Add diffusion-convection equation for C(x,y).
+
+
+11/03/2010
+
+http://www.flickr.com/photos/ramy_z/4424596997/

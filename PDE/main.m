@@ -5,22 +5,23 @@ fprintf('\n');
 % The equation to solve is: Laplacian(u) = f.
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
 
-% Create grid for the solver.
+%% Create grid for the solver.
 m = 5;
 x = logspace(-1, 0, 1+2*2^m); 
 y = 1+linspace(-1, 0, 1+2^m); 
 
-% # of iterations
-iters = 40e3;
-% iter_type = 'Jacobi';
-iter_type = 'RedBlack';
+%% # of iterations
+iters = 100e3;
+iter_type = 'Jacobi';
+% iter_type = 'RedBlack'; iters = iters / 2;
 % iter_type = 'RRE'; iters = 4e3;
 % iter_type = 'MPE'; iters = 4e3;
 
-% We use NDGRID convention (X is 1st, Y is 2nd)
+%% We use NDGRID convention (X is 1st, Y is 2nd)
 [X, Y] = ndgrid(x, y);
 sz = [numel(x) numel(y)];
-% Create solutions for the specific diff. eq. instance.
+
+%% Create solutions for the specific diff. eq. instance.
 % - U is the function itself (for boundary conditions).
 % - L is the diverence of C * grad(U).
 % It is useful for solver's verification.
@@ -30,8 +31,8 @@ Uy = @(X, Y) sin(Y);
 C = @(X, Y) exp(X - Y);
 L = @(X, Y) -exp(X - Y) .* (sin(X) - cos(X) - cos(Y) + sin(Y));
 
-% We actually solve the linear system: Av = f
-fprintf('Compute Laplacian operator... '); tic;
+%% We actually solve the linear system: Av = f
+fprintf('Compute Laplacian on %d x %d grid... ', numel(x), numel(y)); tic;
 [A, f, I] = laplacian(sz, X, Y, C(X, Y), L(X, Y));
 
 % Add boundary conditions for X:
@@ -55,6 +56,7 @@ if sz(2) > 1
     [A, f] = boundary_neumann(A, f, Bu, [0 +1], X, Y, Ux, Uy);
 end
 
+%% Sanity checks for the linear system
 % Verify that boundary variables are eliminated properly.
 assert(nnz(A(~I, :)) == 0); 
 assert(nnz(A(:, ~I)) == 0); 
@@ -62,10 +64,12 @@ assert(nnz(A(:, ~I)) == 0);
 assert(nnz(isnan(A) | isinf(A)) == 0)
 % Verify that the matrix is symmetric (since the original operator is self-adjoint):
 assert(nnz(A - A') == 0)
+
+%% Restrict the problem to interior variables and constuct iteration matrix
 A = A(I, I); f = f(I);
 fprintf('(%.3fs)\n', toc);
 
-fprintf('Construct iterative Jacobi solver... '); tic;
+fprintf('Construct Jacobi iteration... '); tic;
 [R, T, d] = jacobi(A, f); fprintf('(%.3fs)\n', toc);
 
 fprintf('Maximal eigenvalue of T: ');
@@ -77,8 +81,8 @@ fprintf('%.10f => %d iterations/decade\n', ...
 randn('state', 1);
 Vi = randn(nnz(I), 1); % Initial guess.
 
-fprintf('Apply %s [%d]... ', iter_type, iters); tic;
-if strcmpi(iter_type, 'MPE') || strcmpi(iter_type, 'RRE')
+fprintf('Apply %s solver [%d]... ', iter_type, iters); tic;
+if any(strcmpi(iter_type, {'MPE', 'RRE'}))
     cycle = 20; % NOTE: each iteration actually computes cycle+1 vectors.
     [Vf, residuals] = extrapolate(Vi, @(v) T*v + d, cycle, iters/cycle, iter_type);
 else
@@ -92,10 +96,3 @@ save(mat_file)
 err = show(mat_file); 
 fprintf('error: %e\n', err);
 % full(A), f
-
-function e = max_eigs(A, k)
-if nnz(A) > 0
-    e = eigs(A, k, 'lm', struct('disp', 0)); 
-else
-    e = 0;
-end
