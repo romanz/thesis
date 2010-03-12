@@ -1,10 +1,10 @@
 function [R, T, d] = jacobi(A, f) %#ok<INUSD>
 %% Compute the appropriate matrices for for Jacobi iteration.
-% Av = [D + (A-D)]v = f
-% Dv = f - (A-D)v = (f - Av) + Dv
+% Au = [D + (A-D)]u = f
+% Du = f - (A-D)u = (f - Au) + Du
 % R := D^{-1}
-% v' = v + R (f - Av) = (I - R A)v + R f
-% v' = Tv + d
+% u' = u + R (f - Au) = (I - R A)u + R f
+% u' = Tu + d
 d = diag(A); % Vector of diagonal elements of A
 N = numel(d);
 R = sparse(1:N, 1:N, 1./d);

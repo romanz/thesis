@@ -1,15 +1,15 @@
 function [e] = show(mat_file)
 %% Show solver's results
 load(mat_file)
-V0 = U(X, Y); % The original continuous solution
-V = V0;
-V(I) = Vf;
+U0 = U(X, Y); % The original continuous solution
+U = U0;
+U(I) = Uf;
 
 subplot 131; 
-visualize(X, Y, V, sprintf('Solution (%d iterations)', iters));
+visualize(X, Y, U, sprintf('Solution (%d iterations)', iters));
 
 subplot 132; 
-E = V0 - V;
+E = U0 - U;
 e = norm(E(:), inf);
 visualize(X, Y, E, sprintf('Error (L_\\infty = %.3e)', e))
 

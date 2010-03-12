@@ -1,14 +1,14 @@
-function [v, residuals] = iterate(v, A, f, R, iters, iter_type)
-% Apply an iterative scheme to solve v' = Cv + d.
+function [u, residuals] = iterate(u, A, f, R, iters, iter_type)
+% Apply an iterative scheme to solve u' = Cu + d.
 
 if nargin < 4
     iter_type = ''; % Use plain Jacobi iteration.
 end
 
 % Keep the original size and convert to column vector:
-sz = size(v); 
-v = v(:);
-N = numel(v);
+sz = size(u); 
+u = u(:);
+N = numel(u);
 T = speye(N) - R * A;
 d = R * f;
 residuals = zeros(iters, 1);
@@ -28,20 +28,20 @@ if strcmpi(iter_type, 'redblack')
     d_black = d(black, :);
     % Iterate using Red/Black Gauss-Seidel method:
     for iter = 1:iters
-        v_old = v;
-        v(red) = T_red * v + d_red; % Update v's red interior.
-        v(black) = T_black * v + d_black; % Update v's black interior.
-        residuals(iter) = norm(v - v_old);
+        u_old = u;
+        u(red) = T_red * u + d_red; % Update u's red interior.
+        u(black) = T_black * u + d_black; % Update u's black interior.
+        residuals(iter) = norm(u - u_old);
         h = progress(h, iter/iters);
     end
 else
     % Plain Jacobi iteration:
     for iter = 1:iters
-        v_old = v;
-        v = T * v + d;
-        residuals(iter) = norm(v - v_old);
+        u_old = u;
+        u = T * u + d;
+        residuals(iter) = norm(u - u_old);
         h = progress(h, iter/iters);
     end
 end
 progress(h, []);
-v = reshape(v, sz);
+u = reshape(u, sz);
