@@ -1,4 +1,4 @@
-function [A, M, interior] = laplacian(sz, X, Y, C)
+function [L, M, interior] = laplacian(sz, X, Y, C)
 %% Laplacian discretization using sparse matrix
 N = prod(sz);
 interior = true(sz);
@@ -17,7 +17,7 @@ Ip = repmat(I, [1 3]);
 Jp = repmat(J, [1 3]);
 Kp = repmat(K, [1 3]); % interior variables' indices, for 1D Laplacian stencil
 
-% Build 2D sparse matrix A = "Dxx/Mxx" + "Dyy/Myy":
+% Build 2D sparse matrix L = "Dxx/Mxx" + "Dyy/Myy":
 
 if sz(1) > 1 % for X
     Kr = ind(I+1, J); % Left
@@ -58,4 +58,4 @@ end
 
 % Pre-multiply it by (Mxx * Myy) for symmetry of A.
 M = Mxx * Myy;
-A = Myy * Dxx + Mxx * Dyy;
+L = Myy * Dxx + Mxx * Dyy;
