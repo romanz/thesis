@@ -1,4 +1,4 @@
-function [A, interior] = gradient(sz, X, Y)
+function [Gx, Gy, interior] = gradient(sz, X, Y)
 %% Gradient discretization using sparse matrix
 N = prod(sz);
 interior = true(sz);
@@ -17,30 +17,24 @@ Ip = repmat(I, [1 3]);
 Jp = repmat(J, [1 3]);
 Kp = repmat(K, [1 3]); % interior variables' indices, for 1D stencil
 
-% Build 2D sparse matrix A:
-
+% Build 2D sparse matrix G = (Gx, Gy):
+Gx = sparse(N, N);
 if sz(1) > 1 % for X
     Kr = ind(I+1, J); % Left
     Kl = ind(I-1, J); % Right
     Gx = ones(size(K)) * [1 0 -1]; 
     P = ind(Ip + Dp, Jp); % column indices
     Gx = sparse(Kp, P, Gx, N, N);
-    Mx = sparse(K, K, (X(Kr) - X(Kl)), N, N);
-else
-    Gx = sparse(N, N);
-    Mx = speye(N, N);
+    Mx = sparse(K, K, 1./(X(Kr) - X(Kl)), N, N);
+    Gx = Mx * Gx;
 end
-
+Gy = sparse(N, N);
 if sz(2) > 1 % for Y
     Ku = ind(I, J+1); % Up
     Kd = ind(I, J-1); % Down
     Gy = ones(size(K)) * [1 0 -1];
     P = ind(Ip, Jp + Dp); % column indices
     Gy = sparse(Kp, P, Gy, N, N);
-    My = sparse(K, K, (Y(Ku) - Y(Kd)), N, N);
-else
-    Gy = sparse(N, N);
-    My = speye(N, N);
+    My = sparse(K, K, 1./(Y(Ku) - Y(Kd)), N, N);
+    Gy = My * Gy;
 end
-
-A = dinv(Mx) * Gx + dinv(My) * Gy;
