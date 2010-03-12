@@ -11,9 +11,9 @@ x = logspace(-1, 0, 1+2*2^m);
 y = 1+linspace(-1, 0, 1+2^m); 
 
 %% # of iterations
-iters = 100e3;
-iter_type = 'Jacobi';
-% iter_type = 'RedBlack'; iters = iters / 2;
+iters = 80e3;
+% iter_type = 'Jacobi';
+iter_type = 'RedBlack'; iters = iters / 2;
 % iter_type = 'RRE'; iters = 4e3;
 % iter_type = 'MPE'; iters = 4e3;
 
@@ -82,15 +82,15 @@ fprintf('%.10f => %d iterations/decade\n', ...
 
 %% Iteration phase
 randn('state', 1);
-Vi = randn(nnz(I), 1); % Initial guess.
+Ui = randn(nnz(I), 1); % Initial guess.
 
 fprintf('Apply %s solver [%d]... ', iter_type, iters); tic;
 if any(strcmpi(iter_type, {'MPE', 'RRE'}))
     cycle = 20; % Actually each iteration computes (cycle + 1) vectors.
     iters = iters / cycle;
-    [Vf, residuals] = extrapolate(Vi, @(v) T*v + d, cycle, iters, iter_type);
+    [Uf, residuals] = extrapolate(Ui, @(u) T*u + d, cycle, iters, iter_type);
 else
-    [Vf, residuals] = iterate(Vi, A, f, R, iters, iter_type); 
+    [Uf, residuals] = iterate(Ui, A, f, R, iters, iter_type); 
 end
 fprintf('(%.3fs)\n', toc);
 
