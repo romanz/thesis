@@ -11,9 +11,9 @@ x = logspace(-1, 0, 1+2*2^m);
 y = 1+linspace(-1, 0, 1+2^m); 
 
 %% # of iterations
-iters = 80e3;
-% iter_type = 'Jacobi';
-iter_type = 'RedBlack'; iters = iters / 2;
+iters = 30e3;
+iter_type = 'Jacobi';
+% iter_type = 'RedBlack'; iters = iters / 2;
 % iter_type = 'RRE'; iters = 4e3;
 % iter_type = 'MPE'; iters = 4e3;
 
@@ -40,23 +40,17 @@ f = reshape(f, sz);
 
 % Add boundary conditions for X:
 if sz(1) > 1
-    Bl = ~I & circshift(I, [-1 0]); % Left boundary (small X)
-    Br = ~I & circshift(I, [+1 0]); % Right boundary (large X)
-    
-    [A, f] = boundary_dirichlet(A, f, Bl, X, Y, U);
-    [A, f] = boundary_neumann(A, f, Br, [+1 0], X, Y, Ux, Uy);
-%     [A, f] = boundary_dirichlet(A, f, Br, X, Y, U);
-%     [A, f] = boundary_neumann(A, f, Bl, [-1 0], X, Y, Ux, Uy);
+    [A, f] = dirichlet(A, f, boundary(I, [-1 0]), X, Y, U);
+%     [A, f] = neumann(A, f, I, [+1 0], X, Y, Ux, Uy);
+    [A, f] = dirichlet(A, f, boundary(I, [+1 0]), X, Y, U);
+%     [A, f] = neumann(A, f, I, [-1 0], X, Y, Ux, Uy);
 end
 % Add boundary conditions for Y:
 if sz(2) > 1
-    Bd = ~I & circshift(I, [0 -1]); % Bottom boundary (small Y)
-    Bu = ~I & circshift(I, [0 +1]); % Upper boundary (large Y)
-    
-%     [A, f] = boundary_dirichlet(A, f, Bu, X, Y, U);
-    [A, f] = boundary_neumann(A, f, Bd, [0 -1], X, Y, Ux, Uy);
-%     [A, f] = boundary_dirichlet(A, f, Bd, X, Y, U);
-    [A, f] = boundary_neumann(A, f, Bu, [0 +1], X, Y, Ux, Uy);
+%     [A, f] = dirichlet(A, f, boundary(I, [0 +1]), X, Y, U);
+    [A, f] = neumann(A, f, I, [0 -1], X, Y, Ux, Uy);
+%     [A, f] = dirichlet(A, f, boundary(I, [0 -1]), X, Y, U);
+    [A, f] = neumann(A, f, I, [0 +1], X, Y, Ux, Uy);
 end
 
 %% Sanity checks for the linear system

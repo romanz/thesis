@@ -1,4 +1,4 @@
-function [A, F] = boundary_dirichlet(A, F, J, X, Y, U)
+function [A, F] = dirichlet(A, F, J, X, Y, U)
 % Substitute Dirichlet boundary conditions v(j) = U(X(j), Y(j)) 
 % into Av = f linear system, where U = @(X, Y) is a function handle
 % and J is logical boundary grid.

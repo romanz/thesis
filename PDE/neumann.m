@@ -1,7 +1,8 @@
-function [A, F] = boundary_neumann(A, F, J, P, X, Y, Ux, Uy)
+function [A, F] = neumann(A, F, I, P, X, Y, Ux, Uy)
 % Substitute Neumann boundary conditions into Av = f linear system, 
-% where (Ux, Uy) is the gradient, J is one of the grid's boundaries and 
+% where (Ux, Uy) is the gradient, I is the grid's iterior and 
 % P is an unit vector, normal to the boundary, pointing outside of the grid.
+J = boundary(I, P);
 sz = size(J);
 J = find(J);
 for k = 1:numel(J)
