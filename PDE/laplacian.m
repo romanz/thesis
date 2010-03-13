@@ -3,6 +3,10 @@ function [L, M, interior] = laplacian(sz, X, Y, C)
 N = prod(sz);
 interior = true(sz);
 
+if nargin < 4
+    C = ones(sz); % Assume uniform C
+end
+
 % Compute interior points' indices (special handling of 1D)
 if sz(1) > 1,   interior([1 sz(1)], :) = false; end
 if sz(2) > 1,   interior(:, [1 sz(2)]) = false; end
