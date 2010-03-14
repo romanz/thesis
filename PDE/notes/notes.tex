@@ -108,27 +108,49 @@ C_{i,j-1/2} \cdot \frac{\varPhi_{i,j}-\varPhi_{i,j-1}}{y_{i}-y_{i-1}}
 where $2C_{i\pm 1/2,j} = C_{i,j} + C_{i\pm 1,j}$ and
 $2C_{i,j\pm 1/2} = C_{i,j} + C_{i,j\pm 1}$.
 
-The algebraic system above can be written as $\matr{A} \vect{v} = \vect{f}$,
+The algebraic system above can be written as $\matr{A} \vect{u} = \vect{f}$,
 where $\matr{A}$ depends on the grid and current $C$ values.
 $\vect{f}$ can be chosen to be any function, which is useful for testing the solver.
-We initialize $\vect{v}$ to any function, and employ Jacobi iterations
+We initialize $\vect{u}$ to any function, and employ Jacobi iterations
 (by writing $\matr{A} = \matr{D} + (\matr{A-D})$, where $\matr{D}$ is diagonal):
 \begin{eqnarray}
-\vect{f} &=& \matr{A}\vect{v} = \matr{D}\vect{v} + (\matr{A-D})\vect{v} \\
-\matr{D}\vect{v} &=& \vect{f} - (\matr{A-D})\vect{v} = \vect{f} - \matr{A}\vect{v} + \matr{D}\vect{v} \\
-\vect{v}' &=& \vect{v} + \matr{D}^{-1}(\vect{f} - \matr{A}\vect{v}) = 
-(\matr{I} - \matr{D}^{-1}\matr{A}) \vect{v} + \matr{D}^{-1}\vect{f}
+\vect{f} &=& \matr{A}\vect{u} = \matr{D}\vect{u} + (\matr{A-D})\vect{u} \\
+\matr{D}\vect{u} &=& \vect{f} - (\matr{A-D})\vect{u} = 
+\vect{f} - \matr{A}\vect{u} + \matr{D}\vect{u} \\
+\vect{u}_+ &=& \vect{u} + \matr{D}^{-1}(\vect{f} - \matr{A}\vect{u}) =
+(\matr{I} - \matr{D}^{-1}\matr{A}) \vect{u} + \matr{D}^{-1}\vect{f} \\
 \end{eqnarray}
-
+Therefore, we shall use the following iteration scheme:
+\begin{eqnarray}
+\vect{u}_+ &=& \matr{T}\vect{u} + \vect{d} \\
+\matr{T} &=& \matr{I} - \matr{D}^{-1}\matr{A} \\
+\vect{d} &=& \matr{D}^{-1}\vect{f}
+\end{eqnarray}
+To speed-up the convergence, we shall use Red-Black Gauss-Seidel method,
+that updates ``odd'' and ``even'' elements of $\vect{u}$, solving
+effectively the linear system for half the variables each time.
 \subsection{Boundary conditions}
-Dirichlet $v_{i} = B_i$ are substituted into RHS.
+\subsubsection{Dirichlet} 
+The condition is given as $U(x, y) = C$. 
+We take $u_k = U(x_i, y_j) = C$.
+Now, it is simply substituted and
+linear system's right-hand side is updated accordingly.
 
-Neumann are used via quadratic approximation:
+\subsubsection{Neumann}
+The condition is given as $\bnabla U(x,y) \cdot \vect{\hat n} = C$, 
+where $\vect{\hat n}$ is normal to domain's boundary.
+If we use quadratic approximation, the gradient can be expressed as:
 \begin{eqnarray}
   f(x) &=& ax^2 + bx + c \\
   f(x_0 \pm \Delta x) &=& a(x_0 \pm \Delta x)^2 + b(x_0 \pm \Delta x) + c \\
-  \frac{f(x_0 + \Delta x) - f(x_0 - \Delta x)}{2\Delta x} &=& 2a x_0 + b = f'(x_0)
+  \frac{f(x_0 + \Delta x) - f(x_0 - \Delta x)}{2\Delta x} &=& 2a x_0 + b = f'(x_0) \\
 \end{eqnarray}
-
+Therefore:
+\begin{eqnarray}
+ U(x + \Delta x,y + \Delta y) &\approx& U(x, y) + \partial_x U(x_c,y_c) \Delta x +
+ \partial_x U(x_c,y_c) \Delta y \\
+ x_c &=& x + \frac{\Delta x}{2} \\
+ y_c &=& y + \frac{\Delta y}{2}
+\end{eqnarray}  
 %%%%%%%%%%%%%%%%%%%%%%%
 \end{document} 

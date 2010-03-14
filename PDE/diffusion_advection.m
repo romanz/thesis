@@ -1,4 +1,5 @@
-
+iters = 10e3;
+iter_type = 'RedBlack';
 sz = 1+2.^[3 3];
 N = prod(sz);
 x = linspace(-1, 1, sz(1));
@@ -8,13 +9,13 @@ y = linspace(-1, 1, sz(1));
 [L, M, I] = laplacian(sz, X, Y);
 L = dinv(M) * L;
 
-% Rotational velocity field: V(x, y) = (-y, x)
-Vx = spdiag( Y);
-Vy = spdiag(-X);
+% Rotational velocity field V(x, y)
+Vx =    Y;
+Vy = -3*X;
 [Gx, Gy] = gradient(sz, X, Y);
-A = L - (Vx*Gx + Vy*Gy);
-U = @(X, Y) X.^2 + Y.^2;
-f = 0*X + 0*Y + 4;
+A = L - (spdiag(Vx)*Gx + spdiag(Vy)*Gy);
+U = @(X, Y) X.^2 + 2*Y.^2;
+f = 10 * X .* Y + 6;
 
 [A, f] = dirichlet(A, f, boundary(I, [-1 0]), X, Y, U);
 [A, f] = dirichlet(A, f, boundary(I, [+1 0]), X, Y, U);
@@ -34,15 +35,16 @@ fprintf('Construct Jacobi iteration... '); tic;
 randn('state', 1);
 Ui = randn(nnz(I), 1); % Initial guess.
 
-iters = 10e3;
-iter_type = 'Jacobi';
 fprintf('Apply %s solver [%d]... ', iter_type, iters); tic;
 [Uf, residuals] = iterate(Ui, A, f, R, iters, iter_type); 
 fprintf('(%.3fs)\n', toc);
 
-u = A \ f;
-U1 = U(X, Y);
-U1(I) = u;
-U2 = U(X, Y);
-U2(I) = Uf;
-U2 - U1
+%% Save and show the results.
+figure(1); clf;
+mat_file = 'results.mat';
+save(mat_file)
+err = show(mat_file); 
+fprintf('error: %e\n', err);
+
+figure(2); clf;
+quiver(X, Y, Vx, Vy);
