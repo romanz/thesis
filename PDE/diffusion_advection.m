@@ -2,8 +2,8 @@ iters = 10e3;
 iter_type = 'RedBlack';
 sz = 1+2.^[3 3];
 N = prod(sz);
-x = linspace(-1, 1, sz(1));
-y = linspace(-1, 1, sz(1));
+x = linspace(0, 1, sz(1));
+y = linspace(0, 1, sz(1));
 [X, Y] = ndgrid(x, y);
 
 [L, M, I] = laplacian(sz, X, Y);
@@ -16,6 +16,7 @@ Vy = -3*X;
 A = L - (spdiag(Vx)*Gx + spdiag(Vy)*Gy);
 U = @(X, Y) X.^2 + 2*Y.^2;
 f = 10 * X .* Y + 6;
+f(~I) = NaN; % Not defined on the boundary
 
 [A, f] = dirichlet(A, f, boundary(I, [-1 0]), X, Y, U);
 [A, f] = dirichlet(A, f, boundary(I, [+1 0]), X, Y, U);
@@ -24,7 +25,9 @@ f = 10 * X .* Y + 6;
 % Verify that boundary variables are eliminated properly.
 assert(nnz(A(~I, :)) == 0); 
 assert(nnz(A(:, ~I)) == 0); 
-% assert(nnz(f(~I)) == 0); % XXX
+assert(all(isnan(f(~I))) == 1);
+assert(nnz(isnan(A(I, I))) == 0);
+assert(nnz(isnan(f(I))) == 0);
 A = A(I, I); 
 f = f(I);
 
