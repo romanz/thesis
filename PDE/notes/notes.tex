@@ -115,7 +115,7 @@ We initialize $\vect{u}$ to any function, and employ Jacobi iterations
 (by writing $\matr{A} = \matr{D} + (\matr{A-D})$, where $\matr{D}$ is diagonal):
 \begin{eqnarray}
 \vect{f} &=& \matr{A}\vect{u} = \matr{D}\vect{u} + (\matr{A-D})\vect{u} \\
-\matr{D}\vect{u} &=& \vect{f} - (\matr{A-D})\vect{u} = 
+\matr{D}\vect{u} &=& \vect{f} - (\matr{A-D})\vect{u} =
 \vect{f} - \matr{A}\vect{u} + \matr{D}\vect{u} \\
 \vect{u}_+ &=& \vect{u} + \matr{D}^{-1}(\vect{f} - \matr{A}\vect{u}) =
 (\matr{I} - \matr{D}^{-1}\matr{A}) \vect{u} + \matr{D}^{-1}\vect{f} \\
@@ -130,27 +130,69 @@ To speed-up the convergence, we shall use Red-Black Gauss-Seidel method,
 that updates ``odd'' and ``even'' elements of $\vect{u}$, solving
 effectively the linear system for half the variables each time.
 \subsection{Boundary conditions}
-\subsubsection{Dirichlet} 
-The condition is given as $U(x, y) = C$. 
+\subsubsection{Dirichlet}
+The condition is given as $U(x, y) = C$.
 We take $u_k = U(x_i, y_j) = C$.
 Now, it is simply substituted and
 linear system's right-hand side is updated accordingly.
 
 \subsubsection{Neumann}
-The condition is given as $\bnabla U(x,y) \cdot \vect{\hat n} = C$, 
+The condition is given as $\bnabla U(x,y) \cdot \vect{\hat n} = C$,
 where $\vect{\hat n}$ is normal to domain's boundary.
 If we use quadratic approximation, the gradient can be expressed as:
 \begin{eqnarray}
   f(x) &=& ax^2 + bx + c \\
-  f(x_0 \pm \Delta x) &=& a(x_0 \pm \Delta x)^2 + b(x_0 \pm \Delta x) + c \\
-  \frac{f(x_0 + \Delta x) - f(x_0 - \Delta x)}{2\Delta x} &=& 2a x_0 + b = f'(x_0) \\
+  f(x_0 \pm \Delta x) &=&
+   a(x_0 \pm \Delta x)^2 + b(x_0 \pm \Delta x) + c \\
+  \frac{f(x_0 + \Delta x) - f(x_0 - \Delta x)}{2\Delta x} &=&
+   2a x_0 + b = f'(x_0) \\
 \end{eqnarray}
-Therefore:
+Therefore, the boundary value can be approximated by:
 \begin{eqnarray}
  U(x + \Delta x,y + \Delta y) &\approx& U(x, y) + \partial_x U(x_c,y_c) \Delta x +
  \partial_x U(x_c,y_c) \Delta y \\
  x_c &=& x + \frac{\Delta x}{2} \\
  y_c &=& y + \frac{\Delta y}{2}
-\end{eqnarray}  
+\end{eqnarray}
+
+\subsection{Specific boundary conditions}
+\subsubsection{$R = 1$}
+\begin{eqnarray}
+  \frac{\partial C}{\partial R} &=& 
+   C \frac{\partial \varPhi}{\partial R} \\
+  \varPhi &=& \mathscr{V} - \ln C + \ln \gamma
+\end{eqnarray}
+Take $\mathscr{V} = -\ln \gamma$ and note that:
+\begin{eqnarray}
+  \frac{\partial}{\partial R} \ln C &=& 
+  \frac{1}{C}\frac{\partial C}{\partial R} = 
+  \frac{\partial \varPhi}{\partial R}
+\end{eqnarray}
+Use ghost-point \#0 to write the following boundary equations:
+\begin{eqnarray}
+  \varPhi_1 + \varPhi_0 &=& - \ln C_1 - \ln C_0 \\
+  \varPhi_1 - \varPhi_0 &=& \ln C_1 - \ln C_0
+\end{eqnarray}
+Add and subtract to get 2 Dirichlet conditions:
+\begin{eqnarray}
+  \varPhi_1 &=& - \ln C_0 \\
+  \varPhi_0 &=& - \ln C_1 \\
+  C_0 &=& e^{-\varPhi_1}
+\end{eqnarray}
+\subsubsection{$R \rightarrow \infty$}
+$C$ gets uniform, and we get Dirichlet: 
+\begin{eqnarray}
+ C = 1
+\end{eqnarray}
+The field radial component is Neumann:
+\begin{eqnarray}
+ \frac{\partial \varPhi}{\partial R} = -\mathscr{E} \cos \theta
+\end{eqnarray}
+\subsubsection{$\Theta = 0/\pi$}
+Using symmetry considerations, we have Neumann conditions:
+\begin{eqnarray}
+ \frac{\partial \varPhi}{\partial \Theta} &=& 0 \\
+ \frac{\partial C}{\partial \Theta} &=& 0 \\
+\end{eqnarray}
 %%%%%%%%%%%%%%%%%%%%%%%
 \end{document} 
