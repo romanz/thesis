@@ -73,9 +73,7 @@
 % \setlength{\parindent}{1pc}
 \setlength{\parindent}{0.0 in}
 \setlength{\parskip}{0.1 in}
-\title{Notes on numerical methods for PDEs}
-\author{Roman Zeyde}
-
+\title{Notes on PDE numerics}
 \begin{document}
 \maketitle
 \section{PDEs}
@@ -87,7 +85,7 @@ The electric potential satisfies the elliptic equation
 $C$ is salt concentration, playing the role of $\eps$,
 in Maxwell's equation (where $\vect{E} = -\bnabla \varPhi$):
 \begin{equation}
-\bnabla \bcdot \eps \vect{E} = \rho_{free}
+\bnabla \bcdot \vect{D} = \bnabla \bcdot \eps \vect{E} = \rho_{free}
 \end{equation}
 
 We assume regular grid $\{(x_i, y_j)\}$,
@@ -158,14 +156,14 @@ Therefore, the boundary value can be approximated by:
 \subsection{Specific boundary conditions}
 \subsubsection{$R = 1$}
 \begin{eqnarray}
-  \frac{\partial C}{\partial R} &=& 
+  \frac{\partial C}{\partial R} &=&
    C \frac{\partial \varPhi}{\partial R} \\
   \varPhi &=& \mathscr{V} - \ln C + \ln \gamma
 \end{eqnarray}
 Take $\mathscr{V} = -\ln \gamma$ and note that:
 \begin{eqnarray}
-  \frac{\partial}{\partial R} \ln C &=& 
-  \frac{1}{C}\frac{\partial C}{\partial R} = 
+  \frac{\partial}{\partial R} \ln C &=&
+  \frac{1}{C}\frac{\partial C}{\partial R} =
   \frac{\partial \varPhi}{\partial R}
 \end{eqnarray}
 Use ghost-point \#0 to write the following boundary equations:
@@ -180,7 +178,7 @@ Add and subtract to get 2 Dirichlet conditions:
   C_0 &=& e^{-\varPhi_1}
 \end{eqnarray}
 \subsubsection{$R \rightarrow \infty$}
-$C$ gets uniform, and we get Dirichlet: 
+$C$ gets uniform, and we get Dirichlet:
 \begin{eqnarray}
  C = 1
 \end{eqnarray}
@@ -194,5 +192,80 @@ Using symmetry considerations, we have Neumann conditions:
  \frac{\partial \varPhi}{\partial \Theta} &=& 0 \\
  \frac{\partial C}{\partial \Theta} &=& 0 \\
 \end{eqnarray}
+
+\section{Advection}
+\subsection{Differential equation}
+\begin{eqnarray}
+  f'' - \alpha f' = 0 \\
+  f(0) = 0 \\ f(1) = 1
+\end{eqnarray}
+Use $f(x) = e^{\gamma x}$ so $\gamma \in \{0, \alpha\}$ so:
+\begin{eqnarray}
+  f(x) &=& Ae^{\alpha x} + B \\
+  0 &=& A + B \\
+  1 &=& Ae^{\alpha} + B 
+\end{eqnarray}
+The continuous solution is:
+\begin{eqnarray}
+  f(x) &=& \frac{e^{\alpha x} - 1}{e^{\alpha} - 1}
+\end{eqnarray}
+\subsection{Central difference}
+We start by using the following scheme:
+\begin{eqnarray}
+  \frac{f_{k-1}-2f_k+f_{k+1}}{h^2}
+  - \alpha \frac{f_{k+1}-f_{k-1}}{2h} &=& 0 \\
+(f_{k-1}-2f_k+f_{k+1}) - \eps (f_{k+1}-f_{k-1}) &=& 0 \\
+\eps = \frac{\alpha h}{2} \\
+(1-\eps)f_{k-1}-2f_k+(1+\eps)f_{k+1} &=& 0
+\end{eqnarray}
+Write $f_k = \gamma^k$ to get:
+\begin{eqnarray}
+  (1-\eps)\gamma^{k-1} - 2\gamma^k + (1+\eps)\gamma^{k+1}&=& 0 \\
+  (1-\eps)\gamma - 2\gamma + (1+\eps)\gamma^2&=& 0 \\
+  \gamma = \frac{1 \pm \sqrt{1 - (1-\eps)(1+\eps)}}{1+\eps}
+         = \frac{1 \pm |\eps|}{1+\eps} \in 
+           \left\{1, \frac{1- \eps}{1+\eps}\right\} 
+\end{eqnarray}
+Take $f_0 = 0$ and $f_N = 1$ such that $h N = 1$, so:
+\begin{eqnarray}
+  f_k &=& \frac{1 - \left(\frac{1- \eps}{1+\eps}\right)^k}
+  {1 - \left(\frac{1- \eps}{1+\eps}\right)^N}
+\end{eqnarray}  
+Denote $x = \frac{k}{N}$ for $|\eps| < 1$:
+\begin{eqnarray}
+(1+\eps)^k = \left(1+\frac{\alpha h}{2}\right)^k = 
+\left(1+\frac{\alpha}{2N}\right)^k = 
+\left(1+\frac{\frac{\alpha k}{2N}}{k}\right)^k \approx
+e^{\frac{\alpha k}{2N}} = e^{\frac{\alpha x}{2}} 
+\end{eqnarray}
+So:
+\begin{eqnarray}
+  \left(\frac{1- \eps}{1+\eps}\right)^k &\approx& e^{\alpha x} \\
+  f_k &\approx& \frac{1 - e^{\alpha x}}{1 - e^{\alpha}}   
+\end{eqnarray}
+Otherwise ($h > 2/|\alpha|$), we get an oscillating solution, since $\gamma < 0$.
+\subsection{Upstream difference}
+We write:
+\begin{eqnarray}
+\frac{f_{k-1}-2f_k+f_{k+1}}{h^2} - \alpha \frac{f_k - f_{k-1}}{h} &=& 0 \\
+(f_{k-1}-2f_k+f_{k+1}) - \alpha h (f_k - f_{k-1}) &=& 0 \\
+(1 + 2\eps)f_{k-1}- (2 + 2\eps)f_k + f_{k+1} &=& 0 \\
+2\eps = \alpha h
+\end{eqnarray}
+Again, write $f_k = \gamma^k$ to get:
+\begin{eqnarray}
+ \gamma^2 - (2 + 2\eps) \gamma + (1 + 2\eps) &=& 0 
+\end{eqnarray} 
+\begin{eqnarray}
+\gamma &=& 1+\eps \pm \sqrt{(1+\eps)^2 - 1 - 2\eps} = 1 + \eps \pm |\eps| \in \{1, 1+2\eps\}
+\end{eqnarray}
+Given $\alpha > 0$, we note that there are no oscillations since $\gamma > 0$.
+
+Moreover, the solution for $f_0 = 0$ and $f_N = 1$ (where $h N = 1$) is:
+\begin{eqnarray}
+f_k &=& \frac{1 - (1+2\eps)^k}{1 - (1+2\eps)^N}
+\end{eqnarray}
+Since $(1+2\eps)^k = (1+\alpha h)^k = \left(1 + \frac{\alpha}{N}\right)^k \approx e^{\alpha x}$ for $x = k/N$
+so we get that $f_k \rightarrow f(x)$, as desired.
 %%%%%%%%%%%%%%%%%%%%%%%
 \end{document} 

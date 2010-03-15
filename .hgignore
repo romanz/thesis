@@ -5,3 +5,5 @@ syntax:glob
 *.log
 *.bbl
 *.blg
+*.ps
+*.pdf
