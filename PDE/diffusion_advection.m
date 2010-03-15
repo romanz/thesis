@@ -1,19 +1,19 @@
-iters = 10e3;
+iters = 20e3;
 iter_type = 'RedBlack';
-sz = 1+2.^[3 3];
+sz = 1+2.^([1 1]*4);
 N = prod(sz);
-x = linspace(0, 1, sz(1));
-y = linspace(0, 1, sz(1));
+x = linspace(-1, 1, sz(1));
+y = linspace(-1, 1, sz(1));
 [X, Y] = ndgrid(x, y);
 
 [L, M, I] = laplacian(sz, X, Y);
 L = dinv(M) * L;
-
 % Rotational velocity field V(x, y)
-Vx =    Y;
-Vy = -3*X;
-[Gx, Gy] = gradient(sz, X, Y);
-A = L - (spdiag(Vx)*Gx + spdiag(Vy)*Gy);
+H = [1;1]/2 * [0 1 0];
+Vx =     average(Y, H);
+Vy =  -3*average(X, H');
+[VG] = gradient(sz, X, Y, Vx, Vy);
+A = L - VG;
 U = @(X, Y) X.^2 + 2*Y.^2;
 f = 10 * X .* Y + 6;
 f(~I) = NaN; % Not defined on the boundary
@@ -48,6 +48,3 @@ mat_file = 'results.mat';
 save(mat_file)
 err = show(mat_file); 
 fprintf('error: %e\n', err);
-
-figure(2); clf;
-quiver(X, Y, Vx, Vy);

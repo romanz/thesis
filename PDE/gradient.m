@@ -1,4 +1,4 @@
-function [Gx, Gy, interior] = gradient(sz, X, Y)
+function [VG, interior] = gradient(sz, X, Y, Vx, Vy)
 %% Gradient discretization using sparse matrix
 N = prod(sz);
 interior = true(sz);
@@ -17,24 +17,32 @@ Ip = repmat(I, [1 3]);
 Jp = repmat(J, [1 3]);
 Kp = repmat(K, [1 3]); % interior variables' indices, for 1D stencil
 
-% Build 2D sparse matrix G = (Gx, Gy):
-Gx = sparse(N, N);
+Dx = sparse(N, N);
 if sz(1) > 1 % for X
     Kr = ind(I+1, J); % Left
     Kl = ind(I-1, J); % Right
-    Gx = ones(size(K)) * [1 0 -1]; 
     P = ind(Ip + Dp, Jp); % column indices
-    Gx = sparse(Kp, P, Gx, N, N);
-    Mx = sparse(K, K, 1./(X(Kr) - X(Kl)), N, N);
-    Gx = Mx * Gx;
+    Dx_r = sparse(K, K, 1./(X(Kr) - X(K)), N, N) * ...
+           sparse(Kp, P, ones(size(K)) * [1 -1 0], N, N);
+    Dx_l = sparse(K, K, 1./(X(K) - X(Kl)), N, N) * ...
+           sparse(Kp, P, ones(size(K)) * [0 1 -1], N, N);
+    % Find upstream direction
+    S = sign(convn(Vx, [1; 1]/2, 'valid'));
+    Dx = sparse(K, K, (S > 0) .* Vx(1:end-1, :), N, N) * Dx_l + ...
+         sparse(K, K, (S < 0) .* Vx(2:end,   :), N, N) * Dx_r;
 end
-Gy = sparse(N, N);
+Dy = sparse(N, N);
 if sz(2) > 1 % for Y
     Ku = ind(I, J+1); % Up
     Kd = ind(I, J-1); % Down
-    Gy = ones(size(K)) * [1 0 -1];
     P = ind(Ip, Jp + Dp); % column indices
-    Gy = sparse(Kp, P, Gy, N, N);
-    My = sparse(K, K, 1./(Y(Ku) - Y(Kd)), N, N);
-    Gy = My * Gy;
+    Dy_u = sparse(K, K, 1./(Y(Ku) - Y(K)), N, N) * ...
+         sparse(Kp, P, ones(size(K)) * [1 -1 0], N, N);
+    Dy_d = sparse(K, K, 1./(Y(K) - Y(Kd)), N, N) * ...
+         sparse(Kp, P, ones(size(K)) * [0 1 -1], N, N);
+    % Find upstream direction
+    S = sign(convn(Vy, [1, 1]/2, 'valid'));
+    Dy = sparse(K, K, (S > 0) .* Vy(:, 1:end-1), N, N) * Dy_d + ...
+         sparse(K, K, (S < 0) .* Vy(:, 2:end  ), N, N) * Dy_u;
 end
+VG = Dx + Dy;
