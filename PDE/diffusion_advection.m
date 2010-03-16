@@ -1,6 +1,6 @@
 iters = 20e3;
 iter_type = 'RedBlack';
-sz = 1+2.^([1 1]*4);
+sz = 1+2.^([1 1]*6);
 N = prod(sz);
 x = linspace(-1, 1, sz(1));
 y = linspace(-1, 1, sz(1));
@@ -11,11 +11,11 @@ L = dinv(M) * L;
 % Rotational velocity field V(x, y)
 H = [1;1]/2 * [0 1 0];
 Vx =     average(Y, H);
-Vy =  -3*average(X, H');
+Vy =    -average(X, H');
 [VG] = gradient(sz, X, Y, Vx, Vy);
 A = L - VG;
-U = @(X, Y) X.^2 + 2*Y.^2;
-f = 10 * X .* Y + 6;
+U = @(X, Y) X.^2 + Y.^2;
+f = 0 * X .* Y + 4;
 f(~I) = NaN; % Not defined on the boundary
 
 [A, f] = dirichlet(A, f, boundary(I, [-1 0]), X, Y, U);
