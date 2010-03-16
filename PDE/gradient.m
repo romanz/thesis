@@ -27,9 +27,9 @@ if sz(1) > 1 % for X
     Dx_l = sparse(K, K, 1./(X(K) - X(Kl)), N, N) * ...
            sparse(Kp, P, ones(size(K)) * [0 1 -1], N, N);
     % Find upstream direction
-    S = sign(convn(Vx, [1; 1]/2, 'valid'));
-    Dx = sparse(K, K, (S > 0) .* Vx(1:end-1, :), N, N) * Dx_l + ...
-         sparse(K, K, (S < 0) .* Vx(2:end,   :), N, N) * Dx_r;
+    Sx = sign(convn(Vx, [1; 1]/2, 'valid'));
+    Dx = sparse(K, K, (Sx > 0) .* Vx(1:end-1, :), N, N) * Dx_l + ...
+         sparse(K, K, (Sx < 0) .* Vx(2:end,   :), N, N) * Dx_r;
 end
 Dy = sparse(N, N);
 if sz(2) > 1 % for Y
@@ -41,8 +41,8 @@ if sz(2) > 1 % for Y
     Dy_d = sparse(K, K, 1./(Y(K) - Y(Kd)), N, N) * ...
          sparse(Kp, P, ones(size(K)) * [0 1 -1], N, N);
     % Find upstream direction
-    S = sign(convn(Vy, [1, 1]/2, 'valid'));
-    Dy = sparse(K, K, (S > 0) .* Vy(:, 1:end-1), N, N) * Dy_d + ...
-         sparse(K, K, (S < 0) .* Vy(:, 2:end  ), N, N) * Dy_u;
+    Sy = sign(convn(Vy, [1, 1]/2, 'valid'));
+    Dy = sparse(K, K, (Sy > 0) .* Vy(:, 1:end-1), N, N) * Dy_d + ...
+         sparse(K, K, (Sy < 0) .* Vy(:, 2:end  ), N, N) * Dy_u;
 end
 VG = Dx + Dy;
