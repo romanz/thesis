@@ -1,6 +1,8 @@
-iters = 20e3;
-iter_type = 'RedBlack';
-sz = 1+2.^([1 1]*6);
+randn('state', 1);
+
+iters = 10e3;
+iter_type = 'Jacobi';
+sz = 1+2.^([1 1]*5);
 N = prod(sz);
 x = linspace(-1, 1, sz(1));
 y = linspace(-1, 1, sz(1));
@@ -12,10 +14,10 @@ L = dinv(M) * L;
 H = [1;1]/2 * [0 1 0];
 Vx =     average(Y, H);
 Vy =    -average(X, H');
-[VG] = gradient(sz, X, Y, Vx, Vy);
+[VG] = gradient(sz, X, Y, Vx, Vy, 'centered');
 A = L - VG;
 U = @(X, Y) X.^2 + Y.^2;
-f = 0 * X .* Y + 4;
+f = 0 * X + 4;
 f(~I) = NaN; % Not defined on the boundary
 
 [A, f] = dirichlet(A, f, boundary(I, [-1 0]), X, Y, U);
@@ -33,9 +35,12 @@ f = f(I);
 
 fprintf('Construct Jacobi iteration... '); tic;
 [R, T, d] = jacobi(A, f); fprintf('(%.3fs)\n', toc);
+fprintf('Maximal eigenvalue of T: ');
+lambda = abs(max_eigs(T, 1));
+fprintf('%.6f => %d iterations/decade\n', ...
+    lambda, ceil(-1/log10(lambda)));
 
 %% Iteration phase
-randn('state', 1);
 Ui = randn(nnz(I), 1); % Initial guess.
 
 fprintf('Apply %s solver [%d]... ', iter_type, iters); tic;
