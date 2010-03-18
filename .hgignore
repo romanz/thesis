@@ -7,3 +7,4 @@ syntax:glob
 *.blg
 *.ps
 *.pdf
+*.zip
