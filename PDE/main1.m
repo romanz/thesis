@@ -1,5 +1,4 @@
-function main
-addpath ../utils ../extrapolation
+function main1
 fprintf('\n');
 %% Simulate and solve Poisson Equation on a 2D grid using Relaxation
 % The equation to solve is: Laplacian(u) = f.
