@@ -5,38 +5,44 @@ fprintf('\n');
 % Upstream difference is used for Gradient.
 % Jacobi iteration is used for relaxation.
 randn('state', 1);
-iters = 1e3;
-iter_type = 'MPE';
-sz = 1+2.^([1 1]*7);
+iters = 15e3;
+iter_type = 'RedBlack';
+sz = 1+2.^([1 1]*6);
 
 %% Create the grid
 N = prod(sz);
 x = linspace(-1, 1, sz(1));
-y = linspace(-1, 1, sz(1));
+y = linspace(-1, 1, sz(2));
 [X, Y] = ndgrid(x, y);
 
-%% L is the discrete Laplacian operator
+%% The discrete Laplacian operator
 [L, M, I] = laplacian(sz, X, Y);
-L = dinv(M) * L;
+Diffusion = dinv(M) * L;
 
 %% Velocity field (Vx, Vy) definition on a staggered grid
-H = [1;1]/2 * [0 1 0]; % Average on X, remove Y's boundary
-Vx =     average(Y, H ); % Evaluated at left and right edges.
-Vy =    -average(X, H'); % Evaluated at top and bottom edges.
-%% VG is the discrete advection operator
-[VG] = gradient(sz, X, Y, Vx, Vy, 'upstream');
+Vx =     average(Y, [1; 1]/2); % Evaluated at left and right edges.
+Vy =     average(X, [1, 1]/2); % Evaluated at top and bottom edges.
+if sz(2) > 1 && numel(Vx)
+    Vx = average(Vx, [0, 1, 0]); % Remove Y boundary
+end
+if sz(1) > 1 && numel(Vy)
+    Vy = average(Vy, [0; 1; 0]); % Remove X boundary
+end
+
+%% The discrete advection operator
+Advection = gradient(sz, X, Y, Vx, Vy, 'upstream');
 
 %% The operator combined operator
-A = L - VG; 
-U = @(X, Y) X.^2 - Y.^2;
-f = -4*X .* Y + 0; % Right-Hand Side
+A = Diffusion - Advection; 
+U = @(X, Y) X.^2 + Y.^2;
+f = -4*X .* Y + 4*ones(sz); % Right-Hand Side
 f(~I) = NaN; % Not defined on the boundary
 
 %% Substitute Boundary Conditions
-[A, f] = dirichlet(A, f, boundary(I, [-1 0]), X, Y, U);
-[A, f] = dirichlet(A, f, boundary(I, [+1 0]), X, Y, U);
-[A, f] = dirichlet(A, f, boundary(I, [0 -1]), X, Y, U);
-[A, f] = dirichlet(A, f, boundary(I, [0 +1]), X, Y, U);
+[A, f] = dirichlet(A, f, I, [-1 0], X, Y, U);
+[A, f] = dirichlet(A, f, I, [+1 0], X, Y, U);
+[A, f] = dirichlet(A, f, I, [0 -1], X, Y, U);
+[A, f] = dirichlet(A, f, I, [0 +1], X, Y, U);
 % Verify that boundary variables are eliminated properly.
 assert(nnz(A(~I, :)) == 0); 
 assert(nnz(A(:, ~I)) == 0); 
@@ -64,7 +70,7 @@ if any(strcmpi(iter_type, {'MPE', 'RRE'}))
     iters = iters / cycle;
     [Uf, residuals] = extrapolate(Ui, @(u) T*u + d, cycle, iters, iter_type);
 else
-    [Uf, residuals] = iterate(Ui, A, f, R, iters, iter_type); 
+    [Uf, residuals] = iterate(Ui, T, d, iters, iter_type); 
 end
 fprintf('(%.3fs)\n', toc);
 

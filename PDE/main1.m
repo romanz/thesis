@@ -39,16 +39,16 @@ f = reshape(f, sz);
 
 % Add boundary conditions for X:
 if sz(1) > 1
-    [A, f] = dirichlet(A, f, boundary(I, [-1 0]), X, Y, U);
+    [A, f] = dirichlet(A, f, I, [-1 0], X, Y, U);
 %     [A, f] = neumann(A, f, I, [+1 0], X, Y, Ux, Uy);
-    [A, f] = dirichlet(A, f, boundary(I, [+1 0]), X, Y, U);
+    [A, f] = dirichlet(A, f, I, [+1 0], X, Y, U);
 %     [A, f] = neumann(A, f, I, [-1 0], X, Y, Ux, Uy);
 end
 % Add boundary conditions for Y:
 if sz(2) > 1
-%     [A, f] = dirichlet(A, f, boundary(I, [0 +1]), X, Y, U);
+%     [A, f] = dirichlet(A, f, I, [0 +1], X, Y, U);
     [A, f] = neumann(A, f, I, [0 -1], X, Y, Ux, Uy);
-%     [A, f] = dirichlet(A, f, boundary(I, [0 -1]), X, Y, U);
+%     [A, f] = dirichlet(A, f, I, [0 -1], X, Y, U);
     [A, f] = neumann(A, f, I, [0 +1], X, Y, Ux, Uy);
 end
 
@@ -84,7 +84,7 @@ if any(strcmpi(iter_type, {'MPE', 'RRE'}))
     iters = iters / cycle;
     [Uf, residuals] = extrapolate(Ui, @(u) T*u + d, cycle, iters, iter_type);
 else
-    [Uf, residuals] = iterate(Ui, A, f, R, iters, iter_type); 
+    [Uf, residuals] = iterate(Ui, T, d, iters, iter_type); 
 end
 fprintf('(%.3fs)\n', toc);
 

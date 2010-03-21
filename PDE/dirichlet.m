@@ -1,7 +1,8 @@
-function [A, F] = dirichlet(A, F, J, X, Y, U)
+function [A, F] = dirichlet(A, F, I, P, X, Y, U)
 % Substitute Dirichlet boundary conditions v(j) = U(X(j), Y(j)) 
 % into Av = f linear system, where U = @(X, Y) is a function handle
 % and J is logical boundary grid.
+J = boundary(I, P);
 J = find(J);
 for k = 1:numel(J)
     j = J(k); % variable #j (to be eliminated)

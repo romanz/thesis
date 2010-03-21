@@ -1,4 +1,4 @@
-function [u, residuals] = iterate(u, A, f, R, iters, iter_type)
+function [u, residuals] = iterate(u, T, d, iters, iter_type)
 % Apply an iterative scheme to solve u' = Cu + d.
 
 if nargin < 4
@@ -9,8 +9,6 @@ end
 sz = size(u); 
 u = u(:);
 N = numel(u);
-T = speye(N) - R * A;
-d = R * f;
 residuals = zeros(iters, 1);
 h = progress([], 0, sprintf('%s Iteration', iter_type));
 

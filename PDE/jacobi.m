@@ -9,4 +9,4 @@ d = diag(A); % Vector of diagonal elements of A
 N = numel(d);
 R = sparse(1:N, 1:N, 1./d);
 T = speye(N) - R * A;
-d = R * f;
+d = R * f(:);
