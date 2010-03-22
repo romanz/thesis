@@ -4,8 +4,6 @@ function [A, f] = dirichlet(A, f, J, U)
 % function handle and J is grid variables' indices.
 for k = 1:numel(J)
     j = J(k); % variable #j (to be eliminated)
-    u = U(k); % its value (as a boundary point)
-    I = find(A(:, j)); % corresponding equations
-    f(I) = f(I) - A(I, j) * u; % eliminate and update RHS
-    A(I, j) = 0; % Update A (this variable is unused)
+    f(j) = U(k); % its value (as a boundary point)
+    A(j, j) = 1; % 1 * v(j) = f(j)
 end
