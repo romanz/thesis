@@ -5,16 +5,23 @@ fprintf('\n');
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
 
 %% Create grid for the solver.
-m = 4;
-x = linspace(-1, 1, 1+1*2^m); 
-y = linspace(-1, 1, 1+1*2^m); 
+m = 5;
+x = logspace(-1, 0, 1+2*2^m); 
+y = 1+linspace(-1, 0, 1+2^m); 
 
 %% # of iterations
-iters = 25e3;
+iters = 30e3;
+
+iter_type = '';
 iter_type = 'Jacobi';
 % iter_type = 'RedBlack'; iters = iters / 2;
 % iter_type = 'RRE'; iters = 4e3;
 % iter_type = 'MPE'; iters = 4e3;
+conditions.left  = 'Dirichlet';
+conditions.right = 'Dirichlet';
+conditions.up    = 'Neumann';
+conditions.down  = 'Neumann';
+
 
 %% We use NDGRID convention (X is 1st, Y is 2nd)
 [X, Y] = ndgrid(x, y);
@@ -24,11 +31,11 @@ sz = [numel(x) numel(y)];
 % - U is the function itself (for boundary conditions).
 % - L is the diverence of C * grad(U).
 % It is useful for solver's verification.
-U = @(X, Y) X.^2 + Y.^2;
-Ux = @(X, Y) 2*X;
-Uy = @(X, Y) 2*Y;
-C = @(X, Y) 0*X + 1;
-L = @(X, Y) 0*X + 4;
+U = @(X, Y) sin(X) - cos(Y);
+Ux = @(X, Y) cos(X);
+Uy = @(X, Y) sin(Y);
+C = @(X, Y) exp(X - Y);
+L = @(X, Y) -exp(X - Y) .* (sin(X) - cos(X) - cos(Y) + sin(Y));
 
 %% We actually solve the linear system: Av = f
 fprintf('Compute Laplacian on %d x %d grid... ', numel(x), numel(y)); tic;
@@ -43,27 +50,42 @@ Bu = boundary(I, [0 +1]); Iu = shift(Bu, [0 -1]);
 
 % Add boundary conditions for X:
 if sz(1) > 1
-    [A, f] = dirichlet( A, f, find(Bl), U(X(Bl), Y(Bl)) );
-    [A, f] = dirichlet( A, f, find(Br), U(X(Br), Y(Br)) );
-    
-%     [A, f] = neumann(A, f, find(Bl), find(Il), ...
-%         Ux((X(Bl) + X(Il))/2, (Y(Bl) + Y(Il))/2) .* (X(Bl) - X(Il)));
-    
-%     [A, f] = neumann(A, f, find(Br), find(Ir), ...
-%         Ux((X(Br) + X(Ir))/2, (Y(Br) + Y(Ir))/2) .* (X(Br) - X(Ir)));
+    switch conditions.left
+        case 'Dirichlet'
+            [A, f] = dirichlet( A, f, find(Bl), U(X(Bl), Y(Bl)) );
+        case 'Neumann'
+            [A, f] = neumann(A, f, find(Bl), find(Il), ...
+                Ux((X(Bl) + X(Il))/2, (Y(Bl) + Y(Il))/2) .* (X(Bl) - X(Il)));
+    end
+    switch conditions.right
+        case 'Dirichlet'
+            [A, f] = dirichlet( A, f, find(Br), U(X(Br), Y(Br)) );
+        case 'Neumann'
+            [A, f] = neumann(A, f, find(Br), find(Ir), ...
+                Ux((X(Br) + X(Ir))/2, (Y(Br) + Y(Ir))/2) .* (X(Br) - X(Ir)));
+    end
 end
 % Add boundary conditions for Y:
 if sz(2) > 1
-%     [A, f] = dirichlet( A, f, find(Bd), U(X(Bd), Y(Bd)) );
-%     [A, f] = dirichlet( A, f, find(Bu), U(X(Bu), Y(Bu)) );
+    switch conditions.down
+        case 'Dirichlet'
+            [A, f] = dirichlet( A, f, find(Bd), U(X(Bd), Y(Bd)) );
+        case 'Neumann'
+            [A, f] = neumann(A, f, find(Bd), find(Id), ...
+                Uy((X(Bd) + X(Id))/2, (Y(Bd) + Y(Id))/2) .* (Y(Bd) - Y(Id)));
+    end
 
-    [A, f] = neumann(A, f, find(Bd), find(Id), ...
-        Uy((X(Bd) + X(Id))/2, (Y(Bd) + Y(Id))/2) .* (Y(Bd) - Y(Id)));
+    switch conditions.up
+        case 'Dirichlet'
+            [A, f] = dirichlet( A, f, find(Bu), U(X(Bu), Y(Bu)) );
+        case 'Neumann'
+            [A, f] = neumann(A, f, find(Bu), find(Iu), ...
+                Uy((X(Bu) + X(Iu))/2, (Y(Bu) + Y(Iu))/2) .* (Y(Bu) - Y(Iu)));
+    end
 
-    [A, f] = neumann(A, f, find(Bu), find(Iu), ...
-        Uy((X(Bu) + X(Iu))/2, (Y(Bu) + Y(Iu))/2) .* (Y(Bu) - Y(Iu)));
     
 end
+% Eliminate boundary variables, forming linear system only for the interior.
 [A, f] = eliminate(A, f, find(~I));
 
 %% Sanity checks for the linear system
@@ -97,8 +119,10 @@ if any(strcmpi(iter_type, {'MPE', 'RRE'}))
     cycle = 20; % Actually each iteration computes (cycle + 1) vectors.
     iters = iters / cycle;
     [Uf, residuals] = extrapolate(Ui, @(u) T*u + d, cycle, iters, iter_type);
-else
+elseif ~isempty(iter_type)
     [Uf, residuals] = iterate(Ui, T, d, iters, iter_type); 
+else
+    Uf = A \ f;    
 end
 fprintf('(%.3fs)\n', toc);
 
