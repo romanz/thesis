@@ -37,18 +37,23 @@ f = L(X, Y); % Right-hand side of the equation
 f = M * f(:); % Multiply by preconditioner
 f = reshape(f, sz);
 
+Bl = boundary(I, [-1 0]);
+Br = boundary(I, [+1 0]);
+Bd = boundary(I, [0 -1]);
+Bu = boundary(I, [0 +1]);
+
 % Add boundary conditions for X:
 if sz(1) > 1
-    [A, f] = dirichlet(A, f, I, [-1 0], X, Y, U);
-%     [A, f] = neumann(A, f, I, [+1 0], X, Y, Ux, Uy);
-    [A, f] = dirichlet(A, f, I, [+1 0], X, Y, U);
-%     [A, f] = neumann(A, f, I, [-1 0], X, Y, Ux, Uy);
+    [A, f] = dirichlet( A, f, find(Bl), U(X(Bl), Y(Bl)) );
+%     [A, f] = neumann(A, f, find(Br), Ux, Uy);
+    [A, f] = dirichlet( A, f, find(Br), U(X(Br), Y(Br)) );
+%     [A, f] = neumann(A, f, find(Bl), Ux, Uy);
 end
 % Add boundary conditions for Y:
 if sz(2) > 1
-%     [A, f] = dirichlet(A, f, I, [0 +1], X, Y, U);
+%     [A, f] = dirichlet( A, f, find(Bd), U(X(Bd), Y(Bd)) );
     [A, f] = neumann(A, f, I, [0 -1], X, Y, Ux, Uy);
-%     [A, f] = dirichlet(A, f, I, [0 -1], X, Y, U);
+%     [A, f] = dirichlet( A, f, find(Bu), U(X(Bu), Y(Bu)) );
     [A, f] = neumann(A, f, I, [0 +1], X, Y, Ux, Uy);
 end
 
@@ -91,6 +96,6 @@ fprintf('(%.3fs)\n', toc);
 % Save and show the results.
 mat_file = 'results.mat';
 save(mat_file)
-err = show(mat_file); 
+err = show(load(mat_file));
 fprintf('error: %e\n', err);
 % full(A), f
