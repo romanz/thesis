@@ -74,7 +74,6 @@ if sz(2) > 1
             [A, f] = neumann(A, f, find(Bd), find(Id), ...
                 Uy((X(Bd) + X(Id))/2, (Y(Bd) + Y(Id))/2) .* (Y(Bd) - Y(Id)));
     end
-
     switch conditions.up
         case 'Dirichlet'
             [A, f] = dirichlet( A, f, find(Bu), U(X(Bu), Y(Bu)) );
@@ -82,24 +81,10 @@ if sz(2) > 1
             [A, f] = neumann(A, f, find(Bu), find(Iu), ...
                 Uy((X(Bu) + X(Iu))/2, (Y(Bu) + Y(Iu))/2) .* (Y(Bu) - Y(Iu)));
     end
-
-    
 end
 % Eliminate boundary variables, forming linear system only for the interior.
 [A, f] = eliminate(A, f, find(~I));
-
-%% Sanity checks for the linear system
-% Verify that boundary variables are eliminated properly.
-assert(nnz(A(~I, :)) == 0); 
-assert(nnz(A(:, ~I)) == 0); 
-assert(nnz(f(~I)) == 0);
-% Verify that all entries are valid real numbers:
-assert(nnz(isnan(A) | isinf(A)) == 0)
-% Verify that the matrix is symmetric (the original operator is self-adjoint):
-assert(nnz(A - A') == 0)
-
-%% Restrict the problem to interior variables and constuct iteration matrix
-A = A(I, I); f = f(I);
+[A, f] = restrict(A, f, I, true);
 fprintf('(%.3fs)\n', toc);
 
 fprintf('Construct Jacobi iteration... '); tic;
@@ -132,3 +117,10 @@ save(mat_file)
 err = show(load(mat_file));
 fprintf('error: %e\n', err);
 % full(A), f
+
+%% Expected output:
+% Compute Laplacian on 65 x 33 grid... (2.747s)
+% Construct Jacobi iteration... (0.166s)
+% Maximal eigenvalue of T: 0.9988276216 => 1963 iterations/decade
+% Apply Jacobi solver [30000]... (5.132s)
+% error: 8.374371e-006
