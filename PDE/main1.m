@@ -5,9 +5,9 @@ fprintf('\n');
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
 
 %% Create grid for the solver.
-m = 5;
-x = logspace(-1, 0, 1+2*2^m); 
-y = 1+linspace(-1, 0, 1+2^m); 
+m = 6;
+x = linspace(-1, 1, 1+2^m); 
+y = linspace(-1, 1, 1+2^m); 
 
 %% # of iterations
 iters = 30e3;
@@ -17,34 +17,39 @@ iter_type = 'Jacobi';
 % iter_type = 'RedBlack'; iters = iters / 2;
 % iter_type = 'RRE'; iters = 4e3;
 % iter_type = 'MPE'; iters = 4e3;
+
+% Dirichlet/Nemunann
 conditions.left  = 'Dirichlet';
 conditions.right = 'Dirichlet';
-conditions.up    = 'Neumann';
-conditions.down  = 'Neumann';
-
+conditions.up    = 'Dirichlet';
+conditions.down  = 'Dirichlet';
 
 %% We use NDGRID convention (X is 1st, Y is 2nd)
 sz = [numel(x) numel(y)];
+Z = zeros(sz);
 I = interior(sz);
 [X, Y] = ndgrid(x, y);
-Vx = stagger(I, X, Y, 1, @(x, y) x + y);
-Vy = stagger(I, X, Y, 2, @(x, y) x - y);
-
+Vx = stagger(I, X, Y, 1, @(x, y) x+y);
+Vy = stagger(I, X, Y, 2, @(x, y) x-y);
+alpha = 5;
 %% Create solutions for the specific diff. eq. instance.
 % - U is the function itself (for boundary conditions).
 % - L is the diverence of C * grad(U).
 % It is useful for solver's verification.
-U = @(X, Y) sin(X) - cos(Y);
-Ux = @(X, Y) cos(X);
-Uy = @(X, Y) sin(Y);
-C = @(X, Y) exp(X - Y);
-L = @(X, Y) -exp(X - Y) .* (sin(X) - cos(X) - cos(Y) + sin(Y));
+U = @(X, Y) (X.^2 + Y.^2)/2;
+Ux = @(X, Y) X;
+Uy = @(X, Y) Y;
+C = @(X, Y) 1 +Z;
+F = @(X, Y) 2 -alpha*(X.^2 + 2*X.*Y - Y.^2); %
 
 %% We actually solve the linear system: Av = f
 fprintf('Compute Laplacian on %d x %d grid... ', numel(x), numel(y)); tic;
 [A, M] = laplacian(I, X, Y, C(X, Y));
-f = L(X, Y); % Right-hand side of the equation
-f = M * f(:); % Multiply by preconditioner
+f = F(X, Y); % Right-hand side of the equation
+% NOTE: We have to multiply A by "preconditioner" M
+A = dinv(M) * A - alpha * advection(I, X, Y, Vx, Vy, 'central');
+f = f(:); 
+f(~I) = 0;
 
 Bl = boundary(I, [-1 0]); Il = shift(Bl, [+1 0]);
 Br = boundary(I, [+1 0]); Ir = shift(Br, [-1 0]);
@@ -87,16 +92,16 @@ if sz(2) > 1
 end
 % Eliminate boundary variables, forming linear system only for the interior.
 [A, f] = eliminate(A, f, find(~I));
-[A, f] = restrict(A, f, I, true);
+[A, f] = restrict(A, f, I, false);
 fprintf('(%.3fs)\n', toc);
 
 fprintf('Construct Jacobi iteration... '); tic;
 [R, T, d] = jacobi(A, f); fprintf('(%.3fs)\n', toc);
 
-fprintf('Maximal eigenvalue of T: ');
-lambda = abs(max_eigs(T, 1));
-fprintf('%.10f => %d iterations/decade\n', ...
-    lambda, ceil(-1/log10(lambda)));
+% fprintf('Maximal eigenvalue of T: ');
+% lambda = abs(max_eigs(T, 1));
+% fprintf('%.10f => %d iterations/decade\n', ...
+%     lambda, ceil(-1/log10(lambda)));
 
 %% Iteration phase
 randn('state', 1);

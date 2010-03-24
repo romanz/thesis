@@ -1,6 +1,7 @@
-function [VG, interior] = gradient(interior, X, Y, Vx, Vy, method)
+function [A, interior] = advection(interior, X, Y, Vx, Vy, method)
 %% Gradient discretization using sparse matrix
 sz = size(interior);
+N = numel(interior);
 
 ind = @(I, J) sub2ind(sz, I, J);
 K = find(interior); % Fill only interior points
@@ -13,7 +14,7 @@ Jp = repmat(J, [1 3]);
 Kp = repmat(K, [1 3]); % interior variables' indices, for 1D stencil
 
 switch method
-    case 'upstream'
+    case 'upwind'
         Dx = sparse(N, N);
         if sz(1) > 1 % for X
             Kr = ind(I+1, J); % Left
@@ -42,8 +43,8 @@ switch method
             Dy = sparse(K, K, (Sy > 0) .* Vy(:, 1:end-1), N, N) * Dy_d + ...
                  sparse(K, K, (Sy < 0) .* Vy(:, 2:end  ), N, N) * Dy_u;
         end
-        VG = Dx + Dy;
-    case 'centered'
+
+    case 'central'
         Dx = sparse(N, N);
         if sz(1) > 1 % for X
             Kr = ind(I+1, J); % Left
@@ -62,8 +63,9 @@ switch method
             Dy = sparse(K, K, Vy(:)./(Y(Ku) - Y(Kd)), N, N) * ...
                  sparse(Kp, P, ones(size(K)) * [1 0 -1], N, N);
         end
-        VG = Dx + Dy;
         
     otherwise
         error('Unsupported %s!', method)
 end
+
+A = Dx + Dy;
