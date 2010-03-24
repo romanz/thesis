@@ -1,11 +1,6 @@
-function [VG, interior] = gradient(sz, X, Y, Vx, Vy, method)
+function [VG, interior] = gradient(interior, X, Y, Vx, Vy, method)
 %% Gradient discretization using sparse matrix
-N = prod(sz);
-interior = true(sz);
-
-% Compute interior points' indices (special handling of 1D)
-if sz(1) > 1,   interior([1 sz(1)], :) = false; end
-if sz(2) > 1,   interior(:, [1 sz(2)]) = false; end
+sz = size(interior);
 
 ind = @(I, J) sub2ind(sz, I, J);
 K = find(interior); % Fill only interior points

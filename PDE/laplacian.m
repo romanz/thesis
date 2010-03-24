@@ -1,15 +1,10 @@
-function [L, M, interior] = laplacian(sz, X, Y, C)
+function [L, M] = laplacian(interior, X, Y, C)
 %% Laplacian discretization using sparse matrix
+sz = size(interior);
 N = prod(sz);
-interior = true(sz);
-
 if nargin < 4
     C = ones(sz); % Assume uniform C
 end
-
-% Compute interior points' indices (special handling of 1D)
-if sz(1) > 1,   interior([1 sz(1)], :) = false; end
-if sz(2) > 1,   interior(:, [1 sz(2)]) = false; end
 
 ind = @(I, J) sub2ind(sz, I, J);
 K = find(interior); % Fill only interior points

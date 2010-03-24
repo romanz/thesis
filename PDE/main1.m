@@ -24,8 +24,11 @@ conditions.down  = 'Neumann';
 
 
 %% We use NDGRID convention (X is 1st, Y is 2nd)
-[X, Y] = ndgrid(x, y);
 sz = [numel(x) numel(y)];
+I = interior(sz);
+[X, Y] = ndgrid(x, y);
+Vx = stagger(I, X, Y, 1, @(x, y) x + y);
+Vy = stagger(I, X, Y, 2, @(x, y) x - y);
 
 %% Create solutions for the specific diff. eq. instance.
 % - U is the function itself (for boundary conditions).
@@ -39,7 +42,7 @@ L = @(X, Y) -exp(X - Y) .* (sin(X) - cos(X) - cos(Y) + sin(Y));
 
 %% We actually solve the linear system: Av = f
 fprintf('Compute Laplacian on %d x %d grid... ', numel(x), numel(y)); tic;
-[A, M, I] = laplacian(sz, X, Y, C(X, Y));
+[A, M] = laplacian(I, X, Y, C(X, Y));
 f = L(X, Y); % Right-hand side of the equation
 f = M * f(:); % Multiply by preconditioner
 
