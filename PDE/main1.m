@@ -5,12 +5,12 @@ fprintf('\n');
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
 
 %% Create grid for the solver.
-m = 8;
+m = 6;
 x = linspace(-1, 1, 1+2^m); 
 y = linspace(-1, 1, 1+2^m); 
 
 %% # of iterations
-iters = 500e3;
+iters = 20e3;
 
 iter_type = '';
 iter_type = 'Jacobi';
@@ -122,8 +122,8 @@ else
     Uf = Ar \ fr;
 end
 iter_time = toc;
-fprintf('(%.3fs) [%.1fns/{iteration x cell}]\n', ...
-    iter_time, 1e9*iter_time/(iters*N));
+fprintf('(%.3fs) [%.1fns/cell]\n', ...
+    iter_time, 1e9*iter_time/(iters*N)); % ~50ns
 
 % Save and show the results.
 mat_file = 'results.mat';
