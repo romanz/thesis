@@ -1,4 +1,4 @@
-function [L, M] = laplacian(interior, X, Y, C)
+function A = laplacian(interior, X, Y, C)
 %% Laplacian discretization using sparse matrix
 sz = size(interior);
 N = prod(sz);
@@ -58,3 +58,4 @@ end
 % Pre-multiply it by (Mxx * Myy) for symmetry of A.
 M = Mxx * Myy;
 L = Myy * Dxx + Mxx * Dyy;
+A = dinv(M) * L;

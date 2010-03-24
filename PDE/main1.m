@@ -5,16 +5,16 @@ fprintf('\n');
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
 
 %% Create grid for the solver.
-m = 6;
+m = 7;
 x = linspace(-1, 1, 1+2^m); 
 y = linspace(-1, 1, 1+2^m); 
 
 %% # of iterations
-iters = 30e3;
+iters = 70e3;
 
 iter_type = '';
 iter_type = 'Jacobi';
-% iter_type = 'RedBlack'; iters = iters / 2;
+iter_type = 'RedBlack'; iters = iters / 2;
 % iter_type = 'RRE'; iters = 4e3;
 % iter_type = 'MPE'; iters = 4e3;
 
@@ -44,12 +44,11 @@ F = @(X, Y) 2 -alpha*(X.^2 + 2*X.*Y - Y.^2); %
 
 %% We actually solve the linear system: Av = f
 fprintf('Compute Laplacian on %d x %d grid... ', numel(x), numel(y)); tic;
-[A, M] = laplacian(I, X, Y, C(X, Y));
-f = F(X, Y); % Right-hand side of the equation
-% NOTE: We have to multiply A by "preconditioner" M
-A = dinv(M) * A - alpha * advection(I, X, Y, Vx, Vy, 'central');
-f = f(:); 
-f(~I) = 0;
+diffusion = laplacian(I, X, Y, C(X, Y));
+fi = F(X, Y); % Right-hand side of the equation
+Ai = diffusion - alpha * advection(I, X, Y, Vx, Vy, 'central');
+fi = fi(:); 
+fi(~I) = 0;
 
 Bl = boundary(I, [-1 0]); Il = shift(Bl, [+1 0]);
 Br = boundary(I, [+1 0]); Ir = shift(Br, [-1 0]);
@@ -57,19 +56,22 @@ Bd = boundary(I, [0 -1]); Id = shift(Bd, [0 +1]);
 Bu = boundary(I, [0 +1]); Iu = shift(Bu, [0 -1]);
 
 % Add boundary conditions for X:
+N = prod(sz);
+Ab = spalloc(N, N, N);
+fb = zeros(N, 1);
 if sz(1) > 1
     switch conditions.left
         case 'Dirichlet'
-            [A, f] = dirichlet( A, f, find(Bl), U(X(Bl), Y(Bl)) );
+            [Ab, fb] = dirichlet( Ab, fb, find(Bl), U(X(Bl), Y(Bl)) );
         case 'Neumann'
-            [A, f] = neumann(A, f, find(Bl), find(Il), ...
+            [Ab, fb] = neumann(Ab, fb, find(Bl), find(Il), ...
                 Ux((X(Bl) + X(Il))/2, (Y(Bl) + Y(Il))/2) .* (X(Bl) - X(Il)));
     end
     switch conditions.right
         case 'Dirichlet'
-            [A, f] = dirichlet( A, f, find(Br), U(X(Br), Y(Br)) );
+            [Ab, fb] = dirichlet( Ab, fb, find(Br), U(X(Br), Y(Br)) );
         case 'Neumann'
-            [A, f] = neumann(A, f, find(Br), find(Ir), ...
+            [Ab, fb] = neumann(Ab, fb, find(Br), find(Ir), ...
                 Ux((X(Br) + X(Ir))/2, (Y(Br) + Y(Ir))/2) .* (X(Br) - X(Ir)));
     end
 end
@@ -77,26 +79,28 @@ end
 if sz(2) > 1
     switch conditions.down
         case 'Dirichlet'
-            [A, f] = dirichlet( A, f, find(Bd), U(X(Bd), Y(Bd)) );
+            [Ab, fb] = dirichlet( Ab, fb, find(Bd), U(X(Bd), Y(Bd)) );
         case 'Neumann'
-            [A, f] = neumann(A, f, find(Bd), find(Id), ...
+            [Ab, fb] = neumann(Ab, fb, find(Bd), find(Id), ...
                 Uy((X(Bd) + X(Id))/2, (Y(Bd) + Y(Id))/2) .* (Y(Bd) - Y(Id)));
     end
     switch conditions.up
         case 'Dirichlet'
-            [A, f] = dirichlet( A, f, find(Bu), U(X(Bu), Y(Bu)) );
+            [Ab, fb] = dirichlet( Ab, fb, find(Bu), U(X(Bu), Y(Bu)) );
         case 'Neumann'
-            [A, f] = neumann(A, f, find(Bu), find(Iu), ...
+            [Ab, fb] = neumann(Ab, fb, find(Bu), find(Iu), ...
                 Uy((X(Bu) + X(Iu))/2, (Y(Bu) + Y(Iu))/2) .* (Y(Bu) - Y(Iu)));
     end
 end
+assert(nnz(Ai & Ab) == 0);
+assert(nnz(fi & fb) == 0);
 % Eliminate boundary variables, forming linear system only for the interior.
-[A, f] = eliminate(A, f, find(~I));
-[A, f] = restrict(A, f, I, false);
+[Ae, fe] = eliminate(Ai + Ab, fi + fb, find(~I));
+[Ar, fr] = restrict(Ae, fe, I, false);
 fprintf('(%.3fs)\n', toc);
 
 fprintf('Construct Jacobi iteration... '); tic;
-[R, T, d] = jacobi(A, f); fprintf('(%.3fs)\n', toc);
+[R, T, d] = jacobi(Ar, fr); fprintf('(%.3fs)\n', toc);
 
 % fprintf('Maximal eigenvalue of T: ');
 % lambda = abs(max_eigs(T, 1));
@@ -115,7 +119,7 @@ if any(strcmpi(iter_type, {'MPE', 'RRE'}))
 elseif ~isempty(iter_type)
     [Uf, residuals] = iterate(Ui, T, d, iters, iter_type); 
 else
-    Uf = A \ f;    
+    Uf = Ar \ fr;
 end
 fprintf('(%.3fs)\n', toc);
 
@@ -124,7 +128,6 @@ mat_file = 'results.mat';
 save(mat_file)
 err = show(load(mat_file));
 fprintf('error: %e\n', err);
-% full(A), f
 
 %% Expected output:
 % Compute Laplacian on 65 x 33 grid... (2.747s)

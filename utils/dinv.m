@@ -1,6 +1,6 @@
 function R = dinv(A)
 % R = pseudo-inverse of diag(A).
-d = diag(A);
+d = full(diag(A));
 I = find(d);
 d(I) = 1 ./ d(I);
 N = numel(d);
