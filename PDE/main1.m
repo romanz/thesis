@@ -5,16 +5,16 @@ fprintf('\n');
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
 
 %% Create grid for the solver.
-m = 7;
+m = 8;
 x = linspace(-1, 1, 1+2^m); 
 y = linspace(-1, 1, 1+2^m); 
 
 %% # of iterations
-iters = 70e3;
+iters = 500e3;
 
 iter_type = '';
 iter_type = 'Jacobi';
-iter_type = 'RedBlack'; iters = iters / 2;
+% iter_type = 'RedBlack'; iters = iters / 2;
 % iter_type = 'RRE'; iters = 4e3;
 % iter_type = 'MPE'; iters = 4e3;
 
@@ -26,6 +26,7 @@ conditions.down  = 'Dirichlet';
 
 %% We use NDGRID convention (X is 1st, Y is 2nd)
 sz = [numel(x) numel(y)];
+N = prod(sz);
 Z = zeros(sz);
 I = interior(sz);
 [X, Y] = ndgrid(x, y);
@@ -56,7 +57,6 @@ Bd = boundary(I, [0 -1]); Id = shift(Bd, [0 +1]);
 Bu = boundary(I, [0 +1]); Iu = shift(Bu, [0 -1]);
 
 % Add boundary conditions for X:
-N = prod(sz);
 Ab = spalloc(N, N, N);
 fb = zeros(N, 1);
 if sz(1) > 1
@@ -121,7 +121,9 @@ elseif ~isempty(iter_type)
 else
     Uf = Ar \ fr;
 end
-fprintf('(%.3fs)\n', toc);
+iter_time = toc;
+fprintf('(%.3fs) [%.1fns/{iteration x cell}]\n', ...
+    iter_time, 1e9*iter_time/(iters*N));
 
 % Save and show the results.
 mat_file = 'results.mat';

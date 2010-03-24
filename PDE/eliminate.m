@@ -10,9 +10,14 @@ assert(nnz(S - diag(diag(S))) == 0)
 R1(J, J) = dinv(S);
 M = R1 * M;
 
-R2 = speye(N);
-R2(:, J) = -A(:, J);
-R2(J, J) = 0;
+I = true(N, 1);
+I(J) = false;
+I = find(I);
+
+S = A(I, J);
+[r, c, v] = find(S);
+R2 = sparse([I; I(r)], [I; J(c)], ...
+    [ones(numel(I), 1); -v], N, N);
 M = R2 * M;
 
 A = M(:, 1:end-1);
