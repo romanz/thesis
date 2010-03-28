@@ -164,12 +164,13 @@ Take $\mathscr{V} = -\ln \gamma$ and note that:
 \begin{eqnarray}
   \frac{\partial}{\partial R} \ln C &=&
   \frac{1}{C}\frac{\partial C}{\partial R} =
-  \frac{\partial \varPhi}{\partial R}
+  \frac{\partial \varPhi}{\partial R} \\
+  \varPhi &=& -\ln C
 \end{eqnarray}
 Use ghost-point \#0 to write the following boundary equations:
 \begin{eqnarray}
-  \varPhi_1 + \varPhi_0 &=& - \ln C_1 - \ln C_0 \\
-  \varPhi_1 - \varPhi_0 &=& \ln C_1 - \ln C_0
+  \varPhi_1 - \varPhi_0 &=& \ln C_1 - \ln C_0 \\
+  \varPhi_1 + \varPhi_0 &=& - \ln C_1 - \ln C_0 
 \end{eqnarray}
 Add and subtract to get 2 Dirichlet conditions:
 \begin{eqnarray}
@@ -209,6 +210,7 @@ The continuous solution is:
 \begin{eqnarray}
   f(x) &=& \frac{e^{\alpha x} - 1}{e^{\alpha} - 1}
 \end{eqnarray}
+
 \subsection{Central difference}
 We start by using the following scheme:
 \begin{eqnarray}
@@ -277,7 +279,7 @@ Suppose $f(x) = ax^2 + bx + c$:
 Note that:
 \begin{eqnarray}
   f(0) - f(-h) &=& bh - ah^2 \\
-  f(0) - f(-2h) &=& 2bh - 4ah^2 
+  f(0) - f(-2h) &=& 2bh - 4ah^2
 \end{eqnarray}
 This way we get 2nd order upwind approximation for the derivative $f'(0) = b$:
 \begin{eqnarray}
