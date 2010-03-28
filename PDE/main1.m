@@ -5,12 +5,12 @@ fprintf('\n');
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
 
 %% Create grid for the solver.
-m = 6;
-x = linspace(-1, 1, 1+2^m); 
-y = linspace(-1, 1, 1+2^m); 
+m = 5;
+x = linspace(0, 1, 1+2^m); 
+y = linspace(0, 1, 1+2^m); 
 
 %% # of iterations
-iters = 20e3;
+iters = 10e3;
 
 iter_type = '';
 iter_type = 'Jacobi';
@@ -21,7 +21,7 @@ iter_type = 'Jacobi';
 % Dirichlet/Nemunann
 conditions.left  = 'Dirichlet';
 conditions.right = 'Dirichlet';
-conditions.up    = 'Dirichlet';
+conditions.up    = 'Dirichlet'; % 'Neumann'; 
 conditions.down  = 'Dirichlet';
 
 %% We use NDGRID convention (X is 1st, Y is 2nd)
@@ -30,18 +30,18 @@ N = prod(sz);
 Z = zeros(sz);
 I = interior(sz);
 [X, Y] = ndgrid(x, y);
-Vx = stagger(I, X, Y, 1, @(x, y) x+y);
-Vy = stagger(I, X, Y, 2, @(x, y) x-y);
-alpha = 5;
+Vx = stagger(I, X, Y, 1, @(x, y) y);
+Vy = stagger(I, X, Y, 2, @(x, y) x);
+alpha = 1;
 %% Create solutions for the specific diff. eq. instance.
 % - U is the function itself (for boundary conditions).
 % - L is the diverence of C * grad(U).
 % It is useful for solver's verification.
-U = @(X, Y) (X.^2 + Y.^2)/2;
-Ux = @(X, Y) X;
-Uy = @(X, Y) Y;
-C = @(X, Y) 1 +Z;
-F = @(X, Y) 2 -alpha*(X.^2 + 2*X.*Y - Y.^2); %
+U = @(X, Y) X .* Y;
+Ux = @(X, Y) Y;
+Uy = @(X, Y) X;
+C = @(X, Y) 1 + X .* Y;
+F = @(X, Y) Z;
 
 %% We actually solve the linear system: Av = f
 fprintf('Compute Laplacian on %d x %d grid... ', numel(x), numel(y)); tic;
