@@ -1,2 +1,2 @@
-python -c "import os, time; os.system('hg arch -t zip numerics_%%s.zip' %% time.strftime('%%Y.%%m.%%d_%%H.%%M.%%S'))"
+python -c "import os, time; os.system('hg arch -X *.cmd -t zip numerics_%%s.zip' %% time.strftime('%%Y.%%m.%%d'))"
 pause
