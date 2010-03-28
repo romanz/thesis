@@ -1,8 +1,12 @@
-function [u, residuals] = iterate(u, T, d, iters, iter_type)
+function [u, residuals] = iterate(u, T, d, iters, iter_type, msg)
 % Apply an iterative scheme to solve u' = Cu + d.
 
-if nargin < 4
+if nargin < 5
     iter_type = ''; % Use plain Jacobi iteration.
+end
+
+if nargin < 6
+    msg = 'progress';
 end
 
 % Keep the original size and convert to column vector:
@@ -10,7 +14,10 @@ sz = size(u);
 u = u(:);
 N = numel(u);
 residuals = zeros(iters, 1);
-h = progress([], 0, sprintf('%s Iteration', iter_type));
+
+if strcmpi(msg, 'progress')
+    h = progress([], 0, sprintf('%s Iteration', iter_type));
+end
 
 if strcmpi(iter_type, 'redblack')
     % Prepare Checkerboard pattern
@@ -30,7 +37,9 @@ if strcmpi(iter_type, 'redblack')
         u(red) = T_red * u + d_red; % Update u's red interior.
         u(black) = T_black * u + d_black; % Update u's black interior.
         residuals(iter) = norm(u - u_old);
-        h = progress(h, iter/iters);
+        if strcmpi(msg, 'progress')
+            h = progress(h, iter/iters);
+        end
     end
 else
     % Plain Jacobi iteration:
@@ -38,8 +47,12 @@ else
         u_old = u;
         u = T * u + d;
         residuals(iter) = norm(u - u_old);
-        h = progress(h, iter/iters);
+        if strcmpi(msg, 'progress')
+            h = progress(h, iter/iters);
+        end
     end
 end
-progress(h, []);
+if strcmpi(msg, 'progress')
+    progress(h, []);
+end
 u = reshape(u, sz);
