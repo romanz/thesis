@@ -5,12 +5,12 @@ fprintf('\n');
 % Laplacian is discretized on a grid, and Jacobi iteration is used.
 
 %% Create grid for the solver.
-m = 5;
+m = 7;
 x = linspace(0, 1, 1+2^m); 
 y = linspace(0, 1, 1+2^m); 
 
 %% # of iterations
-iters = 10e3;
+iters = 120e3;
 
 iter_type = '';
 iter_type = 'Jacobi';
