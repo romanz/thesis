@@ -24,6 +24,14 @@ real_t normalize(real_t *v, size_t dim)
     return norm;
 }
 
+void mpe(real_t *R, real_t *gamma, size_t num)
+{
+}
+
+void rre(real_t *R, real_t *gamma, size_t num)
+{
+}
+
 void mgs(real_t *vectors, real_t *R, size_t dim, size_t num)
 {
     for (size_t k = 0; k < num * num; ++k)
@@ -48,11 +56,10 @@ void mgs(real_t *vectors, real_t *R, size_t dim, size_t num)
 
 int extrapolate(real_t *vectors, size_t dim, size_t num, int method)
 {
-    size_t i;
     real_t *const v0 = vectors;
 
     /* Compute differences */
-    for (i = num - 1; i > 0; --i) {
+    for (size_t i = num - 1; i > 0; --i) {
         real_t *v = vectors + i * dim;
         real_t *u = v - dim;
         for (size_t k = 0; k < dim; ++k)
@@ -66,23 +73,31 @@ int extrapolate(real_t *vectors, size_t dim, size_t num, int method)
     mgs(vectors, R, dim, num);
     
     /* Compute coefficients */
+    real_t gamma[num];
     switch (method) {
-        case MPE:
-            break;
-        case RRE:
-            break;
-        default:
-            return 0;
+        case MPE:	mpe(R, gamma, num); break;
+        case RRE:  	rre(R, gamma, num); break;
+        default:    return -1;
     }
-    real_t eta[num];
     
-    /* Compute the solution */
-    for (size_t k = 0; k < num; ++k) {
-        real_t *u = vectors + k * dim;
-        int i;
-        for (i = 0; i < dim; ++i) {        
-            v0[i] = v0[i] + eta[k] * u[i];
+	/* xi = 1 - cumsum(gamma) */
+    for (size_t i = 1; i < num; ++i)
+    	gamma[i] = gamma[i] + gamma[i-1];
+	real_t xi[num];
+    for (size_t i = 0; i < num; ++i)
+    	xi[i] = 1 - gamma[i];
+
+	/* eta = R * xi */
+	real_t eta[num];
+    for (size_t i = 0; i < num; ++i)
+    	eta[i] = dot(R + i*num, xi, num);
+    
+    /* Compute the solution: v0 + Q * eta */
+    for (size_t i = 0; i < num; ++i) {
+        real_t *q = vectors + i * dim;
+        for (size_t k = 0; k < dim; ++k) {
+            v0[k] = v0[k] + q[k] * eta[i];
         }
     }
-    return 1;
+    return 0;
 }
