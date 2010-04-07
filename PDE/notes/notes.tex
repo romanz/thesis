@@ -196,6 +196,11 @@ Using symmetry considerations, we have Neumann conditions:
 
 \section{Advection}
 \subsection{Differential equation}
+\begin{equation}
+	\bnabla^2 C - \alpha \mathbf{V} \bcdot \bnabla C = 0	
+\end{equation}
+
+\subsection{1D example}
 \begin{eqnarray}
   f'' - \alpha f' = 0 \\
   f(0) = 0 \\ f(1) = 1
@@ -287,7 +292,28 @@ This way we get 2nd order upwind approximation for the derivative $f'(0) = b$:
   b &=& \frac{3f(0) - 4f(-h) + f(-2h)}{2h}
 \end{eqnarray}
 
+\section{Polar Coordinates}
+\begin{eqnarray}
+\bnabla f &=& \frac{\partial f}{\partial r} \mathbf{\hat{r}} +
+\frac{1}{r} \frac{\partial f}{\partial \theta} \mathbf{\hat{\theta}} 
+\\
+\bnabla \mathbf{\cdot} \mathbf{F} &=& \frac{1}{r}
+\left(
+\frac{\partial}{\partial r} (r F_r) + 
+\frac{\partial F_\theta}{\partial \theta} 
+\right)
+\\
+\bnabla^2 f &=& \frac{1}{r}\frac{\partial}{\partial r} 
+\left( r \frac{\partial f}{\partial r} \right) + 
+\frac{1}{r^2}\frac{\partial^2 f}{\partial \theta^2}
+\end{eqnarray}
+
+
 \section{Stokes}
-$- \bnabla p + \mu \bnabla^2 \mathbf{v} = \mathbf{f}$
+\begin{eqnarray}
+ \bnabla P - \mu \bnabla^2 \mathbf{V} &=& \mathbf{F} \\
+ \bnabla \bcdot \mathbf{V} &=& 0
+\end{eqnarray}
+ \partial_x P - \mu \bnabla^2 V_x &=& F_x \\
 %%%%%%%%%%%%%%%%%%%%%%%
 \end{document} 
