@@ -42,3 +42,33 @@ Add diffusion-convection equation for C(x,y).
 11/03/2010
 
 http://www.flickr.com/photos/ramy_z/4424596997/
+28/03/2010
+
+Use Neumann conditions on R = infinity
+Less iterations for coupled solution
+Test coupling effect on convergence speed
+
+Switch to polar coordinates
+Stokes equation: 
+ Momentum : -\lapl V + \grad P = F
+ Mass     : \div V = 0
+ Incompressible uniform fluid.
+Discretization 
+P is in cell's center
+V is on cell's boundaries
+Boundary conditions are given on grid boundary.
+
+Organize variables (P, Vx, Vy).
+
+Neumann conditions allow mass conservation.
+
+Vanka:
+ Jacobi on several equations simultaneously.
+ Use cell's P and V = 5 variables (on boundary there are less).
+ Red-Black update may help out.
+
+Think:
+Upwind conservation rules?
+C is dipole concentration.
+P has no boundary conditions?
+
