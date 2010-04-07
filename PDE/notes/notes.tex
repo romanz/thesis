@@ -76,7 +76,7 @@
 \title{Notes on PDE numerics}
 \begin{document}
 \maketitle
-\section{PDEs}
+\section{Diffusion}
 \subsection{Laplace equation (follows from Gauss' law)}
 The electric potential satisfies the elliptic equation
 \begin{equation}
@@ -170,7 +170,7 @@ Take $\mathscr{V} = -\ln \gamma$ and note that:
 Use ghost-point \#0 to write the following boundary equations:
 \begin{eqnarray}
   \varPhi_1 - \varPhi_0 &=& \ln C_1 - \ln C_0 \\
-  \varPhi_1 + \varPhi_0 &=& - \ln C_1 - \ln C_0 
+  \varPhi_1 + \varPhi_0 &=& - \ln C_1 - \ln C_0
 \end{eqnarray}
 Add and subtract to get 2 Dirichlet conditions:
 \begin{eqnarray}
@@ -286,5 +286,8 @@ This way we get 2nd order upwind approximation for the derivative $f'(0) = b$:
   2bh &=& 4\left\{f(0) - f(-h)\right\} - \left\{f(0) - f(-2h)\right\} \\
   b &=& \frac{3f(0) - 4f(-h) + f(-2h)}{2h}
 \end{eqnarray}
+
+\section{Stokes}
+$- \bnabla p + \mu \bnabla^2 \mathbf{v} = \mathbf{f}$
 %%%%%%%%%%%%%%%%%%%%%%%
 \end{document} 
