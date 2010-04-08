@@ -15,7 +15,7 @@ real_t dot(const real_t *v, const real_t *u, size_t dim)
 {
     real_t res = 0;
     for (size_t k = 0; k < dim; ++k)
-        res = res + v[k]*u[k];
+        res = res + v[k] * u[k];
     return res;
 }
 
@@ -32,10 +32,12 @@ real_t normalize(real_t *v, size_t dim)
 
 void mpe(real_t *R, real_t *gamma, size_t num)
 {
+    /* TODO */
 }
 
 void rre(real_t *R, real_t *gamma, size_t num)
 {
+    /* TODO */
 }
 
 void mgs(real_t *vectors, real_t *R, size_t dim, size_t num)
@@ -86,17 +88,17 @@ int DLL_EXPORT extrapolate(real_t *vectors, size_t dim, size_t num, int method)
         default:    return -1;
     }
 
-	/* xi = 1 - cumsum(gamma) */
+    /* xi = 1 - cumsum(gamma) */
     for (size_t i = 1; i < num; ++i)
-    	gamma[i] = gamma[i] + gamma[i-1];
-	real_t xi[num];
+        gamma[i] = gamma[i] + gamma[i-1];
+    real_t xi[num];
     for (size_t i = 0; i < num; ++i)
-    	xi[i] = 1 - gamma[i];
+        xi[i] = 1 - gamma[i];
 
-	/* eta = R * xi */
-	real_t eta[num];
+    /* eta = R * xi */
+    real_t eta[num];
     for (size_t i = 0; i < num; ++i)
-    	eta[i] = dot(R + i*num, xi, num);
+        eta[i] = dot(R + i*num, xi, num);
 
     /* Compute the solution: v0 + Q * eta */
     for (size_t i = 0; i < num; ++i) {
