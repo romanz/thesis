@@ -8,3 +8,10 @@ syntax:glob
 *.ps
 *.pdf
 *.zip
+*.o
+*.a
+*.dll
+*.lib
+*.def
+*.layout
+*.depend
