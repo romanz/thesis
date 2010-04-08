@@ -322,6 +322,7 @@ This way we get 2nd order upwind approximation for the derivative $f'(0) = b$:
  x &\leftarrow& \sum_P P^T (PAP^T)^{-1} P (f - Ax + AP^T Px) \\
  x &\leftarrow& \sum_P P^T (PAP^T)^{-1} P r + \sum_P P^T (PAP^T)^{-1} P AP^T Px \\
  x &\leftarrow& (\sum_P P^T (PAP^T)^{-1} P) r + (\sum_P P^T P)x \\
+ x &\leftarrow& x + \left(\sum_i P_i^T \left(P_iAP_i^T\right)^{-1} P_i\right) (f - Ax)
 \end{eqnarray}
 
 %%%%%%%%%%%%%%%%%%%%%%%
