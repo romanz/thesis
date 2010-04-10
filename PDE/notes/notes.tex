@@ -33,6 +33,8 @@
 \newcommand{\suppsize}[1]{\ensuremath{|\mathcal{#1}|}}
 \newcommand{\vect}[1]{\ensuremath{\mathbf{#1}}}
 \newcommand{\matr}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\mat}[2]{\left(\begin{array}{#1}#2\end{array}\right)}
+\newcommand{\brc}[2]{\left\{\begin{array}{#1}#2\end{array}\right.}
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -312,6 +314,11 @@ This way we get 2nd order upwind approximation for the derivative $f'(0) = b$:
 \begin{eqnarray}
  \bnabla P - \mu \bnabla^2 \mathbf{V} &=& \mathbf{F} \\
  \bnabla \bcdot \mathbf{V} &=& 0
+\end{eqnarray}
+The following system is built:
+\begin{eqnarray}
+ \mat{ccc}{-\mu\bnabla^2 & 0 & \partial_x \\ 0 & -\mu\bnabla^2 & \partial_y \\ \partial_x & \partial_y & 0}
+ \mat{c}{V_x \\ V_y \\ P} &=& \mat{c}{F_x \\ F_y \\ 0}
 \end{eqnarray}
 
 \section{Vanka}
