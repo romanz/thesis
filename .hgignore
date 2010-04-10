@@ -15,3 +15,4 @@ syntax:glob
 *.def
 *.layout
 *.depend
+*.html

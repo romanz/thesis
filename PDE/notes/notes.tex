@@ -312,12 +312,12 @@ This way we get 2nd order upwind approximation for the derivative $f'(0) = b$:
 
 \section{Stokes}
 \begin{eqnarray}
- \bnabla P - \mu \bnabla^2 \mathbf{V} &=& \mathbf{F} \\
+ \bnabla P - \mu \Delta \mathbf{V} &=& \mathbf{F} \\
  \bnabla \bcdot \mathbf{V} &=& 0
 \end{eqnarray}
 The following system is built:
 \begin{eqnarray}
- \mat{ccc}{-\mu\bnabla^2 & 0 & \partial_x \\ 0 & -\mu\bnabla^2 & \partial_y \\ \partial_x & \partial_y & 0}
+ \mat{ccc}{-\mu\Delta & 0 & \partial_x \\ 0 & -\mu\Delta & \partial_y \\ \partial_x & \partial_y & 0}
  \mat{c}{V_x \\ V_y \\ P} &=& \mat{c}{F_x \\ F_y \\ 0}
 \end{eqnarray}
 
