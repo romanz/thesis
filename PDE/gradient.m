@@ -15,4 +15,4 @@ switch dim
     case 1, D = X(K2) - X(K1);
     case 2, D = Y(K2) - Y(K1);
 end
-G = sparse([K0 K0], [K1 K2], 1./[-D D]);
+G = sparse([K0 K0], [K1 K2], 1./[-D D], numel(K0), prod(sz));

@@ -5,7 +5,7 @@ I = interior(sz);
 Gx_P = gradient(sz - 2, X(I), Y(I), 1);
 Gy_P = gradient(sz - 2, X(I), Y(I), 2);
 Ni = nnz(I); % # of interior points
-
+    
 % X-staggered grid
 h = [1; 1]/2;
 Xs = average(X, h);
@@ -28,10 +28,10 @@ Gy_Vy = gradient(sz - [0 1], Xs, Ys, 2);
 I = interior(sz - [0 2], [1 0]);
 Gy_Vy = Gy_Vy(I, :);
 
-% u = [Vx; Vy; P];
-A = [-L_Vx, sparse(size(L_Vx, 1), size(L_Vy, 2)), Gx_P; ...
-     sparse(size(L_Vy, 1), size(L_Vx, 2)), -L_Vy, Gy_P; ...
-     Gx_Vx, Gy_Vy, sparse(Ni, Ni)];
+% - lapl V[x] + grad[x] P = F[x]
+% - lapl V[y] + grad[y] P = F[y]
 % grad[x] V[x] + grad[y] V[y] = 0
-% grad[x] P - lapl V[x] = F[x]
-% grad[y] P - lapl V[y] = F[y]
+% u = [Vx; Vy; P];
+A = [[-L_Vx, sparse(size(L_Vx, 1), size(L_Vy, 2)), Gx_P]; ...
+     [sparse(size(L_Vy, 1), size(L_Vx, 2)), -L_Vy, Gy_P]; ...
+     [Gx_Vx, Gy_Vy, sparse(Ni, Ni)]];
