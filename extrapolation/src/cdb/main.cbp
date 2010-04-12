@@ -14,7 +14,11 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
+					<Add option="-pedantic-errors" />
+					<Add option="-pedantic" />
+					<Add option="-W" />
 					<Add option="-Wall" />
+					<Add option="-ansi" />
 					<Add option="-g" />
 					<Add option="-std=c99" />
 					<Add option="-DBUILD_DLL" />
