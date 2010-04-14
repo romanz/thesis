@@ -1,10 +1,10 @@
-function [M, T, d] = vanka(A, f, S)
+function [M, T, d] = vanka(A, f, V, E)
 % Vanka-type smoother construction.
 
-% S is a cell array, whose k-th entry contains k-th subdomain indices
+% V is a cell array, whose k-th entry contains k-th subdomain indices
 nonzeros = 0;
-for k = 1:numel(S)
-    nonzeros = nonzeros + numel(S{k}).^2;
+for k = 1:numel(V)
+    nonzeros = nonzeros + numel(V{k}).^2;
 end
 % Preallocate memory for non-zeroes
 inverses = zeros(nonzeros, 1);
@@ -12,14 +12,15 @@ indices = zeros(size(inverses));
 
 sz = size(A); % Pre-compute A size
 offset = 0;
-for k = 1:numel(S)
+for k = 1:numel(V)
      % Process current index set:
-    I = col(S{k});
-    N = numel(I); 
+    J = col(V{k});
+    I = col(E{k});
+    N = numel(J); 
     % Invert current minor
-    inverses( offset + (1:N^2) ) = inv( A(I, I) );
+    inverses( offset + (1:N^2) ) = inv( A(I, J) );
     % Save its indices at A
-    indices( offset + (1:N^2) ) = index_ndgrid(sz, I, I);
+    indices( offset + (1:N^2) ) = index_ndgrid(sz, J, I);
     offset = offset + N^2;
 end
 % Construct sparse matrix M for pre-conditioning
