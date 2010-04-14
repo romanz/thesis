@@ -1,2 +1,3 @@
-function B = boundary(I, P)
-B = ~I & shift(I, P);
+function [J, I] = boundary(interior, P)
+J = ~interior & shift(interior, P);
+I = shift(J, -P);
