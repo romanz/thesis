@@ -1,6 +1,6 @@
 % 2D Stokes equation discretization for specific dimension
 % {X,Y} are cell centers coordinates (incl. the boundary cells)
-function [A, f] = stokes(sz, X, Y, Fx, Fy, Vx, Vy)
+function [A, f, Mr, Mb] = stokes(sz, X, Y, Fx, Fy, Vx, Vy)
     n = prod(sz - 2); % # of interior cells
     f = zeros(n, 1); % Zero Flux Condition
 
@@ -16,7 +16,42 @@ function [A, f] = stokes(sz, X, Y, Fx, Fy, Vx, Vy)
          0*L_vx, L_vy, Gy_p; ...
          Gx_vx, Gy_vy, sparse(n, n)];
 
-    f = [Fx; Fy; f];
+    f = [Fx; Fy; f];    
+    [Mr, Mb] = redblack(sz, A, f);    
+end
+
+function [Mr, Mb] = redblack(sz, A, f)
+    K = 1:prod(sz - 2);
+    K = K(:);
+    [I, J] = ind2sub(sz - 2, K);
+    V = [[index(sz - [3 2], I-1, J), index(sz - [3 2], I, J)], ...
+         [index(sz - [2 3], I, J-1), index(sz - [2 3], I, J)] + prod(sz - [3 2]), ...
+         K + prod(sz - [3 2]) + prod(sz - [2 3])];
+    E = [[index(sz - [3 2], I-1, J), index(sz - [3 2], I, J)], ...
+         [index(sz - [2 3], I, J-1), index(sz - [2 3], I, J)] + prod(sz - [3 2]), ...
+         K + prod(sz - [3 2]) + prod(sz - [2 3])];
+    
+    red = logical(mod(I - J, 2)); 
+    Vr = V(red, :);  Er = E(red, :);
+    Vb = V(~red, :); Eb = E(~red, :);
+    
+    Mr   = vanka(A, f, arr2cell(Vr), arr2cell(Er));
+    Mb = vanka(A, f, arr2cell(Vb), arr2cell(Eb));
+end
+
+function C = arr2cell(A)
+    C = cell(size(A, 1), 1);
+    for k = 1:numel(C)
+        a = A(k, :);
+        a = a(~isnan(a));
+        C{k} = a(:);
+    end
+end
+
+function K = index(sz, I, J)
+    Q = (1 <= I) & (I <= sz(1)) & (1 <= J) & (J <= sz(2));
+    K = nan(size(Q));
+    K(Q) = sub2ind(sz, I(Q), J(Q));
 end
 
 function [A, f] = elim(dim, sz, A, f, V)
