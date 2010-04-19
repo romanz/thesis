@@ -58,7 +58,7 @@ function [A, f] = elim(dim, sz, A, f, V)
     dir = double((1:numel(sz)) == dim);
     I = interior(sz - dir);
     J = [find(boundary(I, -dir)); find(boundary(I, +dir))];
-    f = f - A(:, J) * V(:);
+    f = f(:) - A(:, J) * V(:);
     I(J) = true;
 
     [J1, I1] = find_boundary(I, -(~dir));
