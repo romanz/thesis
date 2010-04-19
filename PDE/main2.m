@@ -15,8 +15,8 @@ function main2
     Bd = boundary(I, [0 -1]); Id = shift(Bd, [0 +1]);
     Bu = boundary(I, [0 +1]); Iu = shift(Bu, [0 -1]);
 
-    Vx = stagger(I, X, Y, 1, @(x, y) y);
-    Vy = stagger(I, X, Y, 2, @(x, y) x);
+    Vx = stagger(sz, X, Y, 1, @(x, y) y);
+    Vy = stagger(sz, X, Y, 2, @(x, y) x);
 
     %% Solve the coupled problem
     U = randn(sz);

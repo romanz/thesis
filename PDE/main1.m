@@ -30,8 +30,8 @@ N = prod(sz);
 Z = zeros(sz);
 I = interior(sz);
 [X, Y] = ndgrid(x, y);
-Vx = stagger(I, X, Y, 1, @(x, y) x+y);
-Vy = stagger(I, X, Y, 2, @(x, y) x-y);
+Vx = stagger(sz, X, Y, 1, @(x, y) x+y);
+Vy = stagger(sz, X, Y, 2, @(x, y) x-y);
 alpha = 1;
 %% Create solutions for the specific diff. eq. instance.
 % - U is the function itself (for boundary conditions).

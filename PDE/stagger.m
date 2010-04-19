@@ -1,5 +1,4 @@
-function V = stagger(I, X, Y, dim, func)
-sz = size(I);
+function V = stagger(sz, X, Y, dim, func)
 assert(sz(dim) > 1)
 
 K = 1:numel(sz) == dim;
