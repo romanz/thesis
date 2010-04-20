@@ -1,4 +1,4 @@
-function [M, T, d] = vanka(A, f, V, E)
+function [M] = vanka(A, V, E)
 % Vanka-type smoother construction.
 
 % V is a cell array, whose k-th entry contains k-th subdomain indices
@@ -17,7 +17,7 @@ for k = 1:numel(V)
     J = col(V{k});
     I = col(E{k});
     N = numel(J); 
-    % Invert current minor
+    % Invert current submatrix
     inverses( offset + (1:N^2) ) = inv( A(I, J) );
     % Save its indices at A
     indices( offset + (1:N^2) ) = index_ndgrid(sz, J, I);
@@ -30,8 +30,6 @@ M = mksparse(sz, indices, inverses);
 % x' = x + M r 
 % x' = (I - MA)x + Mf
 % x' = Tx + d
-T = speye(sz) - M * A;
-d = M * f;
 
 function K = index_ndgrid(sz, I, J)
 [I, J] = ndgrid(I, J);
