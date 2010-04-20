@@ -1,6 +1,6 @@
 function main3
 clc
-sz = [4 4];
+sz = [5 5];
 [X, Y] = ndgrid(1:sz(1), 1:sz(2));
 
 Fx = ones(sz - [3 2]);

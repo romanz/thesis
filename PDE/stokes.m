@@ -56,7 +56,7 @@ function [Gp, Lv, Gv] = stokes1(sz, X, Y, dim)
     % full(Gp)
 end
 
-function [Mr, Mb] = redblack(sz, A)
+function [M1, M2] = redblack(sz, A)
     sz = sz - 2;
     K = 1:prod(sz);
     K = K(:);
@@ -64,16 +64,13 @@ function [Mr, Mb] = redblack(sz, A)
     V = [[index(sz - [1 0], I-1, J), index(sz - [1 0], I, J)], ...
          [index(sz - [0 1], I, J-1), index(sz - [0 1], I, J)] + prod(sz - [1 0]), ...
          K + prod(sz - [1 0]) + prod(sz - [0 1])];
-    E = [[index(sz - [1 0], I-1, J), index(sz - [1 0], I, J)], ...
-         [index(sz - [0 1], I, J-1), index(sz - [0 1], I, J)] + prod(sz - [1 0]), ...
-         K + prod(sz - [1 0]) + prod(sz - [0 1])];
     
-    red = logical(mod(I - J, 2)); 
-    Vr = V(red, :);  Er = E(red, :);
-    Vb = V(~red, :); Eb = E(~red, :);
+    K = logical(mod(I - J, 2)); 
+    V1 = arr2cell(V( K, :)); % odd
+    V2 = arr2cell(V(~K, :)); % even
     
-    Mr = vanka(A, arr2cell(Vr), arr2cell(Er));
-    Mb = vanka(A, arr2cell(Vb), arr2cell(Eb));
+    M1 = vanka(A, V1, V1);
+    M2 = vanka(A, V2, V2);
 end
 
 function C = arr2cell(A)
