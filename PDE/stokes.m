@@ -39,28 +39,13 @@ function [J, I] = find_boundary(interior, P)
     I = find(I);
 end
 
-function [Gp, Lv, Gv] = stokes1(sz, X, Y, dim)
-    [Xs, Ys, dir] = staggered_grid(sz, X, Y, dim); 
-    I = interior(sz - dir); 
-    Lv = laplacian(I, Xs, Ys);
-    Lv = Lv(I, :);
-    % full(Lv)
-
-    K = I | shift(I, -dir); % add first row/column
-    Gv = gradient(K, Xs, Ys, dir);
-    % full(Gv)
-
-    I = interior(sz);
-    K = I & shift(I, -dir); % remove last row/column
-    Gp = gradient(shave(K, 1, 1), X(I), Y(I), dir);
-    % full(Gp)
-end
-
 function [M1, M2] = redblack(sz, A)
     sz = sz - 2;
     K = 1:prod(sz);
     K = K(:);
     [I, J] = ind2sub(sz, K);
+    
+    % Same indices for variables and equations.
     V = [[index(sz - [1 0], I-1, J), index(sz - [1 0], I, J)], ...
          [index(sz - [0 1], I, J-1), index(sz - [0 1], I, J)] + prod(sz - [1 0]), ...
          K + prod(sz - [1 0]) + prod(sz - [0 1])];
