@@ -1,26 +1,23 @@
-function [A, f] = subst(A, J, W, v)
+% Substitude W*x(J)=u into Ax=0, giving Bx=f
+function [f, A] = subst(A, J, W, u)
 % A(k, :) x(:) = 0
-% W(k, :) x(J(k, :)) = v(k)
+% W(k, :) x(J(k, :)) = u(k)
 [N, M] = size(A); % M = # of variables, N = # of equations.
 
 S = spdiag(1./ W(:, 1)); % Rescaling according to first coordinate
-W = S * W;
 v = S * v;
 
-W = [W, v];
+P = J(:, 1); J(:, 1) = 0; % P is to-be-eliminated variable vector
+f = A * sparse(P, ones(size(P)), -u, M, 1);
 
-P = J(:, 1); J(:, 1) = 0;
-I = repmat(P, [1 size(W, 2)]);
-J = [J, repmat((M+1), size(J, 1), 1)];
-K = logical(J);
+if nargout >= 2 % Lazy evaluation for A:
+    W = S * W;
+    I = repmat(P, [1 size(W, 2)]);
+    K = logical(J);
 
-Q = (1:M)'; 
-Q(P) = [];
-I = I(K); 
-J = J(K); 
-W = W(K);
-T = sparse([I(:); Q], [J(:); Q], [W(:); ones(size(Q))], M, M+1);
-A = A * T;
+    Q = (1:M)'; Q(P) = []; % Q is P's complement    
 
-f = A(:, end);
-A = A(:, 1:end-1);
+    I = I(K); J = J(K); W = W(K);
+    T = sparse([I(:); Q], [J(:); Q], [W(:); ones(size(Q))], M, M);
+    A = A * T;
+end
