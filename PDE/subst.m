@@ -5,11 +5,10 @@ function [f, A] = subst(A, J, W, u)
 [N, M] = size(A); % M = # of variables, N = # of equations.
 
 S = spdiag(1./ W(:, 1)); % Rescaling according to first coordinate
-v = S * v;
+u = S * u;
 
 P = J(:, 1); J(:, 1) = 0; % P is to-be-eliminated variable vector
 f = A * sparse(P, ones(size(P)), -u, M, 1);
-
 if nargout >= 2 % Lazy evaluation for A:
     W = S * W;
     I = repmat(P, [1 size(W, 2)]);
@@ -18,6 +17,7 @@ if nargout >= 2 % Lazy evaluation for A:
     Q = (1:M)'; Q(P) = []; % Q is P's complement    
 
     I = I(K); J = J(K); W = W(K);
-    T = sparse([I(:); Q], [J(:); Q], [W(:); ones(size(Q))], M, M);
+    T = sparse([I(:); Q], [J(:); Q], [-W(:); ones(size(Q))], M, M);
     A = A * T;
+    A(:, [P]) = [];
 end
