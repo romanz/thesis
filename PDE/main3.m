@@ -1,17 +1,18 @@
 function main3
 clc
-iters = 400;
-sz = [5 4];
-[X, Y] = ndgrid(1:sz(1), 1:sz(2));
-Vx = @(X, Y)  (X.^2).*Y;
-Vy = @(X, Y) -X.*(Y.^2);
-Fx = @(x, y) -2*y;
-Fy = @(x, y)  2*x;
+iters = 100;
+sz = [1 1]*6;
+[X, Y] = ndgrid((1:sz(1))*2, (1:sz(2))*2);
+Vx  = @(x, y)  y.* x.^2;
+Vy  = @(x, y) -x.* y.^2;
+Fx  = @(x, y) -2*y;
+Fy  = @(x, y)  2*x;
+div = @(x, y)  0*x + 0*y;
 
 %% Vx
 [Xx, Yx, Lx, Rx, Dx, Ux, Ix, Ex] = staggered_boundary(sz, X, Y, 1);
-shave(Vx(Xx, Yx), 1, 1)
 Fx = Fx(Xx(Ix), Yx(Ix));
+shave(Vx(Xx, Yx), 1, 1)
 Jx = [find(Lx); find(Rx)];
 Wx = ones(nnz(Jx), 1);
 ux = Vx(Xx(Jx), Yx(Jx));
@@ -23,12 +24,12 @@ Jx = [Jx * [1 0]; ...
      [find(Ux), find(Ux1)]; ...
      find(Ex) * [1 0]]; 
 Wx = [Wx * [1 0]; ...
-      repmat([1, -1], nnz(Dx), 1); ...
-      repmat([1, -1], nnz(Ux), 1); ...
+      repmat([1, 1], nnz(Dx), 1); ...
+      repmat([1, 1], nnz(Ux), 1); ...
       ones(nnz(Ex), 1) * [1 0]];
 ux = [ux; ...
-    Vx(Xx(Dx), Yx(Dx)) - Vx(Xx(Dx1), Yx(Dx1)); ...
-    Vx(Xx(Ux), Yx(Ux)) - Vx(Xx(Ux1), Yx(Ux1)); ...
+    Vx(Xx(Dx), Yx(Dx)) + Vx(Xx(Dx1), Yx(Dx1)); ...
+    Vx(Xx(Ux), Yx(Ux)) + Vx(Xx(Ux1), Yx(Ux1)); ...
     zeros(nnz(Ex), 1)];
 
 %% Vy
@@ -46,12 +47,12 @@ Jy = [Jy * [1 0];
      [find(Ry), find(Ry1)]; ...
      find(Ey) * [1 0]]; 
 Wy = [Wy * [1 0]; ...
-      repmat([1, -1], nnz(Ly), 1); ...
-      repmat([1, -1], nnz(Ry), 1); ...
+      repmat([1, 1], nnz(Ly), 1); ...
+      repmat([1, 1], nnz(Ry), 1); ...
       ones(nnz(Ey), 1) * [1 0]];
 uy = [uy; ...
-    Vy(Xy(Ly), Yy(Ly)) - Vy(Xy(Ly1), Yy(Ly1)); ...
-    Vy(Xy(Ry), Yy(Ry)) - Vy(Xy(Ry1), Yy(Ry1)); ...
+    Vy(Xy(Ly), Yy(Ly)) + Vy(Xy(Ly1), Yy(Ly1)); ...
+    Vy(Xy(Ry), Yy(Ry)) + Vy(Xy(Ry1), Yy(Ry1)); ...
     zeros(nnz(Ey), 1)];
 
 %% Build equations
@@ -69,7 +70,8 @@ A = [L_vx, sparse(size(L_vx, 1), size(L_vy, 2)), Gx_p; ...
      sparse(size(L_vy, 1), size(L_vx, 2)), L_vy, Gy_p; ...
      Gx_vx, Gy_vy, sparse(n, n)];
 
-f = [Fx+fx; Fy+fy; f1+f2];
+I = interior(sz);
+f = [Fx+fx; Fy+fy; f1+f2+div(X(I), Y(I))];
 
 %
 [Mr, Mb] = stokes_vanka_redblack(sz, A);
@@ -77,12 +79,8 @@ f = [Fx+fx; Fy+fy; f1+f2];
 x = randn(numel(f), 1);
 res = zeros(iters, 1);
 for k = 1:iters
-    r = f - A*x;
-    x = x + Mr*r; 
-
-    r = f - A*x;
-    x = x + Mb*r;
-
+    r = f - A*x;    x = x + Mr*r; 
+    r = f - A*x;    x = x + Mb*r;
     res(k) = norm(r, 2);
 end
 Vx = reshape(x(1:numel(Fx)), sz - [3 2])
