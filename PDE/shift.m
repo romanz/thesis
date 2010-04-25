@@ -13,7 +13,7 @@ I = [zeroes(size(I, 1), Q(2)), ...
      zeroes(size(I, 1), -Q(2))];
 
 function Z = zeroes(n, m)
-    Z = zeros(min(max([n m], 0), sz));
+    Z = false(min(max([n m], 0), sz));
 end
 
 end
