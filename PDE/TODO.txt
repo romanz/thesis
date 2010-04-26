@@ -72,3 +72,20 @@ Upwind conservation rules?
 C is dipole concentration.
 P has no boundary conditions?
 
+
+26/04/2010
+
+Lookup: 
+* Block Relaxation, Block Jacobi, Additive Schwartz Method, Domain Decomposition
+* Saddle Point Problem: [A B; B' 0] form
+The matrix may not be PD - but should be symmetric if -div(U,V) = 0 is taken.
+Note that all x=(U,V,P) components must converge.
+Why there is "Wavy" convergence?
+Write Ax=0, with <P>=0 re-normalization will converge to ~1e-300.
+Test for <e,e> or |<e,r>|=|<e,Ae>|
+Energy notion: min{1/2||Vx||^2-x^T f} => V^T Vx = f
+
+Rewrite Vanka's method (and re-iterate!)
+Verify 2nd poly. order for non-uniform grid.
+Couple all 3 equations using boundary conditions, 1 iteration per update.
+[Sort of Non-linear Block Gauss Seidel].
