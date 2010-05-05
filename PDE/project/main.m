@@ -7,8 +7,8 @@ function main
     vel = 0; % Particle velocity 
     
     % Grid creation
-    x = linspace(-1, 1, 3);
-    y = linspace(-1, 1, 3);
+    x = [1 2 3 4 5];
+    y = [1 2.5 3 3.5 5];
     [sz, Xc, Yc, Xx, Yx, Xy, Yy, Xi, Yi] = create_grids(x, y, 1);
     Ic = interior(sz + 2);
     [Ju Iu Jd Id Jl Il Jr Ir] = boundary(Ic);
@@ -40,59 +40,64 @@ function main
 
     for iter = 1:1000
         %%% Stokes equation (for Vx, Vy, P)
-        Fx = shave(Xx, 1, 1) * 0;
-        Fy = shave(Yy, 1, 1) * 0;
-        div = zeros(sz);
-        
-        ux = [[0*Jux; 0*Jdx]; [0*Jlx; 0*Jrx]+2];
-        [L_vx,  Fx] = subst(-L_vx0, Fx, Kx, Mx, ux);
-        [Gx_vx, div] = subst(Gx_vx0, div, Kx, Mx, ux);
-        
-        uy = [0*Juy; 0*Jdy; 0*Jly; 0*Jry]-1;
-        [L_vy,  Fy] = subst(-L_vy0, Fy, Ky, My, uy);
-        [Gy_vy, div] = subst(Gy_vy0, div, Ky, My, uy);
-        
-        A = [L_vx, sparse(size(L_vx, 1), size(L_vy, 2)), Gx_p; ...
-             sparse(size(L_vy, 1), size(L_vx, 2)), L_vy, Gy_p; ...
-             Gx_vx, Gy_vy, sparse(prod(sz), prod(sz))];
-        f = [Fx; Fy; div];
-        
-        [Mr, Mb] = stokes_vanka_redblack(sz, A);
-        x = [Vx(:); Vy(:); P(:)];
-        for k = 1:iters(1)
-            r = f - A*x;    x = x + Mr*r; 
-            r = f - A*x;    x = x + Mb*r;
-        end
-        Vx = reshape(x(1:numel(Fx)), sz - [1 0]);
-        Vy = reshape(x((1:numel(Fy)) + numel(Fx)), sz - [0 1]);
-        P = reshape(x((1 + numel(Fx) + numel(Fy)):end), sz);
-        P = P - mean(P(:)); % re-normalize P
+        if iters(1)
+            Fx = shave(Xx, 1, 1) * 0;
+            Fy = shave(Yy, 1, 1) * 0;
+            div = zeros(sz);
 
+            ux = [[0*Jux; 0*Jdx]; [0*Jlx; 0*Jrx]+0.2];
+            [L_vx,  Fx] = subst(-L_vx0, Fx, Kx, Mx, ux);
+            [Gx_vx, div] = subst(Gx_vx0, div, Kx, Mx, ux);
+
+            uy = [0*Juy; 0*Jdy; 0*Jly; 0*Jry]+0.1;
+            [L_vy,  Fy] = subst(-L_vy0, Fy, Ky, My, uy);
+            [Gy_vy, div] = subst(Gy_vy0, div, Ky, My, uy);
+
+            A = [L_vx, sparse(size(L_vx, 1), size(L_vy, 2)), Gx_p; ...
+                 sparse(size(L_vy, 1), size(L_vx, 2)), L_vy, Gy_p; ...
+                 Gx_vx, Gy_vy, sparse(prod(sz), prod(sz))];
+            f = [Fx; Fy; div];
+
+            [Mr, Mb] = stokes_vanka_redblack(sz, A);
+            x = [Vx(:); Vy(:); P(:)];
+            for k = 1:iters(1)
+                r = f - A*x;    x = x + Mr*r; 
+                r = f - A*x;    x = x + Mb*r;
+            end
+            Vx = reshape(x(1:numel(Fx)), sz - [1 0]);
+            Vy = reshape(x((1:numel(Fy)) + numel(Fx)), sz - [0 1]);
+            P = reshape(x((1 + numel(Fx) + numel(Fy)):end), sz);
+            P = P - mean(P(:)); % re-normalize P
+        end
         %%% Diffusion-advection (for C)        
-        Cl = exp(-Phi(1, :));
-        Cr = 0*Cl + 1;
-        % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Dirichlet.
-        M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir];
-        u = [0*[Ju; Jd]; Cl(:); Cr(:)];
-        
-        VxR = 0*Yx(end, 2:end-1);
-        VxL = zeros(1, size(Vx, 2));
-        VyU = zeros(size(Vy, 1), 1);
-        VyD = zeros(size(Vy, 1), 1);
-        
-        A = advection(Ic, Xc, Yc, [VxL; Vx; VxR], [VyD, Vy, VyU], 'central');        
-        [A, f] = subst(L - A, zeros(sz), K, M, u);
-        C = iterate(C, A, f, iters(2));
-        C0 = [Cl; C; Cr]; % Expand C with ghost points
-        
+        if iters(2)
+            Cl = exp(-Phi(1, :));
+            Cr = 0*Cl + 1;
+            % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Dirichlet.
+            M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir];
+            u = [0*[Ju; Jd]; Cl(:); Cr(:)];
+
+            VxR = zeros(1, size(Vx, 2)) + 0.2;
+            VxL = zeros(1, size(Vx, 2)) + 0.2;
+            VyU = zeros(size(Vy, 1), 1) + 0.1;
+            VyD = zeros(size(Vy, 1), 1) + 0.1;
+
+            A = advection(Ic, Xc, Yc, [VxL; Vx; VxR], [VyD, Vy, VyU], 'central');        
+            [A, f] = subst(L - A, zeros(sz), K, M, u);
+            C = iterate(C, A, f, iters(2));
+            C0 = [Cl; C; Cr]; % Expand C with ghost points
+        end        
         %%% Laplace equation (for Phi)
-        A = laplacian(Ic, Xc, Yc, [C0(:, 1), C0, C0(:, end)]);
-        % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Neumann.
-        M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir-1];
-        u = [0*[Ju; Jd]; -log(col(C(1, :))); 0*Jr];
-        [A, f] = subst(A, zeros(sz), K, M, u);
-        Phi = iterate(Phi, A, f, iters(3));
+        if iters(3)
+            A = laplacian(Ic, Xc, Yc, [C0(:, 1), C0, C0(:, end)]);
+            % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Neumann.
+            M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir-1];
+            u = [0*[Ju; Jd]; -log(col(C(1, :))); 0*Jr];
+            [A, f] = subst(A, zeros(sz), K, M, u);
+            Phi = iterate(Phi, A, f, iters(3));
+        end
     end
+    
     % Results
     Phi, C, Vx, Vy, P
 
