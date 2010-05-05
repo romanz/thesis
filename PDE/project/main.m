@@ -13,7 +13,6 @@ function main
     Ic = interior(sz + 2);
     [Ju Iu Jd Id Jl Il Jr Ir] = boundary(Ic);
     K  = [Ju Iu; Jd Id; Jl Il; Jr Ir]; % (Xc, Yc)
-    M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir];
     
     [Jux Iux Jdx Idx Jlx Ilx Jrx Irx] = boundary(interior(sz + [1 2]));
     Kx = [Jux Iux; Jdx Idx; Jlx Ilx; Jrx Irx]; % (Xx, Yx)
@@ -45,11 +44,11 @@ function main
         Fy = shave(Yy, 1, 1) * 0;
         div = zeros(sz);
         
-        ux = [0*Jux; 0*Jdx; 0*Jlx; 0*Jrx];
+        ux = [[0*Jux; 0*Jdx]; [0*Jlx; 0*Jrx]+2];
         [L_vx,  Fx] = subst(-L_vx0, Fx, Kx, Mx, ux);
         [Gx_vx, div] = subst(Gx_vx0, div, Kx, Mx, ux);
         
-        uy = [0*Juy; 0*Jdy; 0*Jly; 0*Jry];
+        uy = [0*Juy; 0*Jdy; 0*Jly; 0*Jry]-1;
         [L_vy,  Fy] = subst(-L_vy0, Fy, Ky, My, uy);
         [Gy_vy, div] = subst(Gy_vy0, div, Ky, My, uy);
         
@@ -72,6 +71,8 @@ function main
         %%% Diffusion-advection (for C)        
         Cl = exp(-Phi(1, :));
         Cr = 0*Cl + 1;
+        % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Dirichlet.
+        M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir];
         u = [0*[Ju; Jd]; Cl(:); Cr(:)];
         
         VxR = 0*Yx(end, 2:end-1);
@@ -86,6 +87,8 @@ function main
         
         %%% Laplace equation (for Phi)
         A = laplacian(Ic, Xc, Yc, [C0(:, 1), C0, C0(:, end)]);
+        % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Neumann.
+        M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir-1];
         u = [0*[Ju; Jd]; -log(col(C(1, :))); 0*Jr];
         [A, f] = subst(A, zeros(sz), K, M, u);
         Phi = iterate(Phi, A, f, iters(3));
