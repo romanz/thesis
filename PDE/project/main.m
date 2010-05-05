@@ -7,49 +7,97 @@ function main
     vel = 0; % Particle velocity 
     
     % Grid creation
-    x = linspace(-1, 1, 5);
-    y = linspace(-1, 1, 5);
+    x = linspace(-1, 1, 3);
+    y = linspace(-1, 1, 3);
     [sz, Xc, Yc, Xx, Yx, Xy, Yy, Xi, Yi] = create_grids(x, y, 1);
     Ic = interior(sz + 2);
     [Ju Iu Jd Id Jl Il Jr Ir] = boundary(Ic);
+    K  = [Ju Iu; Jd Id; Jl Il; Jr Ir]; % (Xc, Yc)
+    M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir];
+    
+    [Jux Iux Jdx Idx Jlx Ilx Jrx Irx] = boundary(interior(sz + [1 2]));
+    Kx = [Jux Iux; Jdx Idx; Jlx Ilx; Jrx Irx]; % (Xx, Yx)
+    Mx = [0*Jux+1, 0*Iux-1; 0*Jdx+1, 0*Idx-1; ...
+          0*Jlx+1, 0*Ilx; 0*Jrx+1 0*Irx];
+    
+    [Juy Iuy Jdy Idy Jly Ily Jry Iry] = boundary(interior(sz + [2 1]));
+    Ky = [Juy Iuy; Jdy Idy; Jly Ily; Jry Iry]; % (Xy, Yy)
+    My = [0*Juy+1, 0*Iuy; 0*Jdy+1, 0*Idy; ...
+          0*[Jly, Ily; Jry, Iry]+0.5];
     
     % Guess initial values for all variables
     Phi = zeros(sz) + randn(sz)/100;
-    C = ones(sz + 2);
-    C(Ic) = 1 + randn(sz)/100;
-    Vx = zeros(sz - [1 0]);
-    Vy = zeros(sz - [0 1]);
-    P = zeros(sz);
+    C = rand(sz);
+    Vx = randn(sz - [1 0]);
+    Vy = randn(sz - [0 1]);
+    P = randn(sz);
     
     % Iterations
-    iters = [4 2];
+    iters = [1 2 4];
     L = laplacian(Ic, Xc, Yc);
+    [Gx_p, L_vx0, Gx_vx0] = stokes1(1, Xx, Yx, Xi, Yi);
+    [Gy_p, L_vy0, Gy_vy0] = stokes1(2, Xy, Yy, Xi, Yi);
+    
+
     for iter = 1:1000
-        %%% Laplace equation (for Phi)
-        A = laplacian(Ic, Xc, Yc, C);
-        K = [Ju Iu; Jd Id; Jl Il; Jr Ir];
-        M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir-1];
-        u = [0*[Ju; Jd]; -log(col(C(Il))); 0*Jr];
-        [A, f] = subst(A, zeros(sz), K, M, u);
-        Phi = iterate(Phi, A, f, iters(1));
-        %%% Diffusion-advection (for C)
-        M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir];
-        u = [0*[Ju; Jd]; exp(-col(Phi(1, 1:end))); 0*Jr+1];
-        A = L;
-        [A, f] = subst(A, zeros(sz), K, M, u);
-        C(Ic) = iterate(C(Ic), A, f, iters(2));
-        C(Jl) = exp(-col(Phi(1, 1:end)));        
-        C(Jr) = 1;
-        C(Ju) = C(Iu);
-        C(Jd) = C(Id);
+        %%% Stokes equation (for Vx, Vy, P)
+        Fx = shave(Xx, 1, 1) * 0;
+        Fy = shave(Yy, 1, 1) * 0;
+        div = zeros(sz);
         
-        %%% Stokes (for Vx, Vy and P)        
-        % P = P - mean(P(:)); % re-normalize P
+        ux = [0*Jux; 0*Jdx; 0*Jlx; 0*Jrx];
+        [L_vx,  Fx] = subst(-L_vx0, Fx, Kx, Mx, ux);
+        [Gx_vx, div] = subst(Gx_vx0, div, Kx, Mx, ux);
+        
+        uy = [0*Juy; 0*Jdy; 0*Jly; 0*Jry];
+        [L_vy,  Fy] = subst(-L_vy0, Fy, Ky, My, uy);
+        [Gy_vy, div] = subst(Gy_vy0, div, Ky, My, uy);
+        
+        A = [L_vx, sparse(size(L_vx, 1), size(L_vy, 2)), Gx_p; ...
+             sparse(size(L_vy, 1), size(L_vx, 2)), L_vy, Gy_p; ...
+             Gx_vx, Gy_vy, sparse(prod(sz), prod(sz))];
+        f = [Fx; Fy; div];
+        
+        [Mr, Mb] = stokes_vanka_redblack(sz, A);
+        x = [Vx(:); Vy(:); P(:)];
+        for k = 1:iters(1)
+            r = f - A*x;    x = x + Mr*r; 
+            r = f - A*x;    x = x + Mb*r;
+        end
+        Vx = reshape(x(1:numel(Fx)), sz - [1 0]);
+        Vy = reshape(x((1:numel(Fy)) + numel(Fx)), sz - [0 1]);
+        P = reshape(x((1 + numel(Fx) + numel(Fy)):end), sz);
+        P = P - mean(P(:)); % re-normalize P
+
+        %%% Diffusion-advection (for C)        
+        Cl = exp(-Phi(1, :));
+        Cr = 0*Cl + 1;
+        u = [0*[Ju; Jd]; Cl(:); Cr(:)];
+        
+        VxR = 0*Yx(end, 2:end-1);
+        VxL = zeros(1, size(Vx, 2));
+        VyU = zeros(size(Vy, 1), 1);
+        VyD = zeros(size(Vy, 1), 1);
+        
+        A = advection(Ic, Xc, Yc, [VxL; Vx; VxR], [VyD, Vy, VyU], 'central');        
+        [A, f] = subst(L - A, zeros(sz), K, M, u);
+        C = iterate(C, A, f, iters(2));
+        C0 = [Cl; C; Cr]; % Expand C with ghost points
+        
+        %%% Laplace equation (for Phi)
+        A = laplacian(Ic, Xc, Yc, [C0(:, 1), C0, C0(:, end)]);
+        u = [0*[Ju; Jd]; -log(col(C(1, :))); 0*Jr];
+        [A, f] = subst(A, zeros(sz), K, M, u);
+        Phi = iterate(Phi, A, f, iters(3));
     end
     % Results
-    Phi, C-1, Vx, Vy, P
+    Phi, C, Vx, Vy, P
 
     save results
+end
+
+function A = shave(A, rows, cols)
+    A = A(1+rows : end-rows, 1+cols : end-cols);
 end
 
 function x = iterate(x, A, f, N)
@@ -60,6 +108,115 @@ function x = iterate(x, A, f, N)
         x = x + dinv(A) * r;
     end
     x = reshape(x, sz);
+end
+
+function [M1, M2] = stokes_vanka_redblack(sz, A)
+    K = 1:prod(sz);
+    K = K(:);
+    [I, J] = ind2sub(sz, K);
+    
+    % Same indices for variables and equations.
+    % CR: make this offset hack better.
+    V = [[index(sz - [1 0], I-1, J), index(sz - [1 0], I, J)], ...
+         [index(sz - [0 1], I, J-1), index(sz - [0 1], I, J)] + prod(sz - [1 0]), ...
+         K + prod(sz - [1 0]) + prod(sz - [0 1])];
+    
+    K = logical(mod(I - J, 2)); 
+    V1 = arr2cell(V( K, :)); % odd
+    V2 = arr2cell(V(~K, :)); % even
+    
+    M1 = vanka(A, V1, V1);
+    M2 = vanka(A, V2, V2);
+
+    function C = arr2cell(A)
+        C = cell(size(A, 1), 1);
+        for k = 1:numel(C)
+            a = A(k, :);
+            a = a(~isnan(a));
+            C{k} = a(:);
+        end
+    end
+
+    function K = index(sz, I, J)
+        Q = (1 <= I) & (I <= sz(1)) & (1 <= J) & (J <= sz(2));
+        K = nan(size(Q));
+        K(Q) = sub2ind(sz, I(Q), J(Q));
+    end
+
+end
+
+% Vanka-type smoother construction.
+function [M] = vanka(A, V, E)
+
+    % V is a cell array, whose k-th entry contains k-th subdomain indices
+    nonzeros = 0;
+    for k = 1:numel(V)
+        nonzeros = nonzeros + numel(V{k}).^2;
+    end
+    % Preallocate memory for non-zeroes
+    inverses = zeros(nonzeros, 1);
+    indices = zeros(size(inverses));
+
+    sz = size(A); % Pre-compute A size
+    offset = 0;
+    for k = 1:numel(V)
+         % Process current index set:
+        J = col(V{k});
+        I = col(E{k});
+        N = numel(J); 
+        % Invert current submatrix
+        inverses( offset + (1:N^2) ) = inv( A(I, J) );
+        % Save its indices at A
+        indices( offset + (1:N^2) ) = index_ndgrid(sz, J, I);
+        offset = offset + N^2;
+    end
+    % Construct sparse matrix M for pre-conditioning
+    M = mksparse(sz, indices, inverses);
+
+    % r = f - Ax
+    % x' = x + M r 
+    % x' = (I - MA)x + Mf
+    % x' = Tx + d
+end
+
+function K = index_ndgrid(sz, I, J)
+    [I, J] = ndgrid(I, J);
+    K = sub2ind(sz, I, J);
+end
+function S = mksparse(sz, indices, values)
+    [I, J] = ind2sub(sz, indices);
+    S = sparse(I, J, values, sz(1), sz(2));
+end
+
+% Construct Stokes equation for specified dimension.
+function [Gp, Lv, Gv] = stokes1(dim, Xs, Ys, X, Y)
+    sz = size(0*Xs + 0*Ys);
+    I = interior(sz);
+    Lv = laplacian(I, Xs, Ys);
+    % full(Lv)
+    dir = (1:numel(sz)) == dim;
+    K = I | shift(I, -dir); % add first row/column
+    Gv = gradient(K, Xs, Ys, dir);
+    % full(Gv)
+    I = true(size(0*X+0*Y));
+    K = I & shift(I, -dir); % remove last row/column
+    Gp = gradient(K, X, Y, dir);
+    % full(Gp)
+end
+
+% Sparse gradient operator.
+function G = gradient(K, X, Y, dir)
+    sz = size(K);
+    [I, J] = ind2sub(sz, find(K));
+    K1 = sub2ind(sz, I, J);
+    K2 = sub2ind(sz, I + dir(1), J + dir(2));
+    K0 = sub2ind(sz - dir, I, J);
+    switch find(dir)
+        case 1, D = X(K2) - X(K1);
+        case 2, D = Y(K2) - Y(K1);
+    end
+    G = sparse([1:numel(K0), 1:numel(K0)], [K1 K2], 1./[-D D], ...
+        numel(K0), prod(sz));
 end
 
 function [Ju Iu Jd Id Jl Il Jr Ir] = boundary(I)
@@ -178,7 +335,7 @@ function A = laplacian(interior, X, Y, C)
 end
 
 % Diffusion advection discretization using sparse matrix
-function [A, interior] = advection(interior, X, Y, Vx, Vy, method)    
+function A = advection(interior, X, Y, Vx, Vy, method)    
     sz = size(interior);
     N = numel(interior);
 
@@ -248,6 +405,7 @@ function [A, interior] = advection(interior, X, Y, Vx, Vy, method)
     end
 
     A = Dx + Dy;
+    A = A(interior, :);
 end
 
 function [sz, Xc, Yc, Xx, Yx, Xy, Yy, Xi, Yi] = create_grids(x, y, verbose)
