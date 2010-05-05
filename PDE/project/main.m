@@ -7,9 +7,9 @@ function main
     vel = 0; % Particle velocity 
     
     % Grid creation
-    x = [1 2 3 4 5];
-    y = [1 2.5 3 3.5 5];
-    [sz, Xc, Yc, Xx, Yx, Xy, Yy, Xi, Yi] = create_grids(x, y, 1);
+    x = [1 2 3 4 5 6];
+    y = [1 2.5 3 4.2 5 6];
+    [sz, Xc, Yc, Xx, Yx, Xy, Yy, Xi, Yi] = create_grids(x, y);
     Ic = interior(sz + 2);
     [Ju Iu Jd Id Jl Il Jr Ir] = boundary(Ic);
     K  = [Ju Iu; Jd Id; Jl Il; Jr Ir]; % (Xc, Yc)
@@ -25,7 +25,7 @@ function main
           0*[Jly, Ily; Jry, Iry]+0.5];
     
     % Guess initial values for all variables
-    Phi = zeros(sz) + randn(sz)/100;
+    Phi = randn(sz);
     C = rand(sz);
     Vx = randn(sz - [1 0]);
     Vy = randn(sz - [0 1]);
@@ -72,7 +72,7 @@ function main
         %%% Diffusion-advection (for C)        
         if iters(2)
             Cl = exp(-Phi(1, :));
-            Cr = 0*Cl + 1;
+            Cr = 0*Cl + exp(-1);
             % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Dirichlet.
             M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir];
             u = [0*[Ju; Jd]; Cl(:); Cr(:)];
