@@ -85,10 +85,10 @@ function main
             A = advection(Ic, Xc, Yc, [VxL; Vx; VxR], [VyD, Vy, VyU], 'central');        
             [A, f] = subst(L - A, zeros(sz), K, M, u);
             C = iterate(C, A, f, iters(2));
-            C0 = [Cl; C; Cr]; % Expand C with ghost points
         end        
         %%% Laplace equation (for Phi)
         if iters(3)
+            C0 = [Cl; C; Cr]; % Expand C with ghost points
             A = laplacian(Ic, Xc, Yc, [C0(:, 1), C0, C0(:, end)]);
             % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Neumann.
             M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir-1];
