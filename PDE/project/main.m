@@ -1,14 +1,14 @@
 % The main solver code.
 function main
-    clc;
+    % clc;
     % Physical quantities
     alpha = 1; % Peclet number
-    beta  = 0; % Applied electric field
-    vel = 0; % Particle velocity 
+    beta = 10; % Applied electric field
+    vel = 0.1; % Particle velocity 
     
     % Grid creation
-    x = -1:1;
-    y = -1:1;
+    x = 1:.05:2;
+    y = 0:.05:1;
     [sz, Xc, Yc, Xx, Yx, Xy, Yy, Xi, Yi] = create_grids(x, y);
     Ic = interior(sz + 2);
     [Ju Iu Jd Id Jl Il Jr Ir] = boundary(Ic);
@@ -36,7 +36,7 @@ function main
     P = randn(sz);
     
     % Iterations
-    iters = [1 2 4];
+    iters = [1 2 10];
     L = laplacian(Ic, Xc, Yc);
     [Gx_p, L_vx0, Gx_vx0] = stokes1(1, Xx, Yx, Xi, Yi);
     [Gy_p, L_vy0, Gy_vy0] = stokes1(2, Xy, Yy, Xi, Yi);
@@ -51,7 +51,36 @@ function main
          Gx_vx, Gy_vy, sparse(prod(sz), prod(sz))];
     [Mr, Mb] = stokes_vanka_redblack(sz, A1);
 
-    for iter = 1:100
+    VxL = zeros(1, size(Vx, 2));
+    VxR = zeros(1, size(Vx, 2)) - vel*cos(Yx(end, 2:end-1)*pi);
+    VyU = zeros(size(Vy, 1), 1);
+    VyD = zeros(size(Vy, 1), 1);
+
+    Cl = exp(-Phi(1, :));
+    Cr = 0*Cl + exp(-0);
+    for iter = 1:10000
+        %%% Laplace equation (for Phi)
+        if iters(3)
+            C0 = [Cl; C; Cr]; % Expand C with ghost points
+            A = laplacian(Ic, Xc, Yc, [C0(:, 1), C0, C0(:, end)]);
+            % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Neumann (field [TODO]).
+            M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir-1];
+            u = [0*[Ju; Jd]; -log(col(C(1, :))); ...
+                beta * (Xc(Jr) - Xc(Ir)) .* cos(Yc(Jr) * pi)];
+            [A, f] = subst(A, zeros(sz), K, M, u);
+            [Phi, res3] = iterate(Phi, A, f, iters(3));
+            Cl = exp(-Phi(1, :));
+        end
+        %%% Diffusion-advection (for C)        
+        if iters(2)
+            % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Dirichlet.
+            M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir];
+            u = [0*[Ju; Jd]; Cl(:); Cr(:)];
+
+            A = advection(Ic, Xc, Yc, [VxL; Vx; VxR], [VyD, Vy, VyU], 'upwind');        
+            [A, f] = subst(L - alpha*A, zeros(sz), K, M, u);
+            [C, res2] = iterate(C, A, f, iters(2));
+        end        
         %%% Stokes equation (for Vx, Vy, P)
         if iters(1)
             Fx = shave(Xx, 1, 1) * 0;
@@ -59,67 +88,58 @@ function main
             div = zeros(sz);
 
             %    Neumann (U/D)     Dirichlet (L/R)
-            ux = [[0*Jux; 0*Jdx]; [0*Jlx; Yx(Jrx)*20]];
+            ux = [[0*Jux; 0*Jdx]; [VxL(:); VxR(:)]];
             [Fx] = subst_rhs(L_vx0, Fx, Kx, Mx, ux);
             [div] = subst_rhs(Gx_vx0, div, Kx, Mx, ux);
             
-            %    Dirichlet (U/D)   Av. Dirichlet (L/R)  
-            uy = [[0*Juy; 0*Jdy]; [0*Jly+0; 0*Jry+0]];
+            %    Dirichlet (U/D)   Av. Dirichlet (L/R)  [TODO]
+            uy = [[VyU(:); VyD(:)]; [0*Jly; 0*Jry]];
             [Fy] = subst_rhs(L_vy0, Fy, Ky, My, uy);
             [div] = subst_rhs(Gy_vy0, div, Ky, My, uy);
 
             f1 = [Fx; Fy; div];
 
-            x = [Vx(:); Vy(:); P(:)];
+            z = [Vx(:); Vy(:); P(:)];
             for k = 1:iters(1)
-                r = f1 - A1*x;    x = x + Mr*r; 
-                r = f1 - A1*x;    x = x + Mb*r;
+                r = f1 - A1*z;    z = z + Mr*r; 
+                r = f1 - A1*z;    z = z + Mb*r;
             end
-            Vx = reshape(x(1:numel(Fx)), sz - [1 0]);
-            Vy = reshape(x((1:numel(Fy)) + numel(Fx)), sz - [0 1]);
-            P = reshape(x((1 + numel(Fx) + numel(Fy)):end), sz);
+            res1 = r;
+            Vx = reshape(z(1:numel(Fx)), sz - [1 0]);
+            Vy = reshape(z((1:numel(Fy)) + numel(Fx)), sz - [0 1]);
+            P = reshape(z((1 + numel(Fx) + numel(Fy)):end), sz);
             P = P - mean(P(:)); % re-normalize P
-        end
-        %%% Diffusion-advection (for C)        
-        if iters(2)
-            Cl = exp(-Phi(1, :));
-            Cr = 0*Cl + exp(-1);
-            % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Dirichlet.
-            M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir];
-            u = [0*[Ju; Jd]; Cl(:); Cr(:)];
-
-            VxR = zeros(1, size(Vx, 2)) + 0.01;
-            VxL = zeros(1, size(Vx, 2)) + 0.01;
-            VyU = zeros(size(Vy, 1), 1) + 0.02;
-            VyD = zeros(size(Vy, 1), 1) + 0.02;
-
-            A = advection(Ic, Xc, Yc, [VxL; Vx; VxR], [VyD, Vy, VyU], 'central');        
-            [A, f] = subst(L - alpha*A, zeros(sz), K, M, u);
-            C = iterate(C, A, f, iters(2));
-        end        
-        %%% Laplace equation (for Phi)
-        if iters(3)
-            C0 = [Cl; C; Cr]; % Expand C with ghost points
-            A = laplacian(Ic, Xc, Yc, [C0(:, 1), C0, C0(:, end)]);
-            % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Neumann.
-            M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir-1];
-            u = [0*[Ju; Jd]; -log(col(C(1, :))); 0*Jr];
-            [A, f] = subst(A, zeros(sz), K, M, u);
-            Phi = iterate(Phi, A, f, iters(3));
         end
     end
     
     % Results
-    Phi, C, Vx, Vy, P
+%     Phi, C, Vx, Vy, P
+    figure(1)
+    mesh(Phi); colorbar;
+    
+    figure(2)
+    mesh(C); colorbar;
 
+    figure(3)
+    quiver(Xi, Yi, ...
+        average([VxL; Vx; VxR], [1;1]/2), ...
+        average([VyD, Vy, VyU], [1 1]/2), 0);
+    axis([1 2 0 1])
+
+    figure(4)
+    imagesc(average(x, [1 1]/2), average(y, [1 1]/2), P.'); colorbar;
+    set(gca, 'YDir', 'normal');
     save results
+    norm(res1, inf)
+    norm(res2, inf)
+    norm(res3, inf)
 end
 
 function A = shave(A, rows, cols)
     A = A(1+rows : end-rows, 1+cols : end-cols);
 end
 
-function x = iterate(x, A, f, N)
+function [x, r] = iterate(x, A, f, N)
     sz = size(x);
     x = x(:);
     for i = 1:N
