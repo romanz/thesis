@@ -2,13 +2,13 @@
 function main
     clc;
     % Physical quantities
-    alpha = 0; % Peclet number
+    alpha = 1; % Peclet number
     beta  = 0; % Applied electric field
     vel = 0; % Particle velocity 
     
     % Grid creation
-    x = [1 2 3 4 5 6];
-    y = [1 2.5 3 4.2 5 6];
+    x = -1:1;
+    y = -1:1;
     [sz, Xc, Yc, Xx, Yx, Xy, Yy, Xi, Yi] = create_grids(x, y);
     Ic = interior(sz + 2);
     [Ju Iu Jd Id Jl Il Jr Ir] = boundary(Ic);
@@ -18,11 +18,15 @@ function main
     Kx = [Jux Iux; Jdx Idx; Jlx Ilx; Jrx Irx]; % (Xx, Yx)
     Mx = [0*Jux+1, 0*Iux-1; 0*Jdx+1, 0*Idx-1; ...
           0*Jlx+1, 0*Ilx; 0*Jrx+1 0*Irx];
+    % Up/Down: Neumann = 0/0.
+    % Left/Right: Dirichlet = 0/cos(theta)
     
     [Juy Iuy Jdy Idy Jly Ily Jry Iry] = boundary(interior(sz + [2 1]));
     Ky = [Juy Iuy; Jdy Idy; Jly Ily; Jry Iry]; % (Xy, Yy)
     My = [0*Juy+1, 0*Iuy; 0*Jdy+1, 0*Idy; ...
           0*[Jly, Ily; Jry, Iry]+0.5];
+    % Up/Down: Dirichlet = 0/0
+    % Left/Right: Average Dirichlet = Slip/sin(theta)
     
     % Guess initial values for all variables
     Phi = randn(sz);
@@ -37,32 +41,39 @@ function main
     [Gx_p, L_vx0, Gx_vx0] = stokes1(1, Xx, Yx, Xi, Yi);
     [Gy_p, L_vy0, Gy_vy0] = stokes1(2, Xy, Yy, Xi, Yi);
     
+    [L_vx] = subst_lhs(L_vx0, Kx, Mx);
+    [L_vy] = subst_lhs(L_vy0, Ky, My);
+    [Gx_vx] = subst_lhs(Gx_vx0, Kx, Mx);
+    [Gy_vy] = subst_lhs(Gy_vy0, Ky, My);
 
-    for iter = 1:1000
+    A1 = [L_vx, sparse(size(L_vx, 1), size(L_vy, 2)), -Gx_p; ...
+         sparse(size(L_vy, 1), size(L_vx, 2)), L_vy, -Gy_p; ...
+         Gx_vx, Gy_vy, sparse(prod(sz), prod(sz))];
+    [Mr, Mb] = stokes_vanka_redblack(sz, A1);
+
+    for iter = 1:100
         %%% Stokes equation (for Vx, Vy, P)
         if iters(1)
             Fx = shave(Xx, 1, 1) * 0;
             Fy = shave(Yy, 1, 1) * 0;
             div = zeros(sz);
 
-            ux = [[0*Jux; 0*Jdx]; [0*Jlx; 0*Jrx]+0.2];
-            [L_vx,  Fx] = subst(-L_vx0, Fx, Kx, Mx, ux);
-            [Gx_vx, div] = subst(Gx_vx0, div, Kx, Mx, ux);
+            %    Neumann (U/D)     Dirichlet (L/R)
+            ux = [[0*Jux; 0*Jdx]; [0*Jlx; Yx(Jrx)*20]];
+            [Fx] = subst_rhs(L_vx0, Fx, Kx, Mx, ux);
+            [div] = subst_rhs(Gx_vx0, div, Kx, Mx, ux);
+            
+            %    Dirichlet (U/D)   Av. Dirichlet (L/R)  
+            uy = [[0*Juy; 0*Jdy]; [0*Jly+0; 0*Jry+0]];
+            [Fy] = subst_rhs(L_vy0, Fy, Ky, My, uy);
+            [div] = subst_rhs(Gy_vy0, div, Ky, My, uy);
 
-            uy = [0*Juy; 0*Jdy; 0*Jly; 0*Jry]+0.1;
-            [L_vy,  Fy] = subst(-L_vy0, Fy, Ky, My, uy);
-            [Gy_vy, div] = subst(Gy_vy0, div, Ky, My, uy);
+            f1 = [Fx; Fy; div];
 
-            A = [L_vx, sparse(size(L_vx, 1), size(L_vy, 2)), Gx_p; ...
-                 sparse(size(L_vy, 1), size(L_vx, 2)), L_vy, Gy_p; ...
-                 Gx_vx, Gy_vy, sparse(prod(sz), prod(sz))];
-            f = [Fx; Fy; div];
-
-            [Mr, Mb] = stokes_vanka_redblack(sz, A);
             x = [Vx(:); Vy(:); P(:)];
             for k = 1:iters(1)
-                r = f - A*x;    x = x + Mr*r; 
-                r = f - A*x;    x = x + Mb*r;
+                r = f1 - A1*x;    x = x + Mr*r; 
+                r = f1 - A1*x;    x = x + Mb*r;
             end
             Vx = reshape(x(1:numel(Fx)), sz - [1 0]);
             Vy = reshape(x((1:numel(Fy)) + numel(Fx)), sz - [0 1]);
@@ -77,13 +88,13 @@ function main
             M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir];
             u = [0*[Ju; Jd]; Cl(:); Cr(:)];
 
-            VxR = zeros(1, size(Vx, 2)) + 0.2;
-            VxL = zeros(1, size(Vx, 2)) + 0.2;
-            VyU = zeros(size(Vy, 1), 1) + 0.1;
-            VyD = zeros(size(Vy, 1), 1) + 0.1;
+            VxR = zeros(1, size(Vx, 2)) + 0.01;
+            VxL = zeros(1, size(Vx, 2)) + 0.01;
+            VyU = zeros(size(Vy, 1), 1) + 0.02;
+            VyD = zeros(size(Vy, 1), 1) + 0.02;
 
             A = advection(Ic, Xc, Yc, [VxL; Vx; VxR], [VyD, Vy, VyU], 'central');        
-            [A, f] = subst(L - A, zeros(sz), K, M, u);
+            [A, f] = subst(L - alpha*A, zeros(sz), K, M, u);
             C = iterate(C, A, f, iters(2));
         end        
         %%% Laplace equation (for Phi)
@@ -262,13 +273,15 @@ end
 % The first coordinate for each M's row is eliminated.
 % In addition, all zero columns are eliminated from A.
 function [A, f] = subst(A, f, K, M, u)
+    f = subst_rhs(A, f, K, M, u);
+    A = subst_lhs(A, K, M);
+end
+
+function [A] = subst_lhs(A, K, M)
 
     P = K(:, 1); % P is to-be-eliminated variable vector
     K(:, 1) = []; % K now contains dependent variables
     S = diag(1 ./ M(:, 1)); % Rescaling according to first coordinate
-
-    u = S * u(:);
-    f = f(:) - A(:, P) * u;
 
     n = size(A, 2); % n = # of variables.
     
@@ -278,6 +291,15 @@ function [A, f] = subst(A, f, K, M, u)
     A(:, P) = [];
 
     A(:, ~any(A, 1)) = [];
+end
+
+function [f] = subst_rhs(A, f, K, M, u)
+
+    P = K(:, 1); % P is to-be-eliminated variable vector
+    S = diag(1 ./ M(:, 1)); % Rescaling according to first coordinate
+
+    u = S * u(:);
+    f = f(:) - A(:, P) * u;
 end
 
 function I = interior(sz)
