@@ -3,7 +3,7 @@ function main
     % clc;
     % Physical quantities
     alpha = 1; % Peclet number
-    beta = 10; % Applied electric field
+    beta = 0.1; % Applied electric field
     vel = 0.1; % Particle velocity 
     
     % Grid creation
@@ -58,12 +58,12 @@ function main
 
     Cl = exp(-Phi(1, :));
     Cr = 0*Cl + exp(-0);
-    for iter = 1:10000
+    for iter = 1:5000
         %%% Laplace equation (for Phi)
         if iters(3)
             C0 = [Cl; C; Cr]; % Expand C with ghost points
             A = laplacian(Ic, Xc, Yc, [C0(:, 1), C0, C0(:, end)]);
-            % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Neumann (field [TODO]).
+            % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Neumann (field).
             M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir-1];
             u = [0*[Ju; Jd]; -log(col(C(1, :))); ...
                 beta * (Xc(Jr) - Xc(Ir)) .* cos(Yc(Jr) * pi)];
@@ -77,7 +77,7 @@ function main
             M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir];
             u = [0*[Ju; Jd]; Cl(:); Cr(:)];
 
-            A = advection(Ic, Xc, Yc, [VxL; Vx; VxR], [VyD, Vy, VyU], 'upwind');        
+            A = advection(Ic, Xc, Yc, [VxL; Vx; VxR], [VyD, Vy, VyU], 'central');        
             [A, f] = subst(L - alpha*A, zeros(sz), K, M, u);
             [C, res2] = iterate(C, A, f, iters(2));
         end        
@@ -114,20 +114,21 @@ function main
     
     % Results
 %     Phi, C, Vx, Vy, P
-    figure(1)
-    mesh(Phi); colorbar;
+    figure(1); 
+    mesh(Phi); colorbar; title('\Phi')
     
-    figure(2)
-    mesh(C); colorbar;
+    figure(2); 
+    mesh(C); colorbar; title('C')
 
-    figure(3)
+    figure(3); 
     quiver(Xi, Yi, ...
         average([VxL; Vx; VxR], [1;1]/2), ...
-        average([VyD, Vy, VyU], [1 1]/2), 0);
+        average([VyD, Vy, VyU], [1 1]/2), 0); title('V')
     axis([1 2 0 1])
 
-    figure(4)
-    imagesc(average(x, [1 1]/2), average(y, [1 1]/2), P.'); colorbar;
+    figure(4); 
+    imagesc(average(x, [1 1]/2), average(y, [1 1]/2), P.'); 
+    colorbar; title('P')
     set(gca, 'YDir', 'normal');
     save results
     norm(res1, inf)
