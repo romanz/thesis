@@ -58,7 +58,7 @@ function main
 
     Cl = exp(-Phi(1, :));
     Cr = 0*Cl + exp(-0);
-    for iter = 1:5000
+    for iter = 1:10000
         %%% Laplace equation (for Phi)
         if iters(3)
             C0 = [Cl; C; Cr]; % Expand C with ghost points
@@ -143,9 +143,10 @@ end
 function [x, r] = iterate(x, A, f, N)
     sz = size(x);
     x = x(:);
+    J = dinv(A);
     for i = 1:N
         r = f - A * x;
-        x = x + dinv(A) * r;
+        x = x + J * r;
     end
     x = reshape(x, sz);
 end
@@ -356,8 +357,8 @@ function A = laplacian(interior, X, Y, C)
     Dxx = ... % Laplacian stencil in X direction
      col(( C(Kr) + C(K) ) ./ (( X(Kr) - X(K) ))) * [1 -1 0] -  ...
      col(( C(K) + C(Kl) ) ./ (( X(K) - X(Kl) ))) * [0 1 -1];
-    P = ind(Ip + Dp, Jp); % column indices
-    Dxx = sparse(repmat((1:numel(K))', [1 3]), P, Dxx, numel(K), N);
+    Pi = ind(Ip + Dp, Jp); % column indices
+    Dxx = sparse(repmat((1:numel(K))', [1 3]), Pi, Dxx, numel(K), N);
     % The denumerator is separated, for A to be symmetric
     % (since the original operator is self-adjoint).
     Mxx = sparse(1:numel(K), 1:numel(K), (X(Kr) - X(Kl)), numel(K), numel(K));
@@ -369,8 +370,8 @@ function A = laplacian(interior, X, Y, C)
     Dyy = ... % Laplacian stencil in Y direction
      col(( C(Ku) + C(K) ) ./ (( Y(Ku) - Y(K) ))) * [1 -1 0] -  ...
      col(( C(K) + C(Kd) ) ./ (( Y(K) - Y(Kd) ))) * [0 1 -1];
-    P = ind(Ip, Jp + Dp); % column indices
-    Dyy = sparse(repmat((1:numel(K))', [1 3]), P, Dyy, numel(K), N);
+    Pj = ind(Ip, Jp + Dp); % column indices
+    Dyy = sparse(repmat((1:numel(K))', [1 3]), Pj, Dyy, numel(K), N);
     % The denumerator is separated, for A to be symmetric
     % (since the original operator is self-adjoint).
     Myy = sparse(1:numel(K), 1:numel(K), (Y(Ku) - Y(Kd)), numel(K), numel(K));
