@@ -348,7 +348,7 @@ function A = laplacian(interior, X, Y, C)
     % NOTE: The stencil is constructed as: [forward, middle, backward] coefficients.
     Ip = repmat(I, [1 3]);
     Jp = repmat(J, [1 3]);
-
+    Kp = repmat((1:numel(K))', [1 3]);
     % Build 2D sparse matrix L = "Dxx/Mxx" + "Dyy/Myy":
 
     % for X
@@ -358,7 +358,7 @@ function A = laplacian(interior, X, Y, C)
      col(( C(Kr) + C(K) ) ./ (( X(Kr) - X(K) ))) * [1 -1 0] -  ...
      col(( C(K) + C(Kl) ) ./ (( X(K) - X(Kl) ))) * [0 1 -1];
     Pi = ind(Ip + Dp, Jp); % column indices
-    Dxx = sparse(repmat((1:numel(K))', [1 3]), Pi, Dxx, numel(K), N);
+    Dxx = sparse(Kp, Pi, Dxx, numel(K), N);
     % The denumerator is separated, for A to be symmetric
     % (since the original operator is self-adjoint).
     Mxx = sparse(1:numel(K), 1:numel(K), (X(Kr) - X(Kl)), numel(K), numel(K));
@@ -371,7 +371,7 @@ function A = laplacian(interior, X, Y, C)
      col(( C(Ku) + C(K) ) ./ (( Y(Ku) - Y(K) ))) * [1 -1 0] -  ...
      col(( C(K) + C(Kd) ) ./ (( Y(K) - Y(Kd) ))) * [0 1 -1];
     Pj = ind(Ip, Jp + Dp); % column indices
-    Dyy = sparse(repmat((1:numel(K))', [1 3]), Pj, Dyy, numel(K), N);
+    Dyy = sparse(Kp, Pj, Dyy, numel(K), N);
     % The denumerator is separated, for A to be symmetric
     % (since the original operator is self-adjoint).
     Myy = sparse(1:numel(K), 1:numel(K), (Y(Ku) - Y(Kd)), numel(K), numel(K));
@@ -382,8 +382,9 @@ function A = laplacian(interior, X, Y, C)
 
     % Pre-multiply it by (Mxx * Myy) for symmetry of A.
     M = Mxx * Myy;
+    dinvM = dinv(M);
     L = Myy * Dxx + Mxx * Dyy;
-    A = dinv(M) * L;
+    A = dinvM * L;
 end
 
 % Diffusion advection discretization using sparse matrix
