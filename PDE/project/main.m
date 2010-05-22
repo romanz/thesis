@@ -7,8 +7,8 @@ function main
     vel = 0.1; % Particle velocity 
     
     % Grid creation
-    x = 1:.05:2;
-    y = 0:.05:1;
+    x = logspace(log10(1), log10(2), 31);
+    y = linspace(0, 1, 21);
     [sz, Xc, Yc, Xx, Yx, Xy, Yy, Xi, Yi] = create_grids(x, y);
     Ic = interior(sz + 2);
     [Ju Iu Jd Id Jl Il Jr Ir] = boundary(Ic);
@@ -38,6 +38,7 @@ function main
     % Iterations
     iters = [1 2 10];
     L = laplacian(Ic, Xc, Yc);
+    L1 = L();
     [Gx_p, L_vx0, Gx_vx0] = stokes1(1, Xx, Yx, Xi, Yi);
     [Gy_p, L_vy0, Gy_vy0] = stokes1(2, Xy, Yy, Xi, Yi);
     
@@ -58,11 +59,12 @@ function main
 
     Cl = exp(-Phi(1, :));
     Cr = 0*Cl + exp(-0);
+    
     for iter = 1:10000
         %%% Laplace equation (for Phi)
         if iters(3)
             C0 = [Cl; C; Cr]; % Expand C with ghost points
-            A = laplacian(Ic, Xc, Yc, [C0(:, 1), C0, C0(:, end)]);
+            A = L([C0(:, 1), C0, C0(:, end)]);
             % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Neumann (field).
             M = [0*Ju+1 0*Iu-1; 0*Jd+1 0*Id-1; 0*Jl+1 0*Il; 0*Jr+1 0*Ir-1];
             u = [0*[Ju; Jd]; -log(col(C(1, :))); ...
@@ -78,7 +80,7 @@ function main
             u = [0*[Ju; Jd]; Cl(:); Cr(:)];
 
             A = advection(Ic, Xc, Yc, [VxL; Vx; VxR], [VyD, Vy, VyU], 'central');        
-            [A, f] = subst(L - alpha*A, zeros(sz), K, M, u);
+            [A, f] = subst(L1 - alpha*A, zeros(sz), K, M, u);
             [C, res2] = iterate(C, A, f, iters(2));
         end        
         %%% Stokes equation (for Vx, Vy, P)
@@ -234,6 +236,7 @@ function [Gp, Lv, Gv] = stokes1(dim, Xs, Ys, X, Y)
     sz = size(0*Xs + 0*Ys);
     I = interior(sz);
     Lv = laplacian(I, Xs, Ys);
+    Lv = Lv();
     % full(Lv)
     dir = (1:numel(sz)) == dim;
     K = I | shift(I, -dir); % add first row/column
@@ -333,12 +336,9 @@ function I = interior(sz)
 end
 
 % Laplacian discretization using sparse matrix
-function A = laplacian(interior, X, Y, C)    
+function operator = laplacian(interior, X, Y)    
     sz = size(interior);
     N = prod(sz);
-    if nargin < 4
-        C = ones(sz); % Assume uniform C
-    end
 
     ind = @(I, J) sub2ind(sz, I, J);
     K = find(interior); % Fill only interior points
@@ -354,11 +354,7 @@ function A = laplacian(interior, X, Y, C)
     % for X
     Kr = ind(I+1, J); % Left
     Kl = ind(I-1, J); % Right
-    Dxx = ... % Laplacian stencil in X direction
-     col(( C(Kr) + C(K) ) ./ (( X(Kr) - X(K) ))) * [1 -1 0] -  ...
-     col(( C(K) + C(Kl) ) ./ (( X(K) - X(Kl) ))) * [0 1 -1];
     Pi = ind(Ip + Dp, Jp); % column indices
-    Dxx = sparse(Kp, Pi, Dxx, numel(K), N);
     % The denumerator is separated, for A to be symmetric
     % (since the original operator is self-adjoint).
     Mxx = sparse(1:numel(K), 1:numel(K), (X(Kr) - X(Kl)), numel(K), numel(K));
@@ -367,11 +363,7 @@ function A = laplacian(interior, X, Y, C)
     % for Y
     Ku = ind(I, J+1); % Up
     Kd = ind(I, J-1); % Down
-    Dyy = ... % Laplacian stencil in Y direction
-     col(( C(Ku) + C(K) ) ./ (( Y(Ku) - Y(K) ))) * [1 -1 0] -  ...
-     col(( C(K) + C(Kd) ) ./ (( Y(K) - Y(Kd) ))) * [0 1 -1];
     Pj = ind(Ip, Jp + Dp); % column indices
-    Dyy = sparse(Kp, Pj, Dyy, numel(K), N);
     % The denumerator is separated, for A to be symmetric
     % (since the original operator is self-adjoint).
     Myy = sparse(1:numel(K), 1:numel(K), (Y(Ku) - Y(Kd)), numel(K), numel(K));
@@ -383,8 +375,25 @@ function A = laplacian(interior, X, Y, C)
     % Pre-multiply it by (Mxx * Myy) for symmetry of A.
     M = Mxx * Myy;
     dinvM = dinv(M);
-    L = Myy * Dxx + Mxx * Dyy;
-    A = dinvM * L;
+    function A = op(C)
+        if nargin < 1
+            C = ones(sz); % Assume uniform C
+        end
+
+        Dxx = ... % Laplacian stencil in X direction
+         col(( C(Kr) + C(K) ) ./ (( X(Kr) - X(K) ))) * [1 -1 0] -  ...
+         col(( C(K) + C(Kl) ) ./ (( X(K) - X(Kl) ))) * [0 1 -1];
+        Dxx = sparse(Kp, Pi, Dxx, numel(K), N);
+        
+        Dyy = ... % Laplacian stencil in Y direction
+         col(( C(Ku) + C(K) ) ./ (( Y(Ku) - Y(K) ))) * [1 -1 0] -  ...
+         col(( C(K) + C(Kd) ) ./ (( Y(K) - Y(Kd) ))) * [0 1 -1];
+        Dyy = sparse(Kp, Pj, Dyy, numel(K), N);
+        
+        L = Myy * Dxx + Mxx * Dyy;
+        A = dinvM * L;
+    end
+    operator = @op;
 end
 
 % Diffusion advection discretization using sparse matrix
