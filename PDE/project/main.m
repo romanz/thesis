@@ -3,11 +3,11 @@ function main
     % clc;
     % Physical quantities
     alpha = 1; % Peclet number
-    beta = 0.1; % Applied electric field
+    beta = 1; % Applied electric field
     vel = 0.1; % Particle velocity 
     
     % Grid creation
-    x = logspace(log10(1), log10(2), 31);
+    x = linspace((1), (2), 21);
     y = linspace(0, 1, 21);
     [sz, Xc, Yc, Xx, Yx, Xy, Yy, Xi, Yi] = create_grids(x, y);
     Ic = interior(sz + 2);
@@ -29,14 +29,14 @@ function main
     % Left/Right: Average Dirichlet = Slip/sin(theta)
     
     % Guess initial values for all variables
-    Phi = randn(sz);
-    C = rand(sz);
-    Vx = randn(sz - [1 0]);
-    Vy = randn(sz - [0 1]);
-    P = randn(sz);
+    Phi = zeros(sz);
+    C = ones(sz)/2;
+    Vx = 0*randn(sz - [1 0]);
+    Vy = 0*randn(sz - [0 1]);
+    P = zeros(sz);
     
     % Iterations
-    iters = [1 2 10];
+    iters = [10 10 10];
     L = laplacian(Ic, Xc, Yc);
     L1 = L();
     [Gx_p, L_vx0, Gx_vx0] = stokes1(1, Xx, Yx, Xi, Yi);
@@ -56,9 +56,12 @@ function main
     VxR = zeros(1, size(Vx, 2)) - vel*cos(Yx(end, 2:end-1)*pi);
     VyU = zeros(size(Vy, 1), 1);
     VyD = zeros(size(Vy, 1), 1);
+    VyL = zeros(1, size(Vy, 2));
+    VyR = zeros(1, size(Vy, 2)) + vel*sin(Yy(end, 2:end-1)*pi);
 
     Cl = exp(-Phi(1, :));
     Cr = 0*Cl + exp(-0);
+    clc;
     
     for iter = 1:10000
         %%% Laplace equation (for Phi)
@@ -95,7 +98,7 @@ function main
             [div] = subst_rhs(Gx_vx0, div, Kx, Mx, ux);
             
             %    Dirichlet (U/D)   Av. Dirichlet (L/R)  [TODO]
-            uy = [[VyU(:); VyD(:)]; [0*Jly; 0*Jry]];
+            uy = [[VyU(:); VyD(:)]; [VyL(:)+0*Jly; VyR(:)+0*Jry]];
             [Fy] = subst_rhs(L_vy0, Fy, Ky, My, uy);
             [div] = subst_rhs(Gy_vy0, div, Ky, My, uy);
 
@@ -112,10 +115,9 @@ function main
             P = reshape(z((1 + numel(Fx) + numel(Fy)):end), sz);
             P = P - mean(P(:)); % re-normalize P
         end
+        
     end
     
-    % Results
-%     Phi, C, Vx, Vy, P
     figure(1); 
     mesh(Phi); colorbar; title('\Phi')
     
@@ -125,17 +127,19 @@ function main
     figure(3); 
     quiver(Xi, Yi, ...
         average([VxL; Vx; VxR], [1;1]/2), ...
-        average([VyD, Vy, VyU], [1 1]/2), 0); title('V')
-    axis([1 2 0 1])
+        average([VyD, Vy, VyU], [1 1]/2)); title('V')
+    axis([min(x) max(x) min(y) max(y)])
 
     figure(4); 
     imagesc(average(x, [1 1]/2), average(y, [1 1]/2), P.'); 
     colorbar; title('P')
     set(gca, 'YDir', 'normal');
-    save results
     norm(res1, inf)
     norm(res2, inf)
     norm(res3, inf)
+    % Results
+%     Phi, C, Vx, Vy, P
+    save results
 end
 
 function A = shave(A, rows, cols)
