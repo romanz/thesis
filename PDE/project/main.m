@@ -36,7 +36,7 @@ function main
     P = zeros(sz);
     
     % Iterations
-    iters = [10 10 10];
+    iters = [1 1 1];
     L = laplacian(Ic, Xc, Yc);
     L1 = L();
     [Gx_p, L_vx0, Gx_vx0] = stokes1(1, Xx, Yx, Xi, Yi);
@@ -63,9 +63,9 @@ function main
     Cr = 0*Cl + exp(-0);
     clc;
     
-    for iter = 1:10000
+    for iter = 1:20000
         %%% Laplace equation (for Phi)
-        if iters(3)
+        if iters(1)
             C0 = [Cl; C; Cr]; % Expand C with ghost points
             A = L([C0(:, 1), C0, C0(:, end)]);
             % Up/Down: symmetry - Neumann. Left: Dirichlet. Right: Neumann (field).
@@ -73,7 +73,7 @@ function main
             u = [0*[Ju; Jd]; -log(col(C(1, :))); ...
                 beta * (Xc(Jr) - Xc(Ir)) .* cos(Yc(Jr) * pi)];
             [A, f] = subst(A, zeros(sz), K, M, u);
-            [Phi, res3] = iterate(Phi, A, f, iters(3));
+            [Phi, res1] = iterate(Phi, A, f, iters(3));
             Cl = exp(-Phi(1, :));
         end
         %%% Diffusion-advection (for C)        
@@ -87,7 +87,8 @@ function main
             [C, res2] = iterate(C, A, f, iters(2));
         end        
         %%% Stokes equation (for Vx, Vy, P)
-        if iters(1)
+        if iters(3)
+            % F = grad(Phi) * div(grad(Phi))
             Fx = shave(Xx, 1, 1) * 0;
             Fy = shave(Yy, 1, 1) * 0;
             div = zeros(sz);
@@ -109,7 +110,7 @@ function main
                 r = f1 - A1*z;    z = z + Mr*r; 
                 r = f1 - A1*z;    z = z + Mb*r;
             end
-            res1 = r;
+            res3 = r;
             Vx = reshape(z(1:numel(Fx)), sz - [1 0]);
             Vy = reshape(z((1:numel(Fy)) + numel(Fx)), sz - [0 1]);
             P = reshape(z((1 + numel(Fx) + numel(Fy)):end), sz);
