@@ -294,22 +294,6 @@ This way we get 2nd order upwind approximation for the derivative $f'(0) = b$:
   b &=& \frac{3f(0) - 4f(-h) + f(-2h)}{2h}
 \end{eqnarray}
 
-\section{Polar Coordinates}
-\begin{eqnarray}
-\bnabla f &=& \frac{\partial f}{\partial r} \mathbf{\hat{r}} +
-\frac{1}{r} \frac{\partial f}{\partial \theta} \mathbf{\hat{\theta}}
-\\
-\bnabla \mathbf{\cdot} \mathbf{F} &=& \frac{1}{r}
-\left(
-\frac{\partial}{\partial r} (r F_r) +
-\frac{\partial F_\theta}{\partial \theta}
-\right)
-\\
-\bnabla^2 f &=& \frac{1}{r}\frac{\partial}{\partial r}
-\left( r \frac{\partial f}{\partial r} \right) +
-\frac{1}{r^2}\frac{\partial^2 f}{\partial \theta^2}
-\end{eqnarray}
-
 \section{Stokes}
 \begin{eqnarray}
  \bnabla P - \mu \Delta \mathbf{V} &=& \mathbf{F} \\
@@ -333,6 +317,61 @@ Note that $P$ can be determined only up to an additive constant.
  x' &=& x + P_J^T (P_I A P_J^T)^{-1} P_I (f - Ax) \\
  x' &=& x + M (f - Ax) \\
  M &=& \sum_{I,J} P_J^T (P_I A P_J^T)^{-1} P_I
+\end{eqnarray}
+
+\section{Stress Tensors}
+The stress tensor represented as a symmetric $3 \times 3$ matrix $\mathbb{S}$.
+The force $\boldsymbol{F}$ acting on a volume element can be written as $\boldsymbol{F} = \bnabla \cdot \mathbb{S}$.
+
+\subsection{Pressure}
+Denote $\mathbb{S} = -P \mathbb{I}$, so $\boldsymbol{F} = -\bnabla P$.
+
+\subsection{Viscosity}
+Denote $\mathbb{S} = \bnabla \bV + (\bnabla \bV)^\dagger$.
+Thus $\mathbb{S}_{ij} = \partial_i V_j + \partial_j V_i$:
+\begin{eqnarray}
+F_j &=& \sum_i \partial_i \mathbb{S}_{ij} = \sum_i \partial^2_i V_j + \sum_i \partial_{ij} V_i
+= \nabla^2 V_j + \partial_j \left(\sum_i \partial_i V_i\right) \\
+\boldsymbol{F} &=& \nabla^2 \bV + \bnabla (\bnabla \cdot \bV)
+\end{eqnarray}
+Since we assume divergence-free flow ($\bnabla \cdot \bV = 0$):
+\begin{eqnarray}
+\boldsymbol{F} &=& \nabla^2 \bV
+\end{eqnarray}
+\subsection{Maxwell}
+Denote $\mathbb{S} = \bnabla \varPhi \bnabla \varPhi - \frac{1}{2} \bnabla \varPhi \cdot \bnabla \varPhi$.
+Thus $\mathbb{S}_{ij} = \partial_i \varPhi \partial_j \varPhi - \frac{1}{2} \delta_{ij} \sum_{k} (\partial_k \varPhi)^2$
+\begin{eqnarray}
+F_j &=& \sum_i \partial_i \mathbb{S}_{ij} =
+\partial_i \sum_i \partial_i \varPhi \partial_j \varPhi - \frac{1}{2} \partial_j \sum_{k} (\partial_k \varPhi)^2 \\
+F_j &=&  \partial_j \varPhi \sum_i \partial^2_i \varPhi +
+\sum_i \partial_i \varPhi \partial_{ij} \varPhi - \sum_{k} \partial_k \varPhi \partial_{jk} \varPhi \\
+\boldsymbol{F} &=& \bnabla \varPhi \cdot \nabla^2 \varPhi
+\end{eqnarray}
+
+\section{Spherical Coordinates}
+\begin{eqnarray}
+x &=& r \sin \theta \cos \phi \\
+y &=& r \sin \theta \sin \phi \\
+z &=& r \cos \theta 
+\end{eqnarray}
+Assume symmetry around $z$ axis - no dependence on $\phi$:
+\begin{eqnarray}
+\bnabla f &=& \frac{\partial f}{\partial r} \mathbf{\hat{r}} +
+\frac{1}{r} \frac{\partial f}{\partial \theta} \mathbf{\hat{\theta}}
+\\
+\bnabla \mathbf{\cdot} \mathbf{F} &=& \frac{1}{dr \cdot r d\theta \cdot r \sin \theta d\phi} \left(
+\Delta_r\left\{r d\theta \cdot r \sin \theta d\phi \cdot F_r\right\} +
+\Delta_\theta\left\{dr \cdot r \sin \theta d\phi \cdot F_\theta\right\}
+\right) \\
+&=& \frac{1}{r^2}\frac{\partial}{\partial r} \left( r^2 \cdot F_r\right)
+  + \frac{1}{r \sin\theta} \frac{\partial}{\partial \theta} \left( \sin\theta \cdot F_\theta\right) \\
+\bnabla^2 f &=& \frac{1}{r^2}\frac{\partial}{\partial r}
+\left( r^2 \frac{\partial f}{\partial r} \right) +
+\frac{1}{r^2 \sin\theta} \frac{\partial}{\partial \theta} \left( \sin\theta \cdot \frac{\partial f}{\partial \theta}\right) 
+\\
+r^2 \sin\theta \cdot \bnabla^2 f &=& \frac{\partial}{\partial r} \left( r^2 \sin \theta \frac{\partial f}{\partial r} \right) +
+\frac{\partial}{\partial \theta} \left( \sin\theta \cdot \frac{\partial f}{\partial \theta}\right)
 \end{eqnarray}
 
 %%%%%%%%%%%%%%%%%%%%%%%
