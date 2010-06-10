@@ -7,8 +7,8 @@ function main
     vel = 0.1; % Particle velocity 
     
     % Grid creation
-    x = linspace((1), (2), 21);
-    y = linspace(0, 1, 21);
+    x = linspace((1), (2), 31);
+    y = linspace(0, 1, 31);
     [sz, Xc, Yc, Xx, Yx, Xy, Yy, Xi, Yi] = create_grids(x, y);
     Ic = interior(sz + 2);
     [Ju Iu Jd Id Jl Il Jr Ir] = boundary(Ic);
@@ -30,7 +30,7 @@ function main
     
     % Guess initial values for all variables
     Phi = zeros(sz);
-    C = ones(sz)/2;
+    C = ones(sz);
     Vx = 0*randn(sz - [1 0]);
     Vy = 0*randn(sz - [0 1]);
     P = zeros(sz);
@@ -63,7 +63,11 @@ function main
     Cr = 0*Cl + exp(-0);
     clc;
     
-    for iter = 1:20000
+    tic
+    total_iters = 10000; 
+    h = progress([], 0, 'Coupled iteration');
+    for iter = 1:total_iters
+        h = progress(h, iter/total_iters);
         %%% Laplace equation (for Phi)
         if iters(1)
             C0 = [Cl; C; Cr]; % Expand C with ghost points
@@ -75,6 +79,10 @@ function main
             [A, f] = subst(A, zeros(sz), K, M, u);
             [Phi, res1] = iterate(Phi, A, f, iters(3));
             Cl = exp(-Phi(1, :));
+            [A, f] = subst(L(), zeros(sz), K, M, u);
+            LPhi = reshape(A*Phi(:) - f, sz);
+            Fx1 = reshape(Gx_p * Phi(:), sz-[1 0]);
+            Fy1 = reshape(Gy_p * Phi(:), sz-[0 1]);
         end
         %%% Diffusion-advection (for C)        
         if iters(2)
@@ -89,8 +97,8 @@ function main
         %%% Stokes equation (for Vx, Vy, P)
         if iters(3)
             % F = grad(Phi) * div(grad(Phi))
-            Fx = shave(Xx, 1, 1) * 0;
-            Fy = shave(Yy, 1, 1) * 0;
+            Fx = Fx1 .* interpolate(Xi, Yi, LPhi, Xx(2:end-1, 2:end-1), Yx(2:end-1, 2:end-1));            
+            Fy = Fy1 .* interpolate(Xi, Yi, LPhi, Xy(2:end-1, 2:end-1), Yy(2:end-1, 2:end-1));
             div = zeros(sz);
 
             %    Neumann (U/D)     Dirichlet (L/R)
@@ -115,9 +123,10 @@ function main
             Vy = reshape(z((1:numel(Fy)) + numel(Fx)), sz - [0 1]);
             P = reshape(z((1 + numel(Fx) + numel(Fy)):end), sz);
             P = P - mean(P(:)); % re-normalize P
-        end
-        
+        end        
     end
+    progress(h, [])
+    toc
     
     figure(1); 
     mesh(Phi); colorbar; title('\Phi')
@@ -141,6 +150,10 @@ function main
     % Results
 %     Phi, C, Vx, Vy, P
     save results
+end
+
+function Zi = interpolate(X, Y, Z, Xi, Yi)
+    Zi = interp2(Y, X, Z, Yi, Xi);
 end
 
 function A = shave(A, rows, cols)
@@ -513,4 +526,27 @@ end
 % Converts x to a column vector = x(:)
 function x = col(x)
     x = x(:);
+end
+
+function handle = progress(handle, p, msg)
+    if isempty(handle)       
+        handle.start = now;
+        handle.fig = waitbar(0, '');
+        handle.msg = msg;
+        handle.p = 0;
+    elseif isempty(p)
+        close(handle.fig);
+        return
+    elseif p < min(1, handle.p + 1e-3)
+        return
+    end
+
+    handle.p = p;
+
+    runtime = datestr(now - handle.start, 'HH:MM:SS');
+    runtime = ['Runtime: ' runtime ' [seconds]'];
+
+    waitbar(handle.p, handle.fig, runtime);
+    s = [sprintf('%.1f%%', 100*handle.p) ' - ' handle.msg];
+    set(handle.fig, 'Name', s);
 end
