@@ -16,3 +16,4 @@ syntax:glob
 *.layout
 *.depend
 *.html
+*.mexw32
