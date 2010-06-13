@@ -1,4 +1,4 @@
 addpath(fullfile(pwd, 'extrapolation'))
 addpath(fullfile(pwd, 'utils'))
-cd PDE
+cd ng
 fprintf('Startup completed at "%s".\n', pwd)
