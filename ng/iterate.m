@@ -5,14 +5,22 @@ function varargout = iterate(prob, varargin)
         sz(i, :) = size(varargin{i});
         varargin{i} = varargin{i}(:);
     end
-    x = cat(1, varargin{:});
-    for i = 1:prob.iters
-        for j = 1:numel(prob.precond)
-            residual = prob.rhs - prob.operator * x;
-            dx = prob.precond{j} * residual;
-            x = x + dx;
+    x0 = cat(1, varargin{:});
+    if prob.iters < 0
+        x = prob.operator \ prob.rhs;
+    elseif prob.iters > 0
+        x = x0;
+        for i = 1:prob.iters
+            for j = 1:numel(prob.precond)
+                residual = prob.rhs - prob.operator * x;
+                dx = prob.precond{j} * residual;
+                x = x + dx;
+            end
         end
+    else
+        x = x0; % No iterations
     end
+    norm(residual, inf)
     k = 0;
     for i = 1:numel(varargin)
         n = prod(sz(i, :));

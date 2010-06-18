@@ -1,11 +1,11 @@
 % Coupled simulation main script.
 function main
-
+    % clc;
 % Create grids
-    nx = 3;
-    ny = 3;
-    x = linspace(0, 1, nx);
-    y = linspace(0, 1, ny);
+    nx = 17;
+    ny = 17;
+    x = linspace(1, 4, nx);
+    y = linspace(0, pi, ny);
     [center, interior, xstag, ystag] = grids(x, y);
 
 % Initialize variables
@@ -15,11 +15,7 @@ function main
     Vy = zeros(ystag.sz);
     P = zeros(interior.sz);
     
-    problem = @() struct('iters', 0);
-    
-    laplace = problem();
-    advect = problem();
-    stokes = problem();
+    problem = @(iters) struct('iters', iters);
 
 % Laplace problem (Phi)
     function update_laplace()
@@ -31,12 +27,14 @@ function main
         [lhs2, rhs2] = neumann(gridPhi, [+1 0]);
         [lhs3] = neumann(gridPhi, [0 -1]);
         [lhs4] = neumann(gridPhi, [0 +1]);
-        lhs = (lhs1 * lhs2 * lhs3 * lhs4) * restrict(gridPhi.I);
-        laplace.operator = laplace_full_operator * lhs;
-        E = -beta*cos(gridPhi.y(2:end-1));
-        laplace.rhs = laplace_full_operator * ...
-            (rhs1(-log( C(2, 2:end-1) )) + rhs2(E));
+        lhsPhi = (lhs1 * lhs2 * lhs3 * lhs4) * restrict(gridPhi.I);
+        laplace.operator = laplace_full_operator * lhsPhi;
+        Er = -beta*cos( gridPhi.y(2:end-1) );
+        rhsPhi = rhs1(-log( C(2, 2:end-1) )) + rhs2(Er); 
+        laplace.rhs = laplace_full_operator * rhsPhi;
         laplace.precond = redblack(interior.sz, laplace.operator);
+        laplace.expand = @(Phi) ...
+            reshape(lhsPhi * Phi(gridPhi.I) - rhsPhi, gridPhi.sz);
     end
      
 % Diffusion-advection problem (C)
@@ -50,16 +48,18 @@ function main
         [lhs2, rhs2] = dirichlet(gridC, [+1 0]);
         [lhs3] = neumann(gridC, [0 -1]);
         [lhs4] = neumann(gridC, [0 +1]);
-        lhs = (lhs1 * lhs2 * lhs3 * lhs4) * restrict(gridC.I);
-        advect.operator = advection_full_operator * lhs;
-        advect.rhs = advection_full_operator * ...
-            (rhs1(exp( -Phi(2, 2:end-1))) + rhs2(1));
+        lhsC = (lhs1 * lhs2 * lhs3 * lhs4) * restrict(gridC.I);
+        advect.operator = advection_full_operator * lhsC;
+        rhsC = rhs1(exp( -Phi(2, 2:end-1))) + rhs2(1);
+        advect.rhs = advection_full_operator * rhsC;
         advect.precond = redblack(interior.sz, advect.operator);
+        advect.expand = @(C) ...
+            reshape(lhsC * C(gridC.I) - rhsC, gridC.sz);
     end    
 
 % Stokes problem
     function update_stokes
-        vel = 1;    
+        vel = 0;    
         gamma = 0.5;
         L = laplacian(center.I, center.X, center.Y);
         grad = @(dir) gradient(shift(interior.I, -dir), interior.X, interior.Y, dir);
@@ -68,6 +68,8 @@ function main
         q = L * Phi(:);
         Ex = Gx * Phi(center.I);
         Ey = Gy * Phi(center.I);
+        Fx = 0; %(Ax * q) .* Ex;
+        Fy = 0; %(Ay * q) .* Ey;
         
         % P (no boundary condition: 1 DOF, arbirary mean)
         gridP = interior;
@@ -82,44 +84,78 @@ function main
         [lhs3x] = neumann(gridVx, [0 -1]);
         [lhs4x] = neumann(gridVx, [0 +1]);
         lhsVx = lhs1x * lhs2x * lhs3x * lhs4x * restrict(gridVx.I);
-        rhsVx =  + rhs1x(0) + rhs2x(-vel*cos(gridVx.y(2:end-1)));
-        % (q*Ex)
+        rhsVx = rhs1x(0) + rhs2x(-vel*cos(gridVx.y(2:end-1)));
+
         [lhs1y, rhs1y] = average_dirichlet(gridVy, [-1 0]);
         [lhs2y, rhs2y] = dirichlet(gridVy, [+1 0]);
         [lhs3y] = dirichlet(gridVy, [0 -1]);
         [lhs4y] = dirichlet(gridVy, [0 +1]);
         lhsVy = lhs1y * lhs2y * lhs3y * lhs4y * restrict(gridVy.I);
-        rhsVy =  + rhs1y(slip(Phi, C, gamma)) + rhs2y(vel*sin(gridVy.y(2:end-1)));
-        % (q*Ey)
+        Vt = ddslip(Phi, C, gamma, center.y);
+        rhsVy = rhs1y(Vt) + rhs2y(vel*sin(gridVy.y(2:end-1)));
+        
         div = zeros(gridP.sz); % zero-divergence
-        stokes.rhs = [rhsVx(:); rhsVy(:); div(:)];
+        stokes.rhs = [...
+            L_vx * rhsVx(:) + Fx; ...
+            L_vy * rhsVy(:) + Fy; ...
+            Gx_vx * rhsVx(:) + Gy_vy * rhsVy(:) + div(:)];
         
         L_vx1 = L_vx * lhsVx;
         L_vy1 = L_vy * lhsVy;
         Gx_vx1 = Gx_vx * lhsVx;
         Gy_vy1 = Gy_vy * lhsVy;
-        stokes.operator = [... % XXX
+        stokes.operator = [... 
             L_vx1, sparse(size(L_vx1, 1), size(L_vy1, 2)), -Gx_p; ...
             sparse(size(L_vy1, 1), size(L_vx1, 2)), L_vy1, -Gy_p; ...
             Gx_vx1, Gy_vy1, sparse(prod(gridP.sz), prod(gridP.sz))];
         stokes.precond = stokes_vanka_redblack(gridP.sz, stokes.operator);
+        stokes.expandVx = @(Vx) ...
+            reshape(lhsVx * Vx(gridVx.I) - rhsVx, gridVx.sz);
+        stokes.expandVy = @(Vy) ...
+            reshape(lhsVy * Vy(gridVy.I) - rhsVy, gridVy.sz);
     end
 
+% Problems:
+    laplace = problem(1);
+    advect = problem(1);
+    stokes = problem(1);
 % Iterate on problems
-    iters = 100;    
+    iters = 100;
     for iter = 1:iters
         update_laplace;         
-        Phi = iterate(laplace, Phi);
+        Phi(2:end-1, 2:end-1) = iterate(laplace, Phi(2:end-1, 2:end-1));
+        Phi = laplace.expand(Phi);
         
         update_advection;       
-        C = iterate(advect, C);
+        C(2:end-1, 2:end-1) = iterate(advect, C(2:end-1, 2:end-1));
+        C = advect.expand(C);
 
         update_stokes;
-        [Vx, Vy, P] = iterate(stokes, Vx, Vy, P);
+        [Vx(2:end-1, 2:end-1), Vy(2:end-1, 2:end-1), P] = iterate(...
+            stokes, Vx(2:end-1, 2:end-1), Vy(2:end-1, 2:end-1), P);
+        [Vx] = stokes.expandVx(Vx);
+        [Vy] = stokes.expandVy(Vy);
         P = P - mean(P(:));
     end    
+    figure(1); clf; show(Phi(:, 2:end-1), 'Phi')
+    figure(2); clf; show(C(:, 2:end-1), 'C')
+    figure(3); clf; show(Vx(:, 2:end-1), 'Vx')
+    figure(4); clf; show(Vy(2:end-1, :), 'Vy')
+    figure(5); clf; show(P, 'P')
+    save results
 end
 
-function v = slip(varargin)
-    v = 0;
+% Dukhin-Derjaguin slip velocity
+function V = ddslip(Phi, C, gamma, theta)
+    C = col(mean(C(1:2, 2:end-1))); % on R=1
+    Phi = col(mean(Phi(1:2, 2:end-1))); % on R=1
+    
+    h = [1;1]/2;
+    xi = log(average(C(:), h)/gamma);
+    lnC = log(C);
+    
+    D = [1;-1];
+    dtheta = average(theta(:), D);
+    deriv = @(f) average(f(:), D) ./ dtheta(2:end-1);
+    V = xi .* deriv(Phi) + 2 * log(1 - tanh(xi/4).^2) .* deriv(lnC);
 end

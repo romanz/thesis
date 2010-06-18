@@ -1,5 +1,4 @@
 function [M] = stokes_vanka_redblack(sz, A)
-    sz = sz - 2;
     K = 1:prod(sz);
     K = K(:);
     [I, J] = ind2sub(sz, K);
