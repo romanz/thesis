@@ -2,8 +2,8 @@
 function main
     % clc;
 % Create grids
-    nx = 17;
-    ny = 17;
+    nx = 9;
+    ny = 9;
     x = linspace(1, 4, nx);
     y = linspace(0, pi, ny);
     [center, interior, xstag, ystag] = grids(x, y);
@@ -34,7 +34,7 @@ function main
         laplace.rhs = laplace_full_operator * rhsPhi;
         laplace.precond = redblack(interior.sz, laplace.operator);
         laplace.expand = @(Phi) ...
-            reshape(lhsPhi * Phi(gridPhi.I) - rhsPhi, gridPhi.sz);
+            reshape(lhsPhi * Phi(:) - rhsPhi, gridPhi.sz);
     end
      
 % Diffusion-advection problem (C)
@@ -54,12 +54,12 @@ function main
         advect.rhs = advection_full_operator * rhsC;
         advect.precond = redblack(interior.sz, advect.operator);
         advect.expand = @(C) ...
-            reshape(lhsC * C(gridC.I) - rhsC, gridC.sz);
+            reshape(lhsC * C(:) - rhsC, gridC.sz);
     end    
 
 % Stokes problem
     function update_stokes
-        vel = 0;    
+        vel = 1;
         gamma = 0.5;
         L = laplacian(center.I, center.X, center.Y);
         grad = @(dir) gradient(shift(interior.I, -dir), interior.X, interior.Y, dir);
@@ -110,28 +110,28 @@ function main
             Gx_vx1, Gy_vy1, sparse(prod(gridP.sz), prod(gridP.sz))];
         stokes.precond = stokes_vanka_redblack(gridP.sz, stokes.operator);
         stokes.expandVx = @(Vx) ...
-            reshape(lhsVx * Vx(gridVx.I) - rhsVx, gridVx.sz);
+            reshape(lhsVx * Vx(:) - rhsVx, gridVx.sz);
         stokes.expandVy = @(Vy) ...
-            reshape(lhsVy * Vy(gridVy.I) - rhsVy, gridVy.sz);
+            reshape(lhsVy * Vy(:) - rhsVy, gridVy.sz);
     end
 
 % Problems:
-    laplace = problem(1);
-    advect = problem(1);
+    laplace = problem(2);
+    advect = problem(2);
     stokes = problem(1);
 % Iterate on problems
-    iters = 100;
+    iters = 3000;
     for iter = 1:iters
         update_laplace;         
-        Phi(2:end-1, 2:end-1) = iterate(laplace, Phi(2:end-1, 2:end-1));
+        Phi = iterate(laplace, Phi(2:end-1, 2:end-1));
         Phi = laplace.expand(Phi);
         
         update_advection;       
-        C(2:end-1, 2:end-1) = iterate(advect, C(2:end-1, 2:end-1));
+        C = iterate(advect, C(2:end-1, 2:end-1));
         C = advect.expand(C);
 
         update_stokes;
-        [Vx(2:end-1, 2:end-1), Vy(2:end-1, 2:end-1), P] = iterate(...
+        [Vx, Vy, P] = iterate(...
             stokes, Vx(2:end-1, 2:end-1), Vy(2:end-1, 2:end-1), P);
         [Vx] = stokes.expandVx(Vx);
         [Vy] = stokes.expandVy(Vy);
@@ -139,23 +139,8 @@ function main
     end    
     figure(1); clf; show(Phi(:, 2:end-1), 'Phi')
     figure(2); clf; show(C(:, 2:end-1), 'C')
-    figure(3); clf; show(Vx(:, 2:end-1), 'Vx')
-    figure(4); clf; show(Vy(2:end-1, :), 'Vy')
+    figure(3); clf; show(Vx(:, 2:end-1), 'V_R')
+    figure(4); clf; show(Vy(2:end-1, :), 'V_\Theta')
     figure(5); clf; show(P, 'P')
     save results
-end
-
-% Dukhin-Derjaguin slip velocity
-function V = ddslip(Phi, C, gamma, theta)
-    C = col(mean(C(1:2, 2:end-1))); % on R=1
-    Phi = col(mean(Phi(1:2, 2:end-1))); % on R=1
-    
-    h = [1;1]/2;
-    xi = log(average(C(:), h)/gamma);
-    lnC = log(C);
-    
-    D = [1;-1];
-    dtheta = average(theta(:), D);
-    deriv = @(f) average(f(:), D) ./ dtheta(2:end-1);
-    V = xi .* deriv(Phi) + 2 * log(1 - tanh(xi/4).^2) .* deriv(lnC);
 end
