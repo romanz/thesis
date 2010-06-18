@@ -2,8 +2,8 @@
 function main
     % clc;
 % Create grids
-    nx = 9;
-    ny = 9;
+    nx = 17;
+    ny = 17;
     x = linspace(1, 4, nx);
     y = linspace(0, pi, ny);
     [center, interior, xstag, ystag] = grids(x, y);
@@ -120,27 +120,45 @@ function main
     advect = problem(2);
     stokes = problem(1);
 % Iterate on problems
-    iters = 3000;
+    iters = 12500;
+    dPhi = zeros(iters, 1);
+    dC = zeros(iters, 1);
+    dVx = zeros(iters, 1);
+    dVy = zeros(iters, 1);
+    dP = zeros(iters, 1);
+    err = @(x) norm(x(:), inf);
     for iter = 1:iters
         update_laplace;         
-        Phi = iterate(laplace, Phi(2:end-1, 2:end-1));
-        Phi = laplace.expand(Phi);
+        Phi1 = iterate(laplace, Phi(2:end-1, 2:end-1));
+        Phi1 = laplace.expand(Phi1);
+        dPhi(iter) = err(Phi - Phi1);
+        Phi = Phi1;
         
         update_advection;       
-        C = iterate(advect, C(2:end-1, 2:end-1));
-        C = advect.expand(C);
+        C1 = iterate(advect, C(2:end-1, 2:end-1));
+        C1 = advect.expand(C1);
+        dC(iter) = err(C - C1);
+        C = C1;
 
         update_stokes;
-        [Vx, Vy, P] = iterate(...
+        [Vx1, Vy1, P1] = iterate(...
             stokes, Vx(2:end-1, 2:end-1), Vy(2:end-1, 2:end-1), P);
-        [Vx] = stokes.expandVx(Vx);
-        [Vy] = stokes.expandVy(Vy);
-        P = P - mean(P(:));
+        [Vx1] = stokes.expandVx(Vx1);
+        [Vy1] = stokes.expandVy(Vy1);
+        P1 = P1 - mean(P1(:));
+        dVx(iter) = err(Vx - Vx1);
+        dVy(iter) = err(Vy - Vy1);
+        dP(iter) = err(P - P1);
+        Vx = Vx1;
+        Vy = Vy1;
+        P = P1;
     end    
     figure(1); clf; show(Phi(:, 2:end-1), 'Phi')
     figure(2); clf; show(C(:, 2:end-1), 'C')
     figure(3); clf; show(Vx(:, 2:end-1), 'V_R')
-    figure(4); clf; show(Vy(2:end-1, :), 'V_\Theta')
+    figure(4); clf; show(Vy(2:end-1, :), 'V_\theta')
     figure(5); clf; show(P, 'P')
+    figure(6); clf; semilogy([dPhi, dC, dVx, dVy, dP]);
+    legend('\Phi', 'C', 'V_R', 'V_\theta', 'P')
     save results
 end
