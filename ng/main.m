@@ -2,8 +2,8 @@
 function main
     % clc;
 % Create grids
-    nx = 17;
-    ny = 17;
+    nx = 5;
+    ny = 5;
     x = linspace(1, 4, nx);
     y = linspace(0, pi, ny);
     [center, interior, xstag, ystag] = grids(x, y);
@@ -63,13 +63,17 @@ function main
         gamma = 0.5;
         L = laplacian(center.I, center.X, center.Y);
         grad = @(dir) gradient(shift(interior.I, -dir), interior.X, interior.Y, dir);
-        Gx = grad([1 0]);
-        Gy = grad([0 1]);
+        Gx = grad([1 0]); % at xstag interior
+        Gy = grad([0 1]); % at ystag interior
         q = L * Phi(:);
         Ex = Gx * Phi(center.I);
         Ey = Gy * Phi(center.I);
-        Fx = 0; %(Ax * q) .* Ex;
-        Fy = 0; %(Ay * q) .* Ey;
+        Ax = interpolator(center.X(2:end-1, 2:end-1), ...
+            xstag.X(2:end-1, 2:end-1));
+        Ay = interpolator(center.Y(2:end-1, 2:end-1), ...
+            ystag.Y(2:end-1, 2:end-1));
+        Fx = (Ax * q) .* Ex(:);
+        Fy = (Ay * q) .* Ey(:);
         
         % P (no boundary condition: 1 DOF, arbirary mean)
         gridP = interior;
@@ -120,13 +124,14 @@ function main
     advect = problem(2);
     stokes = problem(1);
 % Iterate on problems
-    iters = 12500;
+    iters = 250;
     dPhi = zeros(iters, 1);
     dC = zeros(iters, 1);
     dVx = zeros(iters, 1);
     dVy = zeros(iters, 1);
     dP = zeros(iters, 1);
     err = @(x) norm(x(:), inf);
+    tic;
     for iter = 1:iters
         update_laplace;         
         Phi1 = iterate(laplace, Phi(2:end-1, 2:end-1));
@@ -153,6 +158,7 @@ function main
         Vy = Vy1;
         P = P1;
     end    
+    toc;
     figure(1); clf; show(Phi(:, 2:end-1), 'Phi')
     figure(2); clf; show(C(:, 2:end-1), 'C')
     figure(3); clf; show(Vx(:, 2:end-1), 'V_R')
