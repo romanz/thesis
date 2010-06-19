@@ -20,7 +20,7 @@ function varargout = iterate(prob, varargin)
     else
         x = x0; % No iterations
     end
-    norm(residual, inf)
+    fprintf('%e\n', norm(residual, inf))
     k = 0;
     for i = 1:numel(varargin)
         n = prod(sz(i, :));

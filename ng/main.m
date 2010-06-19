@@ -100,8 +100,8 @@ function main
         
         div = zeros(gridP.sz); % zero-divergence
         stokes.rhs = [...
-            L_vx * rhsVx(:) + Fx; ...
-            L_vy * rhsVy(:) + Fy; ...
+            L_vx * rhsVx(:) - Fx; ...
+            L_vy * rhsVy(:) - Fy; ...
             Gx_vx * rhsVx(:) + Gy_vy * rhsVy(:) + div(:)];
         
         L_vx1 = L_vx * lhsVx;
@@ -124,7 +124,7 @@ function main
     advect = problem(2);
     stokes = problem(1);
 % Iterate on problems
-    iters = 250;
+    iters = 700;
     dPhi = zeros(iters, 1);
     dC = zeros(iters, 1);
     dVx = zeros(iters, 1);
