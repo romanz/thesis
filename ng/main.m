@@ -2,8 +2,8 @@
 function main
     % clc;
 % Create grids
-    nx = 5;
-    ny = 5;
+    nx = 17;
+    ny = 17;
     x = linspace(1, 4, nx);
     y = linspace(0, pi, ny);
     [center, interior, xstag, ystag] = grids(x, y);
@@ -20,7 +20,7 @@ function main
     laplace = problem(2);
     advect = problem(2);
     stokes = problem(1);
-    iters = 700;
+    iters = 5000;
 
 % Laplace problem (Phi)
     beta = 1;
@@ -52,8 +52,9 @@ function main
     lhsC = (lhs1 * lhs2 * lhs3 * lhs4) * restrict(gridC.I);
     L = laplacian(center.I, center.X, center.Y);
     function update_advection
-        advection_full_operator = L - ...
-            advection(gridC.I, gridC.X, gridC.Y, alpha*Vx, alpha*Vy, 'central');
+        adv1 = advection(gridC.I, gridC.X, gridC.Y, Vx, Vy, 'central');
+        advection_full_operator = L - alpha*adv1;
+            
 
         advect.operator = advection_full_operator * lhsC;
         rhsC = rhs1(exp( -Phi(2, 2:end-1))) + rhs2(1);

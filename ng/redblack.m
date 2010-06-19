@@ -1,6 +1,5 @@
-function M = redblack(sz, A)
-    [I, J] = ndgrid(1:sz(1), 1:sz(2));
-    K = mod(I + J, 2);
+function M = redblack(sz, A)    
+    K = checkerboard(sz);
     I0 = find(K == 0);
     I1 = find(K == 1);
     M{1} = inv_diag(A, I0);
