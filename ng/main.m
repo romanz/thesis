@@ -37,7 +37,7 @@ function main(filename)
     lhsPhi = (lhs1 * lhs2 * lhs3 * lhs4) * restrict(gridPhi.I);
     Er = -beta*cos( gridPhi.y(2:end-1) );
     function update_laplace()
-        laplace_full_operator = laplacian(gridPhi.I, gridPhi.X, gridPhi.Y, C);
+        laplace_full_operator = laplacian(gridPhi.I, gridPhi.X, gridPhi.Y, C); % Spherical
         laplace.operator = laplace_full_operator * lhsPhi;
         rhsPhi = rhs1(-log( C(2, 2:end-1) )) + rhs2(Er); 
         laplace.rhs = laplace_full_operator * rhsPhi;
@@ -54,9 +54,9 @@ function main(filename)
     [lhs3] = neumann(gridC, [0 -1]);
     [lhs4] = neumann(gridC, [0 +1]);
     lhsC = (lhs1 * lhs2 * lhs3 * lhs4) * restrict(gridC.I);
-    L = laplacian(center.I, center.X, center.Y);
+    L = laplacian(center.I, center.X, center.Y); % Spherical
     function update_advection
-        adv1 = advection(gridC.I, gridC.X, gridC.Y, Vx, Vy, 'central');
+        adv1 = advection(gridC.I, gridC.X, gridC.Y, Vx, Vy, 'central'); % Spherical
         advection_full_operator = L - alpha*adv1;
             
 
@@ -71,7 +71,7 @@ function main(filename)
 % Stokes problem
     vel = 1;
     gamma = 0.5;
-    grad = @(dir) gradient(shift(interior.I, -dir), interior.X, interior.Y, dir);
+    grad = @(dir) gradient(shift(interior.I, -dir), interior.X, interior.Y, dir); % Spherical
     Gx = grad([1 0]); % at xstag interior
     Gy = grad([0 1]); % at ystag interior
     Ax = interpolator(center.X(2:end-1, 2:end-1), ...
@@ -83,6 +83,7 @@ function main(filename)
     gridVx = xstag;
     gridVy = ystag;
 
+    % Spherical
     [Gx_p, L_vx, Gx_vx] = stokes1(1, gridVx, gridP); % X dimension
     [Gy_p, L_vy, Gy_vy] = stokes1(2, gridVy, gridP); % Y dimension
 
