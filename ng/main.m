@@ -1,5 +1,5 @@
 % Coupled simulation main script.
-function main
+function main(filename)
     % clc;
 % Create grids
     nx = 17;
@@ -9,18 +9,22 @@ function main
     [center, interior, xstag, ystag] = grids(x, y);
 
 % Initialize variables
-    Phi = zeros(center.sz);
-    C = ones(center.sz);
-    Vx = zeros(xstag.sz);
-    Vy = zeros(ystag.sz);
-    P = zeros(interior.sz);
+    if nargin == 0
+        Phi = zeros(center.sz);
+        C = ones(center.sz);
+        Vx = zeros(xstag.sz);
+        Vy = zeros(ystag.sz);
+        P = zeros(interior.sz);
+    else
+        load(filename, 'Phi', 'C', 'Vx', 'Vy', 'P')
+    end
     
     problem = @(iters) struct('iters', iters);
 % Problems:
-    laplace = problem(2);
-    advect = problem(2);
+    laplace = problem(1);
+    advect = problem(1);
     stokes = problem(1);
-    iters = 5000;
+    iters = 10000;
 
 % Laplace problem (Phi)
     beta = 1;
@@ -164,7 +168,7 @@ function main
         P = P1;
     end    
     toc;
-    figure(1); clf; show(Phi(:, 2:end-1), 'Phi')
+    figure(1); clf; show(Phi(:, 2:end-1), '\Phi')
     figure(2); clf; show(C(:, 2:end-1), 'C')
     figure(3); clf; show(Vx(:, 2:end-1), 'V_R')
     figure(4); clf; show(Vy(2:end-1, :), 'V_\theta')
