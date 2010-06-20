@@ -56,7 +56,7 @@ function main(filename)
     lhsC = (lhs1 * lhs2 * lhs3 * lhs4) * restrict(gridC.I);
     L = laplacian(center.I, center.X, center.Y); % Spherical
     function update_advection
-        adv1 = advection(gridC.I, gridC.X, gridC.Y, Vx, Vy, 'central'); % Spherical
+        adv1 = advection(gridC.I, gridC.X, gridC.Y, Vx, Vy, 'upwind'); % Spherical
         advection_full_operator = L - alpha*adv1;
             
 

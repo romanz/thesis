@@ -15,6 +15,7 @@ Kp = repmat((1:numel(K))', [1 3]); % interior variables' indices, for 1D stencil
 
 switch method
     case 'upwind'
+        Vx = Vx(:, 2:end-1);
         Dx = sparse(N, N);
         if sz(1) > 1 % for X
             Kr = ind(I+1, J); % Left
@@ -26,9 +27,10 @@ switch method
                    sparse(Kp, P, ones(size(K)) * [0 1 -1], N, N);
             % Find upstream direction
             Sx = sign(convn(Vx, [1; 1]/2, 'valid'));
-            Dx = sparse(K, K, (Sx > 0) .* Vx(1:end-1, :), N, N) * Dx_l + ...
-                 sparse(K, K, (Sx < 0) .* Vx(2:end,   :), N, N) * Dx_r;
+            Dx = sparse(1:numel(K), K, (Sx > 0) .* Vx(1:end-1, :), numel(K), N) * Dx_l + ...
+                 sparse(1:numel(K), K, (Sx < 0) .* Vx(2:end,   :), numel(K), N) * Dx_r;
         end
+        Vy = Vy(2:end-1, :);
         Dy = sparse(N, N);
         if sz(2) > 1 % for Y
             Ku = ind(I, J+1); % Up
@@ -40,8 +42,8 @@ switch method
                  sparse(Kp, P, ones(size(K)) * [0 1 -1], N, N);
             % Find upstream direction
             Sy = sign(convn(Vy, [1, 1]/2, 'valid'));
-            Dy = sparse(K, K, (Sy > 0) .* Vy(:, 1:end-1), N, N) * Dy_d + ...
-                 sparse(K, K, (Sy < 0) .* Vy(:, 2:end  ), N, N) * Dy_u;
+            Dy = sparse(1:numel(K), K, (Sy > 0) .* Vy(:, 1:end-1), numel(K), N) * Dy_d + ...
+                 sparse(1:numel(K), K, (Sy < 0) .* Vy(:, 2:end  ), numel(K), N) * Dy_u;
         end
 
     case 'central'
