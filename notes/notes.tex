@@ -1,88 +1,5 @@
-\documentclass[11pt]{article}
+\input{format.tex}
 
-\usepackage{amsmath} % Required for \eqref
-\usepackage{amssymb} % Required for \mathbb
-\usepackage{units}   % Required for \nicefrac
-\usepackage{float}   % Required for algorithm and floating environments
-\usepackage{graphicx}% Required for figures and imagesf
-
-%-------------------------------------------
-\newtheorem{theorem}{Theorem}
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{acknowledgment}[theorem]{Acknowledgment}
-\newtheorem{proposition}[theorem]{Proposition}
-\newtheorem{corollary}[theorem]{Corollary}
-%-------------------------------------------
-\floatstyle{ruled}
-\newfloat{program}{thp}{lop}
-\floatname{program}{Algorithm}
-%-------------------------------------------
-\newcommand{\diag}{\ensuremath{\mathrm{diag}}}
-\newcommand{\MSE}[1]{\ensuremath{\mathrm{MSE}\left(#1\right)}}
-\newcommand{\trace}[1]{\ensuremath{\mathrm{trace}\left( #1 \right)}}
-\newcommand{\norm}[1]{\ensuremath{\left\|#1\right\|_2^2}}
-\newcommand{\func}[2]{\ensuremath{\mathrm{#1}\left( #2 \right)}}
-\newcommand{\normzero}[1]{\ensuremath{\left\|#1\right\|_0}}
-\newcommand\eps \epsilon
-\newcommand{\R}{\ensuremath{\mathbb{R}}}
-\newcommand\RR[1]{\mathbb{R}^{#1}}
-\newcommand{\N}{\ensuremath{\mathbb{N}}}
-\newcommand{\real}{\ensuremath{\mathbb{R}}}
-\newcommand{\conv}{\ensuremath{\ast}}
-\newcommand{\cl}[1]{\ensuremath{\mathcal{#1}}}
-\newcommand{\suppsize}[1]{\ensuremath{|\mathcal{#1}|}}
-\newcommand{\vect}[1]{\ensuremath{\mathbf{#1}}}
-\newcommand{\matr}[1]{\ensuremath{\mathbf{#1}}}
-\newcommand{\deriv}[2]{\frac{\partial #1}{\partial #2}}
-\newcommand{\mat}[2]{\left(\begin{array}{#1}#2\end{array}\right)}
-\newcommand{\brc}[2]{\left\{\begin{array}{#1}#2\end{array}\right.}
-\usepackage{amsfonts}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{graphicx}
-\usepackage{mathrsfs}
-
-\providecommand\Laplacian{\nabla^2}
-\providecommand\bnabla{\boldsymbol{\nabla}}
-\providecommand\bcdot{\boldsymbol{\cdot}}
-\providecommand\bU{\mathscr{\boldsymbol{U}}}
-\providecommand\bv{\boldsymbol{v}}
-\providecommand\bV{\boldsymbol{V}}
-\providecommand\be{\boldsymbol{\hat{e}}}
-\providecommand\bn{\boldsymbol{\hat{n}}}
-\providecommand\bk{\boldsymbol{\hat{k}}}
-\providecommand\bj{\boldsymbol{j}}
-\providecommand\bi{\boldsymbol{i}}
-\providecommand\bI{\boldsymbol{I}}
-\providecommand\bJ{\boldsymbol{J}}
-\providecommand\bx{\boldsymbol{x}}
-\providecommand\br{\boldsymbol{r}}
-\providecommand\brhat{\hat{\br}}
-\providecommand\btheta{\boldsymbol{\theta}}
-\providecommand\bthetahat{\hat{\btheta}}
-\providecommand\bphi{\boldsymbol{\phi}}
-\providecommand\bphihat{\hat{\bphi}}
-\providecommand\bzero{\boldsymbol{0}}
-
-\providecommand\tI{\mathsf{I}}
-\providecommand\tS{\mathsfbi{S}}
-\providecommand\unit{\boldsymbol{\hat{\imath}}}
-
-\providecommand\dd{\mathrm{d}}
-\providecommand\ee{\mathrm{e}}
-
-\setlength{\textheight}{8.7in}
-\setlength{\columnsep}{2.0pc}
-\setlength{\textwidth}{6.6in}
-% \setlength{\footheight}{0.2in}
-\setlength{\topmargin}{0.05in}
-\setlength{\headheight}{0.2in}
-\setlength{\headsep}{0.1in}
-\setlength{\evensidemargin}{0in}
-\setlength{\oddsidemargin}{0in}
-% \setlength{\parindent}{1pc}
-\setlength{\parindent}{0.0 in}
-\setlength{\parskip}{0.1 in}
 \title{Notes}
 \begin{document}
 \maketitle
@@ -366,23 +283,32 @@ z &=& r \cos \theta
 Assume symmetry around $z$ axis - no dependence on $\phi$:
 \begin{eqnarray}
 \bnabla f &=& \frac{\partial f}{\partial r} \mathbf{\hat{r}} +
-\frac{1}{r} \frac{\partial f}{\partial \theta} \mathbf{\hat{\theta}}
+\frac{1}{r} \frac{\partial f}{\partial \theta} \mathbf{\hat{\theta}} +
+\frac{1}{r \sin\theta} \frac{\partial f}{\partial \phi} \mathbf{\hat{\phi}}
 \\
-\bnabla \mathbf{\cdot} \mathbf{F} &=& \frac{1}{dr \cdot r d\theta \cdot r \sin \theta d\phi} \left(
+\bnabla \mathbf{\cdot} \mathbf{F} &=& \frac{
 \Delta_r\left\{r d\theta \cdot r \sin \theta d\phi \cdot F_r\right\} +
-\Delta_\theta\left\{dr \cdot r \sin \theta d\phi \cdot F_\theta\right\}
-\right) \\
+\Delta_\theta\left\{dr \cdot r \sin \theta d\phi \cdot F_\theta\right\} +
+\Delta_\phi\left\{dr \cdot r d\theta \cdot F_\phi\right\}
+}{dr \cdot r d\theta \cdot r \sin \theta d\phi} 
+\\
 &=& \frac{1}{r^2}\frac{\partial}{\partial r} \left( r^2 \cdot F_r\right)
-  + \frac{1}{r \sin\theta} \frac{\partial}{\partial \theta} \left( \sin\theta \cdot F_\theta\right) \\
-\bnabla^2 f &=& \frac{1}{r^2}\frac{\partial}{\partial r}
+  + \frac{1}{r \sin\theta} \frac{\partial}{\partial \theta} \left( \sin\theta \cdot F_\theta\right)
+  + \frac{1}{r \sin\theta} \frac{\partial F_\phi}{\partial \phi} 
+\end{eqnarray}
+Scalar Laplacian derivation:
+\begin{eqnarray}
+\bnabla^2 f &=& \bnabla \mathbf{\cdot} \bnabla f = \frac{1}{r^2}\frac{\partial}{\partial r}
 \left( r^2 \frac{\partial f}{\partial r} \right) +
 \frac{1}{r^2 \sin\theta} \frac{\partial}{\partial \theta} \left( \sin\theta \cdot \frac{\partial f}{\partial \theta}\right)
++ \frac{1}{r^2 \sin^2\theta} \frac{\partial^2 f}{\partial \phi^2}
 \\
 r^2 \sin\theta \cdot \bnabla^2 f &=& \frac{\partial}{\partial r} \left( r^2 \sin \theta \frac{\partial f}{\partial r} \right) +
-\frac{\partial}{\partial \theta} \left( \sin\theta \cdot \frac{\partial f}{\partial \theta}\right)
+\frac{\partial}{\partial \theta} \left( \sin\theta \cdot \frac{\partial f}{\partial \theta}\right) +
+\frac{\partial}{\partial \phi} \left( \frac{1}{\sin\theta} \cdot \frac{\partial f}{\partial \phi}\right)
 \end{eqnarray}
 
-Vector analysis:
+Unit vectors:
 \begin{eqnarray}
  \br &=& \mat{c}{r\sin\theta \cos\phi \\ r\sin\theta \sin\phi \\ r\cos\theta} \\
  \brhat &=& \deriv{\br}{r}
@@ -392,7 +318,16 @@ Vector analysis:
  \bphihat &=& \frac{1}{r \sin \theta} \deriv{\br}{\phi}
  = \mat{c}{-\sin\phi \\ \cos\phi \\ 0}
 \end{eqnarray}
-Thus:
+Note that:
+\begin{eqnarray}
+  \deriv{\brhat}{r} = \deriv{\bthetahat}{r} = \deriv{\bphihat}{r} = \mathbf{0} \\
+  \deriv{\brhat}{\theta} = \bthetahat \\
+  \deriv{\bthetahat}{\theta} = -\brhat \\
+  \deriv{\brhat}{\phi} = \sin \theta \cdot \bphihat \\
+  \deriv{\bthetahat}{\phi} = \cos \theta \cdot \bphihat \\
+  \deriv{\bphihat}{\phi} = -\sin \theta \cdot \brhat -\cos \theta \cdot \bthetahat
+\end{eqnarray}
+Compute rate of strain tensor:
 \begin{eqnarray}
 \bnabla\bV &=& \left\{ \brhat \deriv{}{r} +
 \bthetahat \frac{1}{r} \deriv{}{\theta} +
@@ -410,17 +345,13 @@ Thus:
 \deriv{V_r}{\phi}\brhat + \deriv{V_\theta}{\phi}\bthetahat + \deriv{V_\phi}{\phi}\bphihat
 + V_r \sin\theta\bphihat + V_\theta \cos\theta\bphihat -
 V_\phi \left(\brhat \sin\theta + \bthetahat \cos\theta \right)
-\\
+\end{eqnarray}
+Compute vector Laplacian components by applying it on unit vectors:
+\begin{eqnarray}
 \Laplacian \bV &=& \frac{1}{r^2}\deriv{}{r}\left(r^2 \deriv{\bV}{r}\right) +
 \frac{1}{r^2\sin\theta}\deriv{}{\theta}\left(\sin\theta\deriv{\bV}{\theta}\right)+
 \frac{1}{r^2 \sin^2\theta}\deriv{}{\phi}\left(\deriv{\bV}{\phi}\right)
 \end{eqnarray}
-\begin{equation}
-\Laplacian (V_r\brhat) = \frac{1}{r^2}
-\deriv{}{r}\left(r^2 \deriv{(V_r\brhat)}{r}\right) +
-\frac{1}{r^2\sin\theta}\deriv{}{\theta}\left(\sin\theta\deriv{(V_r\brhat)}{\theta}\right)+
-\frac{1}{r^2 \sin^2\theta}\deriv{}{\phi}\left(\deriv{(V_r\brhat)}{\phi}\right)
-\end{equation}
 $\brhat$ component:
 \begin{eqnarray}
 \Laplacian (V_r\brhat) &=&
@@ -484,9 +415,9 @@ $\bthetahat$ component:
 \right)
 \\
 \Laplacian (V_\theta\bthetahat) &=&
-\left(-\frac{2\cot\theta}{r^2}V_\theta - 2\deriv{V_\theta}{\theta}\right)\brhat + 
-\left(\frac{2}{r}\deriv{V_\theta}{r} + \deriv{^2V_\theta}{r^2} + 
-\frac{\cot\theta}{r^2} \deriv{V_\theta}{\theta} + 
+\left(-\frac{2\cot\theta}{r^2}V_\theta - 2\deriv{V_\theta}{\theta}\right)\brhat +
+\left(\frac{2}{r}\deriv{V_\theta}{r} + \deriv{^2V_\theta}{r^2} +
+\frac{\cot\theta}{r^2} \deriv{V_\theta}{\theta} +
 \frac{1}{r^2}\deriv{^2V_\theta}{\theta^2}\right)\bthetahat
 \\
 \\ &+&
@@ -517,7 +448,7 @@ $\bphihat$ component:
 \right)
 \\
 \Laplacian (V_\phi\bphihat) &=&
-\left(\frac{2}{r} \deriv{V_\phi}{r} + \deriv{^2V_\phi}{r^2}\right)\bphihat 
+\left(\frac{2}{r} \deriv{V_\phi}{r} + \deriv{^2V_\phi}{r^2}\right)\bphihat
 +
 \frac{1}{r^2\sin\theta}\left(
 \cos\theta \deriv{V_\phi}{\theta} +
@@ -525,26 +456,24 @@ $\bphihat$ component:
 \right)\bphihat
 \\ &+&
 \frac{1}{r^2 \sin^2\theta}\left(
-\deriv{^2V_\phi}{\phi^2}\bphihat 
+\deriv{^2V_\phi}{\phi^2}\bphihat
 - 2 \deriv{V_\phi}{\phi} \left(\brhat \sin\theta + \bthetahat \cos\theta\right)
 - V_\phi \bphihat
 \right)
 \end{eqnarray}
 In summary:
 \begin{eqnarray}
-\Laplacian \bV &=& \left(\Laplacian V_r - \frac{2V_r}{r^2}\right)\brhat 
+\Laplacian \bV &=& \left(\Laplacian V_r - \frac{2V_r}{r^2}\right)\brhat
 + \frac{2}{r^2}\deriv{V_r}{\theta} \bthetahat + \frac{2}{r^2 \sin\theta}\deriv{V_r}{\phi} \bphihat \\
 &-&
 \frac{2}{r^2 \sin\theta} \deriv{\left(V_\theta \sin\theta \right)}{\theta}\brhat
 + \left(\Laplacian V_\theta - \frac{V_\theta}{r^2 \sin^2\theta}\right) \bthetahat
 + \frac{2 \cot\theta}{r^2 \sin\theta} \deriv{V_\theta}{\phi} \bphihat \\
-&-& 
-\frac{2}{r^2 \sin\theta}\deriv{V_\phi}{\phi}\brhat - 
-\frac{2 \cot\theta}{r^2 \sin\theta}\deriv{V_\phi}{\phi}\bthetahat 
+&-&
+\frac{2}{r^2 \sin\theta}\deriv{V_\phi}{\phi}\brhat -
+\frac{2 \cot\theta}{r^2 \sin\theta}\deriv{V_\phi}{\phi}\bthetahat
 + \left(\Laplacian V_\phi - \frac{V_\phi}{r^2 \sin^2\theta}\right)\bphihat
 \end{eqnarray}
-
-
 
 Since $V_\phi = 0$ and $\deriv{}{\phi}(\cdot) = 0$, we get:
 \begin{eqnarray}
@@ -573,34 +502,6 @@ Rewrite in spherical coordinates:
 \right) \\
 P(\bx) &=& P_0 -\mu U \frac{3a \cos\theta}{2r^2}
 \end{eqnarray}
-
 %%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
 
-\\ % V_r
-\bnabla \left(V_r \brhat \right) &=&
-\brhat\deriv{V_r}{r}\brhat +
-\bthetahat\frac{1}{r}\deriv{V_r}{\theta}\brhat +
-\bphihat\frac{1}{r \sin\theta}\deriv{V_r}{\phi}\brhat +
-\bthetahat\frac{V_r}{r}\bthetahat + \bphihat\frac{V_r}{r} \bphihat
-\\ % V_theta
-\bnabla \left(V_\theta \bthetahat \right) &=&
-\brhat\deriv{V_\theta}{r}\bthetahat +
-\bthetahat\frac{1}{r}\deriv{V_\theta}{\theta}\bthetahat +
-\bphihat\frac{1}{r \sin\theta}\deriv{V_\theta}{\phi}\bthetahat
-- \bthetahat\frac{V_\theta}{r}\brhat + \bphihat\frac{V_\theta \cos\theta}{r \sin\theta}  \bphihat
-\\ % V_phi
-\bnabla \left(V_\phi \bphihat \right) &=&
-\brhat\deriv{V_\phi}{r} \bphihat +
-\bthetahat\frac{1}{r}\deriv{V_\phi}{\theta} \bphihat +
-\bphihat\frac{1}{r \sin\theta} \deriv{V_\phi}{\phi}\bphihat -
-\bphihat\frac{V_\phi}{r}\brhat -
-\bphihat\frac{V_\phi \cos\theta}{r \sin\theta}  \bthetahat
-\\
-(\Laplacian\bV)_r &=&
-\Laplacian V_r - \deriv{V_\theta}{\theta} - \frac{V_r}{r^2}
-\\
-(\Laplacian\bV)_\theta &=&
-\Laplacian V_\theta + \frac{1}{r}\deriv{V_r}{\theta} - \frac{V_\theta}{r^2}
-\\
-(\Laplacian\bV)_\phi &=& \Laplacian V_\phi
