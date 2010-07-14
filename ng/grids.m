@@ -14,11 +14,3 @@ function [center, interior, xstag, ystag] = grids(x, y)
     interior = grid(xc(2:end-1), yc(2:end-1));
     interior.I = true(size(interior.I)); % no boundary
 end
-
-function G = grid(x, y)
-    G.x = x;
-    G.y = y;
-    [G.X, G.Y] = ndgrid(G.x, G.y);
-    G.sz = [numel(x), numel(y)];
-    G.I = interior(G.sz);
-end

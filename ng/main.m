@@ -169,12 +169,12 @@ function main(filename)
         P = P1;
     end    
     toc;
-    figure(1); clf; show(Phi(:, 2:end-1), '\Phi')
-    figure(2); clf; show(C(:, 2:end-1), 'C')
-    figure(3); clf; show(Vx(:, 2:end-1), 'V_R')
-    figure(4); clf; show(Vy(:, :), 'V_\theta')
-    figure(5); clf; show(P, 'P')
-    figure(6); clf; semilogy([dPhi, dC, dVx, dVy, dP]);
-    legend('\Phi', 'C', 'V_R', 'V_\theta', 'P')
     save results
+%     figure(1); clf; show(Phi(:, 2:end-1), '\Phi')
+%     figure(2); clf; show(C(:, 2:end-1), 'C')
+%     figure(3); clf; show(Vx(:, 2:end-1), 'V_R')
+%     figure(4); clf; show(Vy(:, :), 'V_\theta')
+%     figure(5); clf; show(P, 'P')
+%     figure(6); clf; semilogy([dPhi, dC, dVx, dVy, dP]);
+%     legend('\Phi', 'C', 'V_R', 'V_\theta', 'P')
 end
