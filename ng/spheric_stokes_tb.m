@@ -1,7 +1,7 @@
-nx = 10;
-ny = 20;
+nx = 160;
+ny = 100;
 s = 1;
-x = logspace(0, 0.6, nx)*s;
+x = logspace(0, 1, nx)*s;
 y = linspace(0, pi, ny)*s;
 [center, gridP, gridVx, gridVy] = grids(x, y);
 A = spheric_stokes(gridVx, gridVy, gridP);
