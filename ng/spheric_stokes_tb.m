@@ -8,7 +8,7 @@ A = spheric_stokes(gridVx, gridVy, gridP);
 u = [1*gridVx.X(:); 0*gridVy.X(:); 0*gridP.X(:)];
 f = A*u;
 [Fx, Fy, div] = split(f, gridVx.sz-2, gridVy.sz-2, gridP.sz);
-Fx
+
 norm(Fx(:), inf)
 norm(Fy(:), inf)
 norm(div(:), inf)
