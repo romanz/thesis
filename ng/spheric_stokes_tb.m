@@ -1,10 +1,7 @@
-function spheric_stokes_tb
-K = 1;
-nx = 500*K;
-ny = 100*K;
-s = 1;
-x = logspace(0, 2, nx)*s;
-y = linspace(0, pi, ny)*s;
+function spheric_stokes_tb(nx, ny)
+x = logspace(0, 2, nx);
+y = linspace(0, pi, ny);
+% y = ( 1 - cos(linspace(0, pi, ny)) )*pi/2;
 [center, gridP, gridVx, gridVy] = grids(x, y);
 A = spheric_stokes(gridVx, gridVy, gridP);
 
