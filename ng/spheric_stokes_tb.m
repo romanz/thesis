@@ -1,3 +1,5 @@
+% >> spheric_stokes_tb(100, 30);
+
 function spheric_stokes_tb(nx, ny)
 x = logspace(0, 2, nx);
 y = linspace(0, pi, ny);
@@ -33,15 +35,55 @@ u = [cos(gridVx.Y(:)) .* (1 - 1.5 ./ gridVx.X(:) + 0.5 ./ gridVx.X(:).^3); ...
 %      gridVy.X(:) .* cos(gridVy.Y(:)) .* sin(gridVy.Y(:)); ...
 %     0*-1.5 * cos(gridP.Y(:)) ./ gridP.X(:).^2];
 % size(A)
+vel = 1;
+
+[lhs1x, rhs1x] = dirichlet(gridVx, [-1 0]);
+[lhs2x, rhs2x] = dirichlet(gridVx, [+1 0]);
+[lhs3x] = neumann(gridVx, [0 -1]);
+[lhs4x] = neumann(gridVx, [0 +1]);
+lhsVx = lhs1x * lhs2x * lhs3x * lhs4x * restrict(gridVx.I);
+rhsVx = rhs1x(0) + rhs2x(vel*cos(gridVx.y(2:end-1)));
+
+[lhs1y, rhs1y] = average_dirichlet(gridVy, [-1 0]);
+[lhs2y, rhs2y] = dirichlet(gridVy, [+1 0]);
+[lhs3y] = dirichlet(gridVy, [0 -1]);
+[lhs4y] = dirichlet(gridVy, [0 +1]);
+lhsVy = lhs1y * lhs2y * lhs3y * lhs4y * restrict(gridVy.I);
+rhsVy = rhs1y(0) + rhs2y(-vel*sin(gridVy.y(2:end-1)));
+
+lhs = blkdiag(lhsVx, lhsVy, speye(gridP.numel));
+rhs = [rhsVx; rhsVy; sparse(gridP.numel, 1)];
+
+A = [A];
+B = [A * lhs;];
+t = [A * rhs;];
+
+%% Timing
 tic;
 f = A*u;
 toc;
 e = f;
 [Fx, Fy, div] = split(e, gridVx.sz-2, gridVy.sz-2, gridP.sz);
-[Vx, Vy, P] = split(u, gridVx.sz, gridVy.sz, gridP.sz);
+[Vx1, Vy1, P1] = split(u, gridVx.sz, gridVy.sz, gridP.sz);
 
 disp(norm(Fx(:), inf))
 disp(norm(Fy(:), inf))
 disp(norm(div(:), inf))
+
+iters = 3000;
+z = zeros(numel(t), 1);
+M = stokes_vanka_redblack(gridP.sz, B);
+for iter = 1:iters
+    for k = 1:2
+        r = t - B*z;
+        z = z + M{k}*r;
+        norm(r, inf)
+    end
+end
+[Vx, Vy, P] = split(z, gridVx.sz-2, gridVy.sz-2, gridP.sz);
+P = P - mean(P(:));
+norm(col(P - P1), inf)
+norm(col(Vx - Vx1(2:end-1, 2:end-1)), inf)
+norm(col(Vy - Vy1(2:end-1, 2:end-1)), inf)
 
 save results
