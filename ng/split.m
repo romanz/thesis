@@ -8,3 +8,4 @@ for k = 1:N
     varargout{k} = reshape(x(offset + (1:m)), sz);
     offset = offset + m;
 end
+assert(offset == numel(x));
