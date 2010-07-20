@@ -1,7 +1,7 @@
-% >> spheric_stokes_tb(100, 30);
+% >> spheric_stokes_tb(400, 30, 100e3);
 
-function spheric_stokes_tb(nx, ny)
-x = logspace(0, 2, nx);
+function spheric_stokes_tb(nx, ny, iters)
+x = logspace(0, 2.3, nx);
 y = linspace(0, pi, ny);
 % y = ( 1 - cos(linspace(0, pi, ny)) )*pi/2;
 [center, gridP, gridVx, gridVy] = grids(x, y);
@@ -70,7 +70,6 @@ disp(norm(Fx(:), inf))
 disp(norm(Fy(:), inf))
 disp(norm(div(:), inf))
 
-iters = 3000;
 z = zeros(numel(t), 1);
 M = stokes_vanka_redblack(gridP.sz, B);
 for iter = 1:iters
