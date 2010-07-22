@@ -36,20 +36,22 @@ u = [cos(gridVx.Y(:)) .* (1 - 1.5 ./ gridVx.X(:) + 0.5 ./ gridVx.X(:).^3); ...
 %     0*-1.5 * cos(gridP.Y(:)) ./ gridP.X(:).^2];
 % size(A)
 vel = 1;
+Vx_inf = vel*cos(gridVx.y(2:end-1));
+Vy_inf = -vel*sin(gridVy.y(2:end-1));
 
 [lhs1x, rhs1x] = dirichlet(gridVx, [-1 0]);
 [lhs2x, rhs2x] = dirichlet(gridVx, [+1 0]);
 [lhs3x] = neumann(gridVx, [0 -1]);
 [lhs4x] = neumann(gridVx, [0 +1]);
 lhsVx = lhs1x * lhs2x * lhs3x * lhs4x * restrict(gridVx.I);
-rhsVx = rhs1x(0) + rhs2x(vel*cos(gridVx.y(2:end-1)));
+rhsVx = rhs1x(0) + rhs2x(Vx_inf);
 
 [lhs1y, rhs1y] = average_dirichlet(gridVy, [-1 0]);
 [lhs2y, rhs2y] = dirichlet(gridVy, [+1 0]);
 [lhs3y] = dirichlet(gridVy, [0 -1]);
 [lhs4y] = dirichlet(gridVy, [0 +1]);
 lhsVy = lhs1y * lhs2y * lhs3y * lhs4y * restrict(gridVy.I);
-rhsVy = rhs1y(0) + rhs2y(-vel*sin(gridVy.y(2:end-1)));
+rhsVy = rhs1y(0) + rhs2y(Vy_inf);
 
 lhs = blkdiag(lhsVx, lhsVy, speye(gridP.numel));
 rhs = [rhsVx; rhsVy; sparse(gridP.numel, 1)];
