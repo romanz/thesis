@@ -82,14 +82,15 @@ for iter = 1:iters
         r = t - B*z;
         z = z + M{k}*r;        
     end
+    [Vx, Vy, P] = ...
+        split(z, gridVx.sz-2, gridVy.sz-2, gridP.sz);
+    z = [Vx(:); Vy(:); P(:)-mean(P(:))];
     res = norm(r, inf);
     progress(h, iter/iters, ...
         sprintf('Residual = %.3e', res));
 end
 progress(h, []);
 
-[Vx, Vy, P] = split(z, gridVx.sz-2, gridVy.sz-2, gridP.sz);
-P = P - mean(P(:));
 norm(col(P - P1), inf)
 norm(col(Vx - Vx1(2:end-1, 2:end-1)), inf)
 norm(col(Vy - Vy1(2:end-1, 2:end-1)), inf)
