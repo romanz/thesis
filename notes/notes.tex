@@ -513,7 +513,7 @@ Note that the stress tensor is:
 $\mathbb{S} = -P \mathbb{I} + \bnabla \bV + (\bnabla \bV)^\dagger$.
 The drag force is found by integrating:
 \begin{eqnarray}
-\boldsymbol{F} = \iint{\mathbb{S}(a,\theta, \phi) \cdot \brhat d\theta d\phi}
+\boldsymbol{F} = \iint{\left[\mathbb{S}(a,\theta, \phi) \cdot \brhat\right] a^2 \sin\theta d\phi d\theta}
 \end{eqnarray}
 Since we have axisymmetric problem, we expect that
 $\boldsymbol{F} = F \boldsymbol{\hat{z}} = F \left(\brhat \cos\theta - \bthetahat \sin\theta\right)$.
