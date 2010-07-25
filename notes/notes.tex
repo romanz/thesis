@@ -489,6 +489,13 @@ Since $V_\phi = 0$ and $\deriv{}{\phi}(\cdot) = 0$, we get:
 \frac{1}{r^2}\deriv{}{r}\left( r^2 \deriv{V_\theta}{r} \right) + \frac{1}{r^2 \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot \deriv{V_\theta}{\theta}\right)
  - \frac{V_\theta}{r^2 \sin^2\theta} + \frac{2}{r^2}\deriv{V_r}{\theta}\right) \bthetahat
 \end{eqnarray}
+Together with continuity equation and pressure force:
+\begin{eqnarray}
+\bnabla \cdot \bV &=& \frac{1}{r^2}\frac{\partial}{\partial r} \left( r^2 \cdot V_r\right)
+  + \frac{1}{r \sin\theta} \frac{\partial}{\partial \theta} \left( \sin\theta \cdot V_\theta\right)
+\\
+\bnabla P &=& \deriv{P}{r} \brhat + \frac{1}{r}\deriv{P}{\theta} \bthetahat
+\end{eqnarray}
 \section{Stokes flow}
 \begin{eqnarray}
 \mu \nabla^2 \bV &=& \bnabla P \\
