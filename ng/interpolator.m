@@ -1,5 +1,6 @@
 function A = interpolator(X, Xi)
     dir = size(X) - size(Xi);
+    assert(all(sort(dir) == [0 1]))
     K1 = false(size(X));
     K1(1:end-dir(1), 1:end-dir(2)) = true;
     K2 = shift(K1, dir);
