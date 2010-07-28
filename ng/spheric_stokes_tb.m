@@ -1,5 +1,5 @@
 function spheric_stokes_tb(nx, ny, iters)
-x = logspace(0, 1, nx);
+x = logspace(0, 3, nx);
 y = linspace(0, pi, ny);
 [center, gridP, gridVx, gridVy] = grids(x, y);
 A = spheric_stokes(gridVx, gridVy, gridP);
@@ -16,14 +16,14 @@ u = [Ux0(:); Uy0(:); P0(:)];
 [lhs3x] = neumann(gridVx, [0 -1]);
 [lhs4x] = neumann(gridVx, [0 +1]);
 lhsVx = lhs1x * lhs2x * lhs3x * lhs4x * restrict(gridVx.I);
-rhsVx = rhs1x(0) + rhs2x(Ux0(end, 2:end-1));
+rhsVx = rhs1x(0) + rhs2x(cos(gridVx.y(2:end-1))); % Ux0(end, 2:end-1)
 
 [lhs1y, rhs1y] = average_dirichlet(gridVy, [-1 0]);
 [lhs2y, rhs2y] = dirichlet(gridVy, [+1 0]);
 [lhs3y] = dirichlet(gridVy, [0 -1]);
 [lhs4y] = dirichlet(gridVy, [0 +1]);
 lhsVy = lhs1y * lhs2y * lhs3y * lhs4y * restrict(gridVy.I);
-rhsVy = rhs1y(0) + rhs2y(Uy0(end, 2:end-1));
+rhsVy = rhs1y(0) + rhs2y(-sin(gridVy.y(2:end-1))); % Uy0(end, 2:end-1)
 
 lhs = blkdiag(lhsVx, lhsVy, speye(gridP.numel));
 rhs = [rhsVx; rhsVy; sparse(gridP.numel, 1)];

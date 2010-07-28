@@ -8,6 +8,7 @@ if isempty(handle)
     handle.p = 0;
 elseif isempty(p)
     close(handle.fig);
+    fprintf('%s\n', datestr(now - handle.start, 'HH:MM:SS'));
     return
 elseif p < min(1, handle.p + 1e-2)
     return
