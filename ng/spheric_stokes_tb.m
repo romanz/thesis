@@ -1,5 +1,5 @@
 function spheric_stokes_tb(nx, ny, iters)
-x = logspace(0, 3, nx);
+x = logspace(0, 4, nx);
 y = linspace(0, pi, ny);
 [center, gridP, gridVx, gridVy] = grids(x, y);
 A = spheric_stokes(gridVx, gridVy, gridP);
