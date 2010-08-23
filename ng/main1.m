@@ -89,7 +89,7 @@ function operator = maxwell_op(gridPhi, C)
 end
 
 function operator = advection_op(gridC, Vx, Vy)
-    % MAKE SURE IT'S IN SPHERICAL COORDS
+    % TODO: MAKE SURE IT'S IN SPHERICAL COORDS
     VG = advection(gridC.I, gridC.X, gridC.Y, Vx, Vy, 'central'); %/upwind
     operator = laplacian(gridC.I, gridC.X, gridC.Y) - VG;
 end
