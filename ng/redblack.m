@@ -5,8 +5,3 @@ function M = redblack(sz, A)
     M{1} = inv_diag(A, I0);
     M{2} = inv_diag(A, I1);
 end
-
-function M = inv_diag(A, I)
-    a = diag(A);
-    M = sparse(I, I, 1./a(I), size(A, 1), size(A, 2));
-end

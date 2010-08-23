@@ -24,7 +24,7 @@ function main(filename)
     laplace = problem(1);
     advect = problem(1);
     stokes = problem(1);
-    iters = 10000;
+    iters = 1;
 
 % Laplace problem (Phi)
     beta = 1;

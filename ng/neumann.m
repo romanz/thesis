@@ -11,7 +11,7 @@ function [P, Q] = neumann(grid, dir, extend)
     h = [grid.X(J) - grid.X(I), grid.Y(J) - grid.Y(I)];
     h = h * dir(:);
     P = sparse(boundary, interior, repmat(1, size(boundary)), ...
-        grid.numel, grid.numel);
+        grid.numel, grid.numel) + speye(grid.numel);
     Q = sparse(boundary, 1:numel(boundary), h, ...
         grid.numel, numel(boundary));
 end

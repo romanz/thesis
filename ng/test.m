@@ -1,3 +1,13 @@
+G = grid([1 2 4 8], [0 1 2 3 4]);
+z = round(10*randn(2, 3))
+I = speye(G.numel);
+[P1, Q1] = average_dirichlet(G, [-1 0]);
+[P2, Q2] = neumann(G, [+1 0]);
+R = I + neumann(G, [0 -1], true) + neumann(G, [0 +1], true);
+s1 = [10;11;12];
+s2 = [-1;-2;-3];
+reshape(R*((I + P1 + P2)*expand(G.I)*z(:) + Q1*s1 + Q2*s2), G.sz)
+
 % function test
 %% Test spherical laplacian
 % n = 64; 
