@@ -1,10 +1,8 @@
 function main1
-    maxwell = struct(); 
-    stokes = struct();
-    advection = struct();
-    
+    radius = logspace(0, 3, 50).';
+    theta = linspace(0, pi, 45).';
     [center, interior, xstag, ystag] = ...
-        grids(logspace(0, 3, 50), linspace(0, pi, 45));
+        grids(radius, theta);
     gridPhi = center;
     gridVx = xstag;
     gridVy = ystag;
@@ -20,56 +18,86 @@ function main1
     alpha = 1;
     beta = 0e-3;
     gamma = 2;
-    Vinf = 1e-2;
-    fprintf('---------------------------------------------\n');
+    Vinf = 1e-3 ;
+    relax_maxwell = init_maxwell();
+    relax_stokes = init_stokes();
+    relax_advection = init_advection();
     for iter = 1:100
-        do_maxwell(0);
-        do_stokes(100);
-        do_advection(0);    
+        relax_maxwell(0);
+        relax_stokes(100);
+        relax_advection(0);    
     end
-    solPhi, solVx, solVy, solP, solC
+    S = total_stress();
+    % solPhi, solVx, solVy, solP, solC
     save results
 
-    function do_maxwell(iters)
-        maxwell.operator = maxwell_op(gridPhi, solC);
+    function func = init_maxwell()
         [P, Q] = maxwell_boundary_cond(gridPhi, beta);
-        A = maxwell.operator * P;
-        q = Q * maxwell_boundary_vec(solC);
-        b = maxwell.operator * q;
-        
-        M = jacobi(gridPhi.sz-2, A);
-        u = solPhi(gridPhi.I);
-        [u] = relax(M, A, -b, u, iters);
-        solPhi = reshape(P*u + q, gridPhi.sz);
+        func = @relax_maxwell;
+        function relax_maxwell(iters)
+            maxwell_operator = maxwell_op(gridPhi, solC);
+            A = maxwell_operator * P;
+            q = Q * maxwell_boundary_vec(solC);
+            b = maxwell_operator * q;        
+            M = jacobi(gridPhi.sz-2, A);
+            u = solPhi(gridPhi.I);
+            [u] = relax(M, A, -b, u, iters);
+            solPhi = reshape(P*u + q, gridPhi.sz);
+        end
     end
 
-    function do_stokes(iters)        
-        stokes.operator = spheric_stokes(gridVx, gridVy, gridP);
+    function func = init_stokes()
+        stokes_operator = spheric_stokes(gridVx, gridVy, gridP);
         [P, Q] = stokes_boundary_cond(gridVx, gridVy, gridP, Vinf);
-        A = stokes.operator * P;
+        A = stokes_operator * P;        
         q = Q * stokes_boundary_vec(solPhi, solC, interior.y, gamma);
-        b = stokes.operator * q;
-        
+        b = stokes_operator * q;        
         M = stokes_vanka_redblack(gridP.sz, A);
-        u = [solVx(gridVx.I); solVy(gridVy.I); solP(:)];
-        [u, e] = relax(M, A, -b, u, iters); % TODO: maxwell_forces(Phi)
-        fprintf('%.5e\n', norm(e))
-        u = P*u + q;
-        [solVx, solVy, solP] = split(u, gridVx.sz, gridVy.sz, gridP.sz);
-        solP = solP - mean(solP(:));
+        func = @relax_stokes;
+        function relax_stokes(iters)
+            u = [solVx(gridVx.I); solVy(gridVy.I); solP(:)];
+            [u, e] = relax(M, A, -b, u, iters); % TODO: maxwell_forces(Phi)
+            fprintf('%.5e\n', norm(e))
+            u = P*u + q;
+            [solVx, solVy, solP] = split(u, gridVx.sz, gridVy.sz, gridP.sz);
+            solP = solP - mean(solP(:));
+        end
     end
 
-    function do_advection(iters)
-        advection.operator = advection_op(gridC, alpha*solVx, alpha*solVy);
+    function func = init_advection()
         [P, Q] = advection_boundary_cond(gridC, 1);
-        A = advection.operator * P;
-        q = Q * advection_boundary_vec(solPhi);
-        b = advection.operator * q;
-        
-        M = jacobi(gridC.sz-2, A);
-        u = solC(gridC.I);
-        u = relax(M, A, -b, u, iters);
-        solC = reshape(P*u + q, gridC.sz);
+        L = laplacian(gridC.I, gridC.X, gridC.Y);
+        func = @relax_advection;
+        function relax_advection(iters)
+            VG = advection(gridC.I, gridC.X, gridC.Y, solVx, solVy, 'central'); %/upwind
+            advect_operator = L - alpha*VG;
+            A = advect_operator * P;
+            q = Q * advection_boundary_vec(solPhi);
+            b = advect_operator * q;
+            M = jacobi(gridC.sz-2, A);
+            u = solC(gridC.I);
+            u = relax(M, A, -b, u, iters);
+            solC = reshape(P*u + q, gridC.sz);
+        end
+    end
+
+    function S = total_stress()
+        Vx0 = solVx(1:2, :);
+        Vy0 = solVy(1:2, :);
+        P0 = solP(1, :);
+        [~, gridP, gridVx, gridVy] = ...
+            grids([2 -1; 1 0; 0 1]*radius(1:2), theta);
+        stokes_operator = spheric_stokes(gridVx, gridVy, gridP);        
+        [P, q] = total_stokes_boundary(gridVx, gridVy, gridP, Vx0, Vy0, P0);        
+        A = stokes_operator * P;
+        b = stokes_operator * q;
+        u = A \ (-b);
+        u = P*u + q;
+        [Vx, Vy, P] = split(u, gridVx.sz, gridVy.sz, gridP.sz);
+    end
+    function [P, q] = total_stokes_boundary(gridVx, gridVy, gridP, Vx0, Vy0, P0)
+        P = expand([gridVx.I(:); gridVy.I(:); gridP.I(:)]);
+        q = [zeros(numel(gridVx.y), 1); Vx0(:); Vy0(:); zeros(numel(gridP.y), 1); P0(:)];
     end
 end
 
@@ -86,12 +114,6 @@ end
 
 function operator = maxwell_op(gridPhi, C)
     operator = laplacian(gridPhi.I, gridPhi.X, gridPhi.Y, C);
-end
-
-function operator = advection_op(gridC, Vx, Vy)
-    % TODO: MAKE SURE IT'S IN SPHERICAL COORDS
-    VG = advection(gridC.I, gridC.X, gridC.Y, Vx, Vy, 'central'); %/upwind
-    operator = laplacian(gridC.I, gridC.X, gridC.Y) - VG;
 end
 
 function [P, Q] = maxwell_boundary_cond(gridPhi, beta)
