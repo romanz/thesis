@@ -1,5 +1,5 @@
 function main1
-    radius = logspace(0, 3, 50).';
+    radius = logspace(0, 3, 100).';
     theta = linspace(0, pi, 45).';
     [center, interior, xstag, ystag] = ...
         grids(radius, theta);
@@ -27,7 +27,6 @@ function main1
         relax_stokes(100);
         relax_advection(0);    
     end
-    S = total_stress();
     % solPhi, solVx, solVy, solP, solC
     save results
 
@@ -79,25 +78,6 @@ function main1
             u = relax(M, A, -b, u, iters);
             solC = reshape(P*u + q, gridC.sz);
         end
-    end
-
-    function S = total_stress()
-        Vx0 = solVx(1:2, :);
-        Vy0 = solVy(1:2, :);
-        P0 = solP(1, :);
-        [~, gridP, gridVx, gridVy] = ...
-            grids([2 -1; 1 0; 0 1]*radius(1:2), theta);
-        stokes_operator = spheric_stokes(gridVx, gridVy, gridP);        
-        [P, q] = total_stokes_boundary(gridVx, gridVy, gridP, Vx0, Vy0, P0);        
-        A = stokes_operator * P;
-        b = stokes_operator * q;
-        u = A \ (-b);
-        u = P*u + q;
-        [Vx, Vy, P] = split(u, gridVx.sz, gridVy.sz, gridP.sz);
-    end
-    function [P, q] = total_stokes_boundary(gridVx, gridVy, gridP, Vx0, Vy0, P0)
-        P = expand([gridVx.I(:); gridVy.I(:); gridP.I(:)]);
-        q = [zeros(numel(gridVx.y), 1); Vx0(:); Vy0(:); zeros(numel(gridP.y), 1); P0(:)];
     end
 end
 
