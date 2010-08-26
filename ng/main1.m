@@ -1,6 +1,6 @@
 function main1
-    radius = logspace(0, 3, 100).';
-    theta = linspace(0, pi, 45).';
+    radius = logspace(0, 3, 50).';
+    theta = linspace(0, pi, 30).';
     [center, interior, xstag, ystag] = ...
         grids(radius, theta);
     gridPhi = center;
@@ -22,9 +22,9 @@ function main1
     relax_maxwell = init_maxwell();
     relax_stokes = init_stokes();
     relax_advection = init_advection();
-    for iter = 1:100
+    for iter = 1:10
         relax_maxwell(0);
-        relax_stokes(100);
+        relax_stokes(500);
         relax_advection(0);    
     end
     % solPhi, solVx, solVy, solP, solC
