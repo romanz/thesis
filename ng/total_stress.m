@@ -7,14 +7,13 @@ P0 = solP(1, :);
 stokes_operator = spheric_stokes(gridVx, gridVy, gridP);        
 n = numel(gridP.y);
 % Note correct axis choice!
-I = [false(nnz(gridVx.I), 1); false(nnz(gridVy.I), 1); repmat([true; false], n, 1)];
+I = [true(nnz(gridVx.I), 1); false(nnz(gridVy.I), 1); repmat([true; false], n, 1)];
 stokes_operator1 = stokes_operator(I, :);
 % Note correct axis choice!
-J = [col([0 0 0; repmat([1 0 0], n, 1); 0 0 0]'); false(gridVy.numel, 1); repmat([0; 0], n, 1)];
+J = [col([0 0 0; repmat([1 0 0], n, 1); 0 0 0]'); false(gridVy.numel, 1); repmat([1; 0], n, 1)];
 A = stokes_operator1 * expand(J);
 % Note correct axis choice!
-K = [col(repmat([0 1 1]', n+2, 1)); true(gridVy.numel, 1); repmat([0; 0], n, 1)];
-q = stokes_operator1 * [col([zeros(1, size(Vx0, 2)); Vx0]); col([zeros(1, size(Vy0, 2)); Vy0; zeros(1, size(Vy0, 2))]); 0*P0(:); P0(:)];
+q = stokes_operator1 * [col([zeros(1, size(Vx0, 2)); Vx0]); col([zeros(1, size(Vy0, 2)); Vy0; zeros(1, size(Vy0, 2))]); col([0*P0(:) P0(:)]')];
 u = A \ -q;
 size(u)
 Vx1 = [u([1, 1:n, n])'; solVx];
@@ -32,4 +31,5 @@ u = P*u + q;
 [Vx, Vy, P] = split(u, gridVx.sz, gridVy.sz, gridP.sz);
 %}
 
-mesh(Vx1(1:5, :))
+figure(1); mesh(Vx1(1:3, :))
+figure(2); mesh(P1(1:2, :))
