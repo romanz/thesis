@@ -18,7 +18,7 @@ function main1
     alpha = 1;
     beta = 0e-3;
     gamma = 2;
-    Vinf = 1e-3 ;
+    Vinf = 1e-2 / (6*pi);
     relax_maxwell = init_maxwell();
     relax_stokes = init_stokes();
     relax_advection = init_advection();
@@ -28,6 +28,7 @@ function main1
         relax_advection(0);    
     end
     % solPhi, solVx, solVy, solP, solC
+    S = total_stress(solVx, solVy, solP, radius, theta);
     save results
 
     function func = init_maxwell()

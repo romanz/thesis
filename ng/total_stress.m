@@ -1,4 +1,4 @@
-clear; load results
+function S = total_stress(solVx, solVy, solP, radius, theta)
 Vx0 = solVx(1:2, :);
 Vy0 = solVy(1:2, :);
 P0 = solP(1, :);
@@ -15,21 +15,12 @@ A = stokes_operator1 * expand(J);
 % Note correct axis choice!
 q = stokes_operator1 * [col([zeros(1, size(Vx0, 2)); Vx0]); col([zeros(1, size(Vy0, 2)); Vy0; zeros(1, size(Vy0, 2))]); col([0*P0(:) P0(:)]')];
 u = A \ -q;
-size(u)
-Vx1 = [u([1, 1:n, n])'; solVx];
-Vy1 = solVy;
-P1 = [u(n+1:end)'; solP];
+Vx0 = [u([1, 1:n, n])'; Vx0];
+P0 = [u(n+1:end)'; P0];
 
-%{
-P = expand([true(numel(gridVx.y), 1); false(size([Vx0(:); Vy0(:)]); zeros(numel(gridP.y), 1); P0(:)];);
-q = [zeros(numel(gridVx.y), 1); Vx0(:); Vy0(:); zeros(numel(gridP.y), 1); P0(:)];
 
-A = stokes_operator * P;
-b = stokes_operator * q;
-u = A \ (-b);
-u = P*u + q;
-[Vx, Vy, P] = split(u, gridVx.sz, gridVy.sz, gridP.sz);
-%}
-
-figure(1); mesh(Vx1(1:3, :))
-figure(2); mesh(P1(1:2, :))
+Sr = mean(P0)';
+St = average(diff(Vy0)' / diff(radius(1:2)), [1;1]/2);
+t = gridP.y;
+F = Sr .* cos(t) + St .* sin(t);
+S = sum((2*pi*sin(gridP.y)) .* F .* diff(theta));    
