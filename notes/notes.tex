@@ -268,7 +268,7 @@ Denote $\mathbb{S} = \bnabla \varPhi \bnabla \varPhi - \frac{1}{2} (\bnabla \var
 Thus $\mathbb{S}_{ij} = \partial_i \varPhi \partial_j \varPhi - \frac{1}{2} \delta_{ij} \sum_{k} (\partial_k \varPhi)^2$
 \begin{eqnarray}
 F_j &=& \sum_i \partial_i \mathbb{S}_{ij} =
-\partial_i \sum_i \partial_i \varPhi \partial_j \varPhi - \frac{1}{2} \partial_j \sum_{k} (\partial_k \varPhi)^2 \\
+\sum_i \partial_i (\partial_i \varPhi \partial_j \varPhi) - \frac{1}{2} \partial_j \sum_{k} (\partial_k \varPhi)^2 \\
 F_j &=&  \partial_j \varPhi \sum_i \partial^2_i \varPhi +
 \sum_i \partial_i \varPhi \partial_{ij} \varPhi - \sum_{k} \partial_k \varPhi \partial_{jk} \varPhi \\
 \boldsymbol{F} &=& \bnabla \varPhi \cdot \nabla^2 \varPhi
@@ -520,7 +520,8 @@ Note that the stress tensor is:
 $\mathbb{S} = -P \mathbb{I} + \bnabla \bV + (\bnabla \bV)^\dagger$.
 The drag force is found by integrating:
 \begin{eqnarray}
-\boldsymbol{F} = \iint{\left[\mathbb{S}(a,\theta, \phi) \cdot \brhat\right] a^2 \sin\theta d\phi d\theta}
+\boldsymbol{F} = \iint{\left[\mathbb{S}(a,\theta, \phi) \cdot \brhat\right] a^2 \sin\theta d\phi d\theta} =
+\int{\left[\mathbb{S}(a,\theta) \cdot \brhat\right] 2 \pi a^2 \sin\theta d\theta}
 \end{eqnarray}
 Since we have axisymmetric problem, we expect that
 $\boldsymbol{F} = F \boldsymbol{\hat{z}} = F \left(\brhat \cos\theta - \bthetahat \sin\theta\right)$.
@@ -537,9 +538,12 @@ V_\theta \right]\right)\bthetahat \\
 \left.V_\theta\right|_{r=a} \\
 \mathbb{S} \cdot \brhat &=&
 -P\brhat + \mu \deriv{V_\theta}{r}\bthetahat \\
-(\mathbb{S} \cdot \brhat)_r &=& \frac{3 \mu U}{2a} \cos\theta - P_0 \\
-(\mathbb{S} \cdot \brhat)_\theta &=& -\frac{3\mu U}{2a} \sin\theta \\
-\mathbb{S} \cdot \brhat &=& -P_0 \brhat + \frac{3\mu U}{2a} \boldsymbol{\hat{z}}
+f_r = (\mathbb{S} \cdot \brhat)_r &=& \frac{3 \mu U}{2a} \cos\theta - P_0 \\
+f_\theta = (\mathbb{S} \cdot \brhat)_\theta &=& -\frac{3\mu U}{2a} \sin\theta \\
+\boldsymbol{f} = \mathbb{S} \cdot \brhat &=& -P_0 \brhat + \frac{3\mu U}{2a} \boldsymbol{\hat{z}} \\
+F &=& 
+\int_0^\pi \boldsymbol{f} \cdot \boldsymbol{\hat{z}} \cdot 2\pi a^2 \sin\theta \cdot d\theta =
+\int_0^\pi \left[f_r \cos\theta - f_\theta \sin\theta\right] \cdot 2\pi a^2 \sin\theta \cdot d\theta
 \end{eqnarray}
 By integrating on the whole sphere of area $4\pi a^2$, we get Stokes' law:
 $\boldsymbol{F} = 6\pi \mu U a \boldsymbol{\hat{z}}$.
