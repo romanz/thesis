@@ -1,5 +1,5 @@
-function main1(filename)
-    if isempty(filename)
+function main1(filename, do_init)
+    if do_init
         radius = logspace(0, 3, 50).';
         theta = linspace(0, pi, 30).';
         [center, interior, xstag, ystag] = ...
@@ -38,12 +38,12 @@ function main1(filename)
     save(filename)
 
     function func = init_maxwell()
-        maxwell_operator = maxwell_op(gridPhi); % , solC
         [P, Q] = maxwell_boundary_cond(gridPhi, beta);
-        A = maxwell_operator * P;
-        M = jacobi(gridPhi.sz-2, A);
         func = @relax_maxwell;
         function relax_maxwell(iters)
+        maxwell_operator = maxwell_op(gridPhi, solC); % 
+        A = maxwell_operator * P;
+        M = jacobi(gridPhi.sz-2, A);
             q = Q * maxwell_boundary_vec(solC);
             b = maxwell_operator * q;        
             u = solPhi(gridPhi.I);
@@ -101,8 +101,8 @@ function [u, e] = relax(M, A, f, u, iters)
     e = u - u0;
 end
 
-function operator = maxwell_op(gridPhi)
-    operator = laplacian(gridPhi.I, gridPhi.X, gridPhi.Y);
+function operator = maxwell_op(gridPhi, solC)
+    operator = laplacian(gridPhi.I, gridPhi.X, gridPhi.Y, solC);
 end
 
 function [P, Q] = maxwell_boundary_cond(gridPhi, beta)
