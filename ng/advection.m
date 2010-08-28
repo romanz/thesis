@@ -1,5 +1,5 @@
-function [A, interior] = advection(interior, X, Y, Vx, Vy, method)
-%% Gradient discretization using sparse matrix
+function [A] = advection(interior, X, Y, Vx, Vy)
+%% Advection gradient discretization using sparse matrix.
 sz = size(interior);
 N = numel(interior);
 
@@ -13,63 +13,22 @@ Ip = repmat(I, [1 3]);
 Jp = repmat(J, [1 3]);
 Kp = repmat((1:numel(K))', [1 3]); % interior variables' indices, for 1D stencil
 
-switch method
-    case 'upwind'
-        Vx = Vx(:, 2:end-1);
-        Dx = sparse(N, N);
-        if sz(1) > 1 % for X
-            Kr = ind(I+1, J); % Left
-            Kl = ind(I-1, J); % Right
-            P = ind(Ip + Dp, Jp); % column indices
-            Dx_r = sparse(K, K, 1./(X(Kr) - X(K)), N, N) * ...
-                   sparse(Kp, P, ones(size(K)) * [1 -1 0], N, N);
-            Dx_l = sparse(K, K, 1./(X(K) - X(Kl)), N, N) * ...
-                   sparse(Kp, P, ones(size(K)) * [0 1 -1], N, N);
-            % Find upstream direction
-            Sx = sign(convn(Vx, [1; 1]/2, 'valid'));
-            Dx = sparse(1:numel(K), K, (Sx > 0) .* Vx(1:end-1, :), numel(K), N) * Dx_l + ...
-                 sparse(1:numel(K), K, (Sx < 0) .* Vx(2:end,   :), numel(K), N) * Dx_r;
-        end
-        Vy = Vy(2:end-1, :);
-        Dy = sparse(N, N);
-        if sz(2) > 1 % for Y
-            Ku = ind(I, J+1); % Up
-            Kd = ind(I, J-1); % Down
-            P = ind(Ip, Jp + Dp); % column indices
-            Dy_u = sparse(K, K, 1./(Y(Ku) - Y(K)), N, N) * ...
-                 sparse(Kp, P, ones(size(K)) * [1 -1 0], N, N);
-            Dy_d = sparse(K, K, 1./(Y(K) - Y(Kd)), N, N) * ...
-                 sparse(Kp, P, ones(size(K)) * [0 1 -1], N, N);
-            % Find upstream direction
-            Sy = sign(convn(Vy, [1, 1]/2, 'valid'));
-            Dy = sparse(1:numel(K), K, (Sy > 0) .* Vy(:, 1:end-1), numel(K), N) * Dy_d + ...
-                 sparse(1:numel(K), K, (Sy < 0) .* Vy(:, 2:end  ), numel(K), N) * Dy_u;
-        end
+% for X
+Vx = Vx(:, 2:end-1); % remove velocity at ghost-points
+Kr = ind(I+1, J); % Left from K
+Kl = ind(I-1, J); % Right from K
+P = ind(Ip + Dp, Jp); % column indices
+Vx = average(Vx, [1; 1]/2);
+Dx = spdiag( Vx(:) ./ (X(Kr) - X(Kl)) ) * ...
+     sparse(Kp, P, ones(size(K)) * [1 0 -1], numel(K), N);
 
-    case 'central'
-        Vx = Vx(:, 2:end-1);
-        Dx = sparse(N, N);
-        if sz(1) > 1 % for X
-            Kr = ind(I+1, J); % Left
-            Kl = ind(I-1, J); % Right
-            P = ind(Ip + Dp, Jp); % column indices
-            Vx = convn(Vx, [1; 1]/2, 'valid');
-            Dx = sparse(1:numel(K), 1:numel(K), Vx(:)./(X(Kr) - X(Kl)), numel(K), numel(K)) * ...
-                 sparse(Kp, P, ones(size(K)) * [1 0 -1], numel(K), N);
-        end
-        Vy = Vy(2:end-1, :);
-        Dy = sparse(N, N);
-        if sz(2) > 1 % for Y
-            Ku = ind(I, J+1); % Up
-            Kd = ind(I, J-1); % Down
-            P = ind(Ip, Jp + Dp); % column indices
-            Vy = convn(Vy, [1, 1]/2, 'valid');
-            Dy = sparse(1:numel(K), 1:numel(K), Vy(:)./(Y(Ku) - Y(Kd)), numel(K), numel(K)) * ...
-                 sparse(Kp, P, ones(size(K)) * [1 0 -1], numel(K), N);
-        end
-        
-    otherwise
-        error('Unsupported %s!', method)
-end
+% for Y
+Vy = Vy(2:end-1, :); % remove velocity at ghost-points
+Ku = ind(I, J+1); % Up from K
+Kd = ind(I, J-1); % Down from K
+P = ind(Ip, Jp + Dp); % column indices
+Vy = average(Vy, [1, 1]/2);
+Dy = spdiag( Vy(:) ./ ((Y(Ku) - Y(Kd)) .* X(K)) ) * ...
+     sparse(Kp, P, ones(size(K)) * [1 0 -1], numel(K), N);        
 
 A = Dx + Dy;

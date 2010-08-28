@@ -1,47 +1,54 @@
-function main1
-    radius = logspace(0, 3, 50).';
-    theta = linspace(0, pi, 30).';
-    [center, interior, xstag, ystag] = ...
-        grids(radius, theta);
-    gridPhi = center;
-    gridVx = xstag;
-    gridVy = ystag;
-    gridP = interior;
-    gridC = center;
-    
-    solPhi = 0*randn(gridPhi.sz);
-    solVx = randn(gridVx.sz);
-    solVy = randn(gridVy.sz);
-    solP = randn(gridP.sz);
-    solC = 1+0*randn(gridC.sz);
-    
-    alpha = 1;
-    beta = 0e-3;
-    gamma = 2;
-    Vinf = 1e-2 / (6*pi);
-    relax_maxwell = init_maxwell();
-    relax_stokes = init_stokes();
-    relax_advection = init_advection();
-    for iter = 1:10
-        relax_maxwell(0);
-        relax_stokes(500);
-        relax_advection(0);    
+function main1(filename)
+    if isempty(filename)
+        radius = logspace(0, 3, 50).';
+        theta = linspace(0, pi, 30).';
+        [center, interior, xstag, ystag] = ...
+            grids(radius, theta);
+        gridPhi = center;
+        gridVx = xstag;
+        gridVy = ystag;
+        gridP = interior;
+        gridC = center;
+
+        solPhi = 0*randn(gridPhi.sz);
+        solVx = 0*randn(gridVx.sz);
+        solVy = 0*randn(gridVy.sz);
+        solP = 0*randn(gridP.sz);
+        solC = 1+0*randn(gridC.sz);
+
+        alpha = 1;
+        beta = 1e-3;
+        gamma = 2;
+        Vinf = 1e-2 / (6*pi);
+        relax_maxwell = init_maxwell();
+        relax_stokes = init_stokes();
+        relax_advection = init_advection();    
+    else
+        load(filename);
     end
+    for iter = 1:2000
+        relax_maxwell(1);
+        relax_stokes(100);
+        relax_advection(1);    
+        fprintf('\n');
+    end
+    fprintf('\n');
     % solPhi, solVx, solVy, solP, solC
-    S = total_stress(solVx, solVy, solP, radius, theta);
-    save results
+    F = total_stress(solVx, solVy, solP, radius, theta);
+    save(filename)
 
     function func = init_maxwell()
+        maxwell_operator = maxwell_op(gridPhi); % , solC
         [P, Q] = maxwell_boundary_cond(gridPhi, beta);
+        A = maxwell_operator * P;
+        M = jacobi(gridPhi.sz-2, A);
         func = @relax_maxwell;
         function relax_maxwell(iters)
-            maxwell_operator = maxwell_op(gridPhi, solC);
-            A = maxwell_operator * P;
             q = Q * maxwell_boundary_vec(solC);
             b = maxwell_operator * q;        
-            M = jacobi(gridPhi.sz-2, A);
             u = solPhi(gridPhi.I);
-            [u] = relax(M, A, -b, u, iters);
+            [u, e] = relax(M, A, -b, u, iters);
+            fprintf('%.5e ', norm(e))
             solPhi = reshape(P*u + q, gridPhi.sz);
         end
     end
@@ -57,7 +64,7 @@ function main1
         function relax_stokes(iters)
             u = [solVx(gridVx.I); solVy(gridVy.I); solP(:)];
             [u, e] = relax(M, A, -b, u, iters); % TODO: maxwell_forces(Phi)
-            fprintf('%.5e\n', norm(e))
+            fprintf('%.5e ', norm(e))
             u = P*u + q;
             [solVx, solVy, solP] = split(u, gridVx.sz, gridVy.sz, gridP.sz);
             solP = solP - mean(solP(:));
@@ -69,14 +76,15 @@ function main1
         L = laplacian(gridC.I, gridC.X, gridC.Y);
         func = @relax_advection;
         function relax_advection(iters)
-            VG = advection(gridC.I, gridC.X, gridC.Y, solVx, solVy, 'central'); %/upwind
+            VG = advection(gridC.I, gridC.X, gridC.Y, solVx, solVy);
             advect_operator = L - alpha*VG;
             A = advect_operator * P;
             q = Q * advection_boundary_vec(solPhi);
             b = advect_operator * q;
             M = jacobi(gridC.sz-2, A);
             u = solC(gridC.I);
-            u = relax(M, A, -b, u, iters);
+            [u, e] = relax(M, A, -b, u, iters);
+            fprintf('%.5e ', norm(e))
             solC = reshape(P*u + q, gridC.sz);
         end
     end
@@ -93,8 +101,8 @@ function [u, e] = relax(M, A, f, u, iters)
     e = u - u0;
 end
 
-function operator = maxwell_op(gridPhi, C)
-    operator = laplacian(gridPhi.I, gridPhi.X, gridPhi.Y, C);
+function operator = maxwell_op(gridPhi)
+    operator = laplacian(gridPhi.I, gridPhi.X, gridPhi.Y);
 end
 
 function [P, Q] = maxwell_boundary_cond(gridPhi, beta)
