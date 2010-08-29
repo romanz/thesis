@@ -18,7 +18,7 @@ function main1(filename, do_init)
 
         alpha = 1;
         beta = 1e-3;
-        gamma = 2;
+        gamma = 1;
         Vinf = 1e-2 / (6*pi);
         relax_maxwell = init_maxwell();
         relax_stokes = init_stokes();
@@ -27,23 +27,23 @@ function main1(filename, do_init)
         load(filename);
     end
     for iter = 1:2000
+        fprintf('\n%6d:\t', iter);
         relax_maxwell(1);
-        relax_stokes(100);
+        relax_stokes(1);
         relax_advection(1);    
-        fprintf('\n');
     end
-    fprintf('\n');
     % solPhi, solVx, solVy, solP, solC
     F = total_stress(solVx, solVy, solP, radius, theta);
+    fprintf('\n\n%.5e\n', F);
     save(filename)
 
     function func = init_maxwell()
         [P, Q] = maxwell_boundary_cond(gridPhi, beta);
         func = @relax_maxwell;
         function relax_maxwell(iters)
-        maxwell_operator = maxwell_op(gridPhi, solC); % 
-        A = maxwell_operator * P;
-        M = jacobi(gridPhi.sz-2, A);
+            maxwell_operator = maxwell_op(gridPhi, solC); % 
+            A = maxwell_operator * P;
+            M = redblack(gridPhi.sz-2, A);
             q = Q * maxwell_boundary_vec(solC);
             b = maxwell_operator * q;        
             u = solPhi(gridPhi.I);
@@ -57,11 +57,11 @@ function main1(filename, do_init)
         stokes_operator = spheric_stokes(gridVx, gridVy, gridP);
         [P, Q] = stokes_boundary_cond(gridVx, gridVy, gridP, Vinf);
         A = stokes_operator * P;        
-        q = Q * stokes_boundary_vec(solPhi, solC, interior.y, gamma);
-        b = stokes_operator * q;        
         M = stokes_vanka_redblack(gridP.sz, A);
         func = @relax_stokes;
         function relax_stokes(iters)
+            q = Q * stokes_boundary_vec(solPhi, solC, interior.y, gamma);
+            b = stokes_operator * q;        
             u = [solVx(gridVx.I); solVy(gridVy.I); solP(:)];
             [u, e] = relax(M, A, -b, u, iters); % TODO: maxwell_forces(Phi)
             fprintf('%.5e ', norm(e))
@@ -81,7 +81,7 @@ function main1(filename, do_init)
             A = advect_operator * P;
             q = Q * advection_boundary_vec(solPhi);
             b = advect_operator * q;
-            M = jacobi(gridC.sz-2, A);
+            M = redblack(gridC.sz-2, A);
             u = solC(gridC.I);
             [u, e] = relax(M, A, -b, u, iters);
             fprintf('%.5e ', norm(e))
