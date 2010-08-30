@@ -19,8 +19,10 @@ Vx0 = [u([1, 1:n, n])'; Vx0];
 P0 = [u(n+1:end)'; P0];
 
 
-Sr = -mean(P0)';
-St = average(diff(Vy0)' / diff(radius(1:2)), [1;1]/2);
-t = gridP.y;
+Sr = -mean(P0) ...
+     +diff(Vx0([1 3], 2:end-1)) / diff(radius(1:2));
+St =  average(diff(Vy0) / diff(radius(1:2)), [1 1]/2) ...
+     -average(Vy0(1:2, :), [1 1; 1 1]/4);
+t = gridP.y';
 F = -Sr .* cos(t) + St .* sin(t);
-S = sum((2*pi*sin(gridP.y)) .* F .* diff(theta));    
+S = sum((2*pi*sin(gridP.y)) .* F' .* diff(theta));    

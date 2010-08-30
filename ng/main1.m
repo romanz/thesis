@@ -1,46 +1,55 @@
-function main1(filename, do_init)
-    if do_init
-        radius = logspace(0, 3, 50).';
-        theta = linspace(0, pi, 30).';
-        [center, interior, xstag, ystag] = ...
-            grids(radius, theta);
-        gridPhi = center;
-        gridVx = xstag;
-        gridVy = ystag;
-        gridP = interior;
-        gridC = center;
+function main1(filename, do_init, iters)
+    radius = logspace(0, 4, 120).';
+    theta = linspace(0, pi, 30).';
+    [center, interior, xstag, ystag] = ...
+        grids(radius, theta);
+    gridPhi = center;
+    gridVx = xstag;
+    gridVy = ystag;
+    gridP = interior;
+    gridC = center;
 
+    alpha = 1;
+    beta = 1e-4;
+    gamma = exp(1);
+    Vinf = beta * 2*log((gamma^0.25 + gamma^-0.25) / (2*gamma^0.25));
+    relax_maxwell = init_maxwell();
+    relax_stokes = init_stokes();
+    relax_advection = init_advection();    
+
+    if do_init
         solPhi = 0*randn(gridPhi.sz);
         solVx = 0*randn(gridVx.sz);
         solVy = 0*randn(gridVy.sz);
         solP = 0*randn(gridP.sz);
         solC = 1+0*randn(gridC.sz);
-
-        alpha = 1;
-        beta = 1e-3;
-        gamma = 1;
-        Vinf = 1e-2 / (6*pi);
-        relax_maxwell = init_maxwell();
-        relax_stokes = init_stokes();
-        relax_advection = init_advection();    
     else
-        load(filename);
+        S = load(filename);
+        solPhi = S.solPhi;
+        solVx = S.solVx;
+        solVy = S.solVy;
+        solP = S.solP;
+        solC = S.solC;
     end
-    for iter = 1:2000
-        fprintf('\n%6d:\t', iter);
-        relax_maxwell(1);
-        relax_stokes(1);
-        relax_advection(1);    
+    for iter = 1:iters
+        e1 = relax_maxwell(1);
+        e2 = relax_stokes(1);
+        e3 = relax_advection(1);            
     end
+    fprintf('%.5e\t%.5e\t%.5e\n', ...
+        norm(e1(:), inf), norm(e2(:), inf), norm(e3(:), inf));
     % solPhi, solVx, solVy, solP, solC
     F = total_stress(solVx, solVy, solP, radius, theta);
-    fprintf('\n\n%.5e\n', F);
+    fprintf('{%.5e}, {%.5e}\n', F, 6*pi*Vinf);
     save(filename)
+% plot([average(-solPhi(1:2, :)', [1 1]/2) ...
+%       average(solC(1:2, :)' - 1, [1 1]/2)]);
+% plot()
 
     function func = init_maxwell()
         [P, Q] = maxwell_boundary_cond(gridPhi, beta);
         func = @relax_maxwell;
-        function relax_maxwell(iters)
+        function e = relax_maxwell(iters)
             maxwell_operator = maxwell_op(gridPhi, solC); % 
             A = maxwell_operator * P;
             M = redblack(gridPhi.sz-2, A);
@@ -48,7 +57,6 @@ function main1(filename, do_init)
             b = maxwell_operator * q;        
             u = solPhi(gridPhi.I);
             [u, e] = relax(M, A, -b, u, iters);
-            fprintf('%.5e ', norm(e))
             solPhi = reshape(P*u + q, gridPhi.sz);
         end
     end
@@ -59,12 +67,11 @@ function main1(filename, do_init)
         A = stokes_operator * P;        
         M = stokes_vanka_redblack(gridP.sz, A);
         func = @relax_stokes;
-        function relax_stokes(iters)
+        function e = relax_stokes(iters)
             q = Q * stokes_boundary_vec(solPhi, solC, interior.y, gamma);
             b = stokes_operator * q;        
             u = [solVx(gridVx.I); solVy(gridVy.I); solP(:)];
             [u, e] = relax(M, A, -b, u, iters); % TODO: maxwell_forces(Phi)
-            fprintf('%.5e ', norm(e))
             u = P*u + q;
             [solVx, solVy, solP] = split(u, gridVx.sz, gridVy.sz, gridP.sz);
             solP = solP - mean(solP(:));
@@ -75,7 +82,7 @@ function main1(filename, do_init)
         [P, Q] = advection_boundary_cond(gridC, 1);
         L = laplacian(gridC.I, gridC.X, gridC.Y);
         func = @relax_advection;
-        function relax_advection(iters)
+        function e = relax_advection(iters)
             VG = advection(gridC.I, gridC.X, gridC.Y, solVx, solVy);
             advect_operator = L - alpha*VG;
             A = advect_operator * P;
@@ -84,7 +91,6 @@ function main1(filename, do_init)
             M = redblack(gridC.sz-2, A);
             u = solC(gridC.I);
             [u, e] = relax(M, A, -b, u, iters);
-            fprintf('%.5e ', norm(e))
             solC = reshape(P*u + q, gridC.sz);
         end
     end
@@ -110,7 +116,7 @@ function [P, Q] = maxwell_boundary_cond(gridPhi, beta)
     [P, Q2] = neumann(gridPhi, [+1 0]); %E
     R = symmetry(gridPhi);
     P = R * P * expand(gridPhi.I);
-    Einf = beta*cos(gridPhi.y(2:end-1));
+    Einf = -beta*cos(gridPhi.y(2:end-1));
     Q = R * [Q1, Q2*Einf];
 end
 function vec = maxwell_boundary_vec(C)
