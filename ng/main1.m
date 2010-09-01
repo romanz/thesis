@@ -1,4 +1,5 @@
 function main1(filename, do_init, iters)
+    tic;
     radius = logspace(0, 4, 120).';
     theta = linspace(0, pi, 30).';
     [center, interior, xstag, ystag] = ...
@@ -31,11 +32,13 @@ function main1(filename, do_init, iters)
         solP = S.solP;
         solC = S.solC;
     end
+    fprintf('Initialization done after %.3fs.\n', toc);
     for iter = 1:iters
         e1 = relax_maxwell(1);
         e2 = relax_stokes(1);
         e3 = relax_advection(1);            
     end
+    fprintf('Iterations done after %.3fs.\n', toc);
     fprintf('%.5e\t%.5e\t%.5e\n', ...
         norm(e1(:), inf), norm(e2(:), inf), norm(e3(:), inf));
     % solPhi, solVx, solVy, solP, solC
