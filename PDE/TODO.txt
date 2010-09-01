@@ -89,3 +89,46 @@ Rewrite Vanka's method (and re-iterate!)
 Verify 2nd poly. order for non-uniform grid.
 Couple all 3 equations using boundary conditions, 1 iteration per update.
 [Sort of Non-linear Block Gauss Seidel].
+
+1/9/2010
+
+gamma - intuition?
+
+velocity - quiver.
+
+Visualization:
+Streamfunction (v = -psi_x, u = pxi_y).
+contour/surf
+psi = const is streamline, does not intersects.
+Dense streamlines = fast flow.
+A body is a streamline.
+Compatibility.
+
+Vorticity:
+omega = rotor(v,u) = u_y - v_x
+
+Vanka convergence in cartesian/sphercian coordinates?
+Is stokes 2nd order convergent?
+v=u=0 - stagnation point.
+
+Rinf as a grid point.
+Ax - A'x = discretization error
+
+Sidi's acceleration.
+
+Plot variables as function of beta/gamma.
+
+Proposal: PDF, TeX+Figures
+5-10 pages:
+What is the problem? Physics, Equations
+What was done before?
+ No full analytical solution
+ Asymptotic solutions
+ No large beta extensions
+ Why it is interesting?
+Existing implementation.
+Research plan
+ Physics via numeric
+ Applications
+ Geometries
+ Acceleration of convergence.
