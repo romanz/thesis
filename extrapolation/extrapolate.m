@@ -27,7 +27,7 @@ function [x0, residuals] = extrapolate(x0, F, k, L, method)
         % Perform extrapolation
         [gamma] = method(R, k); % s.t. x0 = X * gamma
         xi = 1 - cumsum(gamma(1:k)); % s.t. x0' = x0 + U * xi
-        eta = R(1:k, 1:k) * xi; % since U = Q * R
+        eta = R(1:k, 1:k) * xi(:); % since U = Q * R
         x0 = x0 + Q(:, 1:k) * eta; % s.t. x0' = x0 + Q * R * xi
     end
 end
