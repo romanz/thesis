@@ -11,7 +11,7 @@ function [x0, residuals] = extrapolate(x0, F, k, L, method)
     % Perform L cycles of extrapolation method
     residuals = zeros(L, 1);
     for t = 1:L
-        % Compute (k+2) vectors, including x0
+        % Compute (k+1) vectors, in addition to x0
         Q(:, 1) = F( x0 );        
         residuals(t) = norm(x0 - Q(:, 1), 2); 
         for i = 1:k 
