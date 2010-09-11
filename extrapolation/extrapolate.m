@@ -6,9 +6,9 @@ function [x0, residuals] = extrapolate(x0, F, k, L, method)
     switch upper(method)
         case 'MPE', method = @mpe;
         case 'RRE', method = @rre;
-        otherwise 
-            warning('no extrapolation.'); 
-            method = '';
+        case 'N/A', method = '';
+        case '', warning('Extrapolate:PlainIteration', 'No extrapolation');
+        otherwise, error('Extrapolate:UnknownMethod', method);
     end
     % Perform L cycles of extrapolation method
     residuals = zeros(L, 1);

@@ -33,15 +33,26 @@ function main1(filename, do_init, iters)
         solC = S.solC;
     end
     fprintf('Initialization done after %.3fs.\n', toc);
-    for iter = 1:iters
-        e1 = relax_maxwell(1);
-        e2 = relax_stokes(1);
-        e3 = relax_advection(1);            
+    
+    function state = iteration(state)
+        [solPhi, solVx, solVy, solP, solC] = split(state, ...
+            gridPhi.sz, gridVx.sz, gridVy.sz, gridP.sz, gridC.sz);
+        relax_maxwell(1);
+        relax_stokes(1);
+        relax_advection(1);        
+        state = [solPhi(:); solVx(:); solVy(:); solP(:); solC(:)];
     end
+
+    state = [solPhi(:); solVx(:); solVy(:); solP(:); solC(:)];
+    [state] = extrapolate(state, @iteration, 0, 20, 'N/A');
+    beeper(440, 0.1);
+    batch = 40;
+    [state, err] = extrapolate(state, @iteration, ...
+        batch-1, iters/batch, 'RRE');
+    [solPhi, solVx, solVy, solP, solC] = split(state, ...
+        gridPhi.sz, gridVx.sz, gridVy.sz, gridP.sz, gridC.sz);
     fprintf('Iterations done after %.3fs.\n', toc);
-    fprintf('%.5e\t%.5e\t%.5e\n', ...
-        norm(e1(:), inf), norm(e2(:), inf), norm(e3(:), inf));
-    % solPhi, solVx, solVy, solP, solC
+    beeper(440, 0.1);
     F = total_stress(solVx, solVy, solP, radius, theta);
     fprintf('{%.5e}, {%.5e}\n', F, 6*pi*Vinf);
     save(filename)
