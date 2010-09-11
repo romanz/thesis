@@ -3,10 +3,12 @@
 function [x0, residuals] = extrapolate(x0, F, k, L, method)
     N = numel(x0);
     Q = zeros(N, k+1);
-    switch method
-        case 'MPE',  method = @mpe;
-        case 'RRE',  method = @rre;
-        otherwise ,  error('Unknown method (%s)!', method);
+    switch upper(method)
+        case 'MPE', method = @mpe;
+        case 'RRE', method = @rre;
+        otherwise 
+            warning('no extrapolation.'); 
+            method = '';
     end
     % Perform L cycles of extrapolation method
     residuals = zeros(L, 1);
@@ -16,6 +18,10 @@ function [x0, residuals] = extrapolate(x0, F, k, L, method)
         residuals(t) = norm(x0 - Q(:, 1), 2); 
         for i = 1:k 
             Q(:, i+1) = F( Q(:, i) );
+        end
+        if isempty(method) % No extrapolation.
+            x0 = Q(:, end); % Just take the last vector.
+            continue;
         end
         % Compute differences (k+1)
         for i = k:-1:1 
