@@ -1,3 +1,4 @@
+% -Laplacian{Vx,Vy} + Grad{P} = Operator{Vx,Vy,P}
 function A = spheric_stokes(gridVx, gridVy, gridP)
 
 [Gp_x, Lv_x0, Dv_x] = stokes1(1, gridVx, gridP);
