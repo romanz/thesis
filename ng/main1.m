@@ -12,8 +12,8 @@ function main1(filename, do_init, iters)
 
     alpha = 1;
     beta = 1e-4;
-    gamma = exp(1);
-    Vinf = beta * 2*log((gamma^0.25 + gamma^-0.25) / (2*gamma^0.25));
+    gamma = exp(4);
+    Vinf = beta * 2*1*log((gamma^0.25 + gamma^-0.25) / (2*gamma^0.25));
     relax_maxwell = init_maxwell();
     relax_stokes = init_stokes();
     relax_advection = init_advection();    
@@ -48,14 +48,16 @@ function main1(filename, do_init, iters)
     beeper(440, 0.1);
     batch = 40;
     [state, err] = extrapolate(state, @iteration, ...
-        batch-1, iters/batch, 'RRE');
+        batch-1, ceil(iters/batch), 'RRE');
     [solPhi, solVx, solVy, solP, solC] = split(state, ...
         gridPhi.sz, gridVx.sz, gridVy.sz, gridP.sz, gridC.sz);
     fprintf('Iterations done after %.3fs.\n', toc);
     beeper(440, 0.1);
+    
     F = total_stress(solVx, solVy, solP, radius, theta);
     fprintf('{%.5e}, {%.5e}\n', F, 6*pi*Vinf);
-    save(filename)
+    save(filename);
+    semilogy(err);
 % plot([average(-solPhi(1:2, :)', [1 1]/2) ...
 %       average(solC(1:2, :)' - 1, [1 1]/2)]);
 % plot()
