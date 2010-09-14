@@ -1,0 +1,128 @@
+\documentclass[11pt]{article}
+
+\input{format.tex}
+
+\title{M.Sc Proposal}
+\author{Roman Zeyde}
+\begin{document}
+\maketitle
+\section{Introduction}
+Electrophoresis is the motion of dispersed particle relative to a ion-containing fluid,
+due to the influence of an electric field. This phenomenon combines electrostatics 
+coupled with fluid dynamics, as well as diffusion/advection of ions in the fluid.
+
+The particle (surrounded by fluid) acquire surface charge which is screened by 
+a thin layer of ions in the fluid, creating a double-layer structure near the 
+particle's surface, called ``Debye layer''.
+
+If the layer width is much smaller than the particle's size
+an analytical solution in the Debye-layer can be found \cite{Yariv10}, 
+and be used as the appropriate boundary condition for the 
+macroscale problem on the particle's surface.
+
+Electrophoresis is described by the following physical phenomena,
+using the macroscale equations:
+\begin{enumerate}
+\item Electrostatic potential - the fluid contains no free charge:
+\begin{equation}
+    \bnabla \cdot (C \bnabla \varPhi) = 0.
+\end{equation}
+\item Fluid dynamics - Stokes incompressible flow with electrostatic force component:
+\begin{equation}
+\left\{ \begin{array}{l}
+\bLaplacian \bV - \bnabla P + \Laplacian \varPhi \bnabla \varPhi = 0 \\
+\bnabla \cdot \bV = 0 \end{array} \right.
+\end{equation}
+\item Ions' diffusion and advection - through the fluid's velocity field:
+\begin{equation}
+\Laplacian C - \alpha \bV \cdot \bnabla C = 0
+\end{equation}
+\end{enumerate}
+
+The boundary conditions correspond to the specific problem at hand, and
+are coupled as well as the partial differential equations themselves.
+
+The closed form approximate solution was developed for spherical particle
+and small electric field \cite{Yariv10} but since the equations are coupled
+and non-linear, it is hard to extend the analytic solution to more general
+settings.
+
+\section{Research goals}
+Our goal is to implement an accurate and fast iterative numerical 
+solver for the problem described above,
+in order to enable the research of cases which has no closed form solution 
+(e.g. non-spherical/asymmetric particles, large electric fields).
+
+The solver will be verified against known closed-form solutions 
+for each of the sub-problems, as well as the full coupled problem, 
+analyzing the discrepancies between the theoretical and numerical results.
+
+Moreover, the convergence rate of the solver will be optimized using 
+numerical acceleration methods (e.g. MPE, RRE and Multigrid) to achieve
+high accuracy in reasonable solver's execution time.
+
+Achieved results will provide a numeric model for interesting small-scale physical phenomena,
+such as an ``self-electrophoretic swimmer'' by numerically modeling an asymmetric particle's configuration.
+
+\section{Achieved results}
+The numerical solver is being implemented in MATLAB and verified against
+known solution for specific problem settings.
+
+Laplace
+Diffusion-advection (upwind)
+Stokes
+Jacobi, RedBlack, Vanka
+Coupling
+Spherical
+Stress-free
+
+
+
+
+\section{Algorithms and techniques}
+
+The solver applies iterative relaxation to solve the system, by
+iterating the equations and solving repeatedly each one of them
+for the corresponding variable
+(Laplace equation for $\varPhi$, Stokes equation for $(\bV, P)$
+and diffusion-advection equation for $C$), where
+all other variables keep their values from previous iteration
+(somewhat resembling Gauss-Seidel method for linear systems).
+
+Problem's configuration is taken from \cite{Yariv10} and
+consists of a spherical particle, surrounded by infinite Stokes fluid.
+Suppose that the particle is stationary and fluid flows around it, slipping across
+the boundary layer (due to ``Debye layer'' effects) with a velocity field denoted
+by $\bV$.
+
+In this setting, together with the usage of spherical coordinates $(R,\theta,\phi)$,
+makes the problem axisymmetric around the velocity vector of the fluid (independent
+of $\phi$). Thus the problem may be written as two-dimensional partial
+differential equation system in $R$ and $\theta$ variables,
+such that $R \in [1,\infty)$ and $\theta \in [0, \pi]$.
+A natural choice of a grid is logarithmic grid for $R$ and uniform grid for $\theta$.
+
+Thus, each differential operator is written in spherical coordinates on the regular
+$(r, \theta)$ grid and being linear -- is represented as a sparse matrix,
+making the algebraic computations on the equations much more straightforward.
+
+The boundary conditions are computed for $\theta = 0$ and $\theta = \pi$ using symmetry
+considerations. At $R = \infty$, we assume constant fluid velocity
+and $\bV = \cal{U} \bzhat$, constant electric field $\bnabla \varPhi = \beta \bzhat$
+and constant ionic concentration $C = 1$.
+The boundary conditions on $R = 1$ are defined by the boundary layer behavior as described
+in \cite{Yariv10}.
+
+ghost points
+precond
+
+
+\begin{thebibliography}{}
+
+\bibitem{Yariv10} E. Yariv, 
+``Migration of ion-exchange particles driven by a uniform electric field'',
+{\em Journal of Fluid Mechanics, 655 105-121}, 2010.
+
+\end{thebibliography}
+
+\end{document}
