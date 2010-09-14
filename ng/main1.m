@@ -78,6 +78,21 @@ function main1(filename, do_init, iters)
     end
 
     function func = init_stokes()
+        L = laplacian(gridPhi.I, gridPhi.X, gridPhi.Y);
+        Lx = interpolator(gridPhi.X(2:end-1, 2:end-1), gridVx.X(2:end-1, 2:end-1)) * L;
+        Ly = interpolator(gridPhi.Y(2:end-1, 2:end-1), gridVy.Y(2:end-1, 2:end-1)) * L;
+        grad = @(G, dir) gradient(G.I & shift(G.I, -dir), G.X, G.Y, dir);
+        Gx = grad(gridPhi, [1 0]);
+        Gy = grad(gridPhi, [0 1]);
+        divergence = zeros(gridP.numel, 1);
+        function rhs = stokes_rhs(solPhi)
+            qx = Lx * solPhi(:);
+            qy = Ly * solPhi(:);
+            Ex = Gx * solPhi(:);
+            Ey = Gy * solPhi(:);
+            rhs = [qx .* Ex; qy .* Ey; divergence];
+        end
+
         stokes_operator = spheric_stokes(gridVx, gridVy, gridP);
         [P, Q] = stokes_boundary_cond(gridVx, gridVy, gridP, Vinf);
         A = stokes_operator * P;        
@@ -87,12 +102,13 @@ function main1(filename, do_init, iters)
             q = Q * stokes_boundary_vec(solPhi, solC, interior.y, gamma);
             b = stokes_operator * q;        
             u = [solVx(gridVx.I); solVy(gridVy.I); solP(:)];
-            [u, e] = relax(M, A, -b, u, iters); % TODO: maxwell_forces(Phi)
+            [u, e] = relax(M, A, stokes_rhs(solPhi)-b, u, iters);
             u = P*u + q;
             [solVx, solVy, solP] = split(u, gridVx.sz, gridVy.sz, gridP.sz);
             solP = solP - mean(solP(:));
         end
     end
+
 
     function func = init_advection()
         [P, Q] = advection_boundary_cond(gridC, 1);
@@ -171,6 +187,4 @@ function vec = stokes_boundary_vec(Phi, C, theta, gamma)
 end
 function R = symmetry(G)
     R = neumann(G, [0 -1], 1) * neumann(G, [0 +1], 1);
-end
-function maxwell_forces(Phi)
 end
