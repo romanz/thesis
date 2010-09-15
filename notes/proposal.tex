@@ -8,16 +8,16 @@
 \maketitle
 \section{Introduction}
 Electrophoresis is the motion of dispersed particle relative to a ion-containing fluid,
-due to the influence of an electric field. This phenomenon combines electrostatics 
+due to the influence of an electric field. This phenomenon combines electrostatics
 coupled with fluid dynamics, as well as diffusion/advection of ions in the fluid.
 
-The particle (surrounded by fluid) acquire surface charge which is screened by 
-a thin layer of ions in the fluid, creating a double-layer structure near the 
+The particle (surrounded by fluid) acquire surface charge which is screened by
+a thin layer of ions in the fluid, creating a double-layer structure near the
 particle's surface, called ``Debye layer''.
 
 If the layer width is much smaller than the particle's size
-an analytical solution in the Debye-layer can be found \cite{Yariv10}, 
-and be used as the appropriate boundary condition for the 
+an analytical solution in the Debye-layer can be found \cite{Yariv10},
+and be used as the appropriate boundary condition for the
 macroscale problem on the particle's surface.
 
 Electrophoresis is described by the following physical phenomena,
@@ -48,16 +48,16 @@ and non-linear, it is hard to extend the analytic solution to more general
 settings.
 
 \section{Research goals}
-Our goal is to implement an accurate and fast iterative numerical 
+Our goal is to implement an accurate and fast iterative numerical
 solver for the problem described above,
-in order to enable the research of cases which has no closed form solution 
+in order to enable the research of cases which has no closed form solution
 (e.g. non-spherical/asymmetric particles, large electric fields).
 
-The solver will be verified against known closed-form solutions 
-for each of the sub-problems, as well as the full coupled problem, 
+The solver will be verified against known closed-form solutions
+for each of the sub-problems, as well as the full coupled problem,
 analyzing the discrepancies between the theoretical and numerical results.
 
-Moreover, the convergence rate of the solver will be optimized using 
+Moreover, the convergence rate of the solver will be optimized using
 numerical acceleration methods (e.g. MPE, RRE and Multigrid) to achieve
 high accuracy in reasonable solver's execution time.
 
@@ -65,21 +65,8 @@ Achieved results will provide a numeric model for interesting small-scale physic
 such as an ``self-electrophoretic swimmer'' by numerically modeling an asymmetric particle's configuration.
 
 \section{Achieved results}
-The numerical solver is being implemented in MATLAB and verified against
-known solution for specific problem settings.
-
-Laplace
-Diffusion-advection (upwind)
-Stokes
-Jacobi, RedBlack, Vanka
-Coupling
-Spherical
-Stress-free
-
-
-
-
-\section{Algorithms and techniques}
+The numerical solver is being implemented as a MATLAB package that
+provides the needed tools for numerical solution of an electrophoresis problem.
 
 The solver applies iterative relaxation to solve the system, by
 iterating the equations and solving repeatedly each one of them
@@ -87,7 +74,7 @@ for the corresponding variable
 (Laplace equation for $\varPhi$, Stokes equation for $(\bV, P)$
 and diffusion-advection equation for $C$), where
 all other variables keep their values from previous iteration
-(somewhat resembling Gauss-Seidel method for linear systems).
+(a ``Gauss-Seidel'' method for non-linear systems).
 
 Problem's configuration is taken from \cite{Yariv10} and
 consists of a spherical particle, surrounded by infinite Stokes fluid.
@@ -102,6 +89,14 @@ differential equation system in $R$ and $\theta$ variables,
 such that $R \in [1,\infty)$ and $\theta \in [0, \pi]$.
 A natural choice of a grid is logarithmic grid for $R$ and uniform grid for $\theta$.
 
+The following linear operators are implemented in spherical coordinates using regular grid:
+\begin{itemize}
+  \item Scalar Laplacian (for $\varPhi$ and $C$)
+  \item Vector Laplacian (for $\bV$)
+  \item Gradient (for $\Phi, C$ and $P$)
+  \item Divergence (for $\bV$)
+\end{itemize}
+
 Thus, each differential operator is written in spherical coordinates on the regular
 $(r, \theta)$ grid and being linear -- is represented as a sparse matrix,
 making the algebraic computations on the equations much more straightforward.
@@ -113,13 +108,42 @@ and constant ionic concentration $C = 1$.
 The boundary conditions on $R = 1$ are defined by the boundary layer behavior as described
 in \cite{Yariv10}.
 
-ghost points
-precond
+After substitution of boundary conditions, each differential equation is transformed to a
+sparse linear system of the form $\matr{A}\bx = \vect{b}$.
+Due to coupling, it is not necessary to find the exact solution -- so we apply
+few relaxations on each linear system, using an appropriate preconditioner $\matr{M}$
+(which depends on $\matr{A}$):
+\begin{eqnarray}
+  \bx_{n+1} &=& \bx_{n} + \matr{M}_\matr{A}^{-1} \left(\vect{b} - \matr{A}\bx_{n}\right)
+\end{eqnarray}
 
+After the solver has converged to a solution, the stress tensor $\mathbb{T}$ on the particle
+$\cal{S} = \left\{\bx : \|\bx\| = 1\right\}$ is computed:
+\begin{eqnarray}
+  \vect{F} = \int_{\cal{S}} \left(\mathbb{T} \cdot \bnhat \right) ds = \vec{0}.
+\end{eqnarray}
+Since the problem is axisymmetric, the force should be aligned with the symmetry axis:
+$\vect{F} = F \bzhat$. Moreover, since the particle is stress-free in steady flow, we
+have $F = 0$ for steady state velocity $\cal{U}$.
+
+This observation enables us to find the correct $\cal{U}$ for given $\beta$, using one-dimensional root-finding algorithm on $F_\beta(\cal{U})$ function.
+
+\section{Algorithms and techniques}
+
+\subsection{Grid choice}
+$C$, $\varPhi$ and $P$ are using central grid whereas staggered grid is used for $\bV$.
+
+\subsection{Differential Equations}
+Finite volume method using finite differences.
+Upwind for advection.
+
+\subsection{Preconditioners}
+There are efficient sparse implementations of 
+Jacobi, Red-Black Gauss-Seidel and Vanka-type.
 
 \begin{thebibliography}{}
 
-\bibitem{Yariv10} E. Yariv, 
+\bibitem{Yariv10} E. Yariv,
 ``Migration of ion-exchange particles driven by a uniform electric field'',
 {\em Journal of Fluid Mechanics, 655 105-121}, 2010.
 
