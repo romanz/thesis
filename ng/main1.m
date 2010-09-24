@@ -1,7 +1,7 @@
-function main1(filename, do_init, iters)
+function F = main1(filename, do_init, iters, beta, gamma, Vinf)
     tic;
-    radius = logspace(0, 4, 120).';
-    theta = linspace(0, pi, 30).';
+    radius = logspace(0, 2, 60).';
+    theta = linspace(0, pi, 15).';
     [center, interior, xstag, ystag] = ...
         grids(radius, theta);
     gridPhi = center;
@@ -10,10 +10,8 @@ function main1(filename, do_init, iters)
     gridP = interior;
     gridC = center;
 
-    alpha = 1;
-    beta = 1e-4;
-    gamma = exp(4);
-    Vinf = beta * 2*1*log((gamma^0.25 + gamma^-0.25) / (2*gamma^0.25));
+    alpha = 1;    
+   
     relax_maxwell = init_maxwell();
     relax_stokes = init_stokes();
     relax_advection = init_advection();    
@@ -45,14 +43,14 @@ function main1(filename, do_init, iters)
 
     state = [solPhi(:); solVx(:); solVy(:); solP(:); solC(:)];
     [state] = extrapolate(state, @iteration, 0, 20, 'N/A');
-    beeper(440, 0.1);
-    batch = 40;
+%     beeper(440, 0.1);
+    batch = 1;
     [state, err] = extrapolate(state, @iteration, ...
-        batch-1, ceil(iters/batch), 'RRE');
+        batch-1, ceil(iters/batch), 'N/A');
     [solPhi, solVx, solVy, solP, solC] = split(state, ...
         gridPhi.sz, gridVx.sz, gridVy.sz, gridP.sz, gridC.sz);
     fprintf('Iterations done after %.3fs.\n', toc);
-    beeper(440, 0.1);
+%     beeper(440, 0.1);
     
     F = total_stress(solVx, solVy, solP, radius, theta);
     fprintf('{%.5e}, {%.5e}\n', F, 6*pi*Vinf);

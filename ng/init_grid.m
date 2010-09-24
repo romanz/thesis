@@ -1,4 +1,4 @@
-function G = grid(x, y)
+function G = init_grid(x, y)
     G.x = x(:);
     G.y = y(:);
     [G.X, G.Y] = ndgrid(G.x, G.y);

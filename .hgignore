@@ -17,3 +17,6 @@ syntax:glob
 *.depend
 *.html
 *.mexw32
+glob:*.fig
+glob:*.eps
+glob:*.out

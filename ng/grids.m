@@ -8,9 +8,9 @@ function [center, interior, xstag, ystag] = grids(x, y)
     yc = average(yg, [1; 1]/2);
     
     % NDGRID convention
-    center = grid(xc, yc);    
-    xstag = grid(xg(2:end-1), yc);
-    ystag = grid(xc, yg(2:end-1));    
-    interior = grid(xc(2:end-1), yc(2:end-1));
+    center = init_grid(xc, yc);    
+    xstag = init_grid(xg(2:end-1), yc);
+    ystag = init_grid(xc, yg(2:end-1));    
+    interior = init_grid(xc(2:end-1), yc(2:end-1));
     interior.I = true(size(interior.I)); % no boundary
 end
