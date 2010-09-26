@@ -93,8 +93,8 @@ component:
 \Laplacian C - \alpha \bV \cdot \bnabla C = 0 \, .
 \end{equation}
 \end{enumerate}
-The variables of the electrokinetic problem are the electrostatic 
-potential $\varPhi$, fluid's velocity $\bV$ and its pressure $P$ 
+The variables of the electrokinetic problem are the electrostatic
+potential $\varPhi$, fluid's velocity $\bV$ and its pressure $P$
 and ionic concentration $C$.
 
 The boundary conditions are determined by the specific
@@ -112,12 +112,12 @@ analytic solution to more general systems. Once the electric field
 becomes stronger, significant nonlinear phenomena are expected.
 This interesting regime has not yet been explored.
 
-Recently, it has been conceived that such type of dynamics 
-can be very useful in transporting and manipulating micro- 
-and nanoscale objects for many nanotechnology applications, 
-such as the self-assembly of superstructures, roving sensors, 
-drug-delivery systems and useful nanomachinery \cite{Pumera10}. 
-However, since the analytic model for these electrokinetic 
+Recently, it has been conceived that such type of dynamics
+can be very useful in transporting and manipulating micro-
+and nanoscale objects for many nanotechnology applications,
+such as the self-assembly of superstructures, roving sensors,
+drug-delivery systems and useful nanomachinery \cite{Pumera10}.
+However, since the analytic model for these electrokinetic
 phenomena has no closed-form analytic solution, a numerical
 solver has to be developed.
 
@@ -125,10 +125,10 @@ solver has to be developed.
 Our goal is to implement an accurate and fast iterative numerical
 solver for electrokinetic problems, and then apply it to the study
 of systems that have no closed-form solutions, including strong
-electric fields, non-spherical particles, and asymmetric charge 
-distribution on the particle surface. We expect to thus gain insight 
-into the chemical and physical behavior in far more general regimes 
-than are currently well-understood. We hope that this will also lead 
+electric fields, non-spherical particles, and asymmetric charge
+distribution on the particle surface. We expect to thus gain insight
+into the chemical and physical behavior in far more general regimes
+than are currently well-understood. We hope that this will also lead
 to further analytical developments, based on new scaling behavior
 provided by the numerical solver. We may also target interesting
 phenomena that have been observed experimentally, e.g.,
@@ -216,8 +216,8 @@ with the symmetry axis: $\vect{F} = F \bzhat$. Moreover, since the
 particle is stress-free in steady flow, we have $F = 0$ for
 steady-state velocity $\cl{U}$. This observation enables us to
 find the correct $\cl{U}$ for given $\beta$, using a
-one-dimensional root-finding algorithm on $F_\beta(\cl{U})$, as a
-function of $\cl{U}$.
+one-dimensional root-finding algorithm (e.g. the secant method) 
+on $F_\beta(\cl{U})$, as a function of $\cl{U}$.
 
 The numerical solution for $\cl{U}$ as a function of $\beta$ is
 compared to the closed-form asymptotic solution from
