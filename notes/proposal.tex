@@ -54,7 +54,6 @@ particle (see Figure \ref{fig:EDL}). This structure, called
 ``Debye layer'', electrically screens the surface charge, thus
 creating a potential difference between the particle and the outer
 layer of the fluid bulk.
-
 \begin{figure}[htbp]
 \begin{framed}
     \begin{center}
@@ -77,7 +76,7 @@ dynamics can be found \cite{Yariv10a}.
 
 Electrokinetics is described by the following physical phenomena (in dimensionless formulation):
 \begin{enumerate}
-\item Electrostatic potential---the fluid bulk contains no free
+\item Electrostatics---the fluid bulk contains no free
 charge:
 \begin{equation} \label{eq:Laplace}
     \bnabla \cdot (C \bnabla \varPhi) = 0 \, .
@@ -94,8 +93,11 @@ component:
 \Laplacian C - \alpha \bV \cdot \bnabla C = 0 \, .
 \end{equation}
 \end{enumerate}
-{\bf IY: WRITE EXPLICITLY HERE WHAT THE VARIABLES ARE---C,P,V,
-ETC.}The boundary conditions are determined by the specific
+The variables of the electrokinetic problem are the electrostatic 
+potential $\varPhi$, fluid's velocity $\bV$ and its pressure $P$ 
+and ionic concentration $C$.
+
+The boundary conditions are determined by the specific
 problem under consideration and defined by the particle's
 geometry, chemical characteristics, and the fluid dynamics.
 
@@ -110,19 +112,24 @@ analytic solution to more general systems. Once the electric field
 becomes stronger, significant nonlinear phenomena are expected.
 This interesting regime has not yet been explored.
 
-{\bf IY: ADD HERE A PARAGRAPH THAT DISCUSSES THE IMPORTANCE AND
-RELEVANCE OF THE PROBLEM---YOU CAN TAKE THIS FROM THE PAPERS YOU
-HAVE READ.}
+Recently, it has been conceived that such type of dynamics 
+can be very useful in transporting and manipulating micro- 
+and nanoscale objects for many nanotechnology applications, 
+such as the self-assembly of superstructures, roving sensors, 
+drug-delivery systems and useful nanomachinery \cite{Pumera10}. 
+However, since the analytic model for these electrokinetic 
+phenomena has no closed-form analytic solution, a numerical
+solver has to be developed.
 
 \section{Research goals}
 Our goal is to implement an accurate and fast iterative numerical
 solver for electrokinetic problems, and then apply it to the study
 of systems that have no closed-form solutions, including strong
-electric fields, non-spherical particles, and asymmetric charge on
-the particle surface. We expect to thus gain insight into the
-chemical and physical behavior in far more general regimes than
-are currently well-understood. We hope that this will also lead to
-further analytical developments, based on new scaling behavior
+electric fields, non-spherical particles, and asymmetric charge 
+distribution on the particle surface. We expect to thus gain insight 
+into the chemical and physical behavior in far more general regimes 
+than are currently well-understood. We hope that this will also lead 
+to further analytical developments, based on new scaling behavior
 provided by the numerical solver. We may also target interesting
 phenomena that have been observed experimentally, e.g.,
 electrophoretic\footnote{Electrophoresis is the physical
@@ -144,7 +151,7 @@ The numerical solver is being implemented as a MATLAB package,
 which provides the needed tools for numerical solution of
 electrokinetic problems. The solver applies an iterative
 relaxation technique to solve the discretized coupled system.
-Beginning with some initial guess for the solution The equations
+Beginning with some initial guess for the solution, the equations
 are relaxed in order with respect to their corresponding
 variables, with the remaining variables fixed at their current
 values (``Gauss-Seidel style''):
@@ -275,6 +282,9 @@ to allow the efficient solution of large problems.
 \bibitem{Yariv10b} E. Yariv,
 ``Migration of ion-exchange particles driven by a uniform electric field'',
 {\em Journal of Fluid Mechanics, 655 105-121}, 2010.
+\bibitem{Pumera10} M. Pumera,
+``Electrochemically powered self-propelled electrophoretic nanosubmarines''
+{\em Nanoscale, 2, 1643-1649}, 2010.
 \bibitem{Rubin01} I. Rubinstein and B. Zaltzman,
 ``Electro-osmotic slip of the second kind and instability in concentration polarization at electrodialysis membranes'',
 {\em Math. Mod. Meth. Appl. Sci. 11 (2), 263–300}, 2001.
