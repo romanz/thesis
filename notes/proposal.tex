@@ -73,7 +73,7 @@ layer of the fluid bulk.
 \end{figure}
 In cases where the layer width is much smaller than the particle's
 size, an analytical asymptotic solution for the Debye layer
-dynamics can be found \cite{Yariv10a}.
+dynamics can be found \cite{yariv2010asymptotic}.
 
 Electrokinetics is described by the following physical phenomena (in dimensionless formulation):
 \begin{enumerate}
@@ -108,7 +108,7 @@ any numerical solver must handle the scale disparity caused by the
 Debye layer width being much smaller than the particle's size. A
 closed-form linear asymptotic solution has been developed for
 spherical ion-exchanging particles and weak electric field in an
-axisymmetric setting \cite{Yariv10b} but it is hard to extend this
+axisymmetric setting \cite{yariv2010migration} but it is hard to extend this
 analytic solution to more general systems. Once the electric field
 becomes stronger, significant nonlinear phenomena are expected.
 This interesting regime has not yet been explored.
@@ -116,8 +116,9 @@ This interesting regime has not yet been explored.
 Recently, it has been conceived that such type of dynamics
 can be very useful in transporting and manipulating micro-
 and nanoscale objects for many nanotechnology applications,
-such as the self-assembly of superstructures, roving sensors,
-drug-delivery systems and useful nanomachinery \cite{Pumera10}.
+such as the self-assembly of superstructures, roving sensors, 
+drug-delivery systems and useful nanomachinery 
+\cite{pumera2010electrochemically}.
 However, since the analytic model for these electrokinetic
 phenomena has no closed-form analytic solution, a numerical
 solver has to be developed.
@@ -136,7 +137,7 @@ phenomena that have been observed experimentally, e.g.,
 electrophoretic\footnote{Electrophoresis is the physical
 phenomenon of the motion of particles in an ion-containing fluid
 under the influence of an electric field.} autonomous
-micro-swimmers \cite{Paxton04, Howse07}.
+micro-swimmers \cite{paxton2004catalytic, howse2007self}.
 
 The solver will be verified against known closed-form solutions
 for each of the sub-problems listed above, as well as the full
@@ -162,7 +163,7 @@ values (``Gauss-Seidel style''):
   \item The Nernst-Planck equation (\ref{eq:Nernst}) is used to update $C$.
 \end{itemize}
 
-The problem configuration is taken from \cite{Yariv10b} and
+The problem configuration is taken from \cite{yariv2010migration} and
 consists of a spherical ion-exchanging particle, surrounded by
 infinite Stokes fluid. Spherical coordinates $(R,\theta,\phi)$ are
 employed. The problem is axisymmetric, hence independent of
@@ -187,7 +188,7 @@ constant fluid velocity $\bV = \cl{U} \bzhat$, constant electric
 field $\bnabla \varPhi = -\beta \bzhat$ and constant ionic
 concentration $C = 1$. The boundary conditions on $R = 1$ are
 defined by the Debye layer's behavior as described in
-\cite{Yariv10b}, using the Dukhin-–Derjaguin slip formula for
+\cite{yariv2010migration}, using the Dukhin-–Derjaguin slip formula for
 $\bV$ and ion-selectivity for $\varPhi$ and $C$.
 
 Each differential equation and its boundary conditions are
@@ -222,7 +223,7 @@ function of $\cl{U}$.
 
 The numerical solution for $\cl{U}$ as a function of $\beta$ is
 compared to the closed-form asymptotic solution from
-\cite{Yariv10b}. Using a $60 \times 15$ grid for $(R,\theta) \in
+\cite{yariv2010migration}. Using a $60 \times 15$ grid for $(R,\theta) \in
 [1, 100] \times [0, \pi]$, we apply $2\mathord{,}000$ iterations
 in order to find the total force acting on the particle. This step
 is repeated a few times to find the correct $\cl{U}$ so that
@@ -267,49 +268,16 @@ conditions on the domain boundary $\partial \cl{D}$.
 After boundary conditions are eliminated, Jacobi and Red-Black
 Gauss-Seidel preconditioners are used for equations
 (\ref{eq:Laplace}) and (\ref{eq:Nernst}), while a so-called
-Vanka-type \cite{Vanka86} preconditioner is used for equation
+Vanka-type \cite{vanka1986block} preconditioner is used for equation
 (\ref{eq:Stokes}). The preconditioners are computed as sparse
 matrices, facilitating the relaxation process (\ref{eq:Relax}).
 
-Vector extrapolation methods \cite{Sidi90} have been implemented
-and are used to accelerate the solver's convergence. Later, a
-Multigrid framework \cite{Brandt77, Yavneh06} will be introduced
-to allow the efficient solution of large problems.
+Vector extrapolation methods \cite{sidi1991efficient} have been 
+implemented and are used to accelerate the solver's convergence. 
+Later, a Multigrid framework \cite{brandt1977multi, yavneh2006multigrid} 
+will be introduced to allow the efficient solution of large problems.
 
-\begin{thebibliography}{}
-\bibitem{Yariv10a} E. Yariv,
-``An asymptotic derivation of the thin-debye-layer limit for electrokinetic phenomena'',
-{\em Chem. Engng Comm. 197, 3–17}, 2010.
-\bibitem{Yariv10b} E. Yariv,
-``Migration of ion-exchange particles driven by a uniform electric field'',
-{\em Journal of Fluid Mechanics, 655 105-121}, 2010.
-\bibitem{Pumera10} M. Pumera,
-``Electrochemically powered self-propelled electrophoretic nanosubmarines''
-{\em Nanoscale, 2, 1643-1649}, 2010.
-\bibitem{Rubin01} I. Rubinstein and B. Zaltzman,
-``Electro-osmotic slip of the second kind and instability in concentration polarization at electrodialysis membranes'',
-{\em Math. Mod. Meth. Appl. Sci. 11 (2), 263–300}, 2001.
-\bibitem{Paxton04}
-W. Paxton et. al.,
-``Catalytic Nanomotors: Autonomous Movement of Striped Nanorods'',
-{\em Journal of the American Chemical Society 126 (41), 13424-13431}, 2004.
-\bibitem{Howse07}
-J. R. Howse et. al.,
-``Self-Motile Colloidal Particles: From Directed Propulsion to Random Walk'',
-{\em Phys. Rev. Lett., 99, 048102}, 2007.
-\bibitem{Vanka86}
-S. P. Vanka,
-``Block-implicit multigrid solution of Navier-Stokes equations in primitive variables'',
-{\em J. Copmput. Phys., 65, 138-158}, 1986.
-\bibitem{Sidi90}
-A. Sidi, ``Efficient implementation of minimal polynomial and reduced rank extrapolation methods'',
-{\em Journal of Computational and Applied Mathematics, Vol. 36, pp. 305-337}, 1991.
-\bibitem{Brandt77} Achi Brandt,
-``Multi-Level Adaptive Solutions to Boundary-Value Problems'',
-{\em Mathematics of Computation, 31: 333–90}, 1977.
-\bibitem{Yavneh06} Irad Yavneh.
-``Why Multigrid Methods are so Efficient'',
-{\em Computing in Science and Engineering, 8(6):12-22}, 2006
-\end{thebibliography}
+\bibliographystyle{is-plain}
+\bibliography{proposal}
 
 \end{document}
