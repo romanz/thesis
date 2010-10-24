@@ -1,14 +1,13 @@
-function main2(x)
-
+function veloc_solver()
 clc;
-betas = linspace(1e-4, 1e-3, 1);
-gamma = exp(x);
+betas = logspace(-9, -4, 6);
+gamma = exp(-1);
 Rinf = 100;
 
 U = zeros(size(betas));
 calc_force = @(beta, V) ...
-    main1('results', 1, beta, gamma, V, Rinf, ...
-    [60 15], 2000);
+    force_solver('results', 1, beta, gamma, V, Rinf, ...
+    [60 15], 2000, [1 1 1]);
 
 V_theory = betas * 2*log((gamma^0.25 + gamma^-0.25) / (2*gamma^0.25));
 
@@ -29,6 +28,3 @@ end
 fprintf('Errors:\n');
 fprintf(' %.2f%%', 100 * (U - V_theory) ./ V_theory);
 fprintf('\n');
-
-f = sprintf('gamma[%d]', x);
-save(f);

@@ -1,4 +1,4 @@
-function F = main1(filename, do_init, beta, gamma, Vinf, Rinf, N, cycles)
+function F = force_solver(filename, do_init, beta, gamma, Vinf, Rinf, N, cycles, iters)
     tic;
     radius = logspace(0, log10(Rinf), N(1)).';
     theta = linspace(0, pi, N(2)).';
@@ -42,9 +42,9 @@ function F = main1(filename, do_init, beta, gamma, Vinf, Rinf, N, cycles)
     function state = iteration(state)
         [solPhi, solVx, solVy, solP, solC] = split(state, ...
             gridPhi.sz, gridVx.sz, gridVy.sz, gridP.sz, gridC.sz);
-        %relax_maxwell(1);
-        relax_stokes(100);
-        %relax_advection(1);
+        relax_maxwell(iters(1));
+        relax_stokes(iters(2));
+        relax_advection(iters(3));
         state = [solPhi(:); solVx(:); solVy(:); solP(:); solC(:)];
     end
 
@@ -73,6 +73,7 @@ function F = main1(filename, do_init, beta, gamma, Vinf, Rinf, N, cycles)
         [P, Q] = maxwell_boundary_cond(gridPhi, beta);
         func = @relax_maxwell;
         function e = relax_maxwell(iters)
+            if ~iters, return; end
             maxwell_operator = maxwell_op(gridPhi, solC); % 
             A = maxwell_operator * P;
             M = redblack(gridPhi.sz-2, A);
@@ -106,6 +107,7 @@ function F = main1(filename, do_init, beta, gamma, Vinf, Rinf, N, cycles)
         M = stokes_vanka_redblack(gridP.sz, A);
         func = @relax_stokes;
         function e = relax_stokes(iters)
+            if ~iters, return; end
             q = Q * stokes_boundary_vec(solPhi, solC, interior.y, gamma);
             b = stokes_operator * q;        
             u = [solVx(gridVx.I); solVy(gridVy.I); solP(:)];
@@ -122,6 +124,7 @@ function F = main1(filename, do_init, beta, gamma, Vinf, Rinf, N, cycles)
         L = laplacian(gridC.I, gridC.X, gridC.Y);
         func = @relax_advection;
         function e = relax_advection(iters)
+            if ~iters, return; end
             VG = advection(gridC.I, gridC.X, gridC.Y, solVx, solVy);
             advect_operator = L - alpha*VG;
             A = advect_operator * P;
