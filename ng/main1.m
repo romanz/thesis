@@ -1,7 +1,7 @@
-function F = main1(filename, do_init, iters, beta, gamma, Vinf)
+function F = main1(filename, do_init, beta, gamma, Vinf, Rinf, N, cycles)
     tic;
-    radius = logspace(0, 2, 60).';
-    theta = linspace(0, pi, 15).';
+    radius = logspace(0, log10(Rinf), N(1)).';
+    theta = linspace(0, pi, N(2)).';
     [center, interior, xstag, ystag] = ...
         grids(radius, theta);
     gridPhi = center;
@@ -22,6 +22,7 @@ function F = main1(filename, do_init, iters, beta, gamma, Vinf)
         solVy = 0*randn(gridVy.sz);
         solP = 0*randn(gridP.sz);
         solC = 1+0*randn(gridC.sz);
+        fprintf('Initializing settings for iterative solver.\n');
     else
         S = load(filename);
         solPhi = S.solPhi;
@@ -29,36 +30,44 @@ function F = main1(filename, do_init, iters, beta, gamma, Vinf)
         solVy = S.solVy;
         solP = S.solP;
         solC = S.solC;
+        fprintf('Loading solver settings from "%s".\n', filename);
     end
-    fprintf('Initialization done after %.3fs.\n', toc);
+    fprintf('Running solver for %d cycles:\n', cycles);
+    fprintf('\tbeta  = %.4e\n', beta);
+    fprintf('\tgamma = %.4e\n', gamma);
+    fprintf('\tV(inf)  = %.4e\n', Vinf);
+    fprintf('\tR(inf)  = %.1f\n', Rinf);
+    fprintf('\tGrid size = [%d %d]\n', N(1), N(2));
     
     function state = iteration(state)
         [solPhi, solVx, solVy, solP, solC] = split(state, ...
             gridPhi.sz, gridVx.sz, gridVy.sz, gridP.sz, gridC.sz);
-        relax_maxwell(1);
-        relax_stokes(1);
-        relax_advection(1);        
+        %relax_maxwell(1);
+        relax_stokes(100);
+        %relax_advection(1);
         state = [solPhi(:); solVx(:); solVy(:); solP(:); solC(:)];
     end
 
     state = [solPhi(:); solVx(:); solVy(:); solP(:); solC(:)];
-    [state] = extrapolate(state, @iteration, 0, 20, 'N/A');
+%     [state] = extrapolate(state, @iteration, 0, 20, 'N/A');
 %     beeper(440, 0.1);
     batch = 1;
     [state, err] = extrapolate(state, @iteration, ...
-        batch-1, ceil(iters/batch), 'N/A');
+        batch-1, cycles, 'N/A');
     [solPhi, solVx, solVy, solP, solC] = split(state, ...
         gridPhi.sz, gridVx.sz, gridVy.sz, gridP.sz, gridC.sz);
     fprintf('Iterations done after %.3fs.\n', toc);
-%     beeper(440, 0.1);
+    beeper(440, 0.01);
     
     F = total_stress(solVx, solVy, solP, radius, theta);
-    fprintf('{%.5e}, {%.5e}\n', F, 6*pi*Vinf);
+    fprintf('Total force : %.4e\n', F);
+    fprintf('Stokes force : %.4e\n', 6*pi*Vinf);
     save(filename);
     semilogy(err);
 % plot([average(-solPhi(1:2, :)', [1 1]/2) ...
 %       average(solC(1:2, :)' - 1, [1 1]/2)]);
 % plot()
+    fprintf('\n');
 
     function func = init_maxwell()
         [P, Q] = maxwell_boundary_cond(gridPhi, beta);

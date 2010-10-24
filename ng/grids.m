@@ -1,3 +1,5 @@
+% [CENTER, INTERIOR, XSTAG, YSTAG] = GRIDS(X, Y)
+%   Create central and staggered grids for Laplace and Stokes problems.
 function [center, interior, xstag, ystag] = grids(x, y)
     x = x(:); y = y(:); 
     % extended grid (for ghost points)

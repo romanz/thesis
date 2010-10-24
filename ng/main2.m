@@ -1,25 +1,34 @@
-function main(x)
+function main2(x)
 
-betas = linspace(1e-4, 1e-3, 10);
+clc;
+betas = linspace(1e-4, 1e-3, 1);
 gamma = exp(x);
+Rinf = 100;
 
 U = zeros(size(betas));
-for k = 1:numel(betas)
-    Vinf = betas(k) * 2*log((gamma^0.25 + gamma^-0.25) / (2*gamma^0.25));
-    Vinf = Vinf * linspace(0.9, 1.1, 3);
+calc_force = @(beta, V) ...
+    main1('results', 1, beta, gamma, V, Rinf, ...
+    [60 15], 2000);
 
-    N = 2e3;
+V_theory = betas * 2*log((gamma^0.25 + gamma^-0.25) / (2*gamma^0.25));
+
+for k = 1:numel(betas)
+    Vinf = V_theory(k);
+    Vinf = Vinf * linspace(0.9, 1.1, 2);
+
     F = zeros(size(Vinf));
     for i = 1:numel(Vinf)
-        F(i) = main1('results', 1, N, betas(k), gamma, Vinf(i));
+        F(i) = calc_force(betas(k), Vinf(i));
     end
 
     [a0, b0, e, R] = linreg(F(:), Vinf(:));
-    b0, R
     U(k) = b0;
-    main1('results', 1, N, betas(k), gamma, U(k));
+    calc_force(betas(k), U(k));
 end
-Vinf = betas * 2*log((gamma^0.25 + gamma^-0.25) / (2*gamma^0.25))
+
+fprintf('Errors:\n');
+fprintf(' %.2f%%', 100 * (U - V_theory) ./ V_theory);
+fprintf('\n');
 
 f = sprintf('gamma[%d]', x);
 save(f);

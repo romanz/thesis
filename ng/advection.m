@@ -1,5 +1,6 @@
 function [A] = advection(interior, X, Y, Vx, Vy)
 %% Advection gradient discretization using sparse matrix.
+% Currently implemented by central difference scheme.
 sz = size(interior);
 N = numel(interior);
 

@@ -20,3 +20,6 @@ syntax:glob
 glob:*.fig
 glob:*.eps
 glob:*.out
+glob:*.orig
+glob:*.png
+glob:*~

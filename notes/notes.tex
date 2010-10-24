@@ -598,13 +598,13 @@ Note that $f(r) = 1/r$ is a solution too, since:
 Thus solving the discrete equation will give the same exact values as the continuous one.
 
 \section{Vorticity}
-If the flow is divergence free $\bnabla \cdot \bV = 0$, 
+If the flow is divergence free $\bnabla \cdot \bV = 0$,
 we can write it as: $\bV = \bnabla \times \bpsi$.
-Since the problem is axisymmetric 
-$\bV = V_r(r,\theta)\brhat + V_\theta(r,\theta)\bthetahat$, 
+Since the problem is axisymmetric
+$\bV = V_r(r,\theta)\brhat + V_\theta(r,\theta)\bthetahat$,
 we must have $\bpsi = \psi(r,\theta) \bphihat$.
 
-Denote the vorticity $\bomega = \bnabla \times \bV = 
+Denote the vorticity $\bomega = \bnabla \times \bV =
 \omega(r, \theta) \bphihat$,
 and using
 \begin{eqnarray}
@@ -618,6 +618,25 @@ and $\bnabla \cdot \bpsi = 0$ leads to
   \omega &=& \frac{\psi}{r^2 \sin^2\theta} - \frac{1}{r^2}\deriv{}{r} \left( r^2 \deriv{\psi}{r} \right) - \frac{1}{r^2 \sin\theta} \deriv{}{\theta}\left( \sin\theta \cdot \deriv{\psi}{\theta}\right) \\
   \omega &=& \frac{1}{r}\left\{\deriv{(r V_\theta)}{r} - \deriv{V_r}{\theta}\right\}
 \end{eqnarray}
+After $\psi$ is found, $\bV$ can be computed:
+\begin{eqnarray}
+  V_r &=& \frac{1}{r \sin\theta}\deriv{(\psi \sin\theta)}{\theta} \\
+  V_\theta &=& -\frac{1}{r}\deriv{(r \psi)}{r}
+\end{eqnarray}
+The vorticity and the stream function for Stokes flow:
+\begin{eqnarray}
+\bV(\bx) &=& U \left(
+\cos\theta \left[1 - \frac{3a}{2r} + \frac{a^3}{2r^3}\right] \brhat -
+\sin\theta \left[1 - \frac{3a}{4r} - \frac{a^3}{4r^3}\right] \bthetahat
+\right) \\
+\omega &=& \frac{3 U a}{2} \frac{\sin\theta}{r^2} \\
+\psi &=& \frac{U \sin\theta}{2} \left( r - \frac{3a}{2} + \frac{a^3}{2r^2} \right)
+\end{eqnarray}
+By definition of stream line, 
+$\psi(r, 0) = \psi(a, \theta) = \psi(r, \pi) = 0$ 
+for $r \ge 1$ and $\theta \in [0, \pi]$.
 %%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
 
+
+Batchelor p.222
