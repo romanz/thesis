@@ -10,6 +10,9 @@
 %      * radius is logarithmically discretized upto Rinf
 %      * the grid is N(1) X N(2)
 % 
+%     Example:
+%       force_solver('results', 1, 0, 2.2, 1e-2, 1e3, ...
+%                    [100 30], 50, [false 100 false]);
 function F = force_solver(filename, do_init, beta, gamma, Vinf, Rinf, N, ...
                           cycles, iters)
     tic;
