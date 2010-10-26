@@ -1,5 +1,5 @@
 function vorticity_test
-force_solver('results', 1, 0, 2.2, 1e-2, 1e3, [100 30], 120, [false 100 false]);
+force_solver('results', 'w', 0, 2.2, 1e-2, 1e3, [100 30], 30, [false 100 false]);
 load results
 [W, gW] = vorticity(solVx, solVy, gridVx, gridVy);
 Wt = 1.5 * Vinf * sin(gW.Y) ./ gW.X.^2;

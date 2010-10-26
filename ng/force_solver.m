@@ -1,4 +1,4 @@
-% F = FORCE_SOLVER(FILENAME, DO_INIT, BETA, GAMMA, VINF, RINF, N, 
+% F = FORCE_SOLVER(FILENAME, MODE, BETA, GAMMA, VINF, RINF, N, 
 %                  CYCLES, ITERS)
 %
 %     Compute the total force acting on a sphere.
@@ -13,7 +13,7 @@
 %     Example:
 %       force_solver('results', 1, 0, 2.2, 1e-2, 1e3, ...
 %                    [100 30], 50, [false 100 false]);
-function F = force_solver(filename, do_init, beta, gamma, Vinf, Rinf, N, ...
+function F = force_solver(filename, mode, beta, gamma, Vinf, Rinf, N, ...
                           cycles, iters)
     tic;
     radius = logspace(0, log10(Rinf), N(1)).';
@@ -30,7 +30,7 @@ function F = force_solver(filename, do_init, beta, gamma, Vinf, Rinf, N, ...
     relax_stokes = init_stokes();
     relax_advection = init_advection();    
 
-    if do_init
+    if isempty(strfind(mode, 'r'))
         solPhi = 0*randn(gridPhi.sz);
         solVx = 0*randn(gridVx.sz);
         solVy = 0*randn(gridVy.sz);
@@ -52,23 +52,25 @@ function F = force_solver(filename, do_init, beta, gamma, Vinf, Rinf, N, ...
     fprintf('\tV(inf)  = %.4e\n', Vinf);
     fprintf('\tR(inf)  = %.1f\n', Rinf);
     fprintf('\tGrid size = [%d %d]\n', N(1), N(2));
+    res_norm = @(X) norm(X(:), inf);
     
     % Main iteration
     function state = iteration(state)
         [solPhi, solVx, solVy, solP, solC] = split(state, ...
             gridPhi.sz, gridVx.sz, gridVy.sz, gridP.sz, gridC.sz);
-        relax_maxwell(iters(1));
-        relax_stokes(iters(2));
-        relax_advection(iters(3));
+        res(1) = res_norm(relax_maxwell(iters(1)));
+        res(2) = res_norm(relax_stokes(iters(2)));
+        res(3) = res_norm(relax_advection(iters(3)));
+        fprintf('%.4e\t%.4e\t%.4e\n', res(1), res(2), res(3));
         state = [solPhi(:); solVx(:); solVy(:); solP(:); solC(:)];
     end
 
     state = [solPhi(:); solVx(:); solVy(:); solP(:); solC(:)];
     
     % Apply specified number of iterations (no extrapolation)
-    batch = 10;
-    [state, err] = extrapolate(state, @iteration, ...
-        batch-1, ceil(cycles/batch), 'MPE');
+    batch = 1;
+    [state] = extrapolate(state, @iteration, ...
+        batch-1, ceil(cycles/batch), 'N/A');
     
     [solPhi, solVx, solVy, solP, solC] = split(state, ...
         gridPhi.sz, gridVx.sz, gridVy.sz, gridP.sz, gridC.sz);
@@ -79,8 +81,9 @@ function F = force_solver(filename, do_init, beta, gamma, Vinf, Rinf, N, ...
     F = total_stress(solVx, solVy, solP, radius, theta);
     fprintf('Total force : %.4e\n', F);
     fprintf('Stokes force : %.4e\n', 6*pi*Vinf);
-    save(filename);
-    semilogy(err);
+    if ~isempty(strfind(mode, 'w')) 
+        save(filename); 
+    end
     fprintf('\n');
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -91,8 +94,8 @@ function F = force_solver(filename, do_init, beta, gamma, Vinf, Rinf, N, ...
     function func = init_maxwell()
         [P, Q] = maxwell_boundary_cond(gridPhi, beta);
         func = @relax_maxwell;
-        function residual = relax_maxwell(iters)
-            if ~iters, return; end
+        function residual = relax_maxwell(iters)           
+            residual = NaN; if ~iters, return; end
             maxwell_operator = maxwell_op(gridPhi, solC); % 
             A = maxwell_operator * P;
             M = redblack(gridPhi.sz-2, A);
@@ -126,11 +129,11 @@ function F = force_solver(filename, do_init, beta, gamma, Vinf, Rinf, N, ...
         M = stokes_vanka_redblack(gridP.sz, A);
         func = @relax_stokes;
         function residual = relax_stokes(iters)
-            if ~iters, return; end
+            residual = NaN; if ~iters, return; end
             q = Q * stokes_boundary_vec(solPhi, solC, interior.y, gamma);
             b = stokes_operator * q;        
             u = [solVx(gridVx.I); solVy(gridVy.I); solP(:)];
-            [u, residual] = relax(M, A, stokes_rhs(solPhi)-b, u, iters);
+            [u, residual] = relax(M, A, stokes_rhs(solPhi)-b, u, iters);            
             u = P*u + q;
             [solVx, solVy, solP] = split(u, gridVx.sz, gridVy.sz, gridP.sz);
             solP = solP - mean(solP(:));
@@ -143,7 +146,7 @@ function F = force_solver(filename, do_init, beta, gamma, Vinf, Rinf, N, ...
         L = laplacian(gridC.I, gridC.X, gridC.Y);
         func = @relax_advection;
         function residual = relax_advection(iters)
-            if ~iters, return; end
+            residual = NaN; if ~iters, return; end
             VG = advection(gridC.I, gridC.X, gridC.Y, solVx, solVy);
             advect_operator = L - alpha*VG;
             A = advect_operator * P;

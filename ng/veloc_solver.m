@@ -1,12 +1,12 @@
 function veloc_solver()
 clc;
-betas = logspace(-9, -4, 6);
+betas = logspace(-9, -4, 1);
 gamma = exp(-1);
 Rinf = 100;
 
 U = zeros(size(betas));
 calc_force = @(beta, V) ...
-    force_solver('results', 1, beta, gamma, V, Rinf, ...
+    force_solver('', '', beta, gamma, V, Rinf, ...
     [60 15], 2000, [1 1 1]);
 
 V_theory = betas * 2*log((gamma^0.25 + gamma^-0.25) / (2*gamma^0.25));
