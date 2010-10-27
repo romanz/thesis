@@ -78,7 +78,7 @@ function F = force_solver(filename, mode, beta, gamma, Vinf, Rinf, N, ...
     fprintf('Iterations done after %.3fs.\n', toc);
     beeper(800, 20e-3);
     
-    F = total_stress(solVx, solVy, solP, radius, theta);
+    F = total_force(solVx, solVy, solP, radius, theta);
     fprintf('Total force : %.4e\n', F);
     fprintf('Stokes force : %.4e\n', 6*pi*Vinf);
     if ~isempty(strfind(mode, 'w')) 

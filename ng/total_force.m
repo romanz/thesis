@@ -1,4 +1,4 @@
-function S = total_stress(solVx, solVy, solP, radius, theta)
+function Ftotal = total_stress(solVx, solVy, solP, radius, theta)
 
 Vx0 = solVx(1:2, :); % radial components
 Vy0 = solVy(1:2, :); % tangential components
@@ -29,6 +29,7 @@ u = A \ -q;
 Vx0 = [u([1, 1:n, n])'; Vx0];
 P0 = [u(n+1:end)'; P0];
 
+%% Newtonian stress
 % Radial force: -P + 2 dVr/dr
 Fr = -mean(P0) ...
      +2*diff(Vx0([1 3], 2:end-1)) / diff(gridVx.x([1 3]));
@@ -39,7 +40,9 @@ Ft =  average(diff(Vy0) / diff(radius(1:2)), [1 1]/2) ...
 
 % Quadrature (midpoint)
 a = gridP.y'; % Angle axis (from 0 to pi).
-F = -Fr .* cos(a) + Ft .* sin(a); % Projection on axis of symmetry.
-S = sum( F' .* (2*pi*sin(gridP.y)) .* diff(theta));    
+dF = -Fr .* cos(a) + Ft .* sin(a); % Projection on axis of symmetry.
+Fnewton = sum( dF' .* (2*pi*sin(gridP.y)) .* diff(theta));    
+
+Ftotal = Fnewton;
 
 end
