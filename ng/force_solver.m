@@ -61,7 +61,6 @@ function F = force_solver(filename, mode, beta, gamma, Vinf, Rinf, N, ...
         res(1) = res_norm(relax_maxwell(iters(1)));
         res(2) = res_norm(relax_stokes(iters(2)));
         res(3) = res_norm(relax_advection(iters(3)));
-        fprintf('%.4e\t%.4e\t%.4e\n', res(1), res(2), res(3));
         state = [solPhi(:); solVx(:); solVy(:); solP(:); solC(:)];
     end
 
@@ -77,6 +76,7 @@ function F = force_solver(filename, mode, beta, gamma, Vinf, Rinf, N, ...
     
     fprintf('Iterations done after %.3fs.\n', toc);
     beeper(800, 20e-3);
+    fprintf('[%.5e\t%.5e\t%.5e]\n', res(1), res(2), res(3));
     
     F = total_force(solVx, solVy, solP, solPhi, radius, theta);
     fprintf('Total force : %.4e\n', F);

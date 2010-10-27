@@ -59,6 +59,6 @@ Fmaxwell = midquad(Fr, Ft);
 fprintf('%.5e | %.5e\n', Fnewton, Fmaxwell);
 
 %% Total stress
-Ftotal = Fnewton;
+Ftotal = Fnewton + Fmaxwell;
 
 end
