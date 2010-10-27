@@ -1,4 +1,4 @@
-function Ftotal = total_stress(solVx, solVy, solP, radius, theta)
+function Ftotal = total_force(solVx, solVy, solP, solPhi, radius, theta)
 
 Vx0 = solVx(1:2, :); % radial components
 Vy0 = solVy(1:2, :); % tangential components
@@ -29,6 +29,13 @@ u = A \ -q;
 Vx0 = [u([1, 1:n, n])'; Vx0];
 P0 = [u(n+1:end)'; P0];
 
+    function F = midquad(Fr, Ft)
+    % Quadrature (midpoint)
+        a = gridP.y'; % Angle axis (from 0 to pi).
+        dF = -Fr .* cos(a) + Ft .* sin(a); % Projection on axis of symmetry.
+        F = sum( dF' .* (2*pi*sin(gridP.y)) .* diff(theta));    
+    end
+
 %% Newtonian stress
 % Radial force: -P + 2 dVr/dr
 Fr = -mean(P0) ...
@@ -39,10 +46,19 @@ Ft =  average(diff(Vy0) / diff(radius(1:2)), [1 1]/2) ...
      -average(Vy0(1:2, :), [1 1; 1 1]/4);
 
 % Quadrature (midpoint)
-a = gridP.y'; % Angle axis (from 0 to pi).
-dF = -Fr .* cos(a) + Ft .* sin(a); % Projection on axis of symmetry.
-Fnewton = sum( dF' .* (2*pi*sin(gridP.y)) .* diff(theta));    
+Fnewton = midquad(Fr, Ft);    
 
+%% Maxwell stress
+Phi = solPhi(1:2, :);
+dPhi_dr = diff(Phi(:, 2:end-1), 1) / diff(radius(1:2));
+dPhi_dtheta = diff(average(Phi, [1 1; 1 1]/4)) ./ diff(theta.');
+Fr = 1/2 * (dPhi_dr.^2 - dPhi_dtheta.^2);
+Ft = dPhi_dr .* dPhi_dtheta;
+Fmaxwell = midquad(Fr, Ft);
+
+fprintf('%.5e | %.5e\n', Fnewton, Fmaxwell);
+
+%% Total stress
 Ftotal = Fnewton;
 
 end

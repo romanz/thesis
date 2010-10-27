@@ -1,6 +1,6 @@
 function veloc_solver()
 clc;
-betas = logspace(-9, -4, 1);
+betas = logspace(-9, -1, 1);
 gamma = exp(-1);
 Rinf = 100;
 

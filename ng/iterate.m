@@ -21,7 +21,7 @@ function varargout = iterate(prob, varargin)
         x = x0; % No iterations
     end
     residual = prob.rhs - prob.operator * x;
-    fprintf('%e\n', norm(residual, inf))
+    % fprintf('%e\n', norm(residual, inf))
     k = 0;
     for i = 1:numel(varargin)
         n = prod(sz(i, :));
