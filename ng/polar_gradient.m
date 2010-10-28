@@ -1,5 +1,5 @@
-% G = GRADIENT(K, X, Y, DIR)
-%   Sparse gradient operatorin polar coordinates.
+% G = POLAR_GRADIENT(K, X, Y, DIR)
+%   Sparse gradient operator in polar coordinates.
 function G = gradient(K, X, Y, dir)
     sz = size(K);
     [I, J] = ind2sub(sz, find(K));

@@ -1,5 +1,5 @@
-% Sparse divergence operator.
-function G = divergence(K, X, Y, dir)
+% Sparse divergence operator in polar coordinates.
+function G = polar_divergence(K, X, Y, dir)
     sz = size(K);
     [I, J] = ind2sub(sz, find(K));
     K1 = sub2ind(sz, I, J);

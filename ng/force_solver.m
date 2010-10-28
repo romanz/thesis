@@ -61,6 +61,7 @@ function F = force_solver(filename, mode, beta, gamma, Vinf, Rinf, N, ...
         res(1) = res_norm(relax_maxwell(iters(1)));
         res(2) = res_norm(relax_stokes(iters(2)));
         res(3) = res_norm(relax_advection(iters(3)));
+        fprintf('[%.5e\t%.5e\t%.5e]\n', res(1), res(2), res(3));
         state = [solPhi(:); solVx(:); solVy(:); solP(:); solC(:)];
     end
 
@@ -75,8 +76,7 @@ function F = force_solver(filename, mode, beta, gamma, Vinf, Rinf, N, ...
         gridPhi.sz, gridVx.sz, gridVy.sz, gridP.sz, gridC.sz);
     
     fprintf('Iterations done after %.3fs.\n', toc);
-    beeper(800, 20e-3);
-    fprintf('[%.5e\t%.5e\t%.5e]\n', res(1), res(2), res(3));
+    beeper(800, 20e-3);    
     
     F = total_force(solVx, solVy, solP, solPhi, radius, theta);
     fprintf('Total force : %.4e\n', F);
@@ -111,7 +111,7 @@ function F = force_solver(filename, mode, beta, gamma, Vinf, Rinf, N, ...
         L = laplacian(gridPhi.I, gridPhi.X, gridPhi.Y);
         Lx = interpolator(gridPhi.X(2:end-1, 2:end-1), gridVx.X(2:end-1, 2:end-1)) * L;
         Ly = interpolator(gridPhi.Y(2:end-1, 2:end-1), gridVy.Y(2:end-1, 2:end-1)) * L;
-        grad = @(G, dir) gradient(G.I & shift(G.I, -dir), G.X, G.Y, dir);
+        grad = @(G, dir) polar_gradient(G.I & shift(G.I, -dir), G.X, G.Y, dir);
         Gx = grad(gridPhi, [1 0]);
         Gy = grad(gridPhi, [0 1]);
         divergence = zeros(gridP.numel, 1);

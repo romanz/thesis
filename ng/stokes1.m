@@ -4,9 +4,9 @@ function [Gp, Lv, Dv] = stokes1(dim, gridV, gridP)
     % full(Lv)
     dir = (1:numel(gridP.sz)) == dim;
     K = gridV.I | shift(gridV.I, -dir); % add first row/column
-    Dv = divergence(K, gridV.X, gridV.Y, dir);
+    Dv = polar_divergence(K, gridV.X, gridV.Y, dir);
     % full(Gv)
     K = gridP.I & shift(gridP.I, -dir); % remove last row/column
-    Gp = gradient(K, gridP.X, gridP.Y, dir);
+    Gp = polar_gradient(K, gridP.X, gridP.Y, dir);
     % full(Gp)
 end
