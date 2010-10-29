@@ -192,13 +192,17 @@ function vec = advection_boundary_vec(Phi)
 end
 
 function [P, Q] = stokes_boundary_cond(gridVx, gridVy, gridP, Vinf)
+
+    [Vx_inf, ~] = stokes_velocity(Vinf, gridVx.x(end), gridVx.y(2:end-1));
+    [~, Vy_inf] = stokes_velocity(Vinf, gridVy.x(end), gridVy.y(2:end-1));
+
     R = symmetry(gridVx);
-    Px = R * expand(gridVx.I);    
-    qx = R * dirichlet(gridVx, [+1 0]) * (-Vinf) * cos(gridVx.y(2:end-1));
+    Px = R * expand(gridVx.I);            
+    qx = R * dirichlet(gridVx, [+1 0]) * Vx_inf;
 
     [Py, Qs] = average_dirichlet(gridVy, [-1 0]); % Vslip
     Py = Py * expand(gridVy.I);
-    qy = Vinf * dirichlet(gridVy, [+1 0]) * sin(gridVy.y(2:end-1));
+    qy = dirichlet(gridVy, [+1 0]) * Vy_inf;
     
     P = blkdiag(Px, Py, speye(gridP.numel));
     m = size(Qs, 2);
