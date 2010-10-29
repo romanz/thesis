@@ -193,8 +193,8 @@ end
 
 function [P, Q] = stokes_boundary_cond(gridVx, gridVy, gridP, Vinf)
 
-    [Vx_inf, ~] = stokes_velocity(Vinf, gridVx.x(end), gridVx.y(2:end-1));
-    [~, Vy_inf] = stokes_velocity(Vinf, gridVy.x(end), gridVy.y(2:end-1));
+    [Vx_inf, ~] = stokes_solution(-Vinf, gridVx.x(end), gridVx.y(2:end-1));
+    [~, Vy_inf] = stokes_solution(-Vinf, gridVy.x(end), gridVy.y(2:end-1));
 
     R = symmetry(gridVx);
     Px = R * expand(gridVx.I);            

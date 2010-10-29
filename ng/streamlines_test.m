@@ -37,12 +37,30 @@ Vx = solVx .* sin(gridVx.Y) .* gridVx.X.^2;
 Vx = Vx(:, 2:end-1);
 Vy = solVy .* sin(gridVy.Y) .* gridVy.X;
 Vy = Vy(2:end-1, :);
+V = [Vx(:); Vy(:)];
 
-d1 = grad(gridVx.X(:, 2:end-1), 1) * Vx(:);
-d2 = grad(gridVy.Y(2:end-1, :), 2) * Vy(:);
-norm(d1 + d2, inf)
+d = [grad(gridVx.X(:, 2:end-1), 1) grad(gridVy.Y(2:end-1, :), 2)] * V;
+norm(d, inf)
 
+G1 = +grad(gridPsi.Y, 2);
+G2 = -grad(gridPsi.X, 1);
+G = [G1; G2];
+I = gridPsi.I;
+I = I | shift(I, [1 0]);
+P = expand(I);
+Psi = P * ((G*P) \ V);
+Psi = Psi - Psi(1);
+norm(G * Psi - V, inf)
+Psi = reshape(Psi, gridPsi.sz);
+W = (gridPsi.X .* sin(gridPsi.Y));
+Psi(~~W) = -Psi(~~W) ./ W(~~W);
 
+[~, ~, Psi] = stokes_solution(Vinf, gridPsi.X, gridPsi.Y);
+contour(gridPsi.X .* cos(gridPsi.Y), gridPsi.X .* sin(gridPsi.Y), ...
+    Psi, linspace(0, max(Psi(:)), 500));
+R = 3;
+axis equal
+axis([-R R 0 R]*2)
 % D = [D1; D2];
 % V = [col(solVx(:, 2:end-1)); col(solVy(2:end-1, :))];
 % 
