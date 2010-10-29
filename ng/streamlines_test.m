@@ -32,6 +32,17 @@ d2 = D2 * col(solVy(2:end-1, :));
 
 div = d1 + d2;
 norm(div(:), inf)
+
+Vx = solVx .* sin(gridVx.Y) .* gridVx.X.^2;
+Vx = Vx(:, 2:end-1);
+Vy = solVy .* sin(gridVy.Y) .* gridVy.X;
+Vy = Vy(2:end-1, :);
+
+d1 = grad(gridVx.X(:, 2:end-1), 1) * Vx(:);
+d2 = grad(gridVy.Y(2:end-1, :), 2) * Vy(:);
+norm(d1 + d2, inf)
+
+
 % D = [D1; D2];
 % V = [col(solVx(:, 2:end-1)); col(solVy(2:end-1, :))];
 % 
