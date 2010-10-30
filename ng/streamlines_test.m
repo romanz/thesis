@@ -55,10 +55,10 @@ Psi = reshape(Psi, gridPsi.sz);
 W = (gridPsi.X .* sin(gridPsi.Y));
 Psi(~~W) = -Psi(~~W) ./ W(~~W);
 
-[~, ~, Psi] = stokes_solution(Vinf, gridPsi.X, gridPsi.Y);
+% [~, ~, Psi] = stokes_solution(Vinf, gridPsi.X, gridPsi.Y);
 contour(gridPsi.X .* cos(gridPsi.Y), gridPsi.X .* sin(gridPsi.Y), ...
-    Psi, linspace(0, max(Psi(:)), 500));
-R = 3;
+    Psi, linspace(0, .1, 1000));
+R = 2;
 axis equal
 axis([-R R 0 R]*2)
 % D = [D1; D2];
