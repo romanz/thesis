@@ -1,4 +1,4 @@
-function streamlines(filename, use_theory, Smax, Snum)
+function streamlines(filename, Smax, Snum)
 
 load(filename)
 % [X, Y] = ndgrid(logspace(0, 1), linspace(0, pi));
@@ -55,9 +55,9 @@ Psi = reshape(Psi, gridPsi.sz);
 W = (gridPsi.X .* sin(gridPsi.Y));
 Psi(~~W) = -Psi(~~W) ./ W(~~W);
 
-if use_theory
-    [~, ~, Psi] = stokes_solution(Vinf, gridPsi.X, gridPsi.Y);
-end
+% if use_theory
+%     [~, ~, Psi] = stokes_solution(Vinf, gridPsi.X, gridPsi.Y);
+% end
 contour(gridPsi.X .* cos(gridPsi.Y), gridPsi.X .* sin(gridPsi.Y), ...
     Psi, linspace(0, Smax, Snum));
 
