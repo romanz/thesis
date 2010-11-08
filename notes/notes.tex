@@ -632,10 +632,47 @@ The vorticity and the stream function for Stokes flow:
 \omega &=& \frac{3 U a}{2} \frac{\sin\theta}{r^2} \\
 \psi &=& \frac{U \sin\theta}{2} \left( r - \frac{3a}{2} + \frac{a^3}{2r^2} \right)
 \end{eqnarray}
-By definition of stream line, 
-$\psi(r, 0) = \psi(a, \theta) = \psi(r, \pi) = 0$ 
+By definition of stream line,
+$\psi(r, 0) = \psi(a, \theta) = \psi(r, \pi) = 0$
 for $r \ge 1$ and $\theta \in [0, \pi]$.
 %%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Slip velocity}
+Denote stream function $\Psi$ as:
+\begin{eqnarray}
+  V_r &=& \frac{1}{r^2 \sin\theta}\deriv{\Psi}{\theta} \\
+  V_\theta &=& -\frac{1}{r \sin\theta}\deriv{\Psi}{r}
+\end{eqnarray}
+We use the same solution form for $\Psi$ as before:
+\begin{eqnarray}
+  \Psi &=& (A r^2 + B r + C r^{-1})\sin^2\theta\\
+  V_r(\infty, \theta) = 2A \cos\theta &=& 0 \\
+  V_\theta(\infty, \theta) = -2A \sin\theta &=& 0 \\
+  V_r(1, \theta) = (A+B+C)\cdot 2\cos\theta &=& 0 \\
+  V_\theta(1, \theta) = -(2A+B-C)\cdot \sin\theta &=& -W\sin\theta 
+\end{eqnarray}
+Thus:
+\begin{eqnarray}
+  \brc{ccc}{A &=& 0 \\ B &=& W/2 \\ C &=& -W/2}
+\end{eqnarray}
+So the stream function for slipping velocity $V_\theta = -W\sin\theta$
+is $\Psi = \frac{W}{2}(r - r^{-1})\sin^2\theta$.
+
+Substituting into Stokes equation we get that:
+\begin{eqnarray}
+  \bnabla P = \bLaplacian V &=& -\frac{2 W \cos\theta}{r^3} \brhat 
+  -\frac{W \sin \theta}{r^3} \bthetahat \\
+  P &=& P_\infty + \frac{W \cos\theta}{r^2}
+\end{eqnarray}
+
+The force acting on the sphere area element in $\bxhat$ direction is:
+\begin{eqnarray}
+  F &=& \frac{3W \cos(2\theta)}{2}
+\end{eqnarray}
+Integrated over the whole sphere, the total force is:
+\begin{eqnarray}
+  F_T &=& -4\pi W
+\end{eqnarray}
 \end{document}
 
 

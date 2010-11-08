@@ -16,7 +16,8 @@ function test
     P = W*a*cos(t)/r^2;
     gP = gradient(P);
     assert(all(L == gP))
-    F = radial_stress(V, P, a)    
+    F = radial_stress(V, P, a)
+    save results
 end
 
 function F = gradient(f)
@@ -51,7 +52,7 @@ function F = radial_stress(V, P, a)
     S = [-P + 2*diff(V(1), r);
         diff(V(2), r) + (diff(V(1), t) - V(2)) / r];
     S = subs(S, r, a);
-    S = simple(S);
+    S = simple(S)
     f = simple([cos(t), -sin(t)] * S);
     f
     F = int(f * 2*pi*a*sin(t), t, 0, pi);
