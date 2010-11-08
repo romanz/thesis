@@ -660,7 +660,7 @@ is $\Psi = \frac{W}{2}(r - r^{-1})\sin^2\theta$.
 
 Substituting into Stokes equation we get that:
 \begin{eqnarray}
-  \bnabla P = \bLaplacian V &=& -\frac{2 W \cos\theta}{r^3} \brhat 
+  \bnabla P = \bLaplacian \bV &=& -\frac{2 W \cos\theta}{r^3} \brhat 
   -\frac{W \sin \theta}{r^3} \bthetahat \\
   P &=& P_\infty + \frac{W \cos\theta}{r^2}
 \end{eqnarray}
@@ -672,6 +672,33 @@ The force acting on the sphere area element in $\bxhat$ direction is:
 Integrated over the whole sphere, the total force is:
 \begin{eqnarray}
   F_T &=& -4\pi W
+\end{eqnarray}
+Thus, in steady state, we have $W = \frac{3}{2}V$, 
+in order to balance Stokes drag.
+\section{Solution for small $\beta$}
+\begin{eqnarray}
+  \varPhi &=& \beta \brcs{\frac{1}{4r^2} - r} \cos\theta \\
+  C &=&  1 + \beta\frac{3}{4r^2} \cos\theta \\
+  \Psi &=& \frac{\cl{U} \sin^2\theta}{2} \brcs{r^2 - \frac{a^3}{r}} \\
+  V_r &=& \cl{U} \brcs{1 - \frac{a^3}{r^3}} \cos\theta \\
+  V_\theta &=& -\cl{U} \brcs{1 + \frac{a^3}{2r^3}} \sin\theta \\
+  P &=& P_\infty 
+\end{eqnarray}
+Note that though the total force is zero, 
+the force acting on each sphere area element is given by:
+\begin{eqnarray}
+  \bF &=& \frac{3\mu\cl{U}}{a} 
+  \brcs{ 2\cos\theta \cdot \brhat + \sin\theta \cdot \bthetahat} \\
+  \bF \cdot \bxhat &=& \frac{3\mu\cl{U}}{a} \brcs{ 3\cos^2\theta - 1}
+\end{eqnarray}
+For small $\beta$, we get using Dukhin-–Derjaguin for slip velocity:
+\begin{eqnarray}
+V_\theta & \approx & -\beta \cdot 3
+\log\brcs{\frac{\gamma^{1/4} + \gamma^{-1/4}}{2\gamma^{1/4}}} \sin\theta \\
+\cl{U}_\infty &\approx& \beta \cdot 2 
+\log\brcs{\frac{\gamma^{1/4} + \gamma^{-1/4}}{2\gamma^{1/4}}} \\
+\cl{U}_\infty &\approx& \beta \cdot 2
+\log\brcs{\frac{1 + \gamma^{-1/2}}{2}}
 \end{eqnarray}
 \end{document}
 
