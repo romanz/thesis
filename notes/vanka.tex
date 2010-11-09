@@ -1,0 +1,14 @@
+\section{Vanka}
+\begin{eqnarray}
+ r &=& f - Ax \\
+ Ax &=& f \\
+ P_I A x &=& P_I f \\
+ x &=& P_J^T P_J x + (I - P_J^T P_J) x \\
+ P_I A P_J^T P_J x + P_I A  (I - P_J^T P_J) x &=& P_I f \\
+ P_I A P_J^T P_J x &=& P_I A  P_J^T P_J x + P_I f - P_I A x \\
+ P_J x' &=& P_J x + (P_I A P_J^T)^{-1} P_I (f - Ax) \\
+ x' &=& x + P_J^T (P_I A P_J^T)^{-1} P_I (f - Ax) \\
+ x' &=& x + M (f - Ax) \\
+ M &=& \sum_{I,J} P_J^T (P_I A P_J^T)^{-1} P_I
+\end{eqnarray}
+

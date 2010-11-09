@@ -1,0 +1,118 @@
+\section{Diffusion}
+\subsection{Laplace equation (follows from Gauss' law)}
+The electric potential satisfies the elliptic equation
+\begin{equation}
+	\bnabla \bcdot (C \bnabla \varPhi) = 0; \label{Phi eqn}
+\end{equation}
+$C$ is salt concentration, playing the role of $\eps$,
+in Maxwell's equation (where $\vect{E} = -\bnabla \varPhi$):
+\begin{equation}
+\bnabla \bcdot \vect{D} = \bnabla \bcdot \eps \vect{E} = \rho_{free}
+\end{equation}
+
+We assume regular grid $\{(x_i, y_j)\}$,
+where $i\in\{0 \ldots n\}$ and $j\in\{0 \ldots m\}$. The maximal and the
+minimal indices' values correspond to the boundary of the problem.
+
+We approximate the differential operator as:
+\begin{eqnarray}
+\left[ \bnabla \bcdot (C \bnabla \varPhi) \right]_{i,j}
+&\approx &\frac{2}{x_{i+1,j} - x_{i-1,j}} \left(
+C_{i+1/2,j} \cdot \frac{\varPhi_{i+1,j}-\varPhi_{i,j}}{x_{i+1}-x_{i}} -
+C_{i-1/2,j} \cdot \frac{\varPhi_{i,j}-\varPhi_{i-1,j}}{x_{i}-x_{i-1}}
+\right) + \\
+&&\frac{2}{y_{i,j+1} - y_{i,j-1}} \left(C_{i,j+1/2} \cdot \frac{\varPhi_{i,j+1}-\varPhi_{i,j}}{y_{i+1}-y_{i}} -
+C_{i,j-1/2} \cdot \frac{\varPhi_{i,j}-\varPhi_{i,j-1}}{y_{i}-y_{i-1}}
+\right)
+\end{eqnarray}
+where $2C_{i\pm 1/2,j} = C_{i,j} + C_{i\pm 1,j}$ and
+$2C_{i,j\pm 1/2} = C_{i,j} + C_{i,j\pm 1}$.
+
+The algebraic system above can be written as $\matr{A} \vect{u} = \vect{f}$,
+where $\matr{A}$ depends on the grid and current $C$ values.
+$\vect{f}$ can be chosen to be any function, which is useful for testing the solver.
+We initialize $\vect{u}$ to any function, and employ Jacobi iterations
+(by writing $\matr{A} = \matr{D} + (\matr{A-D})$, where $\matr{D}$ is diagonal):
+\begin{eqnarray}
+\vect{f} &=& \matr{A}\vect{u} = \matr{D}\vect{u} + (\matr{A-D})\vect{u} \\
+\matr{D}\vect{u} &=& \vect{f} - (\matr{A-D})\vect{u} =
+\vect{f} - \matr{A}\vect{u} + \matr{D}\vect{u} \\
+\vect{u}_+ &=& \vect{u} + \matr{D}^{-1}(\vect{f} - \matr{A}\vect{u}) =
+(\matr{I} - \matr{D}^{-1}\matr{A}) \vect{u} + \matr{D}^{-1}\vect{f} \\
+\end{eqnarray}
+Therefore, we shall use the following iteration scheme:
+\begin{eqnarray}
+\vect{u}_+ &=& \matr{T}\vect{u} + \vect{d} \\
+\matr{T} &=& \matr{I} - \matr{D}^{-1}\matr{A} \\
+\vect{d} &=& \matr{D}^{-1}\vect{f}
+\end{eqnarray}
+To speed-up the convergence, we shall use Red-Black Gauss-Seidel method,
+that updates ``odd'' and ``even'' elements of $\vect{u}$, solving
+effectively the linear system for half the variables each time.
+\subsection{Boundary conditions}
+\subsubsection{Dirichlet}
+The condition is given as $U(x, y) = C$.
+We take $u_k = U(x_i, y_j) = C$.
+Now, it is simply substituted and
+linear system's right-hand side is updated accordingly.
+
+\subsubsection{Neumann}
+The condition is given as $\bnabla U(x,y) \cdot \vect{\hat n} = C$,
+where $\vect{\hat n}$ is normal to domain's boundary.
+If we use quadratic approximation, the gradient can be expressed as:
+\begin{eqnarray}
+  f(x) &=& ax^2 + bx + c \\
+  f(x_0 \pm \Delta x) &=&
+   a(x_0 \pm \Delta x)^2 + b(x_0 \pm \Delta x) + c \\
+  \frac{f(x_0 + \Delta x) - f(x_0 - \Delta x)}{2\Delta x} &=&
+   2a x_0 + b = f'(x_0) \\
+\end{eqnarray}
+Therefore, the boundary value can be approximated by:
+\begin{eqnarray}
+ U(x + \Delta x,y + \Delta y) &\approx& U(x, y) + \partial_x U(x_c,y_c) \Delta x +
+ \partial_x U(x_c,y_c) \Delta y \\
+ x_c &=& x + \frac{\Delta x}{2} \\
+ y_c &=& y + \frac{\Delta y}{2}
+\end{eqnarray}
+
+\subsection{Specific boundary conditions}
+\subsubsection{$R = 1$}
+\begin{eqnarray}
+  \frac{\partial C}{\partial R} &=&
+   C \frac{\partial \varPhi}{\partial R} \\
+  \varPhi &=& \mathscr{V} - \ln C + \ln \gamma
+\end{eqnarray}
+Take $\mathscr{V} = -\ln \gamma$ and note that:
+\begin{eqnarray}
+  \frac{\partial}{\partial R} \ln C &=&
+  \frac{1}{C}\frac{\partial C}{\partial R} =
+  \frac{\partial \varPhi}{\partial R} \\
+  \varPhi &=& -\ln C
+\end{eqnarray}
+Use ghost-point \#0 to write the following boundary equations:
+\begin{eqnarray}
+  \varPhi_1 - \varPhi_0 &=& \ln C_1 - \ln C_0 \\
+  \varPhi_1 + \varPhi_0 &=& - \ln C_1 - \ln C_0
+\end{eqnarray}
+Add and subtract to get 2 Dirichlet conditions:
+\begin{eqnarray}
+  \varPhi_1 &=& - \ln C_0 \\
+  \varPhi_0 &=& - \ln C_1 \\
+  C_0 &=& e^{-\varPhi_1}
+\end{eqnarray}
+\subsubsection{$R \rightarrow \infty$}
+$C$ gets uniform, and we get Dirichlet:
+\begin{eqnarray}
+ C = 1
+\end{eqnarray}
+The field radial component is Neumann:
+\begin{eqnarray}
+ \frac{\partial \varPhi}{\partial R} = -\mathscr{E} \cos \theta
+\end{eqnarray}
+\subsubsection{$\Theta = 0/\pi$}
+Using symmetry considerations, we have Neumann conditions:
+\begin{eqnarray}
+ \frac{\partial \varPhi}{\partial \Theta} &=& 0 \\
+ \frac{\partial C}{\partial \Theta} &=& 0 \\
+\end{eqnarray}
+

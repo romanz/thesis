@@ -1,0 +1,70 @@
+\section{Slip velocity}
+\subsection{Correction for Stokes solution}
+Denote stream function $\Psi$ as:
+\begin{eqnarray}
+  V_r &=& \frac{1}{r^2 \sin\theta}\deriv{\Psi}{\theta} \\
+  V_\theta &=& -\frac{1}{r \sin\theta}\deriv{\Psi}{r}
+\end{eqnarray}
+We use the same solution form for $\Psi$ as before:
+\begin{eqnarray}
+  \Psi &=& (A r^2 + B r + C r^{-1})\sin^2\theta\\
+  V_r(\infty, \theta) = 2A \cos\theta &=& 0 \\
+  V_\theta(\infty, \theta) = -2A \sin\theta &=& 0 \\
+  V_r(1, \theta) = (A+B+C)\cdot 2\cos\theta &=& 0 \\
+  V_\theta(1, \theta) = -(2A+B-C)\cdot \sin\theta &=& -W\sin\theta
+\end{eqnarray}
+Thus:
+\begin{eqnarray}
+  \brc{ccc}{A &=& 0 \\ B &=& W/2 \\ C &=& -W/2}
+\end{eqnarray}
+So the stream function for slipping velocity $V_\theta = -W\sin\theta$
+is $\Psi = \frac{W}{2}(r - r^{-1})\sin^2\theta$.
+
+Substituting into Stokes equation we get that:
+\begin{eqnarray}
+  \bnabla P = \bLaplacian \bV &=& -\frac{2 W \cos\theta}{r^3} \brhat
+  -\frac{W \sin \theta}{r^3} \bthetahat \\
+  P &=& P_\infty + \frac{W \cos\theta}{r^2}
+\end{eqnarray}
+
+The force acting on the sphere area element in $\bxhat$ direction is:
+\begin{eqnarray}
+  F &=& \frac{3W \cos(2\theta)}{2}
+\end{eqnarray}
+Integrated over the whole sphere, the total force is:
+\begin{eqnarray}
+  F_T &=& -4\pi W
+\end{eqnarray}
+Thus, in steady state, we have $W = \frac{3}{2} \cl{U}$,
+in order to balance Stokes drag.
+\subsection{Steady state for small $\beta$}
+\begin{eqnarray}
+  \varPhi &=& \beta \brcs{\frac{1}{4r^2} - r} \cos\theta \\
+  C &=&  1 + \beta\frac{3}{4r^2} \cos\theta \\
+  \Psi &=& \frac{\cl{U} \sin^2\theta}{2} \brcs{r^2 - \frac{a^3}{r}} \\
+  V_r &=& \cl{U} \brcs{1 - \frac{a^3}{r^3}} \cos\theta \\
+  V_\theta &=& -\cl{U} \brcs{1 + \frac{a^3}{2r^3}} \sin\theta \\
+  P &=& P_\infty
+\end{eqnarray}
+
+Since we have a potential flow, we may write that:
+\begin{eqnarray}
+  \bV &=& \cl{U}\bnabla \left\{\brcs{r + \frac{a^3}{2r^2}} \cos\theta\right\}
+\end{eqnarray}
+
+Note that though the total force is zero,
+the force acting on each sphere area element is given by:
+\begin{eqnarray}
+  \bF &=& \frac{3\mu\cl{U}}{a}
+  \brcs{ 2\cos\theta \cdot \brhat + \sin\theta \cdot \bthetahat} \\
+  \bF \cdot \bxhat &=& \frac{3\mu\cl{U}}{a} \brcs{ 3\cos^2\theta - 1}
+\end{eqnarray}
+For small $\beta$, we get using Dukhin-–Derjaguin for slip velocity:
+\begin{eqnarray}
+V_\theta & \approx & -\beta \cdot 3
+\log\brcs{\frac{\gamma^{1/4} + \gamma^{-1/4}}{2\gamma^{1/4}}} \sin\theta \\
+\cl{U}_\infty = \frac{2}{3} W &\approx& \beta \cdot 2
+\log\brcs{\frac{\gamma^{1/4} + \gamma^{-1/4}}{2\gamma^{1/4}}} \\
+\cl{U}_\infty &\approx& \beta \cdot 2
+\log\brcs{\frac{1 + \gamma^{-1/2}}{2}}
+\end{eqnarray}

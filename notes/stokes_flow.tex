@@ -1,0 +1,48 @@
+\section{Stokes flow}
+The solution for no-slip sphere of radius $a$ is:
+\begin{eqnarray}
+\bV(\bx) &=& \bU -
+\frac{3a}{4} \left[ \frac{\bU}{r} + \frac{\bx \bU \cdot \bx}{r^3} \right] -
+\frac{a^3}{4} \left[ \frac{\bU}{r^3} - 3\frac{\bx \bU \cdot \bx}{r^5} \right] \\
+P(\bx) &=& -\frac{3\mu a \bU \cdot \bx}{2r^3}
+\end{eqnarray}
+Rewrite in spherical coordinates:
+\begin{eqnarray}
+\bV(\bx) &=& U \left(
+\cos\theta \left[1 - \frac{3a}{2r} + \frac{a^3}{2r^3}\right] \brhat -
+\sin\theta \left[1 - \frac{3a}{4r} - \frac{a^3}{4r^3}\right] \bthetahat
+\right) \\
+P(\bx) &=& P_0 -\mu U \frac{3a \cos\theta}{2r^2}
+\end{eqnarray}
+Note that the stress tensor is:
+$\mathbb{S} = -P \mathbb{I} + \bnabla \bV + (\bnabla \bV)^\dagger$.
+The drag force is found by integrating:
+\begin{eqnarray}
+\boldsymbol{F} = \iint{\left[\mathbb{S}(a,\theta, \phi) \cdot \brhat\right] a^2 \sin\theta d\phi d\theta} =
+\int{\left[\mathbb{S}(a,\theta) \cdot \brhat\right] 2 \pi a^2 \sin\theta d\theta}
+\end{eqnarray}
+Since we have axisymmetric problem, we expect that
+$\boldsymbol{F} = F \boldsymbol{\hat{z}} = F \left(\brhat \cos\theta - \bthetahat \sin\theta\right)$.
+\begin{eqnarray}
+\mathbb{S} \cdot \brhat &=& -P \brhat + \mu \left(
+2\deriv{V_r}{r}\brhat\brhat + \deriv{V_\theta}{r}\bthetahat\brhat +
+\frac{1}{r}\left[\deriv{V_r}{\theta} - V_\theta \right]\bthetahat\brhat
+\right) \cdot \brhat \\
+&=& \left(-P + 2\mu \deriv{V_r}{r}\right)\brhat
++ \mu \left(\deriv{V_\theta}{r} + \frac{1}{r}\left[\deriv{V_r}{\theta} -
+V_\theta \right]\right)\bthetahat \\
+0 &=& \left.\deriv{V_r}{r}\right|_{r=a} =
+\left.\deriv{V_r}{\theta}\right|_{r=a} =
+\left.V_\theta\right|_{r=a} \\
+\mathbb{S} \cdot \brhat &=&
+-P\brhat + \mu \deriv{V_\theta}{r}\bthetahat \\
+f_r = (\mathbb{S} \cdot \brhat)_r &=& \frac{3 \mu U}{2a} \cos\theta - P_0 \\
+f_\theta = (\mathbb{S} \cdot \brhat)_\theta &=& -\frac{3\mu U}{2a} \sin\theta \\
+\boldsymbol{f} = \mathbb{S} \cdot \brhat &=& -P_0 \brhat + \frac{3\mu U}{2a} \boldsymbol{\hat{z}} \\
+F &=&
+\int_0^\pi \boldsymbol{f} \cdot \boldsymbol{\hat{z}} \cdot 2\pi a^2 \sin\theta \cdot d\theta =
+\int_0^\pi \left[f_r \cos\theta - f_\theta \sin\theta\right] \cdot 2\pi a^2 \sin\theta \cdot d\theta
+\end{eqnarray}
+By integrating on the whole sphere of area $4\pi a^2$, we get Stokes' law:
+$\boldsymbol{F} = 6\pi \mu U a \boldsymbol{\hat{z}}$.
+

@@ -1,0 +1,41 @@
+\section{Stress Tensors}
+Assume incompressible $R_e \ll 1$ flow with velocity field $\bV$ and pressure field $P$, under body force $\bF$:
+\begin{eqnarray}
+ \bF - \bnabla P + \mu \Delta \mathbf{V} &=& 0 \\
+ \bnabla \bcdot \mathbf{V} &=& 0
+\end{eqnarray}
+The following system is built:
+\begin{eqnarray}
+ \mat{ccc}{-\mu\Delta & 0 & \partial_x \\ 0 & -\mu\Delta & \partial_y \\ \partial_x & \partial_y & 0}
+ \mat{c}{V_x \\ V_y \\ P} &=& \mat{c}{F_x \\ F_y \\ 0}
+\end{eqnarray}
+Note that $P$ can be determined only up to an additive constant.
+
+The stress tensor represented as a symmetric $3 \times 3$ matrix $\mathbb{S}$.
+The force $\boldsymbol{F}$ acting on a volume element can be written as $\boldsymbol{F} = \bnabla \cdot \mathbb{S}$.
+
+\subsection{Pressure}
+Denote $\mathbb{S} = -P \mathbb{I}$, so $\boldsymbol{F} = -\bnabla P$.
+
+\subsection{Viscosity}
+Denote $\mathbb{S} = \bnabla \bV + (\bnabla \bV)^\dagger$.
+Thus $\mathbb{S}_{ij} = \partial_i V_j + \partial_j V_i$:
+\begin{eqnarray}
+F_j &=& \sum_i \partial_i \mathbb{S}_{ij} = \sum_i \partial^2_i V_j + \sum_i \partial_{ij} V_i
+= \Laplacian V_j + \partial_j \left(\sum_i \partial_i V_i\right) \\
+\boldsymbol{F} &=& \bLaplacian \bV + \bnabla (\bnabla \cdot \bV)
+\end{eqnarray}
+Since we assume divergence-free flow ($\bnabla \cdot \bV = 0$):
+\begin{eqnarray}
+\boldsymbol{F} &=& \bLaplacian \bV
+\end{eqnarray}
+\subsection{Maxwell}
+Denote $\mathbb{S} = \bnabla \varPhi \bnabla \varPhi - \frac{1}{2} (\bnabla \varPhi \cdot \bnabla \varPhi) \mathbb{I}$.
+Thus $\mathbb{S}_{ij} = \partial_i \varPhi \partial_j \varPhi - \frac{1}{2} \delta_{ij} \sum_{k} (\partial_k \varPhi)^2$
+\begin{eqnarray}
+F_j &=& \sum_i \partial_i \mathbb{S}_{ij} =
+\sum_i \partial_i (\partial_i \varPhi \partial_j \varPhi) - \frac{1}{2} \partial_j \sum_{k} (\partial_k \varPhi)^2 \\
+F_j &=&  \partial_j \varPhi \sum_i \partial^2_i \varPhi +
+\sum_i \partial_i \varPhi \partial_{ij} \varPhi - \sum_{k} \partial_k \varPhi \partial_{jk} \varPhi \\
+\boldsymbol{F} &=& \bnabla \varPhi \cdot \Laplacian \varPhi
+\end{eqnarray}

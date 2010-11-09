@@ -1,0 +1,72 @@
+\section{Asymptotic expansion}
+\begin{eqnarray}
+ \brc{rcl}{
+  \varPhi &=& \beta\varPhi_1 + \beta^2\varPhi_2 \\
+  C &=& 1 + \beta C_1 + \beta^2 C_2 \\
+  \bV &=& \beta \bV_1 + \beta^2 \bV_2 \\
+  P &=& \beta P_1 + \beta^2 P_2}
+  \\
+ \brc{lll}{
+  \bnabla \cdot \brcs{C \bnabla \varPhi} &=& 0 \\
+  \Laplacian C - \bV \cdot \bnabla C &=& 0 \\
+  \bLaplacian V - \bnabla P + \Laplacian \varPhi \bnabla\varPhi &=& 0 }
+\end{eqnarray}
+Substitute:
+\begin{eqnarray}
+ \brc{lll}{
+  \bnabla \cdot \brcs{(1 + \beta C_1 + \beta^2 C_2) \bnabla (\beta\varPhi_1 + \beta^2\varPhi_2)} &=& 0 \\
+  \Laplacian (\beta C_1 + \beta^2 C_2) - (\beta \bV_1 + \beta^2 \bV_2) \cdot \bnabla (\beta C_1 + \beta^2 C_2) &=& 0 \\
+  \bLaplacian (\beta \bV_1 + \beta^2 \bV_2) - \bnabla (\beta P_1 + \beta^2 P_2) + \Laplacian (\beta\varPhi_1 + \beta^2\varPhi_2) \bnabla(\beta\varPhi_1 + \beta^2\varPhi_2) &=& 0 }
+\end{eqnarray}
+Discard orders above $\beta^2$:
+\begin{eqnarray}
+ \brc{lll}{
+  \bnabla \cdot \brcs{(1 + \beta C_1) \bnabla (\beta \varPhi_1) + \bnabla(\beta^2\varPhi_2)} &=& 0 \\
+  \Laplacian (\beta C_1 + \beta^2 C_2) - \beta \bV_1 \cdot \bnabla (\beta C_1) &=& 0 \\
+  \bLaplacian (\beta \bV_1 + \beta^2 \bV_2) - \bnabla (\beta P_1 + \beta^2 P_2) + \Laplacian (\beta\varPhi_1) \bnabla(\beta\varPhi_1) &=& 0 }
+\end{eqnarray}
+Extract $O(\beta)$ equation:
+\begin{eqnarray}
+ \brc{lll}{
+  \bnabla \cdot \brcs{\bnabla (\beta\varPhi_1} &=& 0 \\
+  \Laplacian (\beta C_1) &=& 0 \\
+  \bLaplacian (\beta \bV_1) - \bnabla (\beta P_1) &=& 0 }
+\end{eqnarray}
+Extract $O(\beta^2)$ equation:
+\begin{eqnarray}
+ \brc{lll}{
+  \Laplacian (\beta^2 \varPhi_2) &=& - \bnabla \cdot \brcs{(\beta + \beta^2 C_1) \bnabla \varPhi_1}
+  \\
+  \Laplacian (\beta^2 C_2) &=& \beta \bV_1 \cdot \bnabla (\beta C_1) -\Laplacian (\beta C_1)
+  \\
+  \bLaplacian (\beta^2 \bV_2) - \bnabla (\beta^2 P_2) &=& - \bLaplacian (\beta \bV_1) + \bnabla (\beta P_1) - \Laplacian (\beta\varPhi_1) \bnabla(\beta\varPhi_1)}
+\end{eqnarray}
+Divide all equation by $\beta$ and simplify:
+\begin{eqnarray}
+ \brc{lll}{
+  \beta \Laplacian \varPhi_2 &=& - \bnabla \cdot \brcs{(1 + \beta C_1) \bnabla \varPhi_1}
+  \\
+  \beta \Laplacian C_2 &=& \beta \bV_1 \cdot \bnabla C_1 -\Laplacian C_1
+  \\
+  \beta\brcs{\bLaplacian \bV_2 - \bnabla P_2} &=& - \bLaplacian \bV_1 + \bnabla P_1 - \beta \Laplacian \varPhi_1 \bnabla \varPhi_1}
+\end{eqnarray}
+Since $\Laplacian\varPhi_1 = \Laplacian C_1 = 0$ and $\bLaplacian \bV_1 = \bnabla P_1$, we rewrite:
+\begin{eqnarray}
+ \brc{lll}{
+  \beta \Laplacian \varPhi_2 &=& - \bnabla \cdot \brcs{(\beta C_1) \bnabla \varPhi_1}
+  \\
+  \beta \Laplacian C_2 &=& \beta \bV_1 \cdot \bnabla C_1
+  \\
+  \beta\brcs{\bLaplacian \bV_2 - \bnabla P_2} &=& 0
+ }
+\end{eqnarray}
+Thus the equations for $O(\beta^2)$ have the same form as for $O(\beta)$, but with non-zero RHS in Laplace and Advection equations:
+\begin{eqnarray}
+ \brc{lll}{
+  \Laplacian \varPhi_2 &=& - \bnabla \cdot \brcs{C_1 \bnabla \varPhi_1}
+  \\
+  \Laplacian C_2 &=& \bV_1 \cdot \bnabla C_1
+  \\
+  \bLaplacian \bV_2 - \bnabla P_2 &=& 0
+ }
+\end{eqnarray}
