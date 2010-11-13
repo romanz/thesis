@@ -43,4 +43,4 @@ contour(gridPsi.X .* cos(gridPsi.Y), gridPsi.X .* sin(gridPsi.Y), ...
 
 axis equal; 
 axis(axs); title('Coupled Flow Streamlines (theoretical solution)')
-print -depsc2 stokes_theory.eps
+print -depsc2 coupled_theory.eps
