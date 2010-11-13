@@ -50,6 +50,7 @@
 a dispersed phase (or internal phase) and a continuous phase (or dispersion medium).
 \item Electrical double layer phenomenon.
 \item Chemical interaction between phases.
+\item Applications in Chemistry, Biology and Nano-Technology.
 \end{itemize}
 }
 \subsection{Differential Equations}
@@ -98,7 +99,8 @@ On the particle:
 \begin{itemize}
 \item Conductive surface: $\varphi = \mathcal{V}$.
 \item Constant cationic concentration: $c_+ = \gamma$.
-\item Zero anionic flux: $-\bnabla c_- + c_- \bnabla \varphi = \bzero$.
+\item Zero anionic flux: 
+$\brcs{-\bnabla c_- + c_- \bnabla \varphi} \cdot \bnhat = 0$.
 \item No-slip condition: $\bv = \bzero$.
 \end{itemize}
 }
@@ -162,13 +164,13 @@ Static solution:
 \end{eqnarray}
 }
 \frame{\frametitle{Weak applied field: $\beta \ll 1$}
-Result for a spherical ion--exchanger, from E. Yariv (2010), ``Migration of ion-exchange particles driven
+Result for $r=1$ spherical ion--exchanger, from E. Yariv (2010), ``Migration of ion-exchange particles driven
 by a uniform electric field'':
 \begin{eqnarray}
 \brc{rcl}{
-  \varPhi &=& \beta \brcs{\frac{1}{4r^2} - r} \cos\theta \\
-  C &=&  1 + \beta\frac{3}{4r^2} \cos\theta \\
-  \bV &=& \mathcal{U} \brcs{ \brcs{1 - \frac{a^3}{r^3}} \brhat \cos\theta - \brcs{1 + \frac{a^3}{2r^3}} \bthetahat \sin\theta }\\
+  \varPhi &=& \brcs{\frac{1}{4r^2} - r} \beta \cos\theta \\
+  C &=&  1 + \frac{3}{4r^2} \beta \cos\theta \\
+  \bV &=& -\mathcal{U} \left[ \brcs{1 - \frac{a^3}{r^3}} \brhat \cos\theta - \brcs{1 + \frac{a^3}{2r^3}} \bthetahat \sin\theta \right]\\
   P &=& 0
 }
 \end{eqnarray}
@@ -241,7 +243,10 @@ Iterative relaxation scheme is used.
 \begin{itemize}
   \item Gives full symmetry for $\phi$ coordinate: ``2D problem''.
   \item Differential operators' discretisation is more complicated:
-  \[\nabla \varPhi, \nabla \cdot \bV, \Laplacian C, \bLaplacian \bV \]
+    \begin{eqnarray}
+        \bnabla \varPhi, \bnabla \cdot \bV, \Laplacian C, 
+        \bLaplacian \bV, \bnabla \bV
+    \end{eqnarray}
   \item Physics stays invariant under various coordinate systems.
 \end{itemize}
 }
@@ -286,6 +291,10 @@ Iterative relaxation scheme is used.
 \frame{\frametitle{Results}
 \begin{center}
     \includegraphics[width=0.75\textwidth]{coupled_numeric.eps}
+\end{center}}
+\frame{\frametitle{Results}
+\begin{center}
+    \includegraphics[width=0.75\textwidth]{coupled_theory.eps}
 \end{center}}
 
 \end{document}
