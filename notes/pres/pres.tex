@@ -65,10 +65,14 @@ Dimensionless formulation:
 \frame{\frametitle{Steady--state equations}
 Nernst--Planck equation:
 \begin{equation}
-\bnabla \cdot (-\bnabla c_\pm \mp c_\pm \bnabla \varphi) + \alpha \bv \cdot \bnabla c = 0
+\bnabla \cdot (-\bnabla c_\pm \mp c_\pm \bnabla \varphi) + 
+\alpha \bv \cdot \bnabla c_\pm = 0
 \end{equation}
-\[ \bnabla \cdot (\bnabla c + q \bnabla \varphi) = \alpha \bv \cdot \bnabla c \]
-\[ \bnabla \cdot (\bnabla q + c \bnabla \varphi) = \alpha \bv \cdot \bnabla q \]
+\begin{equation}
+\brc{l}{
+\bnabla \cdot (\bnabla c + q \bnabla \varphi) = \alpha \bv \cdot \bnabla c \\
+\bnabla \cdot (\bnabla q + c \bnabla \varphi) = \alpha \bv \cdot \bnabla q}
+\end{equation}
 Poisson's equation:
 \begin{equation}
 \delta^2 \Laplacian \varphi = -q
@@ -79,33 +83,47 @@ Fluid mass conservation:
 \end{equation}
 Fluid momentum conservation:
 \begin{equation}
-\bLaplacian \bv - \bnabla p + \Laplacian \varphi \bnabla \varphi = 0
+\bLaplacian \bv - \bnabla p + \Laplacian \varphi \bnabla \varphi = \bzero
 \end{equation}
 }
 \subsection{Boundary conditions}
 \frame{\frametitle{Boundary conditions}
 At infinity:
 \begin{itemize}
-\item Constant electric field: $-\beta \bzhat$.
-\item Constant ionic concentration: $C_\infty = 1$.
+\item Constant electric field: $\bnabla \varphi = -\beta \bzhat$.
+\item Constant ionic concentration: $c_\pm = 1$.
 \item Constant fluid velocity: $\bv = -\mathcal{U} \bzhat$.
 \end{itemize}
 On the particle:
 \begin{itemize}
-\item Conductive surface: $\phi = \mathcal{V}$.
+\item Conductive surface: $\varphi = \mathcal{V}$.
 \item Constant cationic concentration: $c_+ = \gamma$.
 \item Zero anionic flux: $-\bnabla c_- + c_- \bnabla \varphi = \bzero$.
 \item No-slip condition: $\bv = \bzero$.
 \end{itemize}
-In steady state, the particle should be force-free.
+}
+\frame{\frametitle{Boundary conditions}
+In steady state, the particle $\mathcal{S}$ should be force-free:
+\begin{eqnarray}
+  \vect{F} &=& \oint_{\partial \mathcal{S}} \mathbb{T} \cdot \bnhat dA \\
+  \mathbb{T} &=& -p \mathbb{I} + \bnabla \bv + (\bnabla \bv)^\dagger + 
+  \bnabla \varphi \bnabla \varphi - 
+  \frac{1}{2} (\bnabla \varphi \cdot \bnabla \varphi) \mathbb{I}
+\end{eqnarray}
+Note that $\vect{F} = F_\beta(\mathcal{U}) \bzhat$.
+We look for steady state:
+\begin{eqnarray}
+ F_\beta(\mathcal{U}) &=& 0
+\end{eqnarray}
+This can be solved by 1D root-finding algorithm.
 }
 \frame{\frametitle{Debye layer}
 In many realistic scenarios, $\delta \ll 1$ and the majority of the fluid remains electroneutral:
-\[q = 0 \Leftrightarrow c_+ = c_-\]
+\[q \approx 0 \Leftrightarrow c_+ \approx c_-\]
 \begin{eqnarray}
 \brc{rcl}{\bnabla \cdot (C \bnabla\varPhi) &=& 0 \\
-\Laplacian C &=& \alpha \bV \cdot \nabla C \\
-\bLaplacian \bV + \Laplacian \varPhi \bnabla \varPhi &=& \bnabla P \\
+\Laplacian C - \alpha \bV \cdot \nabla C &=& 0 \\
+\bLaplacian \bV - \bnabla P + \Laplacian \varPhi \bnabla \varPhi &=& 0\\
 \bnabla \cdot \bV &=& 0}
 \end{eqnarray}
 A boundary layer of length $\delta$ is formed near the particle's surface.
@@ -144,7 +162,7 @@ Static solution:
 \end{eqnarray}
 }
 \frame{\frametitle{Weak applied field: $\beta \ll 1$}
-Result from E. Yariv (2010), ``Migration of ion-exchange particles driven
+Result for a spherical ion--exchanger, from E. Yariv (2010), ``Migration of ion-exchange particles driven
 by a uniform electric field'':
 \begin{eqnarray}
 \brc{rcl}{
@@ -209,11 +227,11 @@ Iterative relaxation scheme is used.
 \begin{itemize}
   \item Exact solution of $\matr{A}\vect{u} = \vect{b}$ is too expensive.
   \item Relaxation is applied for each system,
-  using preconditioner $\matr{M}$:
+  using appropriate preconditioner $\matr{M}$:
   \begin{eqnarray}
     \vect{u}_{n+1} &=& \vect{u}_n + \matr{M}^{-1} \brcs{\vect{b} - \matr{A}\vect{u}_n}
   \end{eqnarray}
-  \item $\matr{M}$ should be easy to invert -- O(N) flops.
+  \item $\matr{M}$ should be easy to invert: O(N) flops.
 \end{itemize}
 }
 
@@ -228,18 +246,43 @@ Iterative relaxation scheme is used.
 \end{itemize}
 }
 \subsection{MATLAB sparse matrices}
-\frame{\frametitle{MATLAB sparse matrices}}
+\frame{\frametitle{MATLAB sparse matrices}
+\begin{itemize}
+  \item Fast matrix operations.
+  \item Efficient memory usage: $O(\mbox{non-zeroes})$.
+  \item Convenient algebraic manipulations: 
+    \begin{itemize}
+        \item Boundary conditions substitution.
+        \item Preconditioner construction.
+        \item Relaxation iteration.
+    \end{itemize}
+\end{itemize}
+}
 \subsection{Relaxation}
-\frame{\frametitle{Relaxation}} % + acceleration
+\frame{\frametitle{Relaxation}
+\begin{itemize}
+  \item Each PDE system uses its specific preconditioner:
+    \begin{itemize}
+      \item Laplace and Advection $\rightarrow$ Red-Black Gauss-Seidel.
+      \item Stokes $\rightarrow$ Vanka-type relaxation.
+    \end{itemize}
+  \item Convergence slows down as the grid becomes finer.
+  \item Vector extrapolation methods are used to accelerate convergence.
+  \item Using the solver for $F_\beta(\mathcal{U})$, steady state velocity
+  $\mathcal{U}$ can be found, using particle's force-free constraint.
+\end{itemize}
+}
 \subsection{Results}
 \frame{\frametitle{Results}
-\begin{center}
-    \begin{tabular}{cc}
-    Convergence of the solver & Comparison to theory \\
-    \includegraphics[width=0.5\textwidth]{convergence.eps} &
-    \includegraphics[width=0.5\textwidth]{comparison.eps}
-    \end{tabular}
-\end{center}}
+\begin{figure}[htbp]
+    \begin{center}
+        \includegraphics[width=0.45\textwidth]{convergence.eps}
+        \includegraphics[width=0.45\textwidth]{comparison.eps}
+        \caption{Left: Residual $\ell_2$ norm convergence graph. Right: Particle Velocity
+        $\mathcal{U}$ as a the function of electric field $\beta$.
+        The error between the theoretical and the solver's results is less than 2\%.}
+    \end{center}
+\end{figure}}
 \frame{\frametitle{Results}
 \begin{center}
     \includegraphics[width=0.75\textwidth]{coupled_numeric.eps}
