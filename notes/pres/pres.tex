@@ -66,7 +66,7 @@ Dimensionless formulation:
 \frame{\frametitle{Steady--state equations}
 Nernst--Planck equation:
 \begin{equation}
-\bnabla \cdot (-\bnabla c_\pm \mp c_\pm \bnabla \varphi) + 
+\bnabla \cdot (-\bnabla c_\pm \mp c_\pm \bnabla \varphi) +
 \alpha \bv \cdot \bnabla c_\pm = 0
 \end{equation}
 \begin{equation}
@@ -99,7 +99,7 @@ On the particle:
 \begin{itemize}
 \item Conductive surface: $\varphi = \mathcal{V}$.
 \item Constant cationic concentration: $c_+ = \gamma$.
-\item Zero anionic flux: 
+\item Zero anionic flux:
 $\brcs{-\bnabla c_- + c_- \bnabla \varphi} \cdot \bnhat = 0$.
 \item No-slip condition: $\bv = \bzero$.
 \end{itemize}
@@ -108,8 +108,8 @@ $\brcs{-\bnabla c_- + c_- \bnabla \varphi} \cdot \bnhat = 0$.
 In steady state, the particle $\mathcal{S}$ should be force-free:
 \begin{eqnarray}
   \vect{F} &=& \oint_{\partial \mathcal{S}} \mathbb{T} \cdot \bnhat dA \\
-  \mathbb{T} &=& -p \mathbb{I} + \bnabla \bv + (\bnabla \bv)^\dagger + 
-  \bnabla \varphi \bnabla \varphi - 
+  \mathbb{T} &=& -p \mathbb{I} + \bnabla \bv + (\bnabla \bv)^\dagger +
+  \bnabla \varphi \bnabla \varphi -
   \frac{1}{2} (\bnabla \varphi \cdot \bnabla \varphi) \mathbb{I}
 \end{eqnarray}
 Note that $\vect{F} = F_\beta(\mathcal{U}) \bzhat$.
@@ -143,7 +143,7 @@ Outside Debye layer:
 \\
 \frac{\partial}{\partial n} C &=& C \frac{\partial}{\partial n} \varPhi
 \\
-\bV &=& \zeta \bnabla_s \varPhi(s) +
+\bV &=& \zeta \bnabla_s \varPhi +
 2\log\left(1 - \tanh^2 \frac{\zeta}{4}\right) \bnabla_s C
 }\end{equation}
 Zeta potential:
@@ -244,7 +244,7 @@ Iterative relaxation scheme is used.
   \item Gives full symmetry for $\phi$ coordinate: ``2D problem''.
   \item Differential operators' discretisation is more complicated:
     \begin{eqnarray}
-        \bnabla \varPhi, \bnabla \cdot \bV, \Laplacian C, 
+        \bnabla \varPhi, \bnabla \cdot \bV, \Laplacian C,
         \bLaplacian \bV, \bnabla \bV
     \end{eqnarray}
   \item Physics stays invariant under various coordinate systems.
@@ -255,7 +255,7 @@ Iterative relaxation scheme is used.
 \begin{itemize}
   \item Fast matrix operations.
   \item Efficient memory usage: $O(\mbox{non-zeroes})$.
-  \item Convenient algebraic manipulations: 
+  \item Convenient algebraic manipulations:
     \begin{itemize}
         \item Boundary conditions substitution.
         \item Preconditioner construction.
