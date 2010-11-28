@@ -71,13 +71,17 @@ Thus the equations for $O(\beta^2)$ have the same form as for $O(\beta)$, but wi
   \bLaplacian \bV_2 - \bnabla P_2 &=& 0
  }
 \end{eqnarray}
-
+Boundary conditions:
+\begin{eqnarray}
+  \varPhi &=& -\log C \\
+  \deriv{C}{r} &=& C\deriv{\varPhi}{r}
+\end{eqnarray}
 Stress tensor is:
 \begin{eqnarray}
-  \mathbb{S} &=& -P \mathbb{I} + \bnabla \bV + (\bnabla \bV)^\dagger + 
-  \bnabla \varPhi \bnabla \varPhi - \frac{1}{2} (\bnabla \varPhi \cdot \bnabla \varPhi) \mathbb{I} 
+  \mathbb{S} &=& -P \mathbb{I} + \bnabla \bV + (\bnabla \bV)^\dagger +
+  \bnabla \varPhi \bnabla \varPhi - \frac{1}{2} (\bnabla \varPhi \cdot \bnabla \varPhi) \mathbb{I}
   \\
   \mathbb{S}_1 &=& -P_1 \mathbb{I} + \bnabla \bV_1 + (\bnabla \bV_1)^\dagger
   \\
   \mathbb{S}_2 &=& -P_2 \mathbb{I} + \bnabla \bV_2 + (\bnabla \bV_2)^\dagger + \bnabla \varPhi_1 \bnabla \varPhi_1 - \frac{1}{2} (\bnabla \varPhi_1 \cdot \bnabla \varPhi_1) \mathbb{I}
-\end{eqnarray}
+\end{eqnarray} 
