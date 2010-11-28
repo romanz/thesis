@@ -55,14 +55,19 @@ function F = force_solver(filename, mode, beta, gamma, Vinf, Rinf, N, ...
     res_norm = @(X) norm(X(:), inf);
     
     % Main iteration
+    iter_id = 0;
     function state = iteration(state)
         [solPhi, solVx, solVy, solP, solC] = split(state, ...
             gridPhi.sz, gridVx.sz, gridVy.sz, gridP.sz, gridC.sz);
         res(1) = res_norm(relax_maxwell(iters(1)));
         res(2) = res_norm(relax_stokes(iters(2)));
         res(3) = res_norm(relax_advection(iters(3)));
-        fprintf('[%.5e\t%.5e\t%.5e]\n', res(1), res(2), res(3));
+        iter_id = iter_id + 1;
+        fprintf('%d: [%.5e\t%.5e\t%.5e]\n', iter_id, res(1), res(2), res(3));
         state = [solPhi(:); solVx(:); solVy(:); solP(:); solC(:)];
+        if any(solC(:) < 0)
+            error('ForceSolver:Iteration', 'Negative C!');
+        end
     end
 
     state = [solPhi(:); solVx(:); solVy(:); solP(:); solC(:)];
@@ -147,7 +152,7 @@ function F = force_solver(filename, mode, beta, gamma, Vinf, Rinf, N, ...
         func = @relax_advection;
         function residual = relax_advection(iters)
             residual = NaN; if ~iters, return; end
-            VG = advection(gridC.I, gridC.X, gridC.Y, solVx, solVy);
+            VG = advection_upwind(gridC.I, gridC.X, gridC.Y, solVx, solVy, gridVx, gridVy);
             advect_operator = L - alpha*VG;
             A = advect_operator * P;
             q = Q * advection_boundary_vec(solPhi);
