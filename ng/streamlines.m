@@ -1,4 +1,4 @@
-function streamlines(filename, Smax, Snum)
+function streamlines(filename, Smin, Smax, Snum)
 
 load(filename)
 % [X, Y] = ndgrid(logspace(0, 1), linspace(0, pi));
@@ -59,7 +59,7 @@ Psi(~~W) = -Psi(~~W) ./ W(~~W);
 %     [~, ~, Psi] = stokes_solution(Vinf, gridPsi.X, gridPsi.Y);
 % end
 contour(gridPsi.X .* cos(gridPsi.Y), gridPsi.X .* sin(gridPsi.Y), ...
-    Psi, linspace(0, Smax, Snum));
+    Psi, linspace(Smin, Smax, Snum));
 
 function D = grad(X, dim)
 sz = size(X);
