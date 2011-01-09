@@ -10,8 +10,13 @@ beta = 1e-3;
 % force_solver('res_stokes', 'w', beta, gamma, Vinf*beta, 1e4, ...
 %     [120 40], 1000, 10*[0 1 0]);
 
-force_solver('res_coupled', 'w', beta, gamma, Vinf*beta, 1e3, ...
-    [60 15], 2000, [1 1 1]);
+opts = {'Rinf', 1e3, 'N', [60 15], 'cycles', 1000, 'iters', 2*[1 1 1], ...
+    'filename', 'res_coupled', 'mode', 'w', 'quiet', true};
+
+f = @(x) force_solver(beta, gamma, x*Vinf*beta, opts{:});
+x = secant(f, [0.9 1.1], 3);
+% f(1)
+
 
 %%
 load res_coupled;

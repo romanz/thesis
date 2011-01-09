@@ -1,6 +1,6 @@
 function handle = progress(handle, p, msg)
 
-if isempty(handle)       
+if isempty(handle)
     handle.start = now;
     handle.fig = waitbar(0, '');
     handle.msg = msg;
@@ -8,10 +8,9 @@ if isempty(handle)
     handle.p = 0;
 elseif isempty(p)
     close(handle.fig);
-    fprintf('%s\n', datestr(now - handle.start, 'HH:MM:SS'));
     return
-elseif p < min(1, handle.p + 1e-2)
-    return
+% elseif p < min(1, handle.p + 1e-2)
+%     return
 end
 
 if nargin >= 3 && ~isempty(msg)

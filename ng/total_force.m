@@ -1,4 +1,4 @@
-function Ftotal = total_force(solVx, solVy, solP, solPhi, radius, theta)
+function [Ftotal, Fnewton, Fmaxwell] = total_force(solVx, solVy, solP, solPhi, radius, theta)
 
 Vx0 = solVx(1:2, :); % radial components
 Vy0 = solVy(1:2, :); % tangential components
@@ -55,8 +55,6 @@ dPhi_dtheta = diff(average(Phi, [1 1; 1 1]/4)) ./ diff(theta.');
 Fr = 1/2 * (dPhi_dr.^2 - dPhi_dtheta.^2);
 Ft = dPhi_dr .* dPhi_dtheta;
 Fmaxwell = midquad(Fr, Ft);
-
-fprintf('%.5e | %.5e\n', Fnewton, Fmaxwell);
 
 %% Total stress
 Ftotal = Fnewton + Fmaxwell;

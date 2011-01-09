@@ -13,11 +13,17 @@
 %     Example:
 %       force_solver('results', 1, 0, 2.2, 1e-2, 1e3, ...
 %                    [100 30], 50, [false 100 false]);
-function F = force_solver(filename, mode, beta, gamma, Vinf, Rinf, N, ...
-                          cycles, iters)
+function F = force_solver(beta, gamma, Vinf, varargin)
     tic;
-    radius = logspace(0, log10(Rinf), N(1)).';
-    theta = linspace(0, pi, N(2)).';
+    opts = struct(varargin{:});
+    if opts.quiet
+        log = @(varargin) 0;
+    else
+        log = @fprintf;
+    end
+    
+    radius = logspace(0, log10(opts.Rinf), opts.N(1)).';
+    theta = linspace(0, pi, opts.N(2)).';
     [center, interior, xstag, ystag] = grids(radius, theta);
     % Grids for problem's variables
     gridPhi = center;
@@ -30,40 +36,42 @@ function F = force_solver(filename, mode, beta, gamma, Vinf, Rinf, N, ...
     relax_stokes = init_stokes();
     relax_advection = init_advection();    
 
-    if isempty(strfind(mode, 'r'))
+    if isempty(strfind(opts.mode, 'r'))
         solPhi = 0*randn(gridPhi.sz);
         solVx = 0*randn(gridVx.sz);
         solVy = 0*randn(gridVy.sz);
         solP = 0*randn(gridP.sz);
         solC = 1+0*randn(gridC.sz);
-        fprintf('Initializing settings for iterative solver.\n');
+        log('Initializing settings for iterative solver.\n');
     else
-        S = load(filename);
+        S = load(opts.filename);
         solPhi = S.solPhi;
         solVx = S.solVx;
         solVy = S.solVy;
         solP = S.solP;
         solC = S.solC;
-        fprintf('Loading solver settings from "%s".\n', filename);
+        log('Loading solver settings from "%s".\n', opts.filename);
     end
-    fprintf('Running solver for %d cycles:\n', cycles);
-    fprintf('\tbeta  = %.4e\n', beta);
-    fprintf('\tgamma = %.4e\n', gamma);
-    fprintf('\tV(inf)  = %.4e\n', Vinf);
-    fprintf('\tR(inf)  = %.1f\n', Rinf);
-    fprintf('\tGrid size = [%d %d]\n', N(1), N(2));
+    log('Running solver for %d cycles:\n', opts.cycles);
+    log('\tbeta  = %.4e\n', beta);
+    log('\tgamma = %.4e\n', gamma);
+    log('\tV(inf)  = %.4e\n', Vinf);
+    log('\tR(inf)  = %.1f\n', opts.Rinf);
+    log('\tGrid size = [%d %d]\n', opts.N(1), opts.N(2));
     res_norm = @(X) norm(X(:), inf);
     
     % Main iteration
     iter_id = 0;
+    h = progress([], 0, 'Force Solver');
     function state = iteration(state)
         [solPhi, solVx, solVy, solP, solC] = split(state, ...
             gridPhi.sz, gridVx.sz, gridVy.sz, gridP.sz, gridC.sz);
-        res(1) = res_norm(relax_maxwell(iters(1)));
-        res(2) = res_norm(relax_stokes(iters(2)));
-        res(3) = res_norm(relax_advection(iters(3)));
+        res(1) = res_norm(relax_maxwell(opts.iters(1)));
+        res(2) = res_norm(relax_stokes(opts.iters(2)));
+        res(3) = res_norm(relax_advection(opts.iters(3)));
         iter_id = iter_id + 1;
-        fprintf('%d: [%.5e\t%.5e\t%.5e]\n', iter_id, res(1), res(2), res(3));
+        s = sprintf('%d: [%.3e  %.3e  %.3e]', iter_id, res(1), res(2), res(3));
+        h = progress(h, iter_id/opts.cycles, s);
         state = [solPhi(:); solVx(:); solVy(:); solP(:); solC(:)];
         if any(solC(:) < 0)
             error('ForceSolver:Iteration', 'Negative C!');
@@ -75,21 +83,22 @@ function F = force_solver(filename, mode, beta, gamma, Vinf, Rinf, N, ...
     % Apply specified number of iterations (no extrapolation)
     batch = 1;
     [state] = extrapolate(state, @iteration, ...
-        batch-1, ceil(cycles/batch), 'N/A');
+        batch-1, ceil(opts.cycles/batch), 'N/A');
     
     [solPhi, solVx, solVy, solP, solC] = split(state, ...
         gridPhi.sz, gridVx.sz, gridVy.sz, gridP.sz, gridC.sz);
+    progress(h, []);
     
-    fprintf('Iterations done after %.3fs.\n', toc);
-    beeper(800, 20e-3);    
+    log(s);
+    log('Iterations done after %.3fs.\n', toc);
     
     F = total_force(solVx, solVy, solP, solPhi, radius, theta);
-    fprintf('Total force : %.4e\n', F);
-    fprintf('Stokes force : %.4e\n', 6*pi*Vinf);
-    if ~isempty(strfind(mode, 'w')) 
-        save(filename); 
+    log('Total force : %.4e\n', F);
+    log('Stokes force : %.4e\n', 6*pi*Vinf);
+    if ~isempty(strfind(opts.mode, 'w')) 
+        save(opts.filename); 
     end
-    fprintf('\n');
+    log('\n');
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Initialization of problems' operators 
