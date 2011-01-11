@@ -51,6 +51,7 @@ function F = force_solver(beta, gamma, Vinf, varargin)
         solP = S.solP;
         solC = S.solC;
         log('Loading solver settings from "%s".\n', opts.filename);
+        clear S;
     end
     log('Running solver for %d cycles:\n', opts.cycles);
     log('\tbeta  = %.4e\n', beta);
