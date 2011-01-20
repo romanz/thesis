@@ -47,7 +47,7 @@ axs = [-1 1 0 1];
 
 %
 figure(f+6); 
-streamlines('res_coupled', 0, beta, 100); axis equal; axis(3*axs); 
+streamlines('res_coupled', 0, beta, 200); axis equal; axis(3*axs); 
 title('Coupled Flow Streamlines (numerical solution)')
 print -depsc2 coupled_numeric.eps
 %
@@ -57,7 +57,7 @@ gridPsi = init_grid(S.radius, S.theta);
 psi = @(r, theta) S.Vinf * sin(theta) .* (0.5*r - 0.75 + 0.25./(r.^2)) ...
                 + 1.5*S.Vinf * sin(theta) .* (0.5 - 0.5./(r.^2));
 contour(gridPsi.X .* cos(gridPsi.Y), gridPsi.X .* sin(gridPsi.Y), ...
-    psi(gridPsi.X, gridPsi.Y), linspace(0, beta, 100));
+    psi(gridPsi.X, gridPsi.Y), linspace(0, beta, 200));
 
 axis equal; 
 axis(axs*3); title('Coupled Flow Streamlines (theoretical solution)')

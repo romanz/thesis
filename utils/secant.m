@@ -5,7 +5,7 @@ function sol = secant(f, x, iters)
     x2 = x(2); fprintf('%f -> ', x2); f2 = f(x2); fprintf('%e\n', f2);
     x3 = next(x1, x2, f1, f2);
     for i = 1:iters
-        if x2 == x3
+        if x2 == x3 || abs(x2 - x3) < 1e-8
             break
         end
         fprintf('%f -> ', x3);
