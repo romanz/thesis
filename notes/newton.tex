@@ -5,7 +5,8 @@ and using the Hessian to compute the Newton's step.
 \begin{eqnarray}
   f(x) &\approx & f(x_0) + H(x_0) (x - x0)
 \end{eqnarray}
-Thus, the Newton's step, defined as $\Delta x = x - x_0$, is:
+Thus, the Newton's step to solve $f(x) = 0$, 
+defined as $\Delta x = x - x_0$, is:
 \begin{eqnarray}
   \Delta x &=& -H^{-1}(x_0) f(x_0)
 \end{eqnarray}
@@ -27,8 +28,8 @@ equations.
   \Laplacian \phi \bnabla \varPhi +
   \Laplacian \varPhi \bnabla \phi &
   & +\bLaplacian \bv &- \bnabla p
-  \end{array}\right] \\ 
-  df & \approx & H(\varPhi,C,\bV,P) \left[\begin{array}{c} 
+  \end{array}\right] \\
+  df & \approx & H(\varPhi,C,\bV,P) \left[\begin{array}{c}
   \phi \\ c \\ \bv \\ p
   \end{array}\right]
 \end{eqnarray}
@@ -38,7 +39,7 @@ equations.
 r = 1 &\Rightarrow&
 \brc{rcl}{
   \varPhi & = & -\log C \\
-  C \partial_r {\varPhi} & = & \partial_r {C} \\
+  \partial_r {\varPhi} & = & \partial_r {\log C} \\
   \bV & = & \left\{\log (C/\gamma) \partial_\theta \varPhi +
   2 \log\left(1 - \tanh^2 \frac{\log (C/\gamma)}{4}\right)
   \partial_\theta \log C \right\} \bthetahat
@@ -57,7 +58,7 @@ Apply linearization:
 r = 1 &\Rightarrow&
 \brc{rcl}{
   0 & = & \phi + {c / C} \\
-  0 &=& c\cdot \partial_r{\varPhi} + C\cdot\partial_r {\phi}-\partial_r{c} \\
+  \partial_r {\phi} & = &  \partial_r {(c/C)} \\
   \bv & = & \left\{c/C \partial_\theta \varPhi +
   \log (C/\gamma) \partial_\theta \phi \right\}\bthetahat
   \\ & &
