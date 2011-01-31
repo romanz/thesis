@@ -25,24 +25,24 @@ ind = @(I, J) sub2ind(sz, I, J);
 
 % for X
     Dxx = ... % Laplacian stencil in X direction
-     (( (X(Kr) + X(K))/2 ).^2 .* ( C(Kr) + C(K) ) ./ (( X(Kr) - X(K) ))) * [1 -1 0] -  ...
-     (( (X(K) + X(Kl))/2 ).^2 .* ( C(K) + C(Kl) ) ./ (( X(K) - X(Kl) ))) * [0 1 -1];
+     (( C(Kr) + C(K) ) ./ (( X(Kr) - X(K) ))) * [1 -1 0] -  ...
+     (( C(K) + C(Kl) ) ./ (( X(K) - X(Kl) ))) * [0 1 -1];
     P = ind(Ip + Dp, Jp); % column indices
     Dxx = sparse(Kp, P, Dxx, M, N);
     % The denumerator is separated, for A to be symmetric
     % (since the original operator is self-adjoint).
-    Mxx = sparse(1:M, 1:M, X(K).^2 .* (X(Kr) - X(Kl)), M, M);
+    Mxx = sparse(1:M, 1:M, (X(Kr) - X(Kl)), M, M);
 % Laplacian for X direction is (pinv(Mxx) * Dxx)
 
 % for Y
     Dyy = ... % Laplacian stencil in Y direction
-     (sin( (Y(Ku) + Y(K))/2 ) .* ( C(Ku) + C(K) ) ./ (( Y(Ku) - Y(K) ))) * [1 -1 0] -  ...
-     (sin( (Y(K) + Y(Kd))/2 ) .* ( C(K) + C(Kd) ) ./ (( Y(K) - Y(Kd) ))) * [0 1 -1];
+     (( C(Ku) + C(K) ) ./ (( Y(Ku) - Y(K) ))) * [1 -1 0] -  ...
+     (( C(K) + C(Kd) ) ./ (( Y(K) - Y(Kd) ))) * [0 1 -1];
     P = ind(Ip, Jp + Dp); % column indices
     Dyy = sparse(Kp, P, Dyy, M, N);
     % The denumerator is separated, for A to be symmetric
     % (since the original operator is self-adjoint).
-    Myy = sparse(1:M, 1:M, X(K).^2 .* sin(Y(K)) .* (Y(Ku) - Y(Kd)), M, M);
+    Myy = sparse(1:M, 1:M, (Y(Ku) - Y(Kd)), M, M);
 % Laplacian for Y direction is (pinv(Myy) * Dyy)
 
 % % The actual Laplacian matrix is:
