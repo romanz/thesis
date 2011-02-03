@@ -8,13 +8,11 @@ function test
 
     sol.Phi = zeros(grid.Phi.sz);
     sol.C = ones(grid.C.sz);
-    rep = @(x, m) repmat(x, 1, m);
     betas = [...
         linspace(0.5, 1, 6), ...
         linspace(1.1, 1.3, 11), ...
-        linspace(1.3, 1.5, 21), ...
-        linspace(1.5, 1.7, 21), ...
-        linspace(1.7, 1.75, 21)];
+        linspace(1.3, 1.5, 21)];
+%     betas = 0.5;
     k = 1;
     while true
         b = betas(min(k, numel(betas)));
@@ -59,7 +57,7 @@ function step = init_step(grid)
         sol.C(end, 2:end-1) = c1;
         sol.Phi(1, 2:end-1) = phi0;
         sol.Phi(end, 2:end-1) = phi1;
-        % Set Phi boundaries
+        % Set Theta boundaries
         sol.C(1:end, 1) = sol.C(1:end, 2);
         sol.C(1:end, end) = sol.C(1:end, end-1);
         sol.Phi(1:end, 1) = sol.Phi(1:end, 2);

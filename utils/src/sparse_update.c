@@ -12,8 +12,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     if (nlhs > 0) {
         mexErrMsgTxt("Too many output arguments."); 
     } 
-    
+
+    /* Number of effective non-zeroes in 1st argument */
     pn = mxGetJc(prhs[0])[mxGetN(prhs[0])];
+    /* Number of elements to copy */
     qn = mxGetNumberOfElements(prhs[1]);
     
     if (pn != qn && qn > 1) {
