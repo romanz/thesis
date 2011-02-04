@@ -1,3 +1,4 @@
+% Sparse matrix initialization.
 % Efficient replacement for repetative usage of sparse() function.
 %
 % Instead of using "S = sparse(I, J, V, n, m)", each time with different V,
@@ -29,7 +30,8 @@ clear I J;
 % Its values can be updated inplace using MEX code.
 function result = update(values)
     result = matrix;
-    sparse_update_inplace(result, values(K));
+    values = values(K); % Sort non-zeroes to be in CSC order.
+    sparse_update_inplace(result, values);
 end
 
 updater = @update;
