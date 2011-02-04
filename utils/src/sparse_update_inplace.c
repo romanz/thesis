@@ -1,6 +1,18 @@
 #include <math.h>
 #include "mex.h"
 
+/* Sparse matrix non-zeroes update.
+ *
+ * This utility can be useful when you need to update a sparse matrix 
+ * values without changing its sparsity pattern.
+ * 
+ * Since MATLAB uses CSC (Compressed Sparse Column) format for sparse 
+ * matries, the non-zeroes are stored in an array, which can be safely 
+ * overwritten, while preserving the sparsity pattern.
+ *
+ * NOTE: this function supports only real sparse matrices.
+*/
+
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 { 
     double *pr, *qr; 

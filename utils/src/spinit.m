@@ -15,6 +15,8 @@
 %       S = mask(values);
 %       disp(full(S))
 %   end
+%
+% NOTE: this function supports only real sparse matrices.
 function updater = spinit(I, J, sz)
 
 assert( numel(I) == numel(J) );
@@ -27,10 +29,11 @@ K = K(:, 3); % Used to reorder new values.
 matrix = sparse(I, J, ones(size(I)), sz(1), sz(2));
 clear I J;
 
-% Its values can be updated inplace using MEX code.
+% Now it values can be updated inplace using the following function:
 function result = update(values)
-    result = matrix;
+    result = matrix; % references the allocated matrix.
     values = values(K); % Sort non-zeroes to be in CSC order.
+    % NOTE: this MEX code updates previously allocated matrix in-place.
     sparse_update_inplace(result, values);
 end
 
