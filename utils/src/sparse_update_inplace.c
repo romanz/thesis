@@ -9,7 +9,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     if (nrhs != 2) { 
         mexErrMsgTxt("Two input arguments required."); 
     }
-    if (nlhs > 0) {
+    if (nlhs > 1) {
         mexErrMsgTxt("Too many output arguments."); 
     } 
 

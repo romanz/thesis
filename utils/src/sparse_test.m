@@ -3,12 +3,22 @@ function sparse_test()
 %     clear sparse_update;
 %     mex sparse_update.c;
 
-    n = 3;
+    n = 1000;
     K = (1:n)';
     I = [K K K];
     J = [K, K+1, K+2];
-    update = sparse_matrix(I, J, [n, n+2]);    
-    full(update([K -2*K 3*K]))
+    sz = [n, n+2];
+    tic;
+    update = sparse_matrix(I, J, sz);    
+    for j=1:10000
+        S = update([K -2*K 3*K]);
+    end
+    toc;
+    tic;
+    for j=1:10000
+        S = sparse(I, J, [K -2*K 3*K], sz(1), sz(2));
+    end
+    toc;
     return;
 
     m = 100e3;
