@@ -4,7 +4,6 @@ function G = init_grid(x, y)
     G.x = x(:);
     G.y = y(:);
     [G.X, G.Y] = ndgrid(G.x, G.y);
-    G.coords = {G.X, G.Y}; % for dimension selection.
     G.sz = [numel(x), numel(y)];
     G.numel = prod(G.sz);
     G.I = interior(G.sz);

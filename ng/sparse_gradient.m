@@ -1,6 +1,6 @@
 % Create sparse matrix gradient representation G, 
 % computed on interior cells' edges.
-function G = sparse_gradient(grid, dim)
+function D = sparse_gradient(grid, dim)
     dir = (1:2 == dim);
     J1 = grid.I | shift(grid.I, dir);
     J0 = shift(J1, -dir);
@@ -9,10 +9,13 @@ function G = sparse_gradient(grid, dim)
     I = repmat(1:N, 1, 2); % row indices
     
     % Finite difference operator
-    G = sparse(I, J, repmat([-1 1], N, 1), N, grid.numel); 
-    coords = grid.coords{dim};    
-    dg = G * coords(:); % Scale by grid differences reciprocal.
-    G = spdiag(1./dg) * G;
+    D = sparse(I, J, repmat([-1 1], N, 1), N, grid.numel); 
+    switch dim
+        case 1, g = grid.X; % ds = d{r}
+        case 2, g = grid.Y .* grid.X; % ds = r d{theta}
+        otherwise, error('invalid dimension');
+    end
+    dg = D * g(:); % Scale by grid differences reciprocal.
+    D = spdiag(1./dg) * D;
 end
-
 
