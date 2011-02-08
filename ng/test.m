@@ -67,7 +67,7 @@ function step = solver(grid)
         sol.Phi(1:end, end) = sol.Phi(1:end, end-1);
     end
     % Newton step
-    function [sol, u, f] = step_func(sol, beta)
+    function [sol, u, f] = solver_step(sol, beta)
         sol = boundaries(sol, beta);
         f = [L.Phi * sol.Phi(:); L.C * sol.C(:)];
         H = hessian(sol);
@@ -101,5 +101,5 @@ function step = solver(grid)
             S = neumann(grid, d) * S;
         end
     end
-    step = @step_func;
+    step = @solver_step;
 end
