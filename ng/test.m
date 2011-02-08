@@ -1,10 +1,11 @@
 function test
 
+    profile on
     [central] = grids(logspace(0, 2, 90), linspace(0, pi, 50));
     grid.Phi = central;
     grid.C = central;
 
-    newton_step = init_step(grid);
+    newton_step = solver(grid);
 
     sol.Phi = zeros(grid.Phi.sz);
     sol.C = ones(grid.C.sz);
@@ -25,9 +26,11 @@ function test
             break;
         end
     end
+    profile off
     show(1, grid.Phi, sol.Phi, '\Phi');
     show(2, grid.C, sol.C, 'C');
     save results
+    profile viewer
 end
 
 function show(id, grid, sol, msg)
@@ -40,7 +43,7 @@ function show(id, grid, sol, msg)
     title(msg)
 end
 
-function step = init_step(grid)
+function step = solver(grid)
     % Operator definition
     L.Phi = grid_laplacian(grid.Phi);
     L.C = grid_laplacian(grid.C);
