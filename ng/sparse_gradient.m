@@ -1,7 +1,7 @@
 % Create sparse matrix gradient representation G, 
 % computed on interior cells' edges.
 function D = sparse_gradient(grid, dim)
-    dir = (1:2 == dim);
+    dir = (1:2 == dim); assert(any(dir));
     J1 = grid.I | shift(grid.I, dir);
     J0 = shift(J1, -dir);
     J = [find(J0) find(J1)]; % column indices
