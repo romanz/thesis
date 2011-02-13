@@ -52,3 +52,7 @@ ind = @(I, J) sub2ind(sz, I, J);
 M = Mxx * Myy;
 L = Myy * Dxx + Mxx * Dyy;
 A = dinv(M) * L;
+return
+
+dinv(Mxx) * Dxx
+dinv(Myy) * Dyy
