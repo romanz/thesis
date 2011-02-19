@@ -9,7 +9,7 @@ to MATLAB path and switch to correct source code directory.
 
 URL
 ---
-http://bitbucket.org/romanz/numericodes/
+https://github.com/romanz/thesis
 
 Contact
 -------
