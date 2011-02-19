@@ -1,6 +1,5 @@
-function test
+function [sol, grid, prof] = main
 
-    profile on
     [central] = grids(logspace(0, 2, 90), linspace(0, pi, 60));
     grid.Phi = central;
     grid.C = central;
@@ -10,9 +9,10 @@ function test
     sol.Phi = zeros(grid.Phi.sz);
     sol.C = ones(grid.C.sz);
     betas = linspace(0.5, 5, 50);
-%     betas = 0.5;
+
     k = 1;
     fprintf('\n');
+    profile('on');
     while true
         b = betas(min(k, numel(betas)));
         [sol, u, f] = newton_step(sol, b);
@@ -25,11 +25,10 @@ function test
             break;
         end
     end
-    profile off
+    profile('off');
     show(1, grid.Phi, sol.Phi, '\Phi');
     show(2, grid.C, sol.C, 'C');
-    save results1
-    profile viewer
+    prof = profile('info');
 end
 
 function show(id, grid, sol, msg)
