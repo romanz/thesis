@@ -1,9 +1,6 @@
 function [sol, grid, prof] = main(betas, vis)
 
-    [grid.centred] = grids(logspace(0, 2, 90), linspace(0, pi, 60));
-    grid.Phi = grid.centred;
-    grid.C = grid.centred;
-
+    grid = grids(logspace(0, 2, 90), linspace(0, pi, 60));
     newton_step = solver(grid);
 
     sol.Phi = zeros(grid.Phi.sz);
@@ -46,9 +43,8 @@ end
 function step = solver(grid)
 
     % Divergence, Gradient and Interpolation
-    g = grid.centred;
-    [D1, G1, I1] = operators(g, 1);
-    [D2, G2, I2] = operators(g, 2);
+    [D1, G1, I1] = operators(grid.center, 1);
+    [D2, G2, I2] = operators(grid.center, 2);
     L = D1 * G1 + D2 * G2;
     
     % Application of Newton method for given beta
@@ -133,7 +129,7 @@ function [sol] = boundaries(sol, grid, beta)
 end
 
 % Create central and staggered grids for Laplace and Stokes problems.
-function [center, interior, xstag, ystag] = grids(x, y)
+function [grid] = grids(x, y)
     x = x(:); y = y(:); 
     % extended grid (for ghost points)
     xg = [2*x(1) - x(2); x; 2*x(end) - x(end-1)];
@@ -143,11 +139,13 @@ function [center, interior, xstag, ystag] = grids(x, y)
     yc = average(yg, [1; 1]/2);
     
     % NDGRID convention
-    center = init_grid(xc, yc);    
-    xstag = init_grid(xg(2:end-1), yc);
-    ystag = init_grid(xc, yg(2:end-1));    
-    interior = init_grid(xc(2:end-1), yc(2:end-1));
-    interior.I = true(size(interior.I)); % no boundary
+    grid.center = init_grid(xc, yc);        
+    grid.Phi = grid.center;
+    grid.C = grid.center;
+	grid.Vx = init_grid(xg(2:end-1), yc); % V_r grid
+    grid.Vy = init_grid(xc, yg(2:end-1)); % V_theta grid
+    grid.P = init_grid(xc(2:end-1), yc(2:end-1)); % Pressure grid
+    grid.P = true(grid.P.sz); % only interior points are considered
 end
 
 % Splits x into seperate variables according to specified sizes.
