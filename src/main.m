@@ -1,8 +1,8 @@
-function [sol, grid, prof] = main(betas)
+function [sol, grid, prof] = main(betas, vis)
 
-    [central] = grids(logspace(0, 2, 90), linspace(0, pi, 60));
-    grid.Phi = central;
-    grid.C = central;
+    [grid.centred] = grids(logspace(0, 2, 90), linspace(0, pi, 60));
+    grid.Phi = grid.centred;
+    grid.C = grid.centred;
 
     newton_step = solver(grid);
 
@@ -25,8 +25,10 @@ function [sol, grid, prof] = main(betas)
         end
     end
     profile('off');
-    show(1, grid.Phi, sol.Phi, '\Phi');
-    show(2, grid.C, sol.C, 'C');
+    if nargin >= 2 && vis
+        show(1, grid.Phi, sol.Phi, '\Phi');
+        show(2, grid.C, sol.C, 'C');
+    end
     prof = profile('info');
 end
 
@@ -40,29 +42,40 @@ function show(id, grid, sol, msg)
     title(msg)
 end
 
+% Newton solver iteration for given grid.
 function step = solver(grid)
-    % Operator definition
-    g = grid.C;
+
+    % Divergence, Gradient and Interpolation
+    g = grid.centred;
     [D1, G1, I1] = operators(g, 1);
     [D2, G2, I2] = operators(g, 2);
     L = D1 * G1 + D2 * G2;
-    % Newton step
+    
+    % Application of Newton method for given beta
+    step = @solver_step;
     function [sol, u, f] = solver_step(sol, beta)
-        sol = boundaries(sol, grid, beta);
+        % Set boundary conditions
+        sol = boundaries(sol, grid, beta); 
+        
+        % Compute gradients and interpolated values
         I1_C = I1 * sol.C(:);
         I2_C = I2 * sol.C(:);
         G1_Phi = G1 * sol.Phi(:);
         G2_Phi = G2 * sol.Phi(:);
         G1_C = G1 * sol.C(:);
         G2_C = G2 * sol.C(:);
-        
+                
+        % f = [div(C grad(Phi)); div(grad(C))] -> 0
         f = [D1 * (I1_C .* G1_Phi) + D2 * (I2_C .* G2_Phi); ...
              D1 * G1_C + D2 * G2_C];
         H = hessian(sol);
-        du = H \ f;
-        u = [sol.Phi(grid.Phi.I); sol.C(grid.C.I)] - du;
-        [sol.Phi(grid.Phi.I), sol.C(grid.C.I)] = ...
-            split(u, grid.Phi.sz-2, grid.C.sz-2);
+        du = -(H \ f);
+        
+        % Apply Newton step on the interior
+        [dPhi, dC] = split(du, grid.Phi.sz-2, grid.C.sz-2);
+        sol.Phi(grid.Phi.I) = sol.Phi(grid.Phi.I) + dPhi(:);
+        sol.C(grid.C.I) = sol.C(grid.C.I) + dC(:);
+        u = [sol.Phi(grid.Phi.I); sol.C(grid.C.I)];
         
         % Hessian matrix
         function H = hessian(sol)
@@ -80,12 +93,15 @@ function step = solver(grid)
                  L * S21, L * S22];
         end
     end
+    % Dirichlet for coupled bounadry conditions
     function S = dirichlets(grid, dir, vals)        
-        K = find(~grid.I & shift(grid.I, dir));
-        I = grid.I & ~shift(grid.I, -dir);
-        J = find(I(2:end-1, 2:end-1));
+        K = find(~grid.I & shift(grid.I, dir)); % ghost points' equations
+        I = grid.I & ~shift(grid.I, -dir); 
+        J = find(I(2:end-1, 2:end-1)); % near-ghost interior points
+        % vals = derivatives of ghost points w.r.t. interior points
         S = sparse(K, J, vals(:), grid.numel, nnz(grid.I));
     end
+    % Neumann boundary conditions
     function S = neumanns(grid, varargin)
         S = expand(grid.I);
         for k = 1:numel(varargin)
@@ -93,7 +109,6 @@ function step = solver(grid)
             S = neumann(grid, d) * S;
         end
     end
-    step = @solver_step;
 end
 
 % Set boundary conditions
@@ -133,4 +148,20 @@ function [center, interior, xstag, ystag] = grids(x, y)
     ystag = init_grid(xc, yg(2:end-1));    
     interior = init_grid(xc(2:end-1), yc(2:end-1));
     interior.I = true(size(interior.I)); % no boundary
+end
+
+% Splits x into seperate variables according to specified sizes.
+%   [x1, x2, x3] = split(x, sz1, sz2, sz3);
+%   where sz{i} = size(x{i}) and x = [x1(:); x2(:); x3(:)];
+function [varargout] = split(x, varargin)
+    N = numel(varargin);
+    varargout = cell(N);
+    offset = 0;
+    for k = 1:N
+        sz = varargin{k};
+        m = prod(sz);
+        varargout{k} = reshape(x(offset + (1:m)), sz);
+        offset = offset + m;
+    end
+    assert(offset == numel(x));
 end
