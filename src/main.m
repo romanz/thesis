@@ -1,4 +1,4 @@
-function [sol, grid, prof] = main
+function [sol, grid, prof] = main(betas)
 
     [central] = grids(logspace(0, 2, 90), linspace(0, pi, 60));
     grid.Phi = central;
@@ -8,7 +8,6 @@ function [sol, grid, prof] = main
 
     sol.Phi = zeros(grid.Phi.sz);
     sol.C = ones(grid.C.sz);
-    betas = linspace(0.5, 5, 50);
 
     k = 1;
     fprintf('\n');
