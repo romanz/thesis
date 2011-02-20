@@ -1,3 +1,10 @@
+% Electrokinetics Non-Linear Solver.
+% Usage:
+%     betas = 1:0.25:2;     % beta values for continuation solver.
+%     sol0 = [];            % Initial solution (empty for beta = 0).
+%     figs = [1 2];         % Figure # for plotting the solutions.
+%     [sol, grid, prof] = main(betas, sol0, figs); % Run the solver;
+%     profview(0, prof);    % Show the profiling data.
 function [sol, grid, prof] = main(betas, sol, figs)
 
     % Create grid and initialize the solver
