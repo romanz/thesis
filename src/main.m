@@ -1,36 +1,51 @@
-function [sol, grid, prof] = main(betas, vis)
+function [sol, grid, prof] = main(betas, sol, figs)
 
-    grid = grids(logspace(0, 2, 90), linspace(0, pi, 60));
+    % Create grid and initialize the solver
+    grid = grids(logspace(0, 3, 100), linspace(0, pi, 60));
     newton_step = solver(grid);
 
-    sol.Phi = zeros(grid.Phi.sz);
-    sol.C = ones(grid.C.sz);
+    if isempty(sol) % Initial solution
+        sol.Phi = 0*randn(grid.Phi.sz);
+        sol.C = 1 + 0*randn(grid.C.sz);
+    end
 
-    k = 1;
+    k = 1; % iteration index
     fprintf('\n');
     profile('on');
-    while true
+    while true % Newton's method with continuation in beta.
         b = betas(min(k, numel(betas)));
         [sol, u, f] = newton_step(sol, b);
-        assert( all(sol.C(:) > 0) );
-        e = norm(f, 2) / norm(u, 2);
+        assert( all(sol.C(:) > 0), 'Negative C.' );
+        
+        e = norm(f, 2) / norm(u, 2); % Residual norm
         fprintf('[%2d] %.3f -> %e\n', k, b, e);
         k = k + 1;
-        if e < 1e-10 && k >= numel(betas)
+        if e < 1e-12 && k >= numel(betas)
             sol = boundaries(sol, grid, b);
             break;
         end
     end
     profile('off');
-    if nargin >= 2 && vis
-        show(1, grid.Phi, sol.Phi, '\Phi');
-        show(2, grid.C, sol.C, 'C');
+    if numel(figs) >= 1
+        figure(figs(1));
+        show('121', grid.Phi, sol.Phi, '\Phi');
+        show('122', grid.C, sol.C, 'C');
+        set(gcf, 'Name', 'Numerical Solution')
+    end
+    if numel(figs) >= 2
+        figure(figs(2));
+        X = grid.Phi.X;
+        Y = grid.Phi.Y;
+        show('121', grid.Phi, b * (0.25*X.^(-2) - X) .* cos(Y), '\Phi');
+        show('122', grid.C, 1 + b * 0.75*X.^(-2) .* cos(Y), 'C');
+        set(gcf, 'Name', 'Analytic Solution')
     end
     prof = profile('info');
 end
 
+% 3D mesh plot of the solutions
 function show(id, grid, sol, msg)
-    figure(id)
+    subplot(id)
     if ~isempty(grid)
         mesh(grid.X, grid.Y, sol)
     else
@@ -145,7 +160,7 @@ function [grid] = grids(x, y)
 	grid.Vx = init_grid(xg(2:end-1), yc); % V_r grid
     grid.Vy = init_grid(xc, yg(2:end-1)); % V_theta grid
     grid.P = init_grid(xc(2:end-1), yc(2:end-1)); % Pressure grid
-    grid.P = true(grid.P.sz); % only interior points are considered
+    grid.P.I = true(grid.P.sz); % only interior points are considered
 end
 
 % Splits x into seperate variables according to specified sizes.
