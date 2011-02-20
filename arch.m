@@ -1,3 +1,3 @@
-s = datestr(now, 'yyyymmddHHMM');
-s = sprintf('archive -o %s.zip HEAD', s);
+s = datestr(now, 'yyyymmddHHMMSS');
+s = sprintf('archive --prefix electrokinetics/ -o %s.zip HEAD', s);
 git(s);
