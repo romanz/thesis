@@ -15,6 +15,9 @@ function [sol, grid, prof] = main(betas, sol, figs)
         sol.Phi = 0*randn(grid.Phi.sz);
         sol.C = 1 + 0*randn(grid.C.sz);
     end
+    if isempty(betas) % No iterations are possible if no betas.
+        return
+    end;
 
     k = 1; % iteration index
     fprintf('\n');
