@@ -1,4 +1,9 @@
-function S = stokes(grid)
+% S * [Vx; Vy; P] + (L * Phi) .* (G * Phi);
+function [S, L, G] = stokes(grid)
+    [S] = newton(grid);
+    [L, G] = maxwell(grid);
+end
+function [S] = newton(grid)
 
     [Gp_x, Lv_x0, Dv_x] = stokes1d(1, grid.Vx, grid.P);
     [Gp_y, Lv_y0, Dv_y] = stokes1d(2, grid.Vy, grid.P);
@@ -29,10 +34,23 @@ function S = stokes(grid)
 
     Z = sparse(grid.P.numel, grid.P.numel);
 
-    S = [-Lv_x0 - Lv_x1, -Lv_x2,         Gp_x; ...
-         -Lv_y2,         -Lv_y0 - Lv_y1, Gp_y; ...
-         Dv_x,            Dv_y,          Z];
+    S = [Lv_x0 + Lv_x1, Lv_x2,         -Gp_x; ...
+         Lv_y2,         Lv_y0 + Lv_y1, -Gp_y; ...
+         Dv_x,          Dv_y,           Z];
+end
 
+function [L, G] = maxwell(grid)
+    Gx = expand(grid.Vx.I(:, 2:end-1))' * sparse_gradient(grid.Phi, 1);
+    Gy = expand(grid.Vy.I(2:end-1, :))' * sparse_gradient(grid.Phi, 2);
+    Lphi = sparse_laplacian(grid.Phi);
+    X = grid.Phi.X(2:end-1, 2:end-1); Xi = grid.Vx.X(2:end-1, 2:end-1);
+    Y = grid.Phi.Y(2:end-1, 2:end-1); Yi = grid.Vy.Y(2:end-1, 2:end-1);
+    Lx = interpolator(X, Xi) * Lphi;
+    Ly = interpolator(Y, Yi) * Lphi;
+
+    Z = sparse(grid.P.numel, grid.Phi.numel);
+    L = [Lx; Ly; Z];
+    G = [Gx; Gy; Z];
 end
 
 % Construct Stokes equation for specified dimension.

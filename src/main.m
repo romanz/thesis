@@ -32,7 +32,6 @@ function [sol, grid, prof] = main(betas, sol, figs)
     if isempty(betas) % No iterations are possible if no betas.
         return
     end;
-    S = stokes(grid);
 
     k = 1; % iteration index
     fprintf('\n');
@@ -85,8 +84,10 @@ function step = solver(grid)
     % Divergence, Gradient and Interpolation
     [D1, G1, I1] = operators(grid.center, 1);
     [D2, G2, I2] = operators(grid.center, 2);
-    L = D1 * G1 + D2 * G2;
+    L = sparse_laplacian(grid.center);
     
+    [S, Q, E] = stokes(grid);
+
     % Application of Newton method for given beta
     step = @solver_step;
     function [sol, u, f] = solver_step(sol, beta)
@@ -100,6 +101,9 @@ function step = solver(grid)
         G2_Phi = G2 * sol.Phi(:);
         G1_C = G1 * sol.C(:);
         G2_C = G2 * sol.C(:);
+        Fq = Q * sol.Phi(:);
+        Fe = E * sol.Phi(:);
+        Fstokes = S * [sol.Vx(:); sol.Vy(:); sol.P(:)] + Fq .* Fe;
                 
         % f = [div(C grad(Phi)); div(grad(C))] -> 0
         f = [D1 * (I1_C .* G1_Phi) + D2 * (I2_C .* G2_Phi); ...
@@ -124,9 +128,10 @@ function step = solver(grid)
 
             L1 = D1 * spdiag(I1_C) * G1 + D2 * spdiag(I2_C) * G2;
             L2 = D1 * spdiag(G1_Phi) * I1 + D2 * spdiag(G2_Phi) * I2;
+            
             H = [L1 * S11 + L2 * S21, ...
                  L1 * S12 + L2 * S22; ...
-                 L * S21, L * S22];
+                 L * S21, L * S22];                         
         end
     end
     % Dirichlet for coupled bounadry conditions
@@ -184,8 +189,7 @@ function [grid] = grids(x, y)
     grid.C = grid.center;
 	grid.Vx = init_grid(xg(2:end-1), yc); % V_r grid
     grid.Vy = init_grid(xc, yg(2:end-1)); % V_theta grid
-    grid.P = init_grid(xc(2:end-1), yc(2:end-1)); % Pressure grid
-    grid.P.I = true(grid.P.sz); % only interior points are considered
+    grid.P = init_grid(xc(2:end-1), yc(2:end-1), false); % Pressure grid
 end
 
 % Splits x into seperate variables according to specified sizes.
