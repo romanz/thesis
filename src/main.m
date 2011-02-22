@@ -32,6 +32,7 @@ function [sol, grid, prof] = main(betas, sol, figs)
     if isempty(betas) % No iterations are possible if no betas.
         return
     end;
+    S = stokes(grid);
 
     k = 1; % iteration index
     fprintf('\n');
