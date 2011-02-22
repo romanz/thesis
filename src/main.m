@@ -5,6 +5,17 @@
 %     figs = [1 2];         % Figure # for plotting the solutions.
 %     [sol, grid, prof] = main(betas, sol0, figs); % Run the solver;
 %     profview(0, prof);    % Show the profiling data.
+%
+% [ 1] 1.000 -> 6.026127e-006
+% [ 2] 1.250 -> 2.169751e-002
+% [ 3] 1.500 -> 1.648105e-003
+% [ 4] 1.750 -> 7.391831e-004
+% [ 5] 2.000 -> 5.377388e-004
+% [ 6] 2.000 -> 4.732835e-004
+% [ 7] 2.000 -> 1.164466e-006
+% [ 8] 2.000 -> 6.794108e-010
+% [ 9] 2.000 -> 1.011527e-016
+
 function [sol, grid, prof] = main(betas, sol, figs)
 
     % Create grid and initialize the solver
@@ -13,6 +24,9 @@ function [sol, grid, prof] = main(betas, sol, figs)
 
     if isempty(sol) % Initial solution
         sol.Phi = 0*randn(grid.Phi.sz);
+        sol.Vx = 0*randn(grid.Vx.sz);
+        sol.Vy = 0*randn(grid.Vy.sz);
+        sol.P = 0*randn(grid.P.sz);
         sol.C = 1 + 0*randn(grid.C.sz);
     end
     if isempty(betas) % No iterations are possible if no betas.
