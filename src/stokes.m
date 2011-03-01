@@ -36,7 +36,8 @@ function [S] = newton(grid)
 
     S = [Lv_x0 + Lv_x1, Lv_x2,         -Gp_x; ...
          Lv_y2,         Lv_y0 + Lv_y1, -Gp_y; ...
-         Dv_x,          Dv_y,           Z];
+         Dv_x,          Dv_y,           Z; ...
+         sparse(1, grid.Vx.numel + grid.Vy.numel), ones(1, grid.P.numel)];
 end
 
 function [L, G] = maxwell(grid)
