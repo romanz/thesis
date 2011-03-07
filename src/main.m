@@ -19,7 +19,7 @@
 function [sol, grid, prof] = main(sol, betas, Vinf, gamma, figs)
 
     % Create grid and initialize the solver
-    grid = grids(logspace(0, 3, 100), linspace(0, pi, 60));
+    grid = grids(logspace(0, 3, 60), linspace(0, pi, 30));
     newton_step = solver(grid);
 
     if isempty(sol) % Initial solution
@@ -46,7 +46,7 @@ function [sol, grid, prof] = main(sol, betas, Vinf, gamma, figs)
         e = norm(f, 2) / norm(u, 2); % Residual norm
         fprintf('[%2d] %.3f -> %e\n', k, sol.beta, e);
         k = k + 1;
-        if e < 1e-12 && k >= numel(betas)
+        if e < 1e-12 && k > numel(betas)
             sol = boundaries(sol, grid);
             break;
         end
@@ -92,10 +92,11 @@ function step = solver(grid)
 
     S11 = neumanns(grid.Phi, [1 0], [0 -1], [0 1]);
     S22 = neumanns(grid.C, [0 -1], [0 1]);
-    S33 = blkdiag(...
+    S33 = blkdiag(... % Stokes' part Hessian
         neumanns(grid.Vx, [0 -1], [0 1]), ...
         average_dirichlet(grid.Vy, [-1 0]) * expand(grid.Vy.I), ...
-        [speye(grid.P.numel)]);
+        speye(grid.P.numel, grid.P.numel));
+    T = S * S33;
     
     % Application of Newton method for given beta
     step = @solver_step;
@@ -110,30 +111,32 @@ function step = solver(grid)
         G2_Phi = G2 * sol.Phi(:);
         G1_C = G1 * sol.C(:);
         G2_C = G2 * sol.C(:);
-        q = Q * sol.Phi(:);
-        e = E * sol.Phi(:);
-                
+        q = Q * sol.Phi(:); % electric charge (on staggered grid)
+        e = E * sol.Phi(:); % electric fields (on staggered grid)
+
         % f = [div(C grad(Phi)); div(grad(C))] -> 0
         f = [D1 * (I1_C .* G1_Phi) + D2 * (I2_C .* G2_Phi); ...
              D1 * G1_C + D2 * G2_C]; ...
-%              S * [sol.Vx(:); sol.Vy(:); sol.P(:)] + 0 * q .* e];
-        H = hessian(sol);        
-        du = -H\f;
-%       n = 2405; du = -(blkdiag(H, speye(n, n)) \ [f; zeros(n, 1)]);
+        v = [sol.Vx(:); sol.Vy(:); sol.P(:)];
+        g = S * v;
+        disp(norm(g, 2) / norm(v, 2))
+
+        H = hessian(sol); % Laplace-Advection Hessian
         
-        % Apply Newton step on the interior
-        [dPhi, dC] = split(du, grid.Phi.sz-2, grid.C.sz-2);
-%         [dPhi, dC, dVx, dVy, dP] = split(du, ...
-%             grid.Phi.sz-2, grid.C.sz-2, ...
-%             grid.Vx.sz-2, grid.Vy.sz-2, grid.P.sz);
+        % Apply Newton step
+        dw = -blkdiag(T, H) \ [g;f];
+        [dVx, dVy, dP, dPhi, dC] = split(dw, ...
+            grid.Vx.sz-2, grid.Vy.sz-2, grid.P.sz, grid.Phi.sz-2, grid.C.sz-2);
+        
         sol.Phi(grid.Phi.I) = sol.Phi(grid.Phi.I) + dPhi(:);
         sol.C(grid.C.I) = sol.C(grid.C.I) + dC(:);
-%         sol.Vx(grid.Vx.I) = sol.Vx(grid.Vx.I) + dVx(:);
-%         sol.Vy(grid.Vy.I) = sol.Vy(grid.Vy.I) + dVy(:);
-%         sol.P(grid.P.I) = sol.P(grid.P.I) + dP(:);
+        sol.Vx(grid.Vx.I) = sol.Vx(grid.Vx.I) + dVx(:);
+        sol.Vy(grid.Vy.I) = sol.Vy(grid.Vy.I) + dVy(:);
+        sol.P = sol.P + dP;
+        meanP = mean(sol.P(:));
+        sol.P = sol.P - meanP;
         
-        u = [sol.Phi(grid.Phi.I); sol.C(grid.C.I)]; ...
-             % sol.Vx(grid.Vx.I); sol.Vy(grid.Vy.I); sol.P(:)];
+        u = [sol.Phi(grid.Phi.I); sol.C(grid.C.I)];
 
         % Hessian matrix
         function H = hessian(sol)
@@ -147,7 +150,6 @@ function step = solver(grid)
                         
             H = [L1 * S11 + L2 * S21, L1 * S12 + L2 * S22; ...
                  L * S21, L * S22];      
-            % H = blkdiag(H, S * S33);
         end
     end
     % Dirichlet for coupled bounadry conditions
@@ -177,9 +179,9 @@ function [sol] = boundaries(sol, grid)
     Er = -sol.beta * cos(grid.Phi.y(2:end-1)).';
     phi1 = sol.Phi(end-1, 2:end-1) + Er * dr;
     c1 = 1;        
-    V_slip = 0*ddslip(sol, grid).';
+    V_slip = ddslip(sol, grid).';
     Vx_inf = sol.Vinf * cos(grid.Vx.y(2:end-1)).';
-    Vy_inf = -sol.Vinf * cos(grid.Vy.y(2:end-1)).';
+    Vy_inf = -sol.Vinf * sin(grid.Vy.y(2:end-1)).';
 
     sol.C(1, 2:end-1) = c0;
     sol.C(end, 2:end-1) = c1;
