@@ -221,7 +221,8 @@ end
 
 % Create central and staggered grids for Laplace and Stokes problems.
 function [grid] = grids(x, y)
-    x = x(:); y = y(:); 
+    x = x(:); grid.radius = x;
+    y = y(:); grid.theta = y;
     % extended grid (for ghost points)
     xg = [2*x(1) - x(2); x; 2*x(end) - x(end-1)];
     yg = [2*y(1) - y(2); y; 2*y(end) - y(end-1)];
