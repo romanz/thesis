@@ -49,7 +49,7 @@ function [L, G] = maxwell(grid)
     Lx = interpolator(X, Xi) * Lphi;
     Ly = interpolator(Y, Yi) * Lphi;
 
-    Z = sparse(grid.P.numel, grid.Phi.numel);
+    Z = sparse(grid.P.numel + 1, grid.Phi.numel);
     L = [Lx; Ly; Z];
     G = [Gx; Gy; Z];
 end
