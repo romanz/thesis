@@ -23,11 +23,11 @@ function [sol, grid, prof] = main(sol, betas, Vinf, gamma, figs)
     newton_step = solver(grid);
 
     if isempty(sol) % Initial solution
-        sol.Phi = 0*randn(grid.Phi.sz);
-        sol.Vx = 0*randn(grid.Vx.sz);
-        sol.Vy = 0*randn(grid.Vy.sz);
-        sol.P = 0*randn(grid.P.sz);
-        sol.C = 1 + 0*randn(grid.C.sz);
+        sol.Phi = 0.01*randn(grid.Phi.sz);
+        sol.Vx = 0.01*randn(grid.Vx.sz);
+        sol.Vy = 0.01*randn(grid.Vy.sz);
+        sol.P = 0.01*randn(grid.P.sz);
+        sol.C = 1 + 0.01*randn(grid.C.sz);
     end
     if isempty(betas) % No iterations are possible if no betas.
         return
