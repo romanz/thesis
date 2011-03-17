@@ -117,12 +117,11 @@ function step = solver(grid)
         G2_C = G2 * sol.C(:);
         q = Q * sol.Phi(:); % electric charge (on staggered grid)
         e = E * sol.Phi(:); % electric fields (on staggered grid)
-        v = [sol.Vx(:); sol.Vy(:); sol.P(:)];
 
         % f = [div(C grad(Phi)); div(grad(C))] -> 0
         f = [D1 * (I1_C .* G1_Phi) + D2 * (I2_C .* G2_Phi); ...
              D1 * G1_C + D2 * G2_C; ...
-             S * v + q .* e]; ...
+             S * [sol.Vx(:); sol.Vy(:); sol.P(:)] + q .* e]; ...
         
         %Y = spdiag(q) * E + spdiag(e) * Q;
         %disp(norm(f, 2) / norm(v, 2))
