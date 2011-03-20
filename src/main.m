@@ -16,12 +16,12 @@
 % [ 8] 2.000 -> 6.794101e-010
 % [ 9] 2.000 -> 9.394985e-017
 
-function [sol, grid, prof] = main(sol, betas, Vinf, gamma, figs)
+function [sol, grid, prof] = main(sol, betas, Vinf, figs)
 
     % Create grid and initialize the solver
-    grid = grids(logspace(0, 3.2, 80), linspace(0, pi, 30));
+    grid = grids(logspace(0, 3, 60), linspace(0, pi, 25));
     newton_step = solver(grid);
-
+    
     if isempty(sol) % Initial solution
         sigma = 1e-5;
         sol.Phi = sigma*randn(grid.Phi.sz);
@@ -34,7 +34,8 @@ function [sol, grid, prof] = main(sol, betas, Vinf, gamma, figs)
         return
     end;
     sol.Vinf = Vinf;
-    sol.gamma = gamma;
+    sol.gamma = 2;
+    sol.alpha = 0;
 
     k = 1; % iteration index
     fprintf('\n');
@@ -117,10 +118,18 @@ function step = solver(grid)
         G2_C = G2 * sol.C(:);
         q = Q * sol.Phi(:); % electric charge (on staggered grid)
         e = E * sol.Phi(:); % electric fields (on staggered grid)
+        
+        P1 = upwind(grid.Vx, sol.Vx, 1);
+        P2 = upwind(grid.Vy, sol.Vy, 2);
+        P_Vx = P1 * col(sol.Vx(:, 2:end-1));
+        P_Vy = P2 * col(sol.Vy(2:end-1, :));
+        P_Cx = P1 * G1_C;
+        P_Cy = P2 * G2_C;
+        V_gradC = P_Vx .* P_Cx + P_Vy .* P_Cy;
 
         % f = [div(C grad(Phi)); div(grad(C))] -> 0
         f = [D1 * (I1_C .* G1_Phi) + D2 * (I2_C .* G2_Phi); ...
-             D1 * G1_C + D2 * G2_C; ...
+             D1 * G1_C + D2 * G2_C - sol.alpha * V_gradC; ...
              S * [sol.Vx(:); sol.Vy(:); sol.P(:)] + q .* e]; ...
         
         %Y = spdiag(q) * E + spdiag(e) * Q;
