@@ -288,16 +288,23 @@ end
 
 %   Dukhin-Derjaguin slip velocity.
 function V = ddslip(sol, grid)
-    C = col(mean(sol.C(1:2, 2:end-1))); % average on R=1
-    Phi = col(mean(sol.Phi(1:2, 2:end-1))); % average on R=1
+    I = grid.center.I;
+    I = shift(I, [-1 0]) & ~I;
+    M = (select(I) + select(shift(I, [1 0]))) / 2; % average on R=1
+    C = M * sol.C(:);
+    Phi = M * sol.Phi(:);
     
+    xi = -log(sol.gamma);
     xi = log(average(C(:), [1;1]/2) / sol.gamma);
-    lnC = log(C); 
+    lnC = log(C);
     
     theta = grid.center.y(2:end-1); % interior cells' centers
-    dtheta = diff(theta(:));
-    deriv = @(f) diff(f(:)) ./ dtheta; % Derivation by theta.
-    V = xi .* deriv(Phi) + 2 * log(1 - tanh(xi/4).^2) .* deriv(lnC);
+    
+    J = true(numel(theta), 1);
+    D = select(shift(J, [1 0])) - select(shift(J, [-1 0]));
+    D = spdiag(1 ./ (D * theta)) * D; % Derivation operator.
+    
+    V = xi .* (D * Phi) + 2 * log(1 - tanh(xi/4).^2) .* (D * lnC); % C : lnC
     % Tangential velocity component.
 end
 
