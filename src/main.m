@@ -304,7 +304,7 @@ function V = ddslip(sol, grid)
     D = select(shift(J, [1 0])) - select(shift(J, [-1 0]));
     D = spdiag(1 ./ (D * theta)) * D; % Derivation operator.
     
-    V = xi .* (D * Phi) + 2 * log(1 - tanh(xi/4).^2) .* (D * lnC); % C : lnC
+    V = xi .* (D * Phi) - 4 * log(cosh(xi/4)) .* (D * lnC); % C : lnC
     % Tangential velocity component.
 end
 
