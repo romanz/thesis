@@ -3,8 +3,8 @@ function A = interpolator(Z, Zi)
     assert(all(sort(dir) == [0 1]))
 
     K = true(size(Z));
-    P1 = expand(shift(K, -dir))';
-    P2 = expand(shift(K, +dir))';
+    P1 = select(shift(K, -dir));
+    P2 = select(shift(K, +dir));
     d = P2*Z(:) - P1*Z(:); assert(all(d(:) > 0));
     
     a1 = (P2 * Z(:) - Zi(:)) ./ d(:);

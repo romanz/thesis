@@ -12,24 +12,24 @@ function [S] = newton(grid)
     Iy = grid.Vy.I;
 
     % -2Vr / r^2
-    Lv_x1 = expand(grid.Vx.I)' * spdiag(-2./grid.Vx.X.^2);
+    Lv_x1 = select(grid.Vx.I) * spdiag(-2./grid.Vx.X.^2);
 
     % -2/(r^2 sin(theta)) d(Vtheta sin(theta))/dtheta
     X = average(grid.Vy.X, [1 1]/2);
     Xi = grid.Vx.X(:, 2:end-1);
     J = grid.Vx.I(:, 2:end-1);
     Lv_x2 = spdiag(-2./( sin(grid.Vx.Y(Ix)) .* grid.Vx.X(Ix).^2 )) * ...
-            expand( J )' * interpolator(X, Xi) * ...
+            select( J ) * interpolator(X, Xi) * ...
             spderiv(grid.Vy.Y, 2) * spdiag( sin(grid.Vy.Y) );
 
     % -Vtheta/(r * sin theta)^2
-    Lv_y1 = expand(grid.Vy.I)' * spdiag(-(grid.Vy.X .* sin(grid.Vy.Y) ).^(-2));
+    Lv_y1 = select(grid.Vy.I) * spdiag(-(grid.Vy.X .* sin(grid.Vy.Y) ).^(-2));
 
     % 2/r^2 dVr/dtheta
     Y = average(grid.Vx.X, [1 1]/2);
     Yi = grid.Vy.X(2:end-1, :);
     J = grid.Vy.I(2:end-1, :);
-    Lv_y2 = spdiag( 2./grid.Vy.X(Iy).^2 ) * expand( J )' * ...
+    Lv_y2 = spdiag( 2./grid.Vy.X(Iy).^2 ) * select( J ) * ...
             interpolator(Y, Yi) * spderiv(grid.Vx.Y, 2);
 
     Z = sparse(grid.P.numel, grid.P.numel);
@@ -41,8 +41,8 @@ function [S] = newton(grid)
 end
 
 function [L, G] = maxwell(grid)
-    Gx = expand(grid.Vx.I(:, 2:end-1))' * sparse_gradient(grid.Phi, 1);
-    Gy = expand(grid.Vy.I(2:end-1, :))' * sparse_gradient(grid.Phi, 2);
+    Gx = select(grid.Vx.I(:, 2:end-1)) * sparse_gradient(grid.Phi, 1);
+    Gy = select(grid.Vy.I(2:end-1, :)) * sparse_gradient(grid.Phi, 2);
     Lphi = sparse_laplacian(grid.Phi);
     X = grid.Phi.X(2:end-1, 2:end-1); Xi = grid.Vx.X(2:end-1, 2:end-1);
     Y = grid.Phi.Y(2:end-1, 2:end-1); Yi = grid.Vy.Y(2:end-1, 2:end-1);
