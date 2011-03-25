@@ -28,7 +28,7 @@ function [sol, grid, prof] = main(sol, betas, Vinf, figs)
     newton_step = solver(grid);
     
     if isempty(sol) % Initial solution
-        sigma = 1e-5;
+        sigma = 1e-9;
         sol.Phi = sigma*randn(grid.Phi.sz);
         sol.Vx = sigma*randn(grid.Vx.sz);
         sol.Vy = sigma*randn(grid.Vy.sz);
@@ -293,13 +293,15 @@ end
 
 %   Dukhin-Derjaguin slip velocity.
 function V = ddslip(sol, grid)
-    I = grid.center.I;
-    I = shift(I, [-1 0]) & ~I;
-    M = (select(I) + select(shift(I, [1 0]))) / 2; % average on R=1
-    Phi = M * sol.Phi(:);
-    
-    xi = -Phi-log(sol.gamma); % log(C/gamma) & Phi = -log(C)
-    xi = average(xi(:), [1;1]/2);
+    I1 = grid.center.I;
+    I1 = shift(I1, [-1 0]) & ~I1;
+    M1 = (select(I1) + select(shift(I1, [1 0]))) / 2; % average on R=1
+    I2 = true(nnz(I1), 1);
+    M2 = 0.5 * (select(shift(I2, [1 0])) + select(shift(I2, [-1 0])));
+
+    Phi = M1 * sol.Phi(:);
+
+    xi = -M2 * Phi - log(sol.gamma); % log(C/gamma) & Phi = -log(C)
     
     theta = grid.center.y(2:end-1); % interior cells' centers
     
