@@ -18,6 +18,11 @@
 
 function [sol, grid, prof] = main(sol, betas, Vinf, figs)
 
+    if exist('git') == 2 % git wrapper function exists
+        [~, ver] = git('log -n1 --format=format:"%h (%ci)"');
+        fprintf('\nSolver version %s.\n', ver);
+    end
+
     % Create grid and initialize the solver
     grid = grids(logspace(0, 3, 60), linspace(0, pi, 25));
     newton_step = solver(grid);
