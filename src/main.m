@@ -291,12 +291,10 @@ function V = ddslip(sol, grid)
     I = grid.center.I;
     I = shift(I, [-1 0]) & ~I;
     M = (select(I) + select(shift(I, [1 0]))) / 2; % average on R=1
-    C = M * sol.C(:);
     Phi = M * sol.Phi(:);
     
-    xi = -log(sol.gamma);
-    xi = log(average(C(:), [1;1]/2) / sol.gamma);
-    lnC = log(C);
+    xi = -Phi-log(sol.gamma); % log(C/gamma) & Phi = -log(C)
+    xi = average(xi(:), [1;1]/2);
     
     theta = grid.center.y(2:end-1); % interior cells' centers
     
@@ -304,7 +302,7 @@ function V = ddslip(sol, grid)
     D = select(shift(J, [1 0])) - select(shift(J, [-1 0]));
     D = spdiag(1 ./ (D * theta)) * D; % Derivation operator.
     
-    V = xi .* (D * Phi) - 4 * log(cosh(xi/4)) .* (D * lnC); % C : lnC
+    V = (4 * log(cosh(xi/4)) + xi) .* (D * Phi);
     % Tangential velocity component.
 end
 
