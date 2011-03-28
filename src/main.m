@@ -10,6 +10,7 @@ function [sol, grid, prof] = main(sol, betas, Vinf, varargin)
     parser = inputParser;
     parser.addParamValue('figures', []);
     parser.addParamValue('version', 0);
+    parser.addParamValue('profile', 0);
     parser.parse(varargin{:});
     conf = parser.Results;
     
@@ -19,11 +20,11 @@ function [sol, grid, prof] = main(sol, betas, Vinf, varargin)
     end
 
     % Create grid and initialize the solver
-    grid = grids(logspace(0, 3, 60), linspace(0, pi, 25));
+    grid = grids(logspace(0, 3, 60), linspace(0, pi, 15));
     newton_step = solver(grid);
     
     if isempty(sol) % Initial solution
-        sigma = 0;
+        sigma = 0e-3;
         sol.Phi = sigma*randn(grid.Phi.sz);
         sol.Vx = sigma*randn(grid.Vx.sz);
         sol.Vy = sigma*randn(grid.Vy.sz);
@@ -34,12 +35,16 @@ function [sol, grid, prof] = main(sol, betas, Vinf, varargin)
         return
     end;
     sol.Vinf = Vinf;
-    sol.gamma = 8;
+    sol.gamma = 1e3;
+    sol.Vinf0 = -2*betas(end)*log((sol.gamma^(1/4) + sol.gamma^(-1/4)) / ...
+        (2*sol.gamma^(1/4)));
     sol.alpha = 0;
 
     k = 1; % iteration index
     fprintf('\n');
-    profile('on');
+    if conf.profile
+        profile('on');
+    end
     while true % Newton's method with continuation in beta.
         sol.beta = betas(min(k, numel(betas)));
         [sol, u, f] = newton_step(sol);
@@ -55,7 +60,9 @@ function [sol, grid, prof] = main(sol, betas, Vinf, varargin)
     end
     sol = total_force(sol, grid);
     
-    profile('off');
+    if conf.profile
+        profile('off');
+    end
     if numel(conf.figures) >= 1
         figure(conf.figures(1));
         show('121', grid.Phi, sol.Phi, '\Phi');
@@ -143,8 +150,8 @@ function step = solver(grid)
         % Apply Newton step
         dw1 = -H1 \ f1;
         dw2 = -H2 \ f2;
-        % dw = -H \ f; 
         dw = [dw1; dw2];
+%         dw = -H \ f; 
         [dPhi, dC, dVx, dVy, dP] = split(dw, ...
             grid.Phi.sz-2, grid.C.sz-2, grid.Vx.sz-2, grid.Vy.sz-2, grid.P.sz);
         

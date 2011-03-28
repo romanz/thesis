@@ -1,6 +1,5 @@
-function sol = steady(betas, v, iters)
+function sol = steady(sol, betas, v, iters)
 
-sol = [];
 conf = {'version', 0};
 function f = func(u)
     sol = main(sol, betas(end), u, conf{:});
