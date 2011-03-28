@@ -1,26 +1,21 @@
 % Electrokinetics Non-Linear Solver.
 % Usage:
-%     betas = 1:0.25:2;     % beta values for continuation solver.
-%     sol0 = [];            % Initial solution (empty for beta = 0).
-%     figs = [1 2];         % Figure # for plotting the solutions.
-%     [sol, grid, prof] = main(betas, sol0, figs); % Run the solver;
-%     profview(0, prof);    % Show the profiling data.
-%
-% [ 1] 1.000 -> 6.026127e-006
-% [ 2] 1.250 -> 2.169751e-002
-% [ 3] 1.500 -> 1.648105e-003
-% [ 4] 1.750 -> 7.391831e-004
-% [ 5] 2.000 -> 5.377388e-004
-% [ 6] 2.000 -> 4.732835e-004
-% [ 7] 2.000 -> 1.164466e-006
-% [ 8] 2.000 -> 6.794101e-010
-% [ 9] 2.000 -> 9.394985e-017
+%   betas = 1:0.25:2;     % beta values for continuation solver.
+%   sol0 = [];            % Initial solution (empty for beta = 0).
+%   velocity = 0.5;       % fluid velocity at infinity.
+%   [sol, grid, prof] = main(sol0, betas, velocity); % Run the solver;
+%   profview(0, prof);    % Show the profiling data.
 
-function [sol, grid, prof] = main(sol, betas, Vinf, figs)
-
-    if exist('git') == 2 % git wrapper function exists
+function [sol, grid, prof] = main(sol, betas, Vinf, varargin)
+    parser = inputParser;
+    parser.addParamValue('figures', []);
+    parser.addParamValue('version', 0);
+    parser.parse(varargin{:});
+    conf = parser.Results;
+    
+    if conf.version && exist('git', 'file') == 2 % git wrapper function exists
         [~, ver] = git('log -n1 --format=format:"%h (%ci)"');
-        fprintf('\nSolver version %s.\n', ver);
+        fprintf('\nSolver version %s.', ver);
     end
 
     % Create grid and initialize the solver
@@ -28,7 +23,7 @@ function [sol, grid, prof] = main(sol, betas, Vinf, figs)
     newton_step = solver(grid);
     
     if isempty(sol) % Initial solution
-        sigma = 1e-9;
+        sigma = 0;
         sol.Phi = sigma*randn(grid.Phi.sz);
         sol.Vx = sigma*randn(grid.Vx.sz);
         sol.Vy = sigma*randn(grid.Vy.sz);
@@ -39,7 +34,7 @@ function [sol, grid, prof] = main(sol, betas, Vinf, figs)
         return
     end;
     sol.Vinf = Vinf;
-    sol.gamma = 2;
+    sol.gamma = 8;
     sol.alpha = 0;
 
     k = 1; % iteration index
@@ -61,14 +56,14 @@ function [sol, grid, prof] = main(sol, betas, Vinf, figs)
     sol = total_force(sol, grid);
     
     profile('off');
-    if numel(figs) >= 1
-        figure(figs(1));
+    if numel(conf.figures) >= 1
+        figure(conf.figures(1));
         show('121', grid.Phi, sol.Phi, '\Phi');
         show('122', grid.C, sol.C, 'C');
         set(gcf, 'Name', 'Numerical Solution')
     end
-    if numel(figs) >= 2
-        figure(figs(2));
+    if numel(conf.figures) >= 2
+        figure(conf.figures(2));
         X = grid.Phi.X;
         Y = grid.Phi.Y;
         show('121', grid.Phi, sol.beta * (0.25*X.^(-2) - X) .* cos(Y), '\Phi');
@@ -136,14 +131,20 @@ function step = solver(grid)
         f = [D1 * (I1_C .* G1_Phi) + D2 * (I2_C .* G2_Phi); ...
              D1 * G1_C + D2 * G2_C - sol.alpha * V_gradC; ...
              S * [sol.Vx(:); sol.Vy(:); sol.P(:)] + q .* e]; ...
+        f1 = [D1 * (I1_C .* G1_Phi) + D2 * (I2_C .* G2_Phi); ...
+              D1 * G1_C + D2 * G2_C - sol.alpha * V_gradC];
+        f2 = S * [sol.Vx(:); sol.Vy(:); sol.P(:)] + q .* e;
         
         %Y = spdiag(q) * E + spdiag(e) * Q;
         %disp(norm(f, 2) / norm(v, 2))
 
-        H = hessian(sol); % Laplace-Advection Hessian
+        [H, H1, H2] = hessian(sol); % Laplace-Advection Hessian
         
         % Apply Newton step
-        dw = -H \ f;
+        dw1 = -H1 \ f1;
+        dw2 = -H2 \ f2;
+        % dw = -H \ f; 
+        dw = [dw1; dw2];
         [dPhi, dC, dVx, dVy, dP] = split(dw, ...
             grid.Phi.sz-2, grid.C.sz-2, grid.Vx.sz-2, grid.Vy.sz-2, grid.P.sz);
         
@@ -159,7 +160,7 @@ function step = solver(grid)
         u = [u; sol.Vx(grid.Vx.I); sol.Vy(grid.Vy.I); sol.P(:)];
 
         % Hessian matrix
-        function H = hessian(sol)
+        function [H, H1, H2] = hessian(sol)
             % Phi[0] = -log(C[1])
             S12 = dirichlets(grid.C, [-1 0], -1./sol.C(2, 2:end-1));
             % C[0] = exp(-Phi[1])
@@ -168,9 +169,10 @@ function step = solver(grid)
             L1 = D1 * spdiag(I1_C) * G1 + D2 * spdiag(I2_C) * G2;
             L2 = D1 * spdiag(G1_Phi) * I1 + D2 * spdiag(G2_Phi) * I2;
                         
-            H = [L1 * S11 + L2 * S21, L1 * S12 + L2 * S22; ...
+            H1 = [L1 * S11 + L2 * S21, L1 * S12 + L2 * S22; ...
                  L * S21, L * S22];      
-            H = blkdiag(H, T);
+            H2 = T; % Stokes' operator [Lalplacian, Grad; Div, 0]
+            H = blkdiag(H1, H2);
         end
     end
     % Dirichlet for coupled bounadry conditions
@@ -200,7 +202,7 @@ function [sol] = boundaries(sol, grid)
     Er = -sol.beta * cos(grid.Phi.y(2:end-1)).';
     phi1 = sol.Phi(end-1, 2:end-1) + Er * dr;
     c1 = 1;        
-    sol.V_slip = ddslip(sol, grid).';
+    sol.Vslip = ddslip(sol, grid).';
     Vx_inf = sol.Vinf * cos(grid.Vx.y(2:end-1)).';
     Vy_inf = -sol.Vinf * sin(grid.Vy.y(2:end-1)).';
 
@@ -219,7 +221,7 @@ function [sol] = boundaries(sol, grid)
     sol.Vx(1:end, 1) = sol.Vx(1:end, 2); % Symmetry for V_r
     sol.Vx(1:end, end) = sol.Vx(1:end, end-1); % Symmetry for V_r
     
-    sol.Vy(1, 2:end-1) = 2*sol.V_slip - sol.Vy(2, 2:end-1);
+    sol.Vy(1, 2:end-1) = 2*sol.Vslip - sol.Vy(2, 2:end-1);
     sol.Vy(end, 2:end-1) = Vy_inf;
     sol.Vy(1:end, 1) = 0;
     sol.Vy(1:end, end) = 0;
