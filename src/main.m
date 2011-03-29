@@ -9,14 +9,15 @@
 function [sol, grid, prof] = main(sol, betas, Vinf, varargin)
     parser = inputParser;
     parser.addParamValue('figures', []);
-    parser.addParamValue('version', 0);
-    parser.addParamValue('profile', 0);
+    parser.addParamValue('version', true);
+    parser.addParamValue('profile', false);
+    parser.addParamValue('logging', true);
     parser.parse(varargin{:});
     conf = parser.Results;
     
-    if conf.version && exist('git', 'file') == 2 % git wrapper function exists
+    if conf.version && exist('git', 'file') == 2 % git wrapper function
         [~, ver] = git('log -n1 --format=format:"%h (%ci)"');
-        fprintf('\nSolver version %s.', ver);
+        fprintf('\nSolver version %s.\n', ver);
     end
 
     % Create grid and initialize the solver
@@ -41,7 +42,6 @@ function [sol, grid, prof] = main(sol, betas, Vinf, varargin)
     sol.alpha = 0;
 
     k = 1; % iteration index
-    fprintf('\n');
     if conf.profile
         profile('on');
     end
@@ -51,7 +51,10 @@ function [sol, grid, prof] = main(sol, betas, Vinf, varargin)
         assert( all(sol.C(:) > 0), 'Negative C.' );
         
         e = norm(f, 2) / norm(u, 2); % Residual norm
-        fprintf('[%2d] %.3f -> %e\n', k, sol.beta, e);
+        if conf.logging
+            fprintf('[%2d] %.3f -> %e\n', k, sol.beta, e); 
+        end
+        
         k = k + 1;
         if e < 1e-10 && k > numel(betas)
             sol = boundaries(sol, grid);
@@ -145,13 +148,13 @@ function step = solver(grid)
         %Y = spdiag(q) * E + spdiag(e) * Q;
         %disp(norm(f, 2) / norm(v, 2))
 
-        [H, H1, H2] = hessian(sol); % Laplace-Advection Hessian
-        
+        [H1, H2] = hessians(sol); % Laplace-Advection Hessian
+        H = blkdiag(H1, H2);
         % Apply Newton step
-        dw1 = -H1 \ f1;
-        dw2 = -H2 \ f2;
-        dw = [dw1; dw2];
-%         dw = -H \ f; 
+%         dw1 = -H1 \ f1;
+%         dw2 = -H2 \ f2;
+%         dw = [dw1; dw2];
+        dw = -H \ f; 
         [dPhi, dC, dVx, dVy, dP] = split(dw, ...
             grid.Phi.sz-2, grid.C.sz-2, grid.Vx.sz-2, grid.Vy.sz-2, grid.P.sz);
         
@@ -167,7 +170,7 @@ function step = solver(grid)
         u = [u; sol.Vx(grid.Vx.I); sol.Vy(grid.Vy.I); sol.P(:)];
 
         % Hessian matrix
-        function [H, H1, H2] = hessian(sol)
+        function [H1, H2] = hessians(sol)
             % Phi[0] = -log(C[1])
             S12 = dirichlets(grid.C, [-1 0], -1./sol.C(2, 2:end-1));
             % C[0] = exp(-Phi[1])
@@ -179,7 +182,6 @@ function step = solver(grid)
             H1 = [L1 * S11 + L2 * S21, L1 * S12 + L2 * S22; ...
                  L * S21, L * S22];      
             H2 = T; % Stokes' operator [Lalplacian, Grad; Div, 0]
-            H = blkdiag(H1, H2);
         end
     end
     % Dirichlet for coupled bounadry conditions

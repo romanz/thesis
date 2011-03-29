@@ -1,6 +1,6 @@
 function sol = steady(sol, betas, v, iters)
 
-conf = {'version', 0};
+conf = {'version', 0, 'logging', 0};
 function f = func(u)
     sol = main(sol, betas(end), u, conf{:});
     f = sol.force.total;
