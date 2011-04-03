@@ -4,7 +4,7 @@ function sol = steady(sol, betas, v, iters, varargin)
 
     conf = {'version', 0, 'logging', 0, varargin{:}};
     function f = func(b, u) % Total force for specified (b, u)
-        sol = main(sol, b, u, conf{:});
+        sol = force(sol, b, u, conf{:});
         f = sol.force.total;
     end
 

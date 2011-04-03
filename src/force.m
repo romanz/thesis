@@ -1,4 +1,4 @@
-% Electrokinetics Non-Linear Solver.
+% Electrokinetics Non-Linear Force Solver.
 % Usage:
 %   betas = 1:0.25:2;     % beta values for continuation solver.
 %   sol0 = [];            % Initial solution (empty for beta = 0).
@@ -6,7 +6,7 @@
 %   [sol, grid, prof] = main(sol0, betas, velocity); % Run the solver;
 %   profview(0, prof);    % Show the profiling data.
 
-function [sol, grid, prof] = main(sol, betas, Vinf, varargin)
+function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
     conf = defaults(varargin, ...
         'figures', [], ...
         'version', true, ...
