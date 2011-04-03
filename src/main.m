@@ -7,21 +7,25 @@
 %   profview(0, prof);    % Show the profiling data.
 
 function [sol, grid, prof] = main(sol, betas, Vinf, varargin)
-    parser = inputParser;
-    parser.addParamValue('figures', []);
-    parser.addParamValue('version', true);
-    parser.addParamValue('profile', false);
-    parser.addParamValue('logging', true);
-    parser.parse(varargin{:});
-    conf = parser.Results;
+    conf = defaults(varargin, ...
+        'figures', [], ...
+        'version', true, ...
+        'profile', false, ...
+        'logging', true, ...
+        'radius', logspace(0, 3, 60), ...
+        'theta', linspace(0, pi, 15), ...
+        'gamma', 22.03, ...
+        'alpha', 0.0...
+    );
     
     if conf.version && exist('git', 'file') == 2 % git wrapper function
         [~, ver] = git('log -n1 --format=format:"%h (%ci)"');
         fprintf('\nSolver version %s.\n', ver);
+        conf.version = ver;
     end
 
     % Create grid and initialize the solver
-    grid = grids(logspace(0, 3, 60), linspace(0, pi, 15));
+    grid = grids(conf.radius, conf.theta);
     newton_step = solver(grid);
     
     if isempty(sol) % Initial solution
@@ -36,10 +40,10 @@ function [sol, grid, prof] = main(sol, betas, Vinf, varargin)
         return
     end;
     sol.Vinf = Vinf;
-    sol.gamma = 1e3;
-    sol.Vinf0 = -2*betas(end)*log((sol.gamma^(1/4) + sol.gamma^(-1/4)) / ...
+    sol.alpha = conf.alpha;
+    sol.gamma = conf.gamma;
+    sol.Vinf0 = -2*log((sol.gamma^(1/4) + sol.gamma^(-1/4)) / ...
         (2*sol.gamma^(1/4)));
-    sol.alpha = 0;
 
     k = 1; % iteration index
     if conf.profile
@@ -52,7 +56,7 @@ function [sol, grid, prof] = main(sol, betas, Vinf, varargin)
         
         e = norm(f, 2) / norm(u, 2); % Residual norm
         if conf.logging
-            fprintf('[%2d] %.3f -> %e\n', k, sol.beta, e); 
+            fprintf('[%d] B = %e, Residual = %e\n', k, sol.beta, e); 
         end
         
         k = k + 1;
@@ -156,7 +160,8 @@ function step = solver(grid)
 %         dw = [dw1; dw2];
         dw = -H \ f; 
         [dPhi, dC, dVx, dVy, dP] = split(dw, ...
-            grid.Phi.sz-2, grid.C.sz-2, grid.Vx.sz-2, grid.Vy.sz-2, grid.P.sz);
+            grid.Phi.sz-2, grid.C.sz-2, ...
+            grid.Vx.sz-2, grid.Vy.sz-2, grid.P.sz);
         
         sol.Phi(grid.Phi.I) = sol.Phi(grid.Phi.I) + dPhi(:);
         sol.C(grid.C.I) = sol.C(grid.C.I) + dC(:);
