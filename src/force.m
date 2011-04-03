@@ -12,8 +12,8 @@ function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
         'version', true, ...
         'profile', false, ...
         'logging', true, ...
-        'radius', logspace(0, 4, 90), ...
-        'theta', linspace(0, pi, 40), ...
+        'radius', logspace(0, 3, 60), ...
+        'theta', linspace(0, pi, 15), ...
         'gamma', 22.03, ...
         'alpha', 0.0...
     );
@@ -172,15 +172,17 @@ function step = solver(grid)
             % C[0] = exp(-Phi[1])
             S21 = dirichlets(grid.Phi, [-1 0], -exp(-sol.Phi(2, 2:end-1)));
 
-            L1 = D1 * spdiag(I1_C) * G1 + D2 * spdiag(I2_C) * G2;
-            L2 = D1 * spdiag(G1_Phi) * I1 + D2 * spdiag(G2_Phi) * I2;
-                        
-            H1 = [L1 * S11 + L2 * S21, L1 * S12 + L2 * S22; ...
-                 L * S21, L * S22];      
-            % Stokes' operator [Lalplacian, Grad; Div, 0]
+            % div(C * grad(Phi))
+            L1 = D1 * spdiag(I1_C) * G1 + D2 * spdiag(I2_C) * G2; % div(C * grad{x})
+            L2 = D1 * spdiag(G1_Phi) * I1 + D2 * spdiag(G2_Phi) * I2; % div(grad(Phi) * {x})
             
-            H = [H1, sparse(size(H1, 1), size(T, 2)); ...
-                 sparse(size(T, 1), size(H1, 2)), T];
+            % div(grad(Phi)) * grad(Phi)
+            QE = spdiag(q) * E + spdiag(e) * Q;
+            H1 = [L1, L2; spzeros(size(L)), L; spzeros(size(QE)), spzeros(size(QE))] * ... % Hessians
+                [S11, S12; S21, S22]; % Boundary conditions
+            
+            % Stokes' operator [Lalplacian, Grad; Div, 0]            
+            H = [H1, [sparse(size(H1, 1)-size(T, 1), size(T, 2)); T]];
         end
     end
     % Dirichlet for coupled bounadry conditions

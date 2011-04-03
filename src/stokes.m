@@ -1,4 +1,6 @@
 % S * [Vx; Vy; P] + (L * Phi) .* (G * Phi);
+% The equation to solve is:
+%   Laplacian(V) - Gradient(P) + Laplacian(Phi) Gradient(Phi) = 0
 function [S, L, G] = stokes(grid)
     [S] = newton(grid);
     [L, G] = maxwell(grid);
