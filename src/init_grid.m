@@ -15,4 +15,5 @@ function G = init_grid(x, y, boundary)
         G.I(:, [1 end]) = false;
     end
     G.boundary = boundary;
+    G.mesh = @(v) mesh(G.X, G.Y, v);
 end
