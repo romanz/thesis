@@ -147,37 +147,26 @@ function step = solver(grid)
         f = [D1 * (I1_C .* G1_Phi) + D2 * (I2_C .* G2_Phi); ...
              D1 * G1_C + D2 * G2_C - sol.alpha * V_gradC; ...
              S * [sol.Vx(:); sol.Vy(:); sol.P(:)] + q .* e]; ...
-        f1 = [D1 * (I1_C .* G1_Phi) + D2 * (I2_C .* G2_Phi); ...
-              D1 * G1_C + D2 * G2_C - sol.alpha * V_gradC];
-        f2 = S * [sol.Vx(:); sol.Vy(:); sol.P(:)] + q .* e;
         
-        %Y = spdiag(q) * E + spdiag(e) * Q;
-        %disp(norm(f, 2) / norm(v, 2))
-
-        [H1, H2] = hessians(sol); % Laplace-Advection Hessian
-        H = blkdiag(H1, H2);
-        % Apply Newton step
-%         dw1 = -H1 \ f1;
-%         dw2 = -H2 \ f2;
-%         dw = [dw1; dw2];
-        dw = -H \ f; 
+        [H] = hessians(sol); % Laplace-Advection-Stokes Hessian
+        dw = -H \ f; % Newton's step
+        % Split into various variables' steps
         [dPhi, dC, dVx, dVy, dP] = split(dw, ...
             grid.Phi.sz-2, grid.C.sz-2, ...
-            grid.Vx.sz-2, grid.Vy.sz-2, grid.P.sz);
-        
+            grid.Vx.sz-2, grid.Vy.sz-2, grid.P.sz);        
         sol.Phi(grid.Phi.I) = sol.Phi(grid.Phi.I) + dPhi(:);
         sol.C(grid.C.I) = sol.C(grid.C.I) + dC(:);
         sol.Vx(grid.Vx.I) = sol.Vx(grid.Vx.I) + dVx(:);
         sol.Vy(grid.Vy.I) = sol.Vy(grid.Vy.I) + dVy(:);
         sol.P = sol.P + dP;
-        meanP = mean(sol.P(:));
+        meanP = mean(sol.P(:)); % Zero-mean pressure
         sol.P = sol.P - meanP;
         
         u = [sol.Phi(grid.Phi.I); sol.C(grid.C.I)];
         u = [u; sol.Vx(grid.Vx.I); sol.Vy(grid.Vy.I); sol.P(:)];
 
         % Hessian matrix
-        function [H1, H2] = hessians(sol)
+        function [H] = hessians(sol)
             % Phi[0] = -log(C[1])
             S12 = dirichlets(grid.C, [-1 0], -1./sol.C(2, 2:end-1));
             % C[0] = exp(-Phi[1])
@@ -188,7 +177,10 @@ function step = solver(grid)
                         
             H1 = [L1 * S11 + L2 * S21, L1 * S12 + L2 * S22; ...
                  L * S21, L * S22];      
-            H2 = T; % Stokes' operator [Lalplacian, Grad; Div, 0]
+            % Stokes' operator [Lalplacian, Grad; Div, 0]
+            
+            H = [H1, sparse(size(H1, 1), size(T, 2)); ...
+                 sparse(size(T, 1), size(H1, 2)), T];
         end
     end
     % Dirichlet for coupled bounadry conditions
