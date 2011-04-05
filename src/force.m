@@ -13,9 +13,10 @@ function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
         'profile', false, ...
         'logging', true, ...
         'radius', logspace(0, 3, 60), ...
-        'theta', linspace(0, pi, 15), ...
+        'theta', linspace(0, pi, 20), ...
         'gamma', 22.03, ...
-        'alpha', 0.0...
+        'alpha', 0.0, ...
+        'maxres', 1e-10 ...
     );
     
     if conf.version && exist('git', 'file') == 2 % git wrapper function
@@ -60,7 +61,7 @@ function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
         end
         
         k = k + 1;
-        if e < 1e-10 && k > numel(betas)
+        if e < conf.maxres && k > numel(betas)
             sol = boundaries(sol, grid);
             break;
         end
@@ -112,17 +113,16 @@ function step = solver(grid)
 
     S11 = neumanns(grid.Phi, [1 0], [0 -1], [0 1]);
     S22 = neumanns(grid.C, [0 -1], [0 1]);
-    S33 = blkdiag(... % Stokes' part Hessian
+    S33 = blkdiag(... % Stokes' part boundary conditions
         neumanns(grid.Vx, [0 -1], [0 1]), ...
         average_dirichlet(grid.Vy, [-1 0]) * expand(grid.Vy.I), ...
         speye(grid.P.numel, grid.P.numel));
-    T = S * S33;
     
     % Application of Newton method for given beta
     step = @solver_step;
     function [sol, u, f] = solver_step(sol)
         % Set boundary conditions
-        sol = boundaries(sol, grid); 
+        [sol, Qv] = boundaries(sol, grid); 
         
         % Compute gradients and interpolated values
         I1_C = I1 * sol.C(:);
@@ -171,18 +171,25 @@ function step = solver(grid)
             S12 = dirichlets(grid.C, [-1 0], -1./sol.C(2, 2:end-1));
             % C[0] = exp(-Phi[1])
             S21 = dirichlets(grid.Phi, [-1 0], -exp(-sol.Phi(2, 2:end-1)));
+            % Slipping velocity condition
 
             % div(C * grad(Phi))
             L1 = D1 * spdiag(I1_C) * G1 + D2 * spdiag(I2_C) * G2; % div(C * grad{x})
             L2 = D1 * spdiag(G1_Phi) * I1 + D2 * spdiag(G2_Phi) * I2; % div(grad(Phi) * {x})
             
             % div(grad(Phi)) * grad(Phi)
-            QE = spdiag(q) * E + spdiag(e) * Q;
-            H1 = [L1, L2; spzeros(size(L)), L; spzeros(size(QE)), spzeros(size(QE))] * ... % Hessians
-                [S11, S12; S21, S22]; % Boundary conditions
+            Nstokes = nnz(grid.Vx.I) + nnz(grid.Vy.I) + nnz(grid.P.I);
+            S13 = sparse(grid.Phi.numel, Nstokes);
+            S23 = sparse(grid.C.numel, Nstokes);
+            H1 = [L1, L2; spzeros(size(L)), L] * ... % Hessians
+                 [S11, S12, S13; S21, S22, S23]; % Boundary conditions
+
+            Sq = [S11, S12] * 0;
+            Qe = spdiag(e)*Q + spdiag(q)*E;
+            H2 = [Qe * Sq + S * Qv * Sq, S * S33];
             
             % Stokes' operator [Lalplacian, Grad; Div, 0]            
-            H = [H1, [sparse(size(H1, 1)-size(T, 1), size(T, 2)); T]];
+            H = [H1; H2];
         end
     end
     % Dirichlet for coupled bounadry conditions
@@ -204,7 +211,7 @@ function step = solver(grid)
 end
 
 % Set boundary conditions
-function [sol] = boundaries(sol, grid)
+function [sol, Q] = boundaries(sol, grid)
     % Ghost points for R boundaries
     c0 = exp(-sol.Phi(2, 2:end-1));
     phi0 = -log(sol.C(2, 2:end-1));
@@ -212,7 +219,7 @@ function [sol] = boundaries(sol, grid)
     Er = -sol.beta * cos(grid.Phi.y(2:end-1)).';
     phi1 = sol.Phi(end-1, 2:end-1) + Er * dr;
     c1 = 1;        
-    sol.Vslip = ddslip(sol, grid).';
+    [sol, Q] = ddslip(sol, grid);
     Vx_inf = sol.Vinf * cos(grid.Vx.y(2:end-1)).';
     Vy_inf = -sol.Vinf * sin(grid.Vy.y(2:end-1)).';
 
@@ -231,7 +238,7 @@ function [sol] = boundaries(sol, grid)
     sol.Vx(1:end, 1) = sol.Vx(1:end, 2); % Symmetry for V_r
     sol.Vx(1:end, end) = sol.Vx(1:end, end-1); % Symmetry for V_r
     
-    sol.Vy(1, 2:end-1) = 2*sol.Vslip - sol.Vy(2, 2:end-1);
+    sol.Vy(1, 2:end-1) = 2*sol.Vslip(:).' - sol.Vy(2, 2:end-1);
     sol.Vy(end, 2:end-1) = Vy_inf;
     sol.Vy(1:end, 1) = 0;
     sol.Vy(1:end, end) = 0;
@@ -304,7 +311,7 @@ function [sol] = total_force(sol, grid)
 end
 
 %   Dukhin-Derjaguin slip velocity.
-function V = ddslip(sol, grid)
+function [sol, Q] = ddslip(sol, grid)
     I1 = grid.center.I;
     I1 = shift(I1, [-1 0]) & ~I1;
     M1 = (select(I1) + select(shift(I1, [1 0]))) / 2; % average on R=1
@@ -314,15 +321,25 @@ function V = ddslip(sol, grid)
     Phi = M1 * sol.Phi(:);
 
     xi = -M2 * Phi - log(sol.gamma); % log(C/gamma) & Phi = -log(C)
-    
+    sol.xi = xi;
     theta = grid.center.y(2:end-1); % interior cells' centers
     
     J = true(numel(theta), 1);
     D = select(shift(J, [1 0])) - select(shift(J, [-1 0]));
     D = spdiag(1 ./ (D * theta)) * D; % Derivation operator.
     
-    V = (4 * log(cosh(xi/4)) + xi) .* (D * Phi);
     % Tangential velocity component.
+    sol.Vslip = 4 * log((exp(xi/2) + 1)/2) .* (D * Phi);
+    
+    % Boundary conditions (for Newton method)
+    I = [false(grid.Vx.numel, 1); ...
+         col(shift(grid.Vy.I, [-1 0]) & ~grid.Vy.I); ...
+         false(grid.P.numel, 1)];
+    Q = 2 * expand(I);
+    Q = Q * 4 * ( spdiag(log((exp(xi/2) + 1)/2)) * D + ...
+              spdiag((D * Phi) ./ (exp(-xi/2) + 1)) * (-M2) ...
+            ) * M1;
+    % d[Vx,Vy,P] = Q * d[Phi]
 end
 
 % Create central and staggered grids for Laplace and Stokes problems.
