@@ -137,8 +137,10 @@ function step = solver(grid)
         
         P1 = upwind(grid.Vx, sol.Vx, 1);
         P2 = upwind(grid.Vy, sol.Vy, 2);
-        P_Vx = P1 * col(sol.Vx(:, 2:end-1));
-        P_Vy = P2 * col(sol.Vy(2:end-1, :));
+        R1 = select(grid.Vx.I | shift(grid.Vx.I, [1 0]) | shift(grid.Vx.I, [-1 0]));
+        R2 = select(grid.Vy.I | shift(grid.Vy.I, [0 1]) | shift(grid.Vy.I, [0 -1]));
+        P_Vx = P1 * R1 * sol.Vx(:);
+        P_Vy = P2 * R2 * sol.Vy(:);
         P_Cx = P1 * G1_C;
         P_Cy = P2 * G2_C;
         V_gradC = P_Vx .* P_Cx + P_Vy .* P_Cy;
@@ -154,6 +156,8 @@ function step = solver(grid)
         [dPhi, dC, dVx, dVy, dP] = split(dw, ...
             grid.Phi.sz-2, grid.C.sz-2, ...
             grid.Vx.sz-2, grid.Vy.sz-2, grid.P.sz);        
+        dP = dP - mean(dP(:));
+        fprintf('<%e %e %e %e %e>\n', norm(dPhi), norm(dC), norm(dVx), norm(dVy), norm(dP))
         sol.Phi(grid.Phi.I) = sol.Phi(grid.Phi.I) + dPhi(:);
         sol.C(grid.C.I) = sol.C(grid.C.I) + dC(:);
         sol.Vx(grid.Vx.I) = sol.Vx(grid.Vx.I) + dVx(:);
