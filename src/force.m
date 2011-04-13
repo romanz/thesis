@@ -185,7 +185,9 @@ function step = solver(grid)
             Nstokes = nnz(grid.Vx.I) + nnz(grid.Vy.I) + nnz(grid.P.I);
             S13 = sparse(grid.Phi.numel, Nstokes);
             S23 = sparse(grid.C.numel, Nstokes);
-            H1 = [L1, L2; spzeros(size(L)), L] * ... % Hessians
+            V_grad = spdiag(P_Vx) * P1 * G1 + spdiag(P_Vy) * P2 * G2;
+            gradC = [spdiag(P_Cx) * P1 * R1, spdiag(P_Cy) * P2 * R2, ];
+            H1 = [L1, L2; spzeros(size(L)), L - sol.alpha * V_grad] * ... % Hessians
                  [S11, S12, S13; S21, S22, S23]; % Boundary conditions
 
             Sq = [S11, S12] * 0;
