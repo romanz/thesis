@@ -55,6 +55,23 @@ function step = newton_solver(grid)
         H = [H11 H12 H13; H21 H22 H23; H31 H32 H33];
     end
 
+    % Neumann on R=inf
+    H_Phi0 = ident(grid.Phi) + coupling(grid.Phi, [1 0]);
+    H_C0 = ident(grid.C);
+    H_Vx = symmetries(grid.Vx);
+    H_Vy = ident(grid.Vy) - coupling(grid.Vy, [-1 0]);
+    S_Phi = symmetries(grid.Phi);
+    S_C = symmetries(grid.C);
+
+    % Interpolation to R=1
+    I = grid.center.I;
+    I = shift(I, [-1 0]) & ~I;
+    S = select(I) + select( shift(I, [1 0]) ) / 2; % Phi is interpolated on R=1    
+    [D, I] = spdiff(true(size(S, 1), 1), 1); % Difference along theta axis.
+    IS = I * S;    
+    D = spdiag(1 ./ (D * grid.center.y)) * D;
+    DS = D * S;
+    
     function [sol, H] = boundaries(sol)
 
         Er = -sol.beta * cos(grid.Phi.y(2:end-1)).';
@@ -69,12 +86,9 @@ function step = newton_solver(grid)
         Phi(end, 2:end-1) = Phi(end-1, 2:end-1) + Er * dr;
         Phi(1:end, 1) = Phi(1:end, 2);
         Phi(1:end, end) = Phi(1:end, end-1);
-        % Neumann on R=inf
         % Non-linear coupling on R=1
         % Symmetry on Theta=0 & pi.
-        H_Phi = symmetries(grid.Phi) * ...
-            ([ident(grid.Phi) + coupling(grid.Phi, [1 0]), ...
-              coupling(grid.C, [-1 0], dPhi0_dC)]);
+        H_Phi = S_Phi * ([H_Phi0, coupling(grid.C, [-1 0], dPhi0_dC)]);
 
         C = sol.C;
         C0 = exp( -sol.Phi(2, 2:end-1) ); % C = exp(-Phi)
@@ -86,50 +100,37 @@ function step = newton_solver(grid)
         % Dirichlet (1) on R=inf
         % Non-linear coupling on R=1
         % Symmetry on Theta=0 & pi.
-        H_C = symmetries(grid.C) * ...
-            ([coupling(grid.Phi, [-1 0], dC0_dPhi), ...
-              ident(grid.C)]);
+        H_C = S_C * ([coupling(grid.Phi, [-1 0], dC0_dPhi), H_C0]);
 
         Vx = sol.Vx;
         Vx(1, 2:end-1) = 0;
         Vx(end, 2:end-1) = Vx_inf;
         Vx(1:end, 1) = Vx(1:end, 2);
         Vx(1:end, end) = Vx(1:end, end-1);
-        H_Vx = symmetries(grid.Vx);
 
-        Vy = sol.Vy;
-
-        % Interpolation to R=1
-        I = grid.center.I;
-        I = shift(I, [-1 0]) & ~I;
-        S = select(I) + select( shift(I, [1 0]) ) / 2; % Phi is interpolated on R=1    
-        [D, I] = spdiff(true(size(S, 1), 1), 1); % Difference along theta axis.
-        IS = I * S;    
-        D = spdiag(1 ./ (D * grid.center.y)) * D;
-        DS = D * S;
         xi = IS * Phi - log(sol.gamma);
-
         M1 = 4 * log((exp(xi/2) + 1)/2);
         dM1 = spdiag( 2 ./ (1 + exp(-xi/2)) ) * IS;
         M2 = (DS * sol.Phi);
         dM2 = DS;
         Vs = M1 .* M2;
 
+        Vy = sol.Vy;
         Vy(1, 2:end-1) = 2 * Vs - Vy(2, 2:end-1);
         Vy(end, 2:end-1) = Vy_inf;
         Vy(1:end, 1) = 0;
         Vy(1:end, end) = 0;   
 
-        H_Vy = ident(grid.Vy) - coupling(grid.Vy, [-1 0]);
-        H_Vy_Phi = 2 * (spdiag(M1) * dM2 + spdiag(M2) * dM1);
+        % Dukhin-Derjaguin Slip Hessian
+        H_Vy_dd = 2 * (spdiag(M1) * dM2 + spdiag(M2) * dM1);
 
         H11 = diag([H_Phi; H_C], H_Vx); % Phi, C, Vx
         H22 = H_Vy; % Vy
         H12 = sparse(size(H11, 1), size(H22, 2)); % 0
-        H21 = [H_Vy_Phi, sparse(grid.Vy.I, grid.C.numel + grid.Vx.numel)];
+        H21 = [H_Vy_dd, sparse(grid.Vy.I, grid.C.numel + grid.Vx.numel)];
 
-        I = [grid.Phi.I(:); grid.C.I(:); grid.Vx.I(:); grid.Vy.I(:)];
-        H = [H11, H12; H21, H22] * expand(I);
+        H = [H11, H12; H21, H22] * ...
+          expand([grid.Phi.I(:); grid.C.I(:); grid.Vx.I(:); grid.Vy.I(:)]);
 
         H = diag(H, speye(grid.P.numel)); % no boundaries for P
 
@@ -138,13 +139,14 @@ function step = newton_solver(grid)
         sol.Vx = Vx;
         sol.Vy = Vy;
     end
+
     function [sol, rhs, du] = newton_step(sol)
         [sol, Hb] = boundaries(sol); % Apply boundary conditions
         [rhs, Hf] = operators(sol); % Apply operators to get RHS        
         % 0 = F(B(u)) + Hf * Hb * du
         % H * du = -F(B(u))
         H = Hf * Hb; % Interior's Hessian
-        du = H \ (-sol.rhs);
+        du = -(H \ sol.rhs);
         sol = apply(sol, du);
     end
     step = @newton_step;

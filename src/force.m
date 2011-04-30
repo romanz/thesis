@@ -27,7 +27,7 @@ function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
 
     % Create grid and initialize the solver
     grid = grids(conf.radius, conf.theta);
-    newton_step = solver(grid);
+    newton_step = newton_solver(grid);
     
     if isempty(sol) % Initial solution
         sigma = 0e-3;
