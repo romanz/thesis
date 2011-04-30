@@ -7,7 +7,7 @@ function step = newton_solver(grid)
     
     [S, Q, E] = stokes(grid);
 
-    function [rhs, H] = operators(sol)
+    function [rhs, H] = full_system(sol)
         % Compute gradients and interpolated values
         I1_C = I1 * sol.C(:); % C on X-staggered grid
         I2_C = I2 * sol.C(:); % C on Y-staggered grid
@@ -32,9 +32,9 @@ function step = newton_solver(grid)
         q = Q * sol.Phi(:); % electric charge (on Stokes' grids)
         e = E * sol.Phi(:); % electric fields (on Stokes' grids)
         
-        % Right-Hand Side (operator applied to real- and ghost- values)
+        % Right-Hand Side (operator applied to real- and ghost- values)        
         rhs = [D1 * (I1_C .* G1_Phi) + D2 * (I2_C .* G2_Phi); ...
-               L - sol.alpha * V_gradC; ...
+               D1 * G1_Phi + D2 * G2_Phi - sol.alpha * V_gradC; ...
                S * [sol.Vx(:); sol.Vy(:); sol.P(:)] + q .* e];
            
         H11 = D1 * spdiag(I1_C) * G1 + D2 * spdiag(I2_C) * G2; % Phi
@@ -66,13 +66,14 @@ function step = newton_solver(grid)
     % Interpolation to R=1
     I = grid.center.I;
     I = shift(I, [-1 0]) & ~I;
-    S = select(I) + select( shift(I, [1 0]) ) / 2; % Phi is interpolated on R=1    
-    [D, I] = spdiff(true(size(S, 1), 1), 1); % Difference along theta axis.
-    IS = I * S;    
-    D = spdiag(1 ./ (D * grid.center.y)) * D;
-    DS = D * S;
+    M = select(I) + select( shift(I, [1 0]) ) / 2; % Phi is interpolated on R=1    
+    [D, I] = spdiff(true(nnz(I), 1), 1); % Difference along theta axis.
+    IM = I * M;    
+    D = spdiag(1 ./ (D * grid.center.y(2:end-1))) * D;
+    DM = D * M;
+    Xslip = expand(~grid.Vy.I & shift(grid.Vy.I, [-1 0]));
     
-    function [sol, H] = boundaries(sol)
+    function [sol, H] = boundary_conditions(sol)
 
         Er = -sol.beta * cos(grid.Phi.y(2:end-1)).';
         dr = grid.Phi.x(end) - grid.Phi.x(end-1);
@@ -108,31 +109,31 @@ function step = newton_solver(grid)
         Vx(1:end, 1) = Vx(1:end, 2);
         Vx(1:end, end) = Vx(1:end, end-1);
 
-        xi = IS * Phi - log(sol.gamma);
+        xi = IM * Phi(:) - log(sol.gamma);
         M1 = 4 * log((exp(xi/2) + 1)/2);
-        dM1 = spdiag( 2 ./ (1 + exp(-xi/2)) ) * IS;
-        M2 = (DS * sol.Phi);
-        dM2 = DS;
+        dM1 = spdiag( 2 ./ (1 + exp(-xi/2)) ) * IM;
+        M2 = DM * sol.Phi(:);
+        dM2 = DM;
         Vs = M1 .* M2;
 
         Vy = sol.Vy;
-        Vy(1, 2:end-1) = 2 * Vs - Vy(2, 2:end-1);
+        Vy(1, 2:end-1) = 2 * Vs.' - Vy(2, 2:end-1);
         Vy(end, 2:end-1) = Vy_inf;
         Vy(1:end, 1) = 0;
         Vy(1:end, end) = 0;   
 
         % Dukhin-Derjaguin Slip Hessian
-        H_Vy_dd = 2 * (spdiag(M1) * dM2 + spdiag(M2) * dM1);
+        H_Vy_dd = Xslip * 2 * (spdiag(M1) * dM2 + spdiag(M2) * dM1);
 
-        H11 = diag([H_Phi; H_C], H_Vx); % Phi, C, Vx
+        H11 = blkdiag([H_Phi; H_C], H_Vx); % Phi, C, Vx
         H22 = H_Vy; % Vy
         H12 = sparse(size(H11, 1), size(H22, 2)); % 0
-        H21 = [H_Vy_dd, sparse(grid.Vy.I, grid.C.numel + grid.Vx.numel)];
+        H21 = [H_Vy_dd, sparse(grid.Vy.numel, grid.C.numel + grid.Vx.numel)];
 
         H = [H11, H12; H21, H22] * ...
           expand([grid.Phi.I(:); grid.C.I(:); grid.Vx.I(:); grid.Vy.I(:)]);
 
-        H = diag(H, speye(grid.P.numel)); % no boundaries for P
+        H = blkdiag(H, speye(grid.P.numel)); % no boundaries for P
 
         sol.Phi = Phi;
         sol.C = C;
@@ -141,12 +142,13 @@ function step = newton_solver(grid)
     end
 
     function [sol, rhs, du] = newton_step(sol)
-        [sol, Hb] = boundaries(sol); % Apply boundary conditions
-        [rhs, Hf] = operators(sol); % Apply operators to get RHS        
+        [sol, Hb] = boundary_conditions(sol); % Apply boundary conditions
+        [rhs, Hf] = full_system(sol); % Apply full system to get RHS -> 0
         % 0 = F(B(u)) + Hf * Hb * du
-        % H * du = -F(B(u))
+        % H * du = -F(B(u)) = -rhs
+        % du = - H \ rhs
         H = Hf * Hb; % Interior's Hessian
-        du = -(H \ sol.rhs);
+        du = -(H \ rhs);
         sol = apply(sol, du);
     end
     step = @newton_step;
@@ -171,6 +173,8 @@ end
 function S = ghost(I, dir, H)
     if nargin < 3
         H = 1;
+    else
+        H = spdiag(H);
     end
     J = ~I & shift(I, dir); % Ghost points
     S = expand(J) * H * select(shift(J, -dir));
@@ -182,8 +186,8 @@ function S = symmetries(grid)
     S = expand(J) * select(J) + ghost(J, [0 -1]) +  ghost(J, [0 1]);
 end
 
-function S = coupling(grid, dir, H)
-    S = ghost(grid.I, dir, H);
+function S = coupling(grid, varargin)
+    S = ghost(grid.I, varargin{:});
 end
 
 function S = ident(grid)
@@ -191,4 +195,18 @@ function S = ident(grid)
     S = sparse(K, K, 1, grid.numel, grid.numel);
 end
 
-
+% Splits x into seperate variables according to specified sizes.
+%   [x1, x2, x3] = split(x, sz1, sz2, sz3);
+%   where sz{i} = size(x{i}) and x = [x1(:); x2(:); x3(:)];
+function [varargout] = split(x, varargin)
+    N = numel(varargin);
+    varargout = cell(N);
+    offset = 0;
+    for k = 1:N
+        sz = varargin{k};
+        m = prod(sz);
+        varargout{k} = reshape(x(offset + (1:m)), sz);
+        offset = offset + m;
+    end
+    assert(offset == numel(x), 'Splitting mismatch.');
+end
