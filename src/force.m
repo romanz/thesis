@@ -16,7 +16,8 @@ function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
         'theta', linspace(0, pi, 20), ...
         'gamma', 1, ...
         'alpha', 0.0, ...
-        'maxres', 1e-10 ...
+        'maxres', 1e-10, ...
+        'maxiters', 100 ...
     );
     
     if conf.version && exist('git', 'file') == 2 % git wrapper function
@@ -52,16 +53,16 @@ function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
     end
     while true % Newton's method with continuation in beta.
         sol.beta = betas(min(k, numel(betas)));
-        [sol, u, f] = newton_step(sol);
+        [sol, res, du] = newton_step(sol);
         assert( all(sol.C(:) > 0), 'Negative C.' );
         
-        e = norm(f, 2) / norm(u, 2); % Residual norm
+        res = norm(res, 2); % Residual norm
         if conf.logging
-            fprintf('[%d] B = %e, Residual = %e\n', k, sol.beta, e); 
+            fprintf('[%d] B = %e, Residual = %e\n', k, sol.beta, res); 
         end
         
         k = k + 1;
-        if e < conf.maxres && k > numel(betas)
+        if (res < conf.maxres || k > conf.maxiters) && k > numel(betas)
             sol = boundaries(sol, grid);
             break;
         end
