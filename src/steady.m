@@ -1,5 +1,7 @@
 % Steady-state solver.
 % Given beta, find the velocity for zero particle force.
+% Example usage:
+% >> s = steady([], 1, [1 2], 3);
 function sol = steady(sol, betas, v, iters, varargin)
 
     conf = [{'version', 0, 'logging', 1}, varargin];

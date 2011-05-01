@@ -134,7 +134,6 @@ function step = newton_solver(grid)
         Vy(1:end, 1) = 0;
         Vy(1:end, end) = 0;   
 
-        %%% XXX
         % Dukhin-Derjaguin Slip Hessian
         H_Vy_dd = Xslip * 2 * (spdiag(M1) * dM2 + spdiag(M2) * dM1);
 
@@ -143,7 +142,7 @@ function step = newton_solver(grid)
         H12 = sparse(size(H11, 1), size(H22, 2)); % 0
         H21 = [H_Vy_dd, sparse(grid.Vy.numel, grid.C.numel + grid.Vx.numel)];
 
-        H = [H11, H12; H21, H22];
+        H = [H11, H12; H21*H11, H22];
         J = [grid.Phi.I(:); grid.C.I(:); grid.Vx.I(:); grid.Vy.I(:)];
         H = H * expand(J);
         H = blkdiag(H, speye(grid.P.numel)); % no boundaries for P
