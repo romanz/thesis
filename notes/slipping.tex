@@ -68,3 +68,24 @@ V_\theta & \approx & -\beta \cdot 3
 \cl{U}_\infty &\approx& \beta \cdot 2
 \log\brcs{\frac{1 + \gamma^{-1/2}}{2}}
 \end{eqnarray}
+
+Note that Dukhin-Derjaguin slip formula may be rewritten as:
+\begin{eqnarray}
+  \xi &=& \log \frac{C}{\gamma} = -\varPhi - \log\gamma \\
+  V_\theta & = & \xi \partial_\theta \varPhi
+  + 2 \log\left(1 - \tanh^2 \frac{\xi}{4}\right) \partial_\theta \log C \\
+  V_\theta & = & \xi \partial_\theta \varPhi
+  - 2 \log\left(1 - \tanh^2 \frac{\xi}{4}\right) \partial_\theta \varPhi
+  \\ V_\theta & = & \left( \xi + 2 \log\left(\cosh^2 \frac{\xi}{4}\right) \right) \partial_\theta \varPhi
+  \\ V_\theta & = & \left( \xi + 4 \log\left(\cosh \frac{\xi}{4}\right) \right) \partial_\theta \varPhi
+  \\ V_\theta & = & 4 \log\left(e^\frac{\xi}{4} \frac{ e^\frac{\xi}{4} + e^{-\frac{\xi}{4}} }{2} \right) \partial_\theta \varPhi
+  \\ V_\theta & = & 4 \log\left( \frac{ e^\frac{\xi}{2} + 1 }{2} \right) \partial_\theta \varPhi
+\end{eqnarray}
+For $\beta \ll 1$, we have $\xi \approx -\log\gamma$:
+\begin{eqnarray}
+  V_\theta & \approx & 4 \log\left( \frac{ \gamma^{-\frac{1}{2}} + 1 }{2} \right) \partial_\theta \varPhi \\
+  V_\theta & \approx & 4 \log\left( \frac{ \gamma^{\frac{1}{4}} + \gamma^{-\frac{1}{4}} }{2 \gamma^{\frac{1}{4}}} \right) \partial_\theta \varPhi \\
+  V_\theta & \approx & 4 \log\left( \frac{ \gamma^{\frac{1}{4}} + \gamma^{-\frac{1}{4}} }{2 \gamma^{\frac{1}{4}}} \right) \cdot \frac{3}{4} \beta \sin\theta \\
+  V_\theta & \approx & 3 \log\left( \frac{ \gamma^{\frac{1}{4}} + \gamma^{-\frac{1}{4}} }{2 \gamma^{\frac{1}{4}}} \right) \beta \sin\theta \\
+  \cal{U} &=& 2 \log\left( \frac{ \gamma^{\frac{1}{4}} + \gamma^{-\frac{1}{4}} }{2 \gamma^{\frac{1}{4}}} \right) \beta
+\end{eqnarray}
