@@ -127,6 +127,7 @@ function step = newton_solver(grid)
         M2 = DM * sol.Phi(:);
         dM2 = DM;
         sol.Vs = M1 .* M2;
+        sol.xi = xi;
 
         Vy = sol.Vy;
         Vy(1, 2:end-1) = 2 * sol.Vs.' - Vy(2, 2:end-1);
