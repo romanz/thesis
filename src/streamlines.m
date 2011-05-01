@@ -1,65 +1,41 @@
-function streamlines(filename, Smin, Smax, Snum)
+function sol = streamlines(sol, varargin)
 
-load(filename)
-% [X, Y] = ndgrid(logspace(0, 1), linspace(0, pi));
-% psi = Vinf * sin(Y)/2 .* (X - 3./(2*X) + 1./(2*X.^2));
-% Xp = X .* cos(Y);
-% Yp = X .* sin(Y);
-% clf;
-% contour(Xp, Yp, psi, linspace(0, .05, 100))
-% axis equal
-% axis([-6 6 0 6])
+grid = sol.grid;
+grid.Psi = init_grid(grid.radius, grid.theta);
+% d(r^2 sint Vr)/dr + d(r sint Vt)/dt = 0
 
-% radial velocity component
-gridPsi = init_grid(radius, theta);
-% D1 = grad(gridPsi.sz, 2);
-% D1 = spdiag(1./(D1 * gridPsi.Y(:))) * D1 * spdiag(sin(gridPsi.Y));
-% D1 = spdiag(1./(gridVx.X(:, 2:end-1) .* sin(gridVx.Y(:, 2:end-1)))) * D1;
-% 
-% D2 = grad(gridPsi.sz, 1);
-% D2 = spdiag(1./(D2 * gridPsi.X(:))) * D2 * spdiag(sin(gridPsi.X));
-% D2 = -spdiag(1./(gridVy.X(2:end-1, :))) * D2;
+% d(Vx)/dx + d(Vy)/dy = 0
+% Vx = r^2 sint Vx = dPsi/dy
+% Vy = r sint Vy = - dPsi/dx
 
-D1 = grad(gridVx.X(:, 2:end-1), 1);
-D1 = D1 * spdiag(gridVx.X(:, 2:end-1) .^ 2); 
-D1 = spdiag(1./(gridC.X(gridC.I) .^ 2)) * D1;
-d1 = D1 * col(solVx(:, 2:end-1));
-
-D2 = grad(gridVy.Y(2:end-1, :), 2);
-D2 = D2 * spdiag(sin(gridVy.Y(2:end-1, :)));
-D2 = spdiag(1./(sin(gridC.Y(gridC.I)) .* gridC.X(gridC.I))) * D2;
-d2 = D2 * col(solVy(2:end-1, :));
-
-div = d1 + d2;
-norm(div(:), inf)
-
-Vx = solVx .* sin(gridVx.Y) .* gridVx.X.^2;
+Vx = sol.Vx .* sin(grid.Vx.Y) .* grid.Vx.X.^2;
 Vx = Vx(:, 2:end-1);
-Vy = solVy .* sin(gridVy.Y) .* gridVy.X;
+Vy = sol.Vy .* sin(grid.Vy.Y) .* grid.Vy.X;
 Vy = Vy(2:end-1, :);
 V = [Vx(:); Vy(:)];
 
-d = [grad(gridVx.X(:, 2:end-1), 1) grad(gridVy.Y(2:end-1, :), 2)] * V;
-norm(d, inf)
+div = [grad(grid.Vx.X(:, 2:end-1), 1) grad(grid.Vy.Y(2:end-1, :), 2)] * V;
+norm(div) / norm(V)
 
-G1 = +grad(gridPsi.Y, 2);
-G2 = -grad(gridPsi.X, 1);
-G = [G1; G2];
-I = gridPsi.I;
-I = I | shift(I, [1 0]);
-P = expand(I);
-Psi = P * ((G*P) \ V);
-Psi = Psi - Psi(1);
-norm(G * Psi - V, inf)
-Psi = reshape(Psi, gridPsi.sz);
-W = (gridPsi.X .* sin(gridPsi.Y));
-Psi(~~W) = -Psi(~~W) ./ W(~~W);
+G1 = +grad(grid.Psi.Y, 2);
+G2 = -grad(grid.Psi.X, 1);
+G = [G1; G2]; % [d/dy; -d/dx] * Psi = V = [Vx; Vy]
 
-% if use_theory
-%     [~, ~, Psi] = stokes_solution(Vinf, gridPsi.X, gridPsi.Y);
-% end
-contour(gridPsi.X .* cos(gridPsi.Y), gridPsi.X .* sin(gridPsi.Y), ...
-    Psi, linspace(Smin, Smax, Snum));
+I = grid.Psi.I | shift(grid.Psi.I, [1 0]); % I = 0 iff Psi = 0
+Q = expand(I); % G*(Q*Psi) = V
+
+Psi = Q * ((G*Q) \ V);
+norm(G * Psi - V) / norm(V)
+Psi = reshape(Psi, grid.Psi.sz);
+
+w = (grid.Psi.X .* sin(grid.Psi.Y));
+Psi(I) = Psi(I) ./ w(I);
+
+sol.Psi = Psi;
+sol.grid = grid;
+
+contour(grid.Psi.X .* cos(grid.Psi.Y), grid.Psi.X .* sin(grid.Psi.Y), ...
+    Psi, varargin{:});
 
 function D = grad(X, dim)
 sz = size(X);
