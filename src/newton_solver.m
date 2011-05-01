@@ -78,7 +78,7 @@ function step = newton_solver(grid)
     % Interpolation to R=1
     I = grid.center.I;
     I = shift(I, [-1 0]) & ~I;
-    M = select(I) + select( shift(I, [1 0]) ) / 2; % Phi is interpolated on R=1    
+    M = ( select(I) + select(shift(I, [1 0])) ) / 2; % Phi is interpolated on R=1    
     [D, I] = spdiff(true(nnz(I), 1), 1); % Difference along theta axis.
     IM = I * M;    
     D = spdiag(1 ./ (D * grid.center.y(2:end-1))) * D;
@@ -121,19 +121,20 @@ function step = newton_solver(grid)
         Vx(1:end, 1) = Vx(1:end, 2);
         Vx(1:end, end) = Vx(1:end, end-1);
 
-        xi = IM * Phi(:) - log(sol.gamma);
+        xi = -IM * Phi(:) - log(sol.gamma);
         M1 = 4 * log((exp(xi/2) + 1)/2);
-        dM1 = spdiag( 2 ./ (1 + exp(-xi/2)) ) * IM;
+        dM1 = spdiag( 2 ./ (1 + exp(-xi/2)) ) * (-IM);
         M2 = DM * sol.Phi(:);
         dM2 = DM;
-        Vs = M1 .* M2;
+        sol.Vs = M1 .* M2;
 
         Vy = sol.Vy;
-        Vy(1, 2:end-1) = 2 * Vs.' - Vy(2, 2:end-1);
+        Vy(1, 2:end-1) = 2 * sol.Vs.' - Vy(2, 2:end-1);
         Vy(end, 2:end-1) = Vy_inf;
         Vy(1:end, 1) = 0;
         Vy(1:end, end) = 0;   
 
+        %%% XXX
         % Dukhin-Derjaguin Slip Hessian
         H_Vy_dd = Xslip * 2 * (spdiag(M1) * dM2 + spdiag(M2) * dM1);
 
