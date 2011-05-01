@@ -5,7 +5,7 @@ and using the Hessian to compute the Newton's step.
 \begin{eqnarray}
   f(x) &\approx & f(x_0) + H(x_0) (x - x0)
 \end{eqnarray}
-Thus, the Newton's step to solve $f(x) = 0$, 
+Thus, the Newton's step to solve $f(x) = 0$,
 defined as $\Delta x = x - x_0$, is:
 \begin{eqnarray}
   \Delta x &=& -H^{-1}(x_0) f(x_0)
@@ -76,3 +76,22 @@ r \rightarrow \infty &\Rightarrow&
   \bv &\rightarrow& \bzero
 }
 \end{eqnarray}
+
+\subsection{Slipping}
+\begin{eqnarray}
+  \xi &=& \log \frac{C}{\gamma} = -\varPhi - \log\gamma \\
+  V_\theta & = & \xi \partial_\theta \varPhi
+  + 2 \log\left(1 - \tanh^2 \frac{\xi}{4}\right) \partial_\theta \log C \\
+  V_\theta & = & \xi \partial_\theta \varPhi
+  - 2 \log\left(1 - \tanh^2 \frac{\xi}{4}\right) \partial_\theta \varPhi 
+  \\ V_\theta & = & \left( \xi + 2 \log\left(\cosh^2 \frac{\xi}{4}\right) \right) \partial_\theta \varPhi
+  \\ V_\theta & = & \left( \xi + 4 \log\left(\cosh \frac{\xi}{4}\right) \right) \partial_\theta \varPhi
+  \\ V_\theta & = & 4 \log\left(e^\frac{\xi}{4} \frac{ e^\frac{\xi}{4} + e^{-\frac{\xi}{4}} }{2} \right) \partial_\theta \varPhi
+  \\ V_\theta & = & 4 \log\left( \frac{ e^\frac{\xi}{2} + 1 }{2} \right) \partial_\theta \varPhi
+\end{eqnarray}
+For $\beta \ll 1$, we have $\xi \approx -\log\gamma$:
+\begin{eqnarray}
+  V_\theta & \approx & 4 \log\left( \frac{ \gamma^{-\frac{1}{2}} + 1 }{2} \right) \partial_\theta \varPhi \\
+  V_\theta & \approx & 4 \log\left( \frac{ \gamma^{\frac{1}{4}} + \gamma^{-\frac{1}{4}} }{2 \gamma^{\frac{1}{4}}} \right) \partial_\theta \varPhi
+\end{eqnarray}
+
