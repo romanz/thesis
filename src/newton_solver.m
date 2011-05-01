@@ -7,6 +7,7 @@ function step = newton_solver(grid)
         % H * du = -F(B(u)) = -rhs
         % du = - H \ rhs
         H = Hf * Hb; % Interior's Hessian
+        H = H + eps*speye(size(H)); % Make the inverse more stable.
         du = -(H \ rhs);
         sol = apply(sol, du);
     end
