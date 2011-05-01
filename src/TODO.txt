@@ -1,6 +1,6 @@
 * TODO:
-Newton method for the whole problem.
-Save secant history during computation (for a plot)
-Garbage from previous run (in 'rw' mode)
-Montior convergence on the boundary - add parameter of "width" in R
-
+Document code structure and solver design.
+Test Hessian using random projections.
+Add eps*I to H (for stable inverse).
+Support streamlines.
+Test alpha>0.
