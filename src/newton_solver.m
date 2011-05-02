@@ -2,16 +2,33 @@ function step = newton_solver(grid)
 
     %% Newton method step
     %%%%%%%%%%%%%%%%%%%%%%%%
-    function [sol, rhs, du] = newton_step(sol)
+    function [sol, res, du] = newton_step(sol)
+        if ~isempty(sol.du)
+            d = sol.du;
+            sol.du = [...
+                0 * randn(nnz(grid.Phi.I), 1); ...
+                % d * randn(nnz(grid.C.I), 1); ...
+                d; 0; zeros(nnz(grid.C.I)-2, 1);
+                0 * randn(nnz(grid.Vx.I), 1); ...
+                0 * randn(nnz(grid.Vy.I), 1); ...
+                0 * randn(nnz(grid.P.I), 1); ...
+            ];
+            sol = apply(sol, sol.du);
+        end
         [sol, Hb] = boundary_conditions(sol); % Apply boundary conditions
-        [rhs, Hf] = full_system(sol); % Apply full system to get RHS -> 0
+        [res, Hf] = full_system(sol); % Apply full system to get residual -> 0
         % 0 = F(B(u)) + Hf * Hb * du
-        % H * du = -F(B(u)) = -rhs
-        % du = - H \ rhs
+        % H * du = -F(B(u)) = -residual
+        % du = - H \ residual
         H = Hf * Hb; % Interior's Hessian
         H = H + eps*speye(size(H)); % Make the inverse more stable.
-        du = -(H \ rhs);
+        du = -(H \ res);
+        if ~isempty(sol.du)
+            plot([res, res-H * sol.du]);
+            sol.du = [];
+        end
         sol = apply(sol, du);
+        sol.residual = res;
     end
     step = @newton_step;
     
@@ -165,6 +182,7 @@ function step = newton_solver(grid)
     end
 
     %% Applies step to system interior variables
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     function sol = apply(sol, du)
         [dPhi, dC, dVx, dVy, dP] = split(du, ...
             grid.Phi.sz-2, grid.C.sz-2, ...
