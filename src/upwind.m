@@ -1,4 +1,4 @@
-function [P, V] = upwind(grid, V, dim)
+function [P] = upwind(grid, V, dim)
     dir = (1:2 == dim);
     assert(any(dir));
     h = ones(dir + 1);

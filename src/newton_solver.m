@@ -1,5 +1,7 @@
 function step = newton_solver(grid)
 
+    %% Newton method step
+    %%%%%%%%%%%%%%%%%%%%%%%%
     function [sol, rhs, du] = newton_step(sol)
         [sol, Hb] = boundary_conditions(sol); % Apply boundary conditions
         [rhs, Hf] = full_system(sol); % Apply full system to get RHS -> 0
@@ -13,11 +15,12 @@ function step = newton_solver(grid)
     end
     step = @newton_step;
     
+    %% Differential operators 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Divergence, Gradient and Interpolation
     [D1, G1, I1] = operators(grid.center, 1);
     [D2, G2, I2] = operators(grid.center, 2);
-    L = sparse_laplacian(grid.center);
-    
+    L = sparse_laplacian(grid.center);    
     [S, Q, E] = stokes(grid);
     
     function [rhs, H] = full_system(sol)
@@ -36,11 +39,14 @@ function step = newton_solver(grid)
         % Remove ghost points from V grid.
         R1 = P1 * select(grid.Vx.I | shift(grid.Vx.I, [1 0]) | shift(grid.Vx.I, [-1 0]));
         R2 = P2 * select(grid.Vy.I | shift(grid.Vy.I, [0 1]) | shift(grid.Vy.I, [0 -1]));
+        % Select velocity from an upwind face
         R_Vx = R1 * sol.Vx(:);
         R_Vy = R2 * sol.Vy(:);
+        % Select grad(C) from an upwind face
         PG_Cx = P1 * G1_C;
         PG_Cy = P2 * G2_C;
-        V_gradC = R_Vx .* PG_Cx + R_Vy .* PG_Cy; % Advection upwind term
+        % Advection upwind term
+        V_gradC = R_Vx .* PG_Cx + R_Vy .* PG_Cy;
 
         q = Q * sol.Phi(:); % electric charge (on Stokes' grids)
         e = E * sol.Phi(:); % electric fields (on Stokes' grids)
@@ -55,11 +61,12 @@ function step = newton_solver(grid)
         H13 = sparse(size(L, 1), size(S, 2)); % V
         
         V_grad = spdiag(R_Vx) * P1 * G1 + spdiag(R_Vy) * P2 * G2;
-        gradC_ = [spdiag(PG_Cx) * R1, spdiag(PG_Cy) * R2];
+        gradC_ = [spdiag(PG_Cx) * R1, spdiag(PG_Cy) * R2, ...
+                  sparse(size(L, 1), grid.P.numel)];
          
         H21 = sparse(size(L, 1), grid.Phi.numel); % Phi
         H22 = L - sol.alpha * V_grad; % C
-        H23 = - sol.alpha * [gradC_, sparse(size(L, 1), grid.P.numel)]; % V
+        H23 = - sol.alpha * gradC_; % V
          
         H31 = spdiag(q) * E + spdiag(e) * Q; % Phi
         H32 = sparse(size(S, 1), grid.C.numel); % C
@@ -68,6 +75,8 @@ function step = newton_solver(grid)
         H = [H11 H12 H13; H21 H22 H23; H31 H32 H33];
     end
 
+    %% Boundary conditions 
+    %%%%%%%%%%%%%%%%%%%%%%%%%
     % Neumann on R=inf
     H_Phi0 = ident(grid.Phi) + coupling(grid.Phi, [1 0]);
     H_C0 = ident(grid.C);
@@ -155,6 +164,7 @@ function step = newton_solver(grid)
         sol.Vy = Vy;
     end
 
+    %% Applies step to system interior variables
     function sol = apply(sol, du)
         [dPhi, dC, dVx, dVy, dP] = split(du, ...
             grid.Phi.sz-2, grid.C.sz-2, ...
