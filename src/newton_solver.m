@@ -3,32 +3,34 @@ function step = newton_solver(grid)
     %% Newton method step
     %%%%%%%%%%%%%%%%%%%%%%%%
     function [sol, res, du] = newton_step(sol)
-        if ~isempty(sol.du)
+        if isfield(sol, 'du') && ~isempty(sol.du)
             d = sol.du;
             sol.du = [...
-                0 * randn(nnz(grid.Phi.I), 1); ...
-                % d * randn(nnz(grid.C.I), 1); ...
-                d; 0; zeros(nnz(grid.C.I)-2, 1);
-                0 * randn(nnz(grid.Vx.I), 1); ...
-                0 * randn(nnz(grid.Vy.I), 1); ...
-                0 * randn(nnz(grid.P.I), 1); ...
-            ];
+                d * randn(nnz(grid.Phi.I), 1); ...
+                d * randn(nnz(grid.C.I), 1); ...
+                d * randn(nnz(grid.Vx.I), 1); ...
+                d * randn(nnz(grid.Vy.I), 1); ...
+                d * remove_mean(randn(nnz(grid.P.I), 1))];
+            sol1 = sol;
             sol = apply(sol, sol.du);
         end
         [sol, Hb] = boundary_conditions(sol); % Apply boundary conditions
         [res, Hf] = full_system(sol); % Apply full system to get residual -> 0
+        sol.res = res;
+        if isfield(sol, 'du') && ~isempty(sol.du)
+            sol2 = sol;
+            e = sol2.res - sol1.res;
+            y = Hf * Hb * sol.du;
+            plot([e, y, e-y]);
+            sol.du = [];
+        end
         % 0 = F(B(u)) + Hf * Hb * du
         % H * du = -F(B(u)) = -residual
         % du = - H \ residual
         H = Hf * Hb; % Interior's Hessian
         H = H + eps*speye(size(H)); % Make the inverse more stable.
         du = -(H \ res);
-        if ~isempty(sol.du)
-            plot([res, res-H * sol.du]);
-            sol.du = [];
-        end
         sol = apply(sol, du);
-        sol.residual = res;
     end
     step = @newton_step;
     
@@ -119,51 +121,46 @@ function step = newton_solver(grid)
         Vx_inf = sol.Vinf * cos(grid.Vx.y(2:end-1)).';
         Vy_inf = -sol.Vinf * sin(grid.Vy.y(2:end-1)).';
 
-        Phi = sol.Phi;
         Phi0 = -log( sol.C(2, 2:end-1) ); % Phi = -log(C)
         dPhi0_dC = -1 ./ sol.C(2, 2:end-1); % dPhi/dC = -1/C
-        Phi(1, 2:end-1) = Phi0;
-        Phi(end, 2:end-1) = Phi(end-1, 2:end-1) + Er * dr;
-        Phi(1:end, 1) = Phi(1:end, 2);
-        Phi(1:end, end) = Phi(1:end, end-1);
+        sol.Phi(1, 2:end-1) = Phi0;
+        sol.Phi(end, 2:end-1) = sol.Phi(end-1, 2:end-1) + Er * dr;
+        sol.Phi(1:end, 1) = sol.Phi(1:end, 2);
+        sol.Phi(1:end, end) = sol.Phi(1:end, end-1);
         % Non-linear coupling on R=1
         % Symmetry on Theta=0 & pi.
         H_Phi = S_Phi * ([H_Phi0, coupling(grid.C, [-1 0], dPhi0_dC)]);
 
-        C = sol.C;
         C0 = exp( -sol.Phi(2, 2:end-1) ); % C = exp(-Phi)
         dC0_dPhi = -C0; % dC/dPhi = -exp(-Phi) = -C
-        C(1, 2:end-1) = C0;
-        C(end, 2:end-1) = 1;
-        C(1:end, 1) = C(1:end, 2);
-        C(1:end, end) = C(1:end, end-1);
+        sol.C(1, 2:end-1) = C0;
+        sol.C(end, 2:end-1) = 1;
+        sol.C(1:end, 1) = sol.C(1:end, 2);
+        sol.C(1:end, end) = sol.C(1:end, end-1);
         % Dirichlet (1) on R=inf
         % Non-linear coupling on R=1
         % Symmetry on Theta=0 & pi.
         H_C = S_C * ([coupling(grid.Phi, [-1 0], dC0_dPhi), H_C0]);
 
-        Vx = sol.Vx;
-        Vx(1, 2:end-1) = 0;
-        Vx(end, 2:end-1) = Vx_inf;
-        Vx(1:end, 1) = Vx(1:end, 2);
-        Vx(1:end, end) = Vx(1:end, end-1);
+        sol.Vx(1, 2:end-1) = 0;
+        sol.Vx(end, 2:end-1) = Vx_inf;
+        sol.Vx(1:end, 1) = sol.Vx(1:end, 2);
+        sol.Vx(1:end, end) = sol.Vx(1:end, end-1);
 
-        xi = -IM * Phi(:) - log(sol.gamma);
-        M1 = 4 * log((exp(xi/2) + 1)/2);
-        dM1 = spdiag( 2 ./ (1 + exp(-xi/2)) ) * (-IM);
-        M2 = DM * sol.Phi(:);
+        sol.xi = -IM * sol.Phi(:) - log(sol.gamma);
+        sol.M1 = 4 * log((exp(sol.xi/2) + 1)/2);
+        dM1 = spdiag( 2 ./ (1 + exp(-sol.xi/2)) ) * (-IM);
+        sol.M2 = DM * sol.Phi(:);
         dM2 = DM;
-        sol.Vs = M1 .* M2;
-        sol.xi = xi;
+        sol.Vs = sol.M1 .* sol.M2;
 
-        Vy = sol.Vy;
-        Vy(1, 2:end-1) = 2 * sol.Vs.' - Vy(2, 2:end-1);
-        Vy(end, 2:end-1) = Vy_inf;
-        Vy(1:end, 1) = 0;
-        Vy(1:end, end) = 0;   
+        sol.Vy(1, 2:end-1) = 2 * sol.Vs.' - sol.Vy(2, 2:end-1);
+        sol.Vy(end, 2:end-1) = Vy_inf;
+        sol.Vy(1:end, 1) = 0;
+        sol.Vy(1:end, end) = 0;   
 
         % Dukhin-Derjaguin Slip Hessian
-        H_Vy_dd = Xslip * 2 * (spdiag(M1) * dM2 + spdiag(M2) * dM1);
+        H_Vy_dd = Xslip * 2 * (spdiag(sol.M1) * dM2 + spdiag(sol.M2) * dM1);
 
         H11 = blkdiag([H_Phi; H_C], H_Vx); % Phi, C, Vx
         H22 = H_Vy; % Vy
@@ -175,10 +172,7 @@ function step = newton_solver(grid)
         H = H * expand(J);
         H = blkdiag(H, speye(grid.P.numel)); % no boundaries for P
         
-        sol.Phi = Phi;
-        sol.C = C;
-        sol.Vx = Vx;
-        sol.Vy = Vy;
+        sol.u = [sol.Phi(:); sol.C(:); sol.Vx(:); sol.Vy(:); sol.P(:)];
     end
 
     %% Applies step to system interior variables
