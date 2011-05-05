@@ -19,9 +19,10 @@ function step = newton_solver(grid)
         sol.res = res;
         if isfield(sol, 'du') && ~isempty(sol.du)
             sol2 = sol;
-            e = sol2.res - sol1.res;
-            y = Hf * Hb * sol.du;
-            plot([e, y, e-y]);
+            dr = sol2.res - sol1.res;
+            df = Hf * Hb * sol.du;
+            subplot 211; plot(dr);
+            subplot 212; plot(df - dr);
             sol.du = [];
         end
         % 0 = F(B(u)) + Hf * Hb * du
