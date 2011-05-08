@@ -32,12 +32,11 @@ function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
     newton_step = newton_solver(grid);
     
     if isempty(sol) % Initial solution
-        sigma = 0e-3;
-        sol.Phi = sigma*randn(grid.Phi.sz);
-        sol.Vx = sigma*randn(grid.Vx.sz);
-        sol.Vy = sigma*randn(grid.Vy.sz);
-        sol.P = sigma*randn(grid.P.sz);
-        sol.C = 1 + sigma*randn(grid.C.sz);
+        sol.Phi = zeros(grid.Phi.sz);
+        sol.Vx = zeros(grid.Vx.sz);
+        sol.Vy = zeros(grid.Vy.sz);
+        sol.P = zeros(grid.P.sz);
+        sol.C = 1 + zeros(grid.C.sz);
         sol.alpha = conf.alpha;
         sol.gamma = conf.gamma;
         sol.Vinf0 = -2*log((sol.gamma^(1/4) + sol.gamma^(-1/4)) / ...

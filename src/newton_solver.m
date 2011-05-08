@@ -3,27 +3,28 @@ function step = newton_solver(grid)
     %% Newton method step
     %%%%%%%%%%%%%%%%%%%%%%%%
     function [sol, res, du] = newton_step(sol)
-        if isfield(sol, 'du') && ~isempty(sol.du)
-            d = sol.du;
+        if isfield(sol, 'debug') && ~isempty(sol.debug)
+            d = sol.debug.du;
+            prng = RandStream('mt19937ar', 'seed', 0);
             sol.du = [...
-                d * randn(nnz(grid.Phi.I), 1); ...
-                d * randn(nnz(grid.C.I), 1); ...
-                d * randn(nnz(grid.Vx.I), 1); ...
-                d * randn(nnz(grid.Vy.I), 1); ...
-                d * remove_mean(randn(nnz(grid.P.I), 1))];
+                d * prng.randn(nnz(grid.Phi.I), 1); ...
+                d * prng.randn(nnz(grid.C.I), 1); ...
+                d * prng.randn(nnz(grid.Vx.I), 1); ...
+                d * prng.randn(nnz(grid.Vy.I), 1); ...
+                d * remove_mean(prng.randn(nnz(grid.P.I), 1))];
             sol1 = sol;
             sol = apply(sol, sol.du);
         end
         [sol, Hb] = boundary_conditions(sol); % Apply boundary conditions
         [res, Hf] = full_system(sol); % Apply full system to get residual -> 0
         sol.res = res;
-        if isfield(sol, 'du') && ~isempty(sol.du)
+        if isfield(sol, 'debug') && ~isempty(sol.debug)
             sol2 = sol;
             dr = sol2.res - sol1.res;
             df = Hf * Hb * sol.du;
             subplot 211; plot(dr);
             subplot 212; plot(df - dr);
-            sol.du = [];
+            sol.debug = [];
         end
         % 0 = F(B(u)) + Hf * Hb * du
         % H * du = -F(B(u)) = -residual
