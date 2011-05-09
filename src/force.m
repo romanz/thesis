@@ -31,17 +31,20 @@ function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
     grid = grids(conf.radius, conf.theta);
     newton_step = newton_solver(grid);
     
-    if isempty(sol) % Initial solution
+    if isempty(sol) % Initialize solution
         sol.Phi = zeros(grid.Phi.sz);
         sol.Vx = zeros(grid.Vx.sz);
         sol.Vy = zeros(grid.Vy.sz);
         sol.P = zeros(grid.P.sz);
         sol.C = 1 + zeros(grid.C.sz);
-        sol.alpha = conf.alpha;
-        sol.gamma = conf.gamma;
-        sol.Vinf0 = -2*log((sol.gamma^(1/4) + sol.gamma^(-1/4)) / ...
-            (2*sol.gamma^(1/4)));
+    else
+        assert(isequal(sol.grid.radius, conf.radius));
+        assert(isequal(sol.grid.theta, conf.theta));
     end
+    sol.alpha = conf.alpha;
+    sol.gamma = conf.gamma;
+    sol.Vinf0 = -2*log((sol.gamma^(1/4) + sol.gamma^(-1/4)) / ...
+        (2*sol.gamma^(1/4)));
     if isempty(betas) % No iterations are possible if no betas.
         return
     end;
@@ -53,7 +56,7 @@ function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
     end
     while true % Newton's method with continuation in beta.
         sol.beta = betas(min(k, numel(betas)));
-        [sol, res, du] = newton_step(sol);
+        [sol, res] = newton_step(sol);
         assert( all(sol.C(:) > 0), 'Negative C.' );
         
         res = norm(res, 2) / sqrt(numel(res)); % Residual norm
