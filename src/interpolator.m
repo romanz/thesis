@@ -10,6 +10,6 @@ function A = interpolator(Z, Zi)
     a1 = (P2 * Z(:) - Zi(:)) ./ d(:);
     a2 = (Zi(:) - P1 * Z(:)) ./ d(:);
     A = spdiag(a1) * P1 + spdiag(a2) * P2;
-    assert(all(A(:) <= 1));
-    assert(all(A(:) >= 0));
+    assert(all([a1; a2] <= 1));
+    assert(all([a1; a2] >= 0));
 end
