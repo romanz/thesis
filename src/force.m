@@ -7,6 +7,7 @@
 %   profview(0, prof);    % Show the profiling data.
 
 function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
+    assert(nargin > 0);
     conf = defaults(varargin, ...
         'figures', [], ...
         'version', true, ...
@@ -38,8 +39,8 @@ function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
         sol.P = zeros(grid.P.sz);
         sol.C = 1 + zeros(grid.C.sz);
     else
-        assert(isequal(sol.grid.radius, conf.radius));
-        assert(isequal(sol.grid.theta, conf.theta));
+        assert(isequal(sol.grid.radius, grid.radius));
+        assert(isequal(sol.grid.theta, grid.theta));
     end
     sol.alpha = conf.alpha;
     sol.gamma = conf.gamma;
@@ -70,7 +71,7 @@ function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
             break;
         end
     end
-    sol = total_force(sol, grid);
+    sol.force = total_force(sol, grid);
     sol.grid = grid;
     
     if conf.profile
@@ -104,7 +105,8 @@ function show(id, grid, sol, msg)
     title(msg)
 end
 
-function [sol] = total_force(sol, grid)
+function [force] = total_force(sol, grid)
+    force = struct();
     radius = grid.radius;
     theta = grid.theta;
 
@@ -155,7 +157,7 @@ function [sol] = total_force(sol, grid)
          -average(Vy0(1:2, :), [1 1; 1 1]/4);
 
     % Quadrature (midpoint)
-    sol.force.newton = midquad(Fr, Ft);    
+    force.newton = midquad(Fr, Ft);    
 
     %% Maxwell stress
     Phi = sol.Phi(1:2, :);
@@ -163,10 +165,10 @@ function [sol] = total_force(sol, grid)
     dPhi_dtheta = diff(average(Phi, [1 1; 1 1]/4)) ./ diff(theta.');
     Fr = 1/2 * (dPhi_dr.^2 - dPhi_dtheta.^2);
     Ft = dPhi_dr .* dPhi_dtheta;
-    sol.force.maxwell = midquad(Fr, Ft);
+    force.maxwell = midquad(Fr, Ft);
 
     %% Total stress
-    sol.force.total = sol.force.newton + sol.force.maxwell;
+    force.total = force.newton + force.maxwell;
 
 end
 
