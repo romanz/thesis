@@ -1,33 +1,31 @@
 % SOL = SECANT(F, [A B], ITERS)
 % Secant method to f(x)=0 starting at [a,b]. 
-function sol = secant(f, x, iters, status)
+function [sol, x, y] = secant(func, x, iters, status)
+
     if nargin < 4
-        status = @(x, f) fprintf('Secant: %e -> %e\n', x, f);
+        status = @(x, y) fprintf('Secant: %e -> %e\n', x, y);
     elseif isempty(status)
-        status = @(x, f) 0;
+        status = @(x, y) 0;
     end
-    x1 = x(1); f1 = f(x1); status(x1, f1);
-    x2 = x(2); f2 = f(x2); status(x2, f2);
-    x3 = next(x1, x2, f1, f2);
-    for i = 1:iters
-        if x2 == x3
-            break
-        end
-        f3 = f(x3);
-        status(x3, f3);
-        x1 = x2; f1 = f2;
-        x2 = x3; f2 = f3;
-        x3 = next(x1, x2, f1, f2);
+    function y = f(x)
+        y = func(x);
+        status(x, y);
     end
-    sol = x3;
+    y(1) = f(x(1));
+    y(2) = f(x(2));
+    for k = 2:iters+1
+        x(k+1) = next(x(k-1:k), y(k-1:k));
+        y(k+1) = f(x(k+1));
+    end
+    sol = x(k+1);
 end
 
-function sol = next(x1, x2, f1, f2)
-    dx = x2 - x1;
-    dy = f2 - f1;
+function sol = next(x, y)
+    dx = x(2) - x(1);
+    dy = y(2) - y(1);
     if dx && dy
-        sol = x1 - f1 * dx / dy;
+        sol = x(1) - y(1) * dx / dy;
     else
-        sol = x2;
+        sol = x(2);
     end
 end
