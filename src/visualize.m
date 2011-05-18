@@ -3,7 +3,13 @@ load
 clf;
 for k = 1:numel(sols)
     sol = sols{k};
-    streamlines(sol, linspace(-sol.Vinf, sol.Vinf, 100));
+    clf;
+    hold on
+    g = sol.grid.Psi;
+    contour(g.X .* cos(g.Y), g.X .* sin(g.Y), sol.Psi, sol.Vinf * linspace(-1, 1));
+    t = sol.grid.theta;
+    fill(cos(t), sin(t), 'k');
+    hold off
     axis equal;
     d = 5;
     xlim([-d d]);

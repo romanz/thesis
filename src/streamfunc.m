@@ -1,4 +1,4 @@
-function sol = streamlines(sol, varargin)
+function sol = streamfunc(sol)
 
 grid = sol.grid;
 grid.Psi = init_grid(grid.radius, grid.theta);
@@ -15,7 +15,7 @@ Vy = Vy(2:end-1, :);
 V = [Vx(:); Vy(:)];
 
 div = [grad(grid.Vx.X(:, 2:end-1), 1) grad(grid.Vy.Y(2:end-1, :), 2)] * V;
-norm(div) / norm(V)
+assert(norm(div) / norm(V) < 1e-10);
 
 G1 = +grad(grid.Psi.Y, 2);
 G2 = -grad(grid.Psi.X, 1);
@@ -25,7 +25,7 @@ I = grid.Psi.I | shift(grid.Psi.I, [1 0]); % I = 0 iff Psi = 0
 Q = expand(I); % G*(Q*Psi) = V
 
 Psi = Q * ((G*Q) \ V);
-norm(G * Psi - V) / norm(V)
+assert(norm(G * Psi - V) / norm(V) < 1e-10);
 Psi = reshape(Psi, grid.Psi.sz);
 
 w = (grid.Psi.X .* sin(grid.Psi.Y));
@@ -33,9 +33,6 @@ Psi(I) = Psi(I) ./ w(I);
 
 sol.Psi = Psi;
 sol.grid = grid;
-
-contour(grid.Psi.X .* cos(grid.Psi.Y), grid.Psi.X .* sin(grid.Psi.Y), ...
-    Psi, varargin{:});
 
 function D = grad(X, dim)
 sz = size(X);

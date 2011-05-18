@@ -15,4 +15,5 @@ function [sol, V, F] = steady(sol, betas, v, iters, varargin)
     [~, V, F] = secant(@(u) func(b, u), v, iters, ...
         @(u, f) fprintf('B = %e, V = %e, F = %e\n', b, u, f));
 
+    sol = streamfunc(sol);
 end
