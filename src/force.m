@@ -73,36 +73,12 @@ function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
     end
     sol.force = total_force(sol, grid);
     sol.grid = grid;
+    sol = streamfunc(sol);
     
     if conf.profile
         profile('off');
     end
-    if numel(conf.figures) >= 1
-        figure(conf.figures(1));
-        show('121', grid.Phi, sol.Phi, '\Phi');
-        show('122', grid.C, sol.C, 'C');
-        set(gcf, 'Name', 'Numerical Solution')
-    end
-    if numel(conf.figures) >= 2
-        figure(conf.figures(2));
-        X = grid.Phi.X;
-        Y = grid.Phi.Y;
-        show('121', grid.Phi, sol.beta * (0.25*X.^(-2) - X) .* cos(Y), '\Phi');
-        show('122', grid.C, 1 + sol.beta * 0.75*X.^(-2) .* cos(Y), 'C');
-        set(gcf, 'Name', 'Analytic Solution')
-    end
     prof = profile('info');
-end
-
-% 3D mesh plot of the solutions
-function show(id, grid, sol, msg)
-    subplot(id)
-    if ~isempty(grid)
-        mesh(grid.X, grid.Y, sol)
-    else
-        mesh(sol)
-    end
-    title(msg)
 end
 
 function [force] = total_force(sol, grid)

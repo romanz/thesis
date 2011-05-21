@@ -1,0 +1,2 @@
+git filter-branch -f --env-filter "export GIT_AUTHOR_NAME='Roman Zeyde'; export GIT_COMMITTER_NAME='Roman Zeyde'; export GIT_AUTHOR_EMAIL='roman.zeyde@gmail.com'; export GIT_COMMITTER_EMAIL='roman.zeyde@gmail.com'" HEAD 
+
