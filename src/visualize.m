@@ -10,7 +10,7 @@ function visualize
 %         show(@surf, sol, 'Phi', 3, 'EdgeColor', 'k');
         hold off; axis equal; axis([-1 1 0 1]*5)
         
-        title(sprintf('\\beta = %f', betas(k)))
+        title(sprintf('\\beta = %f : V_{\\infty} = %f', sol.beta, sol.Vinf))
         drawnow;
         print('-dpng', sprintf('%02d', k))
     end
