@@ -1,6 +1,6 @@
 %% Continuation solver for a range of betas
 clc; clear;
-betas = logspace(0, 1, 20);
+betas = [1]; logspace(0, 1, 20);
 sol = steady([], betas(1), [1, 0.9], 3, 'alpha', 0);
 sol.alpha = 0.5;
 sols = cell(numel(betas), 1);
