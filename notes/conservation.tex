@@ -1,0 +1,84 @@
+\section{Conservation Laws Formulation}
+The equations in the form of zero divergence:
+
+\paragraph{Ion conservation}
+\[ 0 = \bnabla \cdot \left( C \bnabla \varPhi \right) \]
+\[ 0 = \bnabla \cdot \left( \bnabla C - C \bV \right) \]
+
+\paragraph{Momentum conservation}
+\[ 0 = \bnabla \cdot \left(
+\left\{ \bnabla \bV + (\bnabla \bV)^\dagger - P\mathbb{I} \right\} +
+\left\{ \bnabla \varPhi \bnabla \varPhi - \frac{1}{2} (\bnabla \varPhi \cdot \bnabla \varPhi) \mathbb{I} \right\} \right) \]
+
+\paragraph{Fluid conservation}
+\[ 0 = \bnabla \cdot \bV \]
+
+\subsection{Stokes operator}
+Since $V_\phi = 0$ and $\deriv{}{\phi}(\cdot) = 0$, we get:
+\begin{eqnarray}
+\Laplacian \bV &=& \left(
+\frac{1}{r^2}\deriv{}{r}\left( r^2 \deriv{V_r}{r} \right) + \frac{1}{r^2 \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot \deriv{V_r}{\theta}\right)
+ - \frac{2V_r}{r^2} - \frac{2}{r^2 \sin\theta} \deriv{\left(V_\theta \sin\theta \right)}{\theta}\right)\brhat \\
+&+& \left(
+\frac{1}{r^2}\deriv{}{r}\left( r^2 \deriv{V_\theta}{r} \right) + \frac{1}{r^2 \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot \deriv{V_\theta}{\theta}\right)
+ - \frac{V_\theta}{r^2 \sin^2\theta} + \frac{2}{r^2}\deriv{V_r}{\theta}\right) \bthetahat
+\end{eqnarray}
+Rewrite viscosity operator $\Laplacian \bV$ in conservative form:
+\begin{eqnarray}
+\Laplacian \bV \cdot \brhat &=& 
+\frac{1}{r^2}\deriv{}{r}\left( r^2 \deriv{V_r}{r} \right) + \frac{1}{r^2 \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot \deriv{V_r}{\theta}\right)
+ - \frac{2V_r}{r^2} - \frac{2}{r^2 \sin\theta} \deriv{\left(V_\theta \sin\theta \right)}{\theta}
+\\
+\Laplacian \bV \cdot \brhat &=& 
+ \deriv{^2V_r}{r^2} + \frac{2}{r} \deriv{V_r}{r}
+ - \frac{2V_r}{r^2}
+ + \frac{1}{r^2 \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot \deriv{V_r}{\theta}\right)
+ - \frac{2}{r^2 \sin\theta} \deriv{\left(V_\theta \sin\theta \right)}{\theta} 
+\\
+\Laplacian \bV \cdot \brhat &=& 
+ \deriv{^2V_r}{r^2} +
+  \deriv{}{r}\left(\frac{2}{r} V_r\right)
+ + \frac{1}{r^2 \sin\theta} \deriv{}{\theta} 
+ \left( \left[\deriv{V_r}{\theta} - 2 V_\theta \right] \sin\theta \right)
+\\
+\Laplacian \bV \cdot \brhat &=&
+ \deriv{}{r} \left(\left[\deriv{V_r}{r} + \frac{2 V_r}{r}\right]
+ \right)
+ + \frac{1}{r^2 \sin\theta} \deriv{}{\theta}
+ \left( \left[\deriv{V_r}{\theta} - 2 V_\theta \right] \sin\theta \right)
+\\
+\Laplacian \bV \cdot \brhat &=&
+ \deriv{}{r} \left(r^{-2}\deriv{}{r}\left(r^2 V_r\right)
+ \right)
+ + \frac{1}{r^2 \sin\theta} \deriv{}{\theta}
+ \left( \left[\deriv{V_r}{\theta} - 2 V_\theta \right] \sin\theta \right)
+\end{eqnarray}
+\begin{eqnarray}
+\Laplacian \bV \cdot \bthetahat &=&
+\frac{1}{r^2}\deriv{}{r}\left( r^2 \deriv{V_\theta}{r} \right) + \frac{1}{r^2 \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot \deriv{V_\theta}{\theta}\right)
+ - \frac{V_\theta}{r^2 \sin^2\theta} + \frac{2}{r^2}\deriv{V_r}{\theta}
+\\
+\Laplacian \bV \cdot \bthetahat &=&
+\frac{1}{r^2}\deriv{}{r}\left( r^2 \deriv{V_\theta}{r} \right)
++ \frac{1}{r^2} \deriv{^2 V_\theta}{\theta^2}
++ \frac{\cos\theta}{r^2 \sin\theta} \cdot \deriv{V_\theta}{\theta}
+ - \frac{V_\theta}{r^2 \sin^2\theta} + \frac{2}{r^2}\deriv{V_r}{\theta}
+\\
+\Laplacian \bV \cdot \bthetahat &=&
+\frac{1}{r^2}\deriv{}{r}\left( r^2 \deriv{V_\theta}{r} \right)
++ \frac{1}{r^2} \deriv{^2 V_\theta}{\theta^2}
++ \frac{1}{r^2} \deriv{}{\theta}
+                 \left(V_\theta \cot\theta\right)
+ + \frac{2}{r^2}\deriv{V_r}{\theta}
+\\
+\Laplacian \bV \cdot \bthetahat &=& \frac{1}{r^2} \left\{
+\deriv{}{r}\left( r^2 \deriv{V_\theta}{r} \right)
++ \deriv{}{\theta} \left(\deriv{V_\theta}{\theta}
++ V_\theta \cot\theta + 2V_r \right) \right\}
+\\
+\Laplacian \bV \cdot \bthetahat &=& \frac{1}{r^2} \left\{
+\deriv{}{r}\left( r^2 \deriv{V_\theta}{r} \right)
++ \deriv{}{\theta} \left( \frac{1}{\sin\theta}
+\deriv{\left[V_\theta \sin\theta\right]}{\theta}
++ 2V_r \right) \right\}
+\end{eqnarray}
