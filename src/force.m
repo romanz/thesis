@@ -38,12 +38,12 @@ function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
         sol.Vy = zeros(grid.Vy.sz);
         sol.P = zeros(grid.P.sz);
         sol.C = 1 + zeros(grid.C.sz);
+        sol.alpha = conf.alpha;
+        sol.gamma = conf.gamma;
     else
         assert(isequal(sol.grid.radius, grid.radius));
         assert(isequal(sol.grid.theta, grid.theta));
     end
-    sol.alpha = conf.alpha;
-    sol.gamma = conf.gamma;
     sol.Vinf0 = -2*log((sol.gamma^(1/4) + sol.gamma^(-1/4)) / ...
         (2*sol.gamma^(1/4)));
     if isempty(betas) % No iterations are possible if no betas.
