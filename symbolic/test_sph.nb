@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       145,          7]
-NotebookDataLength[     34856,       1152]
+NotebookDataLength[     34855,       1152]
 NotebookOptionsPosition[     31522,       1037]
-NotebookOutlinePosition[     32017,       1056]
-CellTagsIndexPosition[     31974,       1053]
+NotebookOutlinePosition[     32016,       1056]
+CellTagsIndexPosition[     31973,       1053]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -1041,7 +1041,7 @@ ShowSelection->True,
 TrackCellChangeTimes->False,
 Magnification:>FEPrivate`If[
   FEPrivate`Equal[FEPrivate`$VersionNumber, 6.], 1.25, 1.25 Inherited],
-FrontEndVersion->"7.0 for Microsoft Windows (32-bit) (November 10, 2008)",
+FrontEndVersion->"8.0 for Microsoft Windows (32-bit) (November 7, 2010)",
 StyleDefinitions->"Default.nb"
 ]
 (* End of Notebook Content *)
@@ -1113,15 +1113,15 @@ Cell[16473, 578, 26, 0, 35, "Input"]
 Cell[CellGroupData[{
 Cell[16536, 583, 77, 2, 35, "Subsubtitle"],
 Cell[CellGroupData[{
-Cell[16638, 589, 1709, 53, 190, "Input"],
-Cell[18350, 644, 527, 17, 87, "Output"],
-Cell[18880, 663, 564, 19, 87, "Output"],
-Cell[19447, 684, 73, 2, 87, "Output"]
+Cell[16638, 589, 1709, 53, 237, "Input"],
+Cell[18350, 644, 527, 17, 70, "Output"],
+Cell[18880, 663, 564, 19, 70, "Output"],
+Cell[19447, 684, 73, 2, 70, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[19557, 691, 1112, 38, 150, "Input"],
-Cell[20672, 731, 31, 0, 87, "Output"],
-Cell[20706, 733, 31, 0, 87, "Output"]
+Cell[19557, 691, 1112, 38, 187, "Input"],
+Cell[20672, 731, 31, 0, 70, "Output"],
+Cell[20706, 733, 31, 0, 70, "Output"]
 }, Open  ]]
 }, Closed]],
 Cell[CellGroupData[{
@@ -1148,9 +1148,9 @@ Cell[29507, 963, 28, 0, 35, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[29572, 968, 1185, 37, 80, "Input"],
-Cell[30760, 1007, 371, 11, 66, "Output"],
-Cell[31134, 1020, 317, 10, 66, "Output"],
-Cell[31454, 1032, 28, 0, 43, "Output"]
+Cell[30760, 1007, 371, 11, 53, "Output"],
+Cell[31134, 1020, 317, 10, 53, "Output"],
+Cell[31454, 1032, 28, 0, 35, "Output"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]

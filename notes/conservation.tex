@@ -3,7 +3,7 @@ The equations in the form of zero divergence:
 
 \paragraph{Ion conservation}
 \[ 0 = \bnabla \cdot \left( C \bnabla \varPhi \right) \]
-\[ 0 = \bnabla \cdot \left( \bnabla C - C \bV \right) \]
+\[ 0 = \bnabla \cdot \left( \bnabla C - \alpha C \bV \right) \]
 
 \paragraph{Momentum conservation}
 \[ 0 = \bnabla \cdot \left(
@@ -25,20 +25,20 @@ Since $V_\phi = 0$ and $\deriv{}{\phi}(\cdot) = 0$, we get:
 \end{eqnarray}
 Rewrite viscosity operator $\Laplacian \bV$ in conservative form:
 \begin{eqnarray}
-\Laplacian \bV \cdot \brhat &=& 
+\Laplacian \bV \cdot \brhat &=&
 \frac{1}{r^2}\deriv{}{r}\left( r^2 \deriv{V_r}{r} \right) + \frac{1}{r^2 \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot \deriv{V_r}{\theta}\right)
  - \frac{2V_r}{r^2} - \frac{2}{r^2 \sin\theta} \deriv{\left(V_\theta \sin\theta \right)}{\theta}
 \\
-\Laplacian \bV \cdot \brhat &=& 
+\Laplacian \bV \cdot \brhat &=&
  \deriv{^2V_r}{r^2} + \frac{2}{r} \deriv{V_r}{r}
  - \frac{2V_r}{r^2}
  + \frac{1}{r^2 \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot \deriv{V_r}{\theta}\right)
- - \frac{2}{r^2 \sin\theta} \deriv{\left(V_\theta \sin\theta \right)}{\theta} 
+ - \frac{2}{r^2 \sin\theta} \deriv{\left(V_\theta \sin\theta \right)}{\theta}
 \\
-\Laplacian \bV \cdot \brhat &=& 
+\Laplacian \bV \cdot \brhat &=&
  \deriv{^2V_r}{r^2} +
   \deriv{}{r}\left(\frac{2}{r} V_r\right)
- + \frac{1}{r^2 \sin\theta} \deriv{}{\theta} 
+ + \frac{1}{r^2 \sin\theta} \deriv{}{\theta}
  \left( \left[\deriv{V_r}{\theta} - 2 V_\theta \right] \sin\theta \right)
 \\
 \Laplacian \bV \cdot \brhat &=&
@@ -81,4 +81,42 @@ Rewrite viscosity operator $\Laplacian \bV$ in conservative form:
 + \deriv{}{\theta} \left( \frac{1}{\sin\theta}
 \deriv{\left[V_\theta \sin\theta\right]}{\theta}
 + 2V_r \right) \right\}
+\end{eqnarray}
+
+The expressions for viscous forces at axisymmetric system are:
+\begin{eqnarray}
+\Laplacian \bV \cdot \brhat &=&
+ \deriv{}{r} \left(r^{-2}\deriv{}{r}\left(r^2 V_r\right)
+ \right)
+ + \frac{1}{r^2 \sin\theta} \deriv{}{\theta}
+ \left( \left[\deriv{V_r}{\theta} - 2 V_\theta \right] \sin\theta \right)
+\\
+\Laplacian \bV \cdot \bthetahat &=& r^{-2}
+\deriv{}{r}\left( r^2 \deriv{V_\theta}{r} \right)
++ r^{-2} \deriv{}{\theta} \left( \frac{1}{\sin\theta}
+\deriv{\left[V_\theta \sin\theta\right]}{\theta}
++ 2V_r \right)
+\end{eqnarray}
+Together with the pressure, continuity and ion conservation (but without Maxwell forces), 
+we get the PDE system:
+\begin{eqnarray}
+0 &=& -\deriv{P}{r} + \deriv{}{r} \left(r^{-2}\deriv{}{r}\left(r^2 V_r\right) \right)
+ + \frac{1}{r^2 \sin\theta} \deriv{}{\theta}
+ \left( \left[\deriv{V_r}{\theta} - 2 V_\theta \right] \sin\theta \right)
+\\
+0 &=& -\frac{1}{r}\deriv{P}{\theta} + r^{-2} \deriv{}{r}\left( r^2 \deriv{V_\theta}{r} \right)
++ r^{-2} \deriv{}{\theta} \left( \frac{1}{\sin\theta}
+\deriv{\left[V_\theta \sin\theta\right]}{\theta}
++ 2V_r \right)
+\\
+0 &=& \frac{1}{r^2}\deriv{}{r} \left( r^2 \cdot V_r\right)
+  + \frac{1}{r \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot V_\theta\right)
+\\
+0 &=& \frac{1}{r^2}\deriv{}{r} \left( r^2 \cdot C \deriv{\varPhi}{r}\right)
+  + \frac{1}{r \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot C \frac{1}{r}\deriv{\varPhi}{\theta}\right)
+\\
+0 &=& \frac{1}{r^2}\deriv{}{r} \left( r^2 \cdot 
+  \left(\deriv{C}{r} - \alpha V_r C\right)\right)
+  + \frac{1}{r \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot 
+  \left(\frac{1}{r}\deriv{C}{\theta} - \alpha V_\theta C\right)\right)
 \end{eqnarray}

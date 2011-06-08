@@ -13,6 +13,10 @@ function test
     V = curl(psi);
     subs(V, r, a)
     L = simple(vector_laplacian(V));
+    L1 = vlapl(V);
+    eL = (L - L1)
+    vlapl([r; 0])
+    return
     P = W*a*cos(t)/r^2;
     gP = gradient(P);
     assert(all(L == gP))
@@ -58,6 +62,18 @@ function [L] = vector_laplacian(F)
          - 2 * F(1) / (r^2) - 2 * diff(sin(t) * F(2), t) / (r^2 * sin(t)); ...
          scalar_laplacian(F(2)) ...
          - F(2) / (r * sin(t))^2 + 2 * diff(F(1), t) / r^2];
+end
+
+function L = vlapl(F)
+    syms r t;
+    Dr = @(f) diff(f, r);
+    Dt = @(f) diff(f, t);
+    sint = sin(t);
+    Vr = F(1);
+    Vt = F(2);
+    L = [Dr(r^(-2) * Dr(r^2 * Vr)) + (1/(r^2 * sint)) * Dt((Dt(Vr) - 2*Vt) * sint);
+         r^(-2) * Dr(r^2 * Dr(Vt)) + r^(-2) * Dt((1/(sint))*Dt(Vt * sint) + 2*Vr)];
+    L = simple(L);
 end
 
 function F = radial_stress(V, P, a)
