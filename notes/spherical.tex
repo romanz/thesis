@@ -47,6 +47,7 @@ Note that:
   \deriv{\brhat}{r} = \deriv{\bthetahat}{r} = \deriv{\bphihat}{r} = \mathbf{0} \\
   \deriv{\brhat}{\theta} = \bthetahat \\
   \deriv{\bthetahat}{\theta} = -\brhat \\
+  \deriv{\bphihat}{\theta} = \mathbf{0} \\
   \deriv{\brhat}{\phi} = \sin \theta \cdot \bphihat \\
   \deriv{\bthetahat}{\phi} = \cos \theta \cdot \bphihat \\
   \deriv{\bphihat}{\phi} = -\sin \theta \cdot \brhat -\cos \theta \cdot \bthetahat
@@ -75,15 +76,15 @@ Compute rate of strain tensor:
 + V_r \sin\theta\bphihat + V_\theta \cos\theta\bphihat -
 V_\phi \left(\brhat \sin\theta + \bthetahat \cos\theta \right)
 \\
-\bnabla\bV &=& 
+\bnabla\bV &=&
 \mat{ccc}{1&0&0 \\ 0&\frac{1}{r}&0 \\ 0&0&\frac{1}{r \sin\theta}}
 \mat{ccc}{
 \deriv{V_r}{r} & \deriv{V_\theta}{r} & \deriv{V_\phi}{r} \\
-\deriv{V_r}{\theta} - V_\theta & 
-\deriv{V_\theta}{\theta} + V_r& 
+\deriv{V_r}{\theta} - V_\theta &
+\deriv{V_\theta}{\theta} + V_r&
 \deriv{V_\phi}{\theta} \\
-\deriv{V_r}{\phi} - V_\phi \sin\theta & 
-\deriv{V_\theta}{\phi} - V_\phi \cos\theta  & 
+\deriv{V_r}{\phi} - V_\phi \sin\theta &
+\deriv{V_\theta}{\phi} - V_\phi \cos\theta  &
 \deriv{V_\phi}{\phi} + V_r \sin\theta + V_\theta \cos\theta
 }
 \end{eqnarray}

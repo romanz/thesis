@@ -97,9 +97,20 @@ The expressions for viscous forces at axisymmetric system are:
 \deriv{\left[V_\theta \sin\theta\right]}{\theta}
 + 2V_r \right)
 \end{eqnarray}
-Together with the pressure, continuity and ion conservation (but without Maxwell forces), 
+Together with the pressure, continuity and ion conservation (but without Coulomb forces),
 we get the PDE system:
 \begin{eqnarray}
+0 &=& \frac{1}{r^2}\deriv{}{r} \left( r^2 \cdot C \deriv{\varPhi}{r}\right)
+  + \frac{1}{r \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot C \frac{1}{r}\deriv{\varPhi}{\theta}\right)
+\\
+0 &=& \frac{1}{r^2}\deriv{}{r} \left( r^2 \cdot
+  \left(\deriv{C}{r} - \alpha V_r C\right)\right)
+  + \frac{1}{r \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot
+  \left(\frac{1}{r}\deriv{C}{\theta} - \alpha V_\theta C\right)\right)
+\\
+0 &=& \frac{1}{r^2}\deriv{}{r} \left( r^2 \cdot V_r\right)
+  + \frac{1}{r \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot V_\theta\right)
+\\
 0 &=& -\deriv{P}{r} + \deriv{}{r} \left(r^{-2}\deriv{}{r}\left(r^2 V_r\right) \right)
  + \frac{1}{r^2 \sin\theta} \deriv{}{\theta}
  \left( \left[\deriv{V_r}{\theta} - 2 V_\theta \right] \sin\theta \right)
@@ -108,15 +119,44 @@ we get the PDE system:
 + r^{-2} \deriv{}{\theta} \left( \frac{1}{\sin\theta}
 \deriv{\left[V_\theta \sin\theta\right]}{\theta}
 + 2V_r \right)
-\\
-0 &=& \frac{1}{r^2}\deriv{}{r} \left( r^2 \cdot V_r\right)
-  + \frac{1}{r \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot V_\theta\right)
-\\
-0 &=& \frac{1}{r^2}\deriv{}{r} \left( r^2 \cdot C \deriv{\varPhi}{r}\right)
-  + \frac{1}{r \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot C \frac{1}{r}\deriv{\varPhi}{\theta}\right)
-\\
-0 &=& \frac{1}{r^2}\deriv{}{r} \left( r^2 \cdot 
-  \left(\deriv{C}{r} - \alpha V_r C\right)\right)
-  + \frac{1}{r \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot 
-  \left(\frac{1}{r}\deriv{C}{\theta} - \alpha V_\theta C\right)\right)
+\end{eqnarray}
+\subsection{Coulomb force}
+The gradient and the laplacian for electric field and charge concentration:
+\begin{eqnarray}
+  \bnabla \varPhi &=& \deriv{\varPhi}{r}\brhat + \frac{1}{r}\deriv{\varPhi}{\theta}\bthetahat
+  \\
+  \Laplacian \varPhi &=&
+  \frac{1}{r^2}\deriv{}{r}\left( r^2 \deriv{\varPhi}{r} \right) + \frac{1}{r^2 \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot \deriv{\varPhi}{\theta}\right)
+\end{eqnarray}
+Rewrite in conservative form:
+\begin{eqnarray}
+  \brhat \cdot \bnabla \varPhi \Laplacian \varPhi &=&
+  \frac{1}{r^2}\deriv{}{r}\left[ r^2 \deriv{\varPhi}{r} \right] \deriv{\varPhi}{r} + \frac{1}{r^2 \sin\theta} \deriv{}{\theta} \left[ \sin\theta \cdot \deriv{\varPhi}{\theta}\right] \deriv{\varPhi}{r}
+  \\
+  &=&
+  \frac{1}{2r^4} \deriv{}{r}\left[r^4\left(\deriv{\varPhi}{r}\right)^2\right]
+  - \frac{1}{2r^2}\deriv{}{r}\left[\left(\deriv{\varPhi}{\theta}\right)^2\right]
+  + \frac{1}{r^2 \sin\theta} \deriv{}{\theta}\left[\sin\theta \cdot \deriv{\varPhi}{\theta}\deriv{\varPhi}{r}\right]
+  \\
+  \bthetahat \cdot \bnabla \varPhi \Laplacian \varPhi &=&
+  \frac{1}{r^3}\deriv{}{r}\left[ r^2 \deriv{\varPhi}{r} \right]\deriv{\varPhi}{\theta} + \frac{1}{r^3 \sin\theta} \deriv{}{\theta} \left[ \sin\theta \cdot \deriv{\varPhi}{\theta}\right]\deriv{\varPhi}{\theta}
+  \\
+  &=&
+  \frac{1}{r^3}\deriv{}{r}\left[ r^2 \deriv{\varPhi}{r} \deriv{\varPhi}{\theta}\right]
+  + \frac{1}{2r^3 \sin^2\theta} \deriv{}{\theta} \left[ \sin^2\theta \cdot \left(\deriv{\varPhi}{\theta}\right)^2\right]
+  - \frac{1}{2r}\deriv{}{\theta}\left[ \left(\deriv{\varPhi}{r}\right)^2 \right]
+\end{eqnarray}
+In comparison with cartesian coordinates:
+\begin{eqnarray}
+  \bxhat \cdot \bnabla \varPhi \Laplacian \varPhi &=&
+  \deriv{\varPhi}{x} \deriv{^2\varPhi}{x^2} + \deriv{\varPhi}{x} \deriv{^2\varPhi}{y^2}
+  \\ &=& 
+  \frac{1}{2}\deriv{}{x}\left[\left(\deriv{\varPhi}{x}\right)^2 - \left(\deriv{\varPhi}{y}\right)^2\right]
+  + \deriv{}{y}\left[\deriv{\varPhi}{x}\deriv{\varPhi}{y}\right]
+  \\
+  \byhat \cdot \bnabla \varPhi \Laplacian \varPhi &=&
+  \deriv{\varPhi}{y} \deriv{^2\varPhi}{x^2} + \deriv{\varPhi}{y} \deriv{^2\varPhi}{y^2}
+  \\ &=&
+  \deriv{}{x}\left[\deriv{\varPhi}{x}\deriv{\varPhi}{y}\right]  
+  + \frac{1}{2}\deriv{}{y}\left[\left(\deriv{\varPhi}{y}\right)^2 - \left(\deriv{\varPhi}{x}\right)^2\right]
 \end{eqnarray}
