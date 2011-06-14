@@ -19,6 +19,7 @@ colormap(m)
 colorbar
 title('Non-uniform salt concentration C = c_+ = c_-')
 hold off
+print -dpng fig1
 %%
 figure(2)
 Cout = 1;
@@ -36,3 +37,4 @@ text(0.2, 0.3, 'c_- = 1/\gamma')
 text(5.0, 1.2, 'c_+ = c_- = C')
 text(0.4, -0.8, '\zeta = \Delta \phi = log(C/\gamma)')
 title('Debye-scale ionic concentrations')
+print -dpng fig2
