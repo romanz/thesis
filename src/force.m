@@ -26,7 +26,6 @@ function [sol] = force(sol, betas, Vinf, varargin)
         return
     end;
     sol.Vinf = Vinf;
-    log('force', 'V = %e', sol.Vinf);
 
     k = 0; % iteration index
     while true % Apply Newton's method with continuation in beta.
@@ -37,7 +36,7 @@ function [sol] = force(sol, betas, Vinf, varargin)
         assert( all(sol.C(:) > 0), 'C < 0 detected!' );
         
         res = norm(sol.res, 2) / sqrt(numel(sol.res)); % Residual norm
-        log('force', 'beta = %e, residual = %e', sol.beta, res)
+        logger('    force', 'beta = %e, residual = %e', sol.beta, res)
         
         if (k < min(sol.iters) || k < numel(betas))
             continue;
@@ -47,7 +46,6 @@ function [sol] = force(sol, betas, Vinf, varargin)
         end
     end
     sol.force = total_force(sol, sol.grid);
-    log('force', 'F = %e', sol.force.total);
     sol = streamfunc(sol);
 end
 
