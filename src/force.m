@@ -6,79 +6,49 @@
 %   [sol, grid, prof] = main(sol0, betas, velocity); % Run the solver;
 %   profview(0, prof);    % Show the profiling data.
 
-function [sol, grid, prof] = force(sol, betas, Vinf, varargin)
+function [sol] = force(sol, betas, Vinf, varargin)
     assert(nargin > 0);
-    conf = defaults(varargin, ...
-        'figures', [], ...
-        'version', false, ...
-        'profile', false, ...
-        'verbose', true, ...
-        'radius', logspace(0, 3, 60), ...
-        'theta', linspace(0, pi, 40), ...
-        'gamma', 10, ...
-        'alpha', 0, ...
-        'maxres', 1e-9, ...
-        'miniters', 1, ...
-        'maxiters', 100 ...
-    );
-    
-    if conf.version && exist('git', 'file') == 2 % git wrapper function
-        [~, ver] = git('--no-pager', 'log -n1 --format=format:"%h (%ci)"');
-        fprintf('\nSolver version %s.\n', ver);
-        conf.version = ver;
-    end
 
     % Create grid and initialize the solver
-    grid = grids(conf.radius, conf.theta);
-    newton_step = newton_solver(grid);
-    
-    if isempty(sol) % Initialize solution
-        sol.Phi = zeros(grid.Phi.sz);
-        sol.Vx = zeros(grid.Vx.sz);
-        sol.Vy = zeros(grid.Vy.sz);
-        sol.P = zeros(grid.P.sz);
-        sol.C = 1 + zeros(grid.C.sz);
-        sol.alpha = conf.alpha;
-        sol.gamma = conf.gamma;
-    else
-        assert(isequal(sol.grid.radius, grid.radius));
-        assert(isequal(sol.grid.theta, grid.theta));
+    if nargin == 1
+        sol.grid = grids(sol.radius, sol.theta);
+        sol.newton_step = newton_solver(sol.grid);
+        sol.Phi = zeros(sol.grid.Phi.sz);
+        sol.Vx = zeros(sol.grid.Vx.sz);
+        sol.Vy = zeros(sol.grid.Vy.sz);
+        sol.P = zeros(sol.grid.P.sz);
+        sol.C = ones(sol.grid.C.sz);
+        return
     end
-    sol.Vinf0 = -2*log((sol.gamma^(1/4) + sol.gamma^(-1/4)) / ...
-        (2*sol.gamma^(1/4)));
+    sol.Vinf_approx = -2*log((1 + 1/sqrt(sol.gamma)) / 2);
+    
     if isempty(betas) % No iterations are possible if no betas.
         return
     end;
     sol.Vinf = Vinf;
+    log('force', 'V = %e', sol.Vinf);
 
-    k = 1; % iteration index
-    if conf.profile
-        profile('on');
-    end
-    while true % Newton's method with continuation in beta.
-        sol.beta = betas(min(k, numel(betas)));
-        [sol, res] = newton_step(sol);
-        assert( all(sol.C(:) > 0), 'Negative C.' );
-        
-        res = norm(res, 2) / sqrt(numel(res)); % Residual norm
-        if conf.verbose
-            fprintf('[%d] B = %e, Residual = %e\n', k, sol.beta, res); 
-        end
-        
+    k = 0; % iteration index
+    while true % Apply Newton's method with continuation in beta.
         k = k + 1;
-        if (k > conf.miniters) && ...
-           (res < conf.maxres || k > conf.maxiters) && k > numel(betas)
+
+        sol.beta = betas(min(k, numel(betas))); % Continuation
+        sol = sol.newton_step(sol);
+        assert( all(sol.C(:) > 0), 'C < 0 detected!' );
+        
+        res = norm(sol.res, 2) / sqrt(numel(sol.res)); % Residual norm
+        log('force', 'beta = %e, residual = %e', sol.beta, res)
+        
+        if (k < min(sol.iters) || k < numel(betas))
+            continue;
+        end
+        if (k > max(sol.iters) || res < sol.maxres)
             break;
         end
     end
-    sol.force = total_force(sol, grid);
-    sol.grid = grid;
+    sol.force = total_force(sol, sol.grid);
+    log('force', 'F = %e', sol.force.total);
     sol = streamfunc(sol);
-    
-    if conf.profile
-        profile('off');
-    end
-    prof = profile('info');
 end
 
 function [force] = total_force(sol, grid)
@@ -166,20 +136,4 @@ function [grid] = grids(x, y)
 	grid.Vx = init_grid(xg(2:end-1), yc); % V_r grid
     grid.Vy = init_grid(xc, yg(2:end-1)); % V_theta grid
     grid.P = init_grid(xc(2:end-1), yc(2:end-1), false); % Pressure grid
-end
-
-% Splits x into seperate variables according to specified sizes.
-%   [x1, x2, x3] = split(x, sz1, sz2, sz3);
-%   where sz{i} = size(x{i}) and x = [x1(:); x2(:); x3(:)];
-function [varargout] = split(x, varargin)
-    N = numel(varargin);
-    varargout = cell(N);
-    offset = 0;
-    for k = 1:N
-        sz = varargin{k};
-        m = prod(sz);
-        varargout{k} = reshape(x(offset + (1:m)), sz);
-        offset = offset + m;
-    end
-    assert(offset == numel(x), 'Splitting mismatch.');
 end
