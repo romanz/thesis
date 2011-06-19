@@ -1,8 +1,11 @@
-function show(func, sol, name, Rmax, varargin)
+function show(func, sol, name, Rmax, dir, varargin)
     g = sol.grid.(name);
     Z = (sol.(name));
     I = g.x < Rmax;
     X = g.X .* cos(g.Y);
     Y = g.X .* sin(g.Y);
-    func(X(I, :), Y(I, :), Z(I, :), varargin{:});
+    X = X(I, :);
+    Y = Y(I, :) * dir;
+    Z = Z(I, :);
+    func(X, Y, Z, varargin{:});
 end

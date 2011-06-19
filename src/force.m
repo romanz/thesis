@@ -20,7 +20,6 @@ function [sol] = force(sol, betas, Vinf, varargin)
         sol.C = ones(sol.grid.C.sz);
         return
     end
-    sol.Vinf_approx = -2*log((1 + 1/sqrt(sol.gamma)) / 2);
     
     if isempty(betas) % No iterations are possible if no betas.
         return
@@ -35,18 +34,19 @@ function [sol] = force(sol, betas, Vinf, varargin)
         sol = sol.newton_step(sol);
         assert( all(sol.C(:) > 0), 'C < 0 detected!' );
         
-        res = norm(sol.res, 2) / sqrt(numel(sol.res)); % Residual norm
+        res = norm(sol.res, inf); % Residual norm
         logger('    force', 'beta = %e, residual = %e', sol.beta, res)
         
         if (k < min(sol.iters) || k < numel(betas))
             continue;
         end
-        if (k > max(sol.iters) || res < sol.maxres)
+        if (k >= max(sol.iters) || res < sol.maxres)
             break;
         end
     end
     sol.force = total_force(sol, sol.grid);
     sol = streamfunc(sol);
+    sol.Vinf_approx = -2*log((1 + 1/sqrt(sol.gamma)) / 2) * sol.beta;
 end
 
 function [force] = total_force(sol, grid)
