@@ -1,0 +1,35 @@
+Radial ion flux: 
+\begin{eqnarray}
+\mathbf j_\pm= -\nabla c_\pm \mp c_\pm \nabla \phi + \alpha \mathbf{v}c
+\\
+\hat{\mathbf{r}}\cdot\mathbf j_\pm= -\partial_r c_\pm \mp c_\pm \partial_r \phi + \alpha v_r c
+\end{eqnarray}
+Near particle surface, $v_r \rightarrow 0$, thus the advection term drops:
+\begin{eqnarray}
+\hat{\mathbf{r}}\cdot\mathbf j_\pm= -\partial_r c_\pm \mp c_\pm \partial_r \phi 
+\end{eqnarray}
+Rescale $\rho = (r-1)/\delta$:
+\begin{eqnarray}
+\hat{\mathbf{r}}\cdot\mathbf j_\pm = \left(-\partial_\rho c_\pm \mp c_\pm \partial_\rho \phi \right) \delta^{-1}
+\end{eqnarray}
+Since $\nabla \cdot \mathbf j_\pm = 0$, the radial flux should be in the Debye layer:
+\begin{eqnarray}
+\mbox{const} = \left(-\partial_\rho c_\pm \mp c_\pm \partial_\rho \phi \right) \delta^{-1}
+\end{eqnarray}
+This constant should match bulk $O(1)$ radial flux, thus:
+\begin{eqnarray}
+-\partial_\rho c_\pm \mp c_\pm \partial_\rho \phi = O(\delta) \rightarrow 0
+\end{eqnarray}
+Integrating for $\rho \in [0,\infty)$ yields Boltzmann distribution and 
+Zeta potential:
+\begin{eqnarray}
+\partial_\rho c_\pm \pm c_\pm \partial_\rho \phi = 0
+\\
+\partial_\rho \left\{ \log c_\pm \pm \phi \right\}= 0
+\\
+\log C - \log c_\pm = \mp[\varPhi - \mathcal V] = \pm \zeta
+\end{eqnarray}
+For cations, $c_+ = \gamma$ at particle's surface, thus:
+\begin{eqnarray}
+\log C = \log \gamma + \zeta = -\varPhi + \mathcal V + \log \gamma
+\end{eqnarray}
