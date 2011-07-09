@@ -8,8 +8,9 @@ methods
         r = self.op1.res() .* self.op2.res();
     end
     function g = grad(self)
-        g = spdiag(self.op2.res()) * self.op1.grad() + ...
-            spdiag(self.op1.res()) * self.op2.grad();
+        g1 = dot_prod(spdiag(self.op2.res()), self.op1.grad());
+        g2 = dot_prod(spdiag(self.op1.res()), self.op2.grad());
+        g = g1 + g2;
     end
 end
 

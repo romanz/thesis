@@ -12,8 +12,8 @@ methods
         r = self.value(:);
     end
     
-    function G = grad(self) %#ok<MANU>
-        G = 1; % speye(numel(self.value))
+    function G = grad(self) 
+        G = speye(numel(self.value));
     end
 end
 

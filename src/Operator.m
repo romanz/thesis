@@ -30,11 +30,5 @@ methods
     function op = cosh(op)
         op = Func(op.grid, op, 'cosh(x)');
     end
-    function op = subsref(op, s)
-        disp(s)
-%         g = op.grid;
-%         g = Grid(g.r);
-%         op = Interp(g, op);
-    end
 end
 end

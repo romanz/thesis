@@ -11,15 +11,15 @@ methods
                 val = repmat(val, grid.sz);
             end
             self.val = val;
-        else
-            self.val = val(grid.R, grid.T);
+        else % function handle evaluated point-wise
+            self.val = arrayfun(val, grid.R, grid.T);
         end
     end
     function r = res(self)
         r = self.val(:);
     end
     function G = grad(self)
-        G = 0;
+        G = sparse(0); % [0]
     end
 end
 

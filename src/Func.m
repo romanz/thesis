@@ -26,7 +26,7 @@ methods
     end
     function G = grad(self)
         r = self.op.res();
-        G = spdiag( self.deriv(r) ) * self.op.grad();
+        G = dot_prod(spdiag( self.deriv(r) ), self.op.grad());
     end
 end
 

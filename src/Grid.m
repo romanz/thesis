@@ -23,5 +23,4 @@ function x = axis(x, type)
         case 'interior'
             x = xc(2:end-1);
     end
-    disp(x)
 end

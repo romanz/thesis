@@ -1,7 +1,6 @@
 function test1_
 tic;
-    
-sz = [20 50];
+sz = [90 50];
 g = Grid(logspace(0, 1, sz(1)), linspace(0, pi, sz(2)));
 % variables with boundary conditions
 grid.Phi = g.init('central', 'central');
@@ -18,11 +17,16 @@ sol = Solution(igrid, ...
     zeros(igrid.Vr.sz), ...
     zeros(igrid.Vt.sz), ...
     zeros(igrid.P.sz));
+sol.alpha = 0;
+sol.beta = 0.1;
+sol.gamma = 10;
+sol.Vinf = 0.1;
 
 [bnd] = boundary(grid, sol);
-[eqn] = equations(bnd);
-dx = eqn.grad() \ eqn.res();
-sol.step(-dx);
+equations(bnd);
+% [eqn] = equations(bnd);
+% dx = eqn.grad() \ eqn.res();
+% sol.step(-dx);
 end
 
 function sol = boundary(grid, sol)
@@ -35,32 +39,51 @@ function sol = boundary(grid, sol)
     dr = diff(grid.Phi.r(end-1:end));
     dPhi = @(r, t) -dr * sol.beta * cos(t);
     
-    c0     = Boundary(C,   [-1 0], exp(-sol.Phi('1', ':')));
-    phi0   = Boundary(Phi, [-1 0], -log(sol.C('1', ':')));
+    c1     = Interp(Grid(sol.C.grid.r(1), sol.C.grid.t), sol.C);
+    phi1   = Interp(Grid(sol.Phi.grid.r(1), sol.Phi.grid.t), sol.Phi);
+    c0     = Boundary(C,   [-1 0], Func(phi1, 'exp(-phi)'));
+    phi0   = Boundary(Phi, [-1 0], Func(c1, '-log(c)'));
     
     cInf   = Boundary(C,   [+1 0], 1);
-    phiInf = Boundary(Phi, [+1 0], sol.Phi('end', ':') + dPhi);
+    phiInf = Interp(Grid(sol.Phi.grid.r(end), sol.Phi.grid.t), sol.Phi);
+    phiInf = Boundary(Phi, [+1 0], phiInf + dPhi);
 
-    VrInf  = Boundary(Vr, [+1, 0], @(r,t) -sol.Vinf*cos(t));
-    VtInf  = Boundary(Vt, [+1, 0], @(r,t)  sol.Vinf*sin(t));
+    VrInf  = Boundary(Vr, [+1 0], @(r,t)-sol.Vinf*cos(t));
+    VtInf  = Boundary(Vt, [+1 0], @(r,t) sol.Vinf*sin(t));
 
     sol.Phi = Symm(Phi + phi0 + phiInf);
     sol.C = Symm(C + c0 + cInf);
     
     g = Grid(1, sol.Vt.grid.t);
-    xi = log(Interp(g, sol.C)) - log(sol.gamma);
+    xi = -Interp(g, sol.Phi) - log(sol.gamma);
     
-    phi = Interp(Grid(1, sol.Phi.grid.t(2:end-1)), sol.Phi); % Phi at R=1
-    Dphi = Deriv(g, phi, 2); % Dphi/Dtheta at R=1
-    Vs = Func(xi, '4*log((exp(x/2) + 1)/2)') * Dphi;
-    Vt0    = Boundary(Vt, [-1, 0], 2*Vs - sol.Vt('1', ':') );
+    phi   = Interp(Grid(1, sol.Phi.grid.t(2:end-1)), sol.Phi); % Phi at R=1
+    Dphi  = Deriv(g, phi, 2); % Dphi/Dtheta at R=1
+    Vs    = Func(xi, '4*log((exp(x/2) + 1)/2)') * Dphi;
+    Vt1   = Interp(Grid(sol.Vt.grid.r(1), sol.Vt.grid.t), sol.Vt);
+    Vt0   = Boundary(Vt, [-1, 0], 2*Vs - Linear(Vs.grid, Vt1) );
     
     sol.Vr = Symm(Vr + VrInf);
     sol.Vt = Vt + Vt0 + VtInf;
     sol.P = P;
 end
 
-function Boundary(op, dir, val)
+function op = Boundary(op, dir, val)
+    g = op.grid; % result grid
+    r = F(g.r, dir(1));
+    t = F(g.t, dir(2));
+    b = Grid(r, t); % boundary grid
+    if ~isa(val, 'Operator')
+        val = Const(b, val);
+    else
+        val = Linear(b, val);
+    end
+    op = Interp(g, val);
+    function x = F(x, d)
+        if d > 0, x = x(end); end
+        if d < 0, x = x(1); end
+        if d == 0, x = x(2:end-1); end
+    end
 end
 
 function op = Symm(op)
@@ -81,35 +104,53 @@ function op = Symm(op)
 end
 
 function flux = charge(sol)
-    DPhi_Dr = Deriv(sol.grid.Vr, sol.Phi, 1);
-    DPhi_Dt = Deriv(sol.grid.Vt, sol.Phi, 2);
+    DPhi_Dr = Crop(Deriv(sol.Vr.grid, sol.Phi, 1), [0 1]);
+    DPhi_Dt = Crop(Deriv(sol.Vt.grid, sol.Phi, 2), [1 0]);
     Cr = Interp(DPhi_Dr.grid, sol.C);
-    Ct = Interp(DPhi_Dr.grid, sol.C);
-    flux = ...
-        Deriv((@(r,t) r^2) * Cr * DPhi_Dr, 1) * @(r,t) r^(-2) + ...
-        Deriv((@(r,t) sin(t)) * Ct * DPhi_Dt, 2) * @(r,t) 1/(r^2 * sin(t));
+    Ct = Interp(DPhi_Dt.grid, sol.C);
+    g = sol.Phi.grid;
+    g = Grid(g.r(2:end-1), g.t(2:end-1));
+    fluxR = Deriv(g, (@(r,t) r^2) * Cr * DPhi_Dr, 1) * @(r,t) r^(-2);
+    fluxT = Deriv(g, (@(r,t) sin(t)) * Ct * DPhi_Dt, 2) * @(r,t) 1/(r^2 * sin(t));
+    flux = fluxR + fluxT;
 end
 
-function eqn = equations(sol)
-    eqn = [charge(sol); salt(sol); force(sol); mass(sol)];
+function flux = salt(sol)
+    DC_Dr = Crop(Deriv(sol.Vr.grid, sol.C, 1), [0 1]);
+    DC_Dt = Crop(Deriv(sol.Vt.grid, sol.C, 2), [1 0]);
+    % XXX Add advection!
+    g = sol.Phi.grid;
+    g = Grid(g.r(2:end-1), g.t(2:end-1));
+    fluxR = Deriv(g, (@(r,t) r^2) * DC_Dr, 1) * @(r,t) r^(-2);
+    fluxT = Deriv(g, (@(r,t) sin(t)) * DC_Dt, 2) * @(r,t) 1/(r^2 * sin(t));
+    flux = fluxR + fluxT;
+end
+
+function equations(sol)
+    f = charge(sol); f.res(); f.grad();
+%     f = salt(sol); f.res(); f.grad();
+    tic;
+    f.grad();
+    toc;
 end
 
 function sol = Solution(grid, varargin)
     sol.grid = grid;
-    sol.v = Variable(varargin{:});
-    sol.numel = numel(sol.x);
+    sol.x = Variable(varargin{:});
+    sol.numel = numel(sol.x.value);
     offset = 0;
     F = fieldnames(grid);
     for k = 1:numel(F)
         name = F{k};
         g = grid.(name); % grid for variable
         m = g.numel; % dimension of variable
-        G = sparse(1:m, offset + (1:m), 1, m, sol.numel); % Restrictor
-        sol.(name) = Linear(g, sol.v, G); % Linear operator
+        op = Linear(g, sol.x); % Linear operator
+        op.L = sparse(1:m, offset + (1:m), 1, m, sol.numel); % Restrictor
+        sol.(name) = op;
         offset = offset + g.numel;
     end
     function step(dx)
-        sol.v.value = sol.v.value + dx;
+        sol.x.value = sol.x.value + dx;
     end
     sol.step = @step;
 end
