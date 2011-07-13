@@ -2,8 +2,6 @@ classdef Deriv < Linear
 
 methods
     function self = Deriv(grid, op, dim)
-        self = self@Linear(grid, op);
-        
         dir = (1:2) == dim;
         assert(any(dir));
 
@@ -25,7 +23,7 @@ methods
         end
         
         L = spdiag( 1./(L * a(:)) ) * L;
-        self.L = L;
+        self = self@Linear(grid, op, L);        
     end
 end
 

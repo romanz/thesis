@@ -8,7 +8,9 @@ methods
         r = self.op1.res() + self.op2.res();
     end
     function g = grad(self)
-        g = self.op1.grad() + self.op2.grad();
+        g1 = self.op1.grad();
+        g2 = self.op2.grad();
+        g = g1 + g2;
     end
 end
 

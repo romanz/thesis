@@ -2,8 +2,8 @@ classdef Interp < Linear
 
 methods
     function self = Interp(grid, op)
-        self = self@Linear(grid, op);
-        self.L = interpolate_grids(op.grid, grid);
+        L = interpolate_grids(op.grid, grid);
+        self = self@Linear(grid, op, L);
     end
 end
 

@@ -7,7 +7,7 @@ methods
     function self = Binary(op1, op2)
         self = self@Operator([]);
         if isa(op1, 'Operator') && isa(op2, 'Operator')
-            assert(isequal(op1.grid, op2.grid))
+            assert(samegrid(op1.grid, op2.grid));
         end
         if ~isa(op1, 'Operator')
             op1 = Const(op2.grid, op1);

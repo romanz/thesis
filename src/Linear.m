@@ -5,10 +5,15 @@ properties
 end
 
 methods
-    function self = Linear(grid, op)
+    function self = Linear(grid, op, L)
         self = self@Operator(grid);
         self.op = op;
-        self.L = speye(grid.numel); % Default copy operator
+        if isempty(L)
+            L = speye(grid.numel); % Default copy operator
+        end
+        assert(size(L, 1) == grid.numel);
+%         assert(size(L, 2) == op.grid.numel);
+        self.L = L;
     end
     function r = res(self)
         r = self.L * self.op.res();
