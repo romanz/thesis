@@ -1,40 +1,56 @@
-function test1_
-    tic;
-    sz = [60 40];
-    g = Grid(logspace(0, 1, sz(1)), linspace(0, pi, sz(2)));
+function [] = test1_
+    sz = [64 64]*2;
+    g = Grid(logspace(0, 0.1, sz(1)), linspace(0, pi, sz(2)));
     % variables with boundary conditions
     grid.Phi = g.init('central', 'central');
     grid.C   = g.init('central', 'central');
     grid.Vr  = g.init('', 'central');
     grid.Vt  = g.init('central', '');
     grid.P   = g.init('interior', 'interior');
-
-    % interior grid (ghost points removed)
     igrid = noghost(grid);
+    
+    s.Phi = Const(grid.Phi, @(r, t) r * cos(t));
+    s.C = Const(grid.C, 1);
+    s.Vr = Const(grid.Vr, @(r,t) cos(t)*(1/r^3)); %
+    s.Vt = Const(grid.Vt, @(r,t) sin(t)*(0.5/r^3)); %
+    s.P = Const(grid.P, @(r,t) 0);
+    
+    f = momentumT(s);
+    z = regrid(f);
+    % z = z(2:end-1, 2:end-1);
+    norm(z(:), inf)
+    mesh(z)
+    return;
+    
+    % interior grid (ghost points removed)
     sol = Solution(igrid, ...
         zeros(igrid.Phi.sz), ...
         ones(igrid.C.sz), ...
         zeros(igrid.Vr.sz), ...
         zeros(igrid.Vt.sz), ...
         zeros(igrid.P.sz));
-    sol.alpha = 0.1;
-    sol.beta = 0;
-    sol.gamma = 10;
-    sol.Vinf = 0.1;
-
-    [bnd] = boundary(grid, sol);
+    sol.alpha = 0;
+    sol.beta = 0.001;
+    sol.gamma = 0.1;
+    sol.Vinf = 0.001;
+    
+    iters = 10;
+    [bnd] = boundaries(grid, sol);
     [eqn] = equations(bnd);
-    for k = 1:5
+    [~, J] = find(sol.P.L); % Pressure indices
+    for k = 1:iters
         r = eqn.res();
         norm(r(:), inf)
         G = eqn.grad();
         G = G + 1e-10 * speye(size(G));
-        dx = G\r;
-        sol.step(-dx);
+        dx = G\r;        
+        sol.x.value = sol.x.value - dx;
+        sol.x.value(J) = sol.x.value(J) - mean(sol.x.value(J));
     end
 end
 
-function sol = boundary(grid, sol)
+
+function sol = boundaries(grid, sol)
     Phi = Interp(grid.Phi, sol.Phi);
     C = Interp(grid.C, sol.C);
     Vr = Interp(grid.Vr, sol.Vr);
@@ -148,17 +164,18 @@ function force = momentumR(sol)
     S1 = - sol.P ...
          + Deriv(gi, Crop(sol.Vr, [0 1]) * @(r,t)r^2, 1) * @(r,t)1/r^2;
     S2 = (Deriv(gt, Crop(sol.Vr, [1 0]), 2) - 2*Interp(gt, sol.Vt)) * @(r,t)sin(t);
-    force = Deriv(gr, S1, 1) + Deriv(gr, S2, 2) * @(r,t) 1/(r^2 * sin(t));        
+    % TODO: Verify interpolation
+    force = Deriv(gr, S1, 1) ...
+        + Deriv(gr, S2, 2) * (@(r,t) 1/(r^2 * sin(t)));
 end
 
 function force = momentumT(sol)
     gt = Grid(sol.Vt.grid.r(2:end-1), sol.Vt.grid.t(2:end-1));
     gr = Grid(sol.Vr.grid.r, sol.Vt.grid.t(2:end-1));
     gi = sol.P.grid;
-    S1 = Deriv(gr, Crop(sol.Vt, [0 1]), 1) * @(r,t) r^2;
-    S2 = - sol.P + 2*Interp(gi, sol.Vr) ...
-         + Deriv(gi, Crop(sol.Vt, [1 0]) * @(r,t)sin(t), 2) * @(r,t)1/sin(t);
-    force = Deriv(gt, S1, 1) + Deriv(gt, S2, 2) * @(r,t) 1/r;        
+    force = Deriv(gt, sol.P, 2) * (@(r,t) -1/r) ...
+        + (@(r,t) 1/r^2) * Deriv(gt, (@(r,t) r^2)*Deriv(gr, Crop(sol.Vt, [0 1]), 1), 1) ...
+        + (@(r,t) 1/r^2) * Deriv(gt, (@(r,t)1/sin(t)) * Deriv(gi, Crop(sol.Vt, [1 0]) * @(r,t)sin(t), 2) + 2*Interp(gi, sol.Vr), 2);
 end
 
 function eqn = equations(bnd)
@@ -181,14 +198,11 @@ function sol = Solution(grid, varargin)
         g = grid.(name); % grid for variable
         m = g.numel; % dimension of variable
         op = Linear(g, sol.x, []); % Linear operator
-        op.L = sparse(1:m, offset + (1:m), 1, m, sol.numel); % Restrictor
+        J = offset + (1:m); % Colum indices
+        op.L = sparse(1:m, J, 1, m, sol.numel); % Restrictor
         sol.(name) = op;
         offset = offset + g.numel;
-    end
-    function step(dx)
-        sol.x.value = sol.x.value + dx;
-    end
-    sol.step = @step;
+    end    
 end
 
 function grid = noghost(grid)

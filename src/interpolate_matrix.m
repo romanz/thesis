@@ -24,7 +24,7 @@ function S = interpolate_matrix(x, xi)
     J = [L R];
     dx = x(R) - x(L);
     V = [(x(R)-xi), (xi-x(L))];
-    V(dx>0) = spdiag( 1./dx(dx>0) ) * V(dx>0);
-    V(~dx) = 1;
+    V(dx>0, :) = spdiag( 1./dx(dx>0) ) * V(dx>0, :);
+    V(~dx, :) = 1/2;
     S = sparse(I, J, V, N, numel(x));
 end
