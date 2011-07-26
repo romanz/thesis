@@ -1,25 +1,31 @@
 function [] = test1_
-    sz = [64 64]*2;
-    g = Grid(logspace(0, 0.1, sz(1)), linspace(0, pi, sz(2)));
-    % variables with boundary conditions
-    grid.Phi = g.init('central', 'central');
-    grid.C   = g.init('central', 'central');
-    grid.Vr  = g.init('', 'central');
-    grid.Vt  = g.init('central', '');
-    grid.P   = g.init('interior', 'interior');
-    igrid = noghost(grid);
-    
-    s.Phi = Const(grid.Phi, @(r, t) r * cos(t));
-    s.C = Const(grid.C, 1);
-    s.Vr = Const(grid.Vr, @(r,t) cos(t)*(1/r^3)); %
-    s.Vt = Const(grid.Vt, @(r,t) sin(t)*(0.5/r^3)); %
-    s.P = Const(grid.P, @(r,t) 0);
-    
-    f = momentumT(s);
-    z = regrid(f);
-    % z = z(2:end-1, 2:end-1);
-    norm(z(:), inf)
-    mesh(z)
+    for k = 4:8
+        sz = [2 2].^k;
+        g = Grid(logspace(0, 1, sz(1)), linspace(0, pi, sz(2)));
+        % variables with boundary conditions
+        grid.Phi = g.init('central', 'central');
+        grid.C   = g.init('central', 'central');
+        grid.Vr  = g.init('', 'central');
+        grid.Vt  = g.init('central', '');
+        grid.P   = g.init('interior', 'interior');
+        igrid = noghost(grid);
+
+        b = 0.0001;
+        s.Phi = Const(grid.Phi, @(r, t) b * (0.25/r^2 - r) * cos(t));
+        s.C = Const(grid.C, @(r,t) 1 + b * (0.75/r^2) * cos(t));
+        s.Vr = Const(grid.Vr, @(r,t)  b * cos(t)*(1 - 1.0/r^3));
+        s.Vt = Const(grid.Vt, @(r,t) -b * sin(t)*(1 + 0.5/r^3));
+        s.P = Const(grid.P, @(r,t) 0);
+
+        [fR, fT] = momentum(s);
+        z = regrid(fT);
+        % z = z(2:end-1, 2:end-1);
+        fprintf('\t%.2f', log(norm(z(:), inf))/log(2));
+%         mesh(f.grid.R, f.grid.T, z)
+        mesh(z)
+        drawnow;
+    end
+    fprintf('\n');
     return;
     
     % interior grid (ghost points removed)
@@ -150,41 +156,29 @@ end
 function flux = mass(sol)
     Dm_Dr = Crop(sol.Vr, [0 1]);
     Dm_Dt = Crop(sol.Vt, [1 0]);
-    g = sol.C.grid;
-    g = Grid(g.r(2:end-1), g.t(2:end-1));
+    g = sol.P.grid;
     fluxR = Deriv(g, (@(r,t) r^2) * Dm_Dr, 1) * @(r,t) r^(-2);
-    fluxT = Deriv(g, (@(r,t) sin(t)) * Dm_Dt, 2) * @(r,t) 1/(r^2 * sin(t));
+    fluxT = Deriv(g, (@(r,t) sin(t)) * Dm_Dt, 2) * @(r,t) 1/(r * sin(t));
     flux = fluxR + fluxT;
 end
 
-function force = momentumR(sol)
+function [forceR, forceT] = momentum(sol)
     gr = Grid(sol.Vr.grid.r(2:end-1), sol.Vr.grid.t(2:end-1));
     gt = Grid(sol.Vr.grid.r(2:end-1), sol.Vt.grid.t);
     gi = sol.P.grid;
-    S1 = - sol.P ...
-         + Deriv(gi, Crop(sol.Vr, [0 1]) * @(r,t)r^2, 1) * @(r,t)1/r^2;
-    S2 = (Deriv(gt, Crop(sol.Vr, [1 0]), 2) - 2*Interp(gt, sol.Vt)) * @(r,t)sin(t);
-    % TODO: Verify interpolation
-    force = Deriv(gr, S1, 1) ...
-        + Deriv(gr, S2, 2) * (@(r,t) 1/(r^2 * sin(t)));
-end
-
-function force = momentumT(sol)
+    forceR = Deriv(gr, - sol.P + Deriv(gi, Crop(sol.Vr, [0 1]) * @(r,t)r^2, 1) * @(r,t)1/r^2, 1) ...
+        + Deriv(gr, (Deriv(gt, Crop(sol.Vr, [1 0]), 2) - 2*Interp(gt, sol.Vt)) * @(r,t)sin(t), 2) * (@(r,t) 1/(r^2 * sin(t)));
     gt = Grid(sol.Vt.grid.r(2:end-1), sol.Vt.grid.t(2:end-1));
     gr = Grid(sol.Vr.grid.r, sol.Vt.grid.t(2:end-1));
     gi = sol.P.grid;
-    force = Deriv(gt, sol.P, 2) * (@(r,t) -1/r) ...
+    forceT = Deriv(gt, sol.P, 2) * (@(r,t) -1/r) ...
         + (@(r,t) 1/r^2) * Deriv(gt, (@(r,t) r^2)*Deriv(gr, Crop(sol.Vt, [0 1]), 1), 1) ...
         + (@(r,t) 1/r^2) * Deriv(gt, (@(r,t)1/sin(t)) * Deriv(gi, Crop(sol.Vt, [1 0]) * @(r,t)sin(t), 2) + 2*Interp(gi, sol.Vr), 2);
 end
 
-function eqn = equations(bnd)
-    eqn = Join(...
-        charge(bnd), ...
-        salt(bnd), ...
-        mass(bnd), ...
-        momentumR(bnd), ...
-        momentumT(bnd));
+function eqn = equations(bnd)    
+    [forceR, forceT] = momentum(bnd);
+    eqn = Join(charge(bnd), salt(bnd), mass(bnd), forceR, forceT);
 end
 
 function sol = Solution(grid, varargin)

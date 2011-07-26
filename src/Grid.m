@@ -15,7 +15,8 @@ function x = axis(x, type)
     if isempty(type)
         return
     end
-    xc = [[2,-1]*x(1:2); x; [-1,2]*x(end-1:end)];
+    x = x(:);
+    xc = [ghost(flipud(x(1:3))); x; ghost(x(end-2:end))];
     xc = (xc(1:end-1) + xc(2:end)) / 2;
     switch type
         case 'central'
@@ -23,4 +24,11 @@ function x = axis(x, type)
         case 'interior'
             x = xc(2:end-1);
     end
+end
+
+function y = ghost(x)
+    dx = diff(x);
+    t = dx(2:end) ./ dx(1:end-1);    
+    y = x(end) + dx(end) * t(end);    
+%     y = x(end) + dx(end);
 end
