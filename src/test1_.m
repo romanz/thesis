@@ -163,14 +163,20 @@ function flux = mass(sol)
 end
 
 function [forceR, forceT] = momentum(sol)
+    Er = Crop(Deriv(sol.Vr.grid, sol.Phi, 1), [0 1]);
+    Et = Crop(Deriv(sol.Vt.grid, sol.Phi, 2), [1 0]) * @(r,t) 1/r;
+    gi = sol.P.grid;
+    
+    Q = Deriv(gi, (@(r,t) r^2) * Er, 1) * @(r,t) r^(-2) + ...
+        Deriv(gi, (@(r,t) sin(t)) * Et, 2) * @(r,t) 1/(r * sin(t));
+
     gr = Grid(sol.Vr.grid.r(2:end-1), sol.Vr.grid.t(2:end-1));
     gt = Grid(sol.Vr.grid.r(2:end-1), sol.Vt.grid.t);
-    gi = sol.P.grid;
     forceR = Deriv(gr, - sol.P + Deriv(gi, Crop(sol.Vr, [0 1]) * @(r,t)r^2, 1) * @(r,t)1/r^2, 1) ...
         + Deriv(gr, (Deriv(gt, Crop(sol.Vr, [1 0]), 2) - 2*Interp(gt, sol.Vt)) * @(r,t)sin(t), 2) * (@(r,t) 1/(r^2 * sin(t)));
+    
     gt = Grid(sol.Vt.grid.r(2:end-1), sol.Vt.grid.t(2:end-1));
     gr = Grid(sol.Vr.grid.r, sol.Vt.grid.t(2:end-1));
-    gi = sol.P.grid;
     forceT = Deriv(gt, sol.P, 2) * (@(r,t) -1/r) ...
         + (@(r,t) 1/r^2) * Deriv(gt, (@(r,t) r^2)*Deriv(gr, Crop(sol.Vt, [0 1]), 1), 1) ...
         + (@(r,t) 1/r^2) * Deriv(gt, (@(r,t)1/sin(t)) * Deriv(gi, Crop(sol.Vt, [1 0]) * @(r,t)sin(t), 2) + 2*Interp(gi, sol.Vr), 2);
