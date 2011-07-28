@@ -1,4 +1,4 @@
-function [] = test1_
+function [] = main
     for k = 4:8
         sz = [2 2].^k;
         g = Grid(logspace(0, 1, sz(1)), linspace(0, pi, sz(2)));
@@ -12,13 +12,17 @@ function [] = test1_
 
         b = 0.0001;
         s.Phi = Const(grid.Phi, @(r, t) b * (0.25/r^2 - r) * cos(t));
-        s.C = Const(grid.C, @(r,t) 1 + b * (0.75/r^2) * cos(t));
+        s.C = Const(grid.C, @(r,t) 1 + 0 * (0.75/r^2) * cos(t));
         s.Vr = Const(grid.Vr, @(r,t)  b * cos(t)*(1 - 1.0/r^3));
         s.Vt = Const(grid.Vt, @(r,t) -b * sin(t)*(1 + 0.5/r^3));
         s.P = Const(grid.P, @(r,t) 0);
 
         [fR, fT] = momentum(s);
-        z = regrid(fT);
+        fs = salt(s);
+        fc = charge(s);
+        fm = mass(s);
+        
+        z = regrid(fc);
         % z = z(2:end-1, 2:end-1);
         fprintf('\t%.2f', log(norm(z(:), inf))/log(2));
 %         mesh(f.grid.R, f.grid.T, z)
@@ -167,8 +171,8 @@ function [forceR, forceT] = momentum(sol)
     Et = Crop(Deriv(sol.Vt.grid, sol.Phi, 2), [1 0]) * @(r,t) 1/r;
     gi = sol.P.grid;
     
-    Q = Deriv(gi, (@(r,t) r^2) * Er, 1) * @(r,t) r^(-2) + ...
-        Deriv(gi, (@(r,t) sin(t)) * Et, 2) * @(r,t) 1/(r * sin(t));
+    Q = Deriv(gi, (@(r,t) r^2) * Er, 1) * (@(r,t) r^(-2)) + ...
+        Deriv(gi, (@(r,t) sin(t)) * Et, 2) * (@(r,t) 1/(r * sin(t)));
 
     gr = Grid(sol.Vr.grid.r(2:end-1), sol.Vr.grid.t(2:end-1));
     gt = Grid(sol.Vr.grid.r(2:end-1), sol.Vt.grid.t);
