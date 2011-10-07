@@ -1,41 +1,5 @@
 function step = newton_solver(grid)
 
-    %% Newton method step
-    %%%%%%%%%%%%%%%%%%%%%%%%
-    function [sol, res, du] = newton_step(sol)
-        if isfield(sol, 'debug') && ~isempty(sol.debug)
-            d = sol.debug.du;
-            prng = RandStream('mt19937ar', 'seed', 0);
-            sol.du = [...
-                d * prng.randn(nnz(grid.Phi.I), 1); ...
-                d * prng.randn(nnz(grid.C.I), 1); ...
-                d * prng.randn(nnz(grid.Vx.I), 1); ...
-                d * prng.randn(nnz(grid.Vy.I), 1); ...
-                d * remove_mean(prng.randn(nnz(grid.P.I), 1))];
-            sol1 = sol;
-            sol = apply(sol, sol.du);
-        end
-        [sol, Hb] = boundary_conditions(sol); % Apply boundary conditions
-        [res, Hf] = full_system(sol); % Apply full system to get residual -> 0
-        sol.res = res;
-        if isfield(sol, 'debug') && ~isempty(sol.debug)
-            sol2 = sol;
-            dr = sol2.res - sol1.res;
-            df = Hf * Hb * sol.du;
-            subplot 211; plot(dr);
-            subplot 212; plot(df - dr);
-            sol.debug = [];
-        end
-        % 0 = F(B(u)) + Hf * Hb * du
-        % H * du = -F(B(u)) = -residual
-        % du = - H \ residual
-        H = Hf * Hb; % Interior's Hessian
-        H = H + eps*speye(size(H)); % Make the inverse more stable.
-        du = -(H \ res);
-        sol = apply(sol, du);
-    end
-    step = @newton_step;
-    
     %% Differential operators 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Divergence, Gradient and Interpolation
@@ -190,6 +154,43 @@ function step = newton_solver(grid)
         sol.Vy(grid.Vy.I) = sol.Vy(grid.Vy.I) + dVy(:);
         sol.P = remove_mean(sol.P + dP);    
     end
+
+    %% Newton method step
+    %%%%%%%%%%%%%%%%%%%%%%%%
+    function [sol, res, du] = newton_step(sol)
+        if isfield(sol, 'debug') && ~isempty(sol.debug)
+            d = sol.debug.du;
+            prng = RandStream('mt19937ar', 'seed', 0);
+            sol.du = [...
+                d * prng.randn(nnz(grid.Phi.I), 1); ...
+                d * prng.randn(nnz(grid.C.I), 1); ...
+                d * prng.randn(nnz(grid.Vx.I), 1); ...
+                d * prng.randn(nnz(grid.Vy.I), 1); ...
+                d * remove_mean(prng.randn(nnz(grid.P.I), 1))];
+            sol1 = sol;
+            sol = apply(sol, sol.du);
+        end
+        [sol, Hb] = boundary_conditions(sol); % Apply boundary conditions
+        [res, Hf] = full_system(sol); % Apply full system to get residual -> 0
+        sol.res = res;
+        if isfield(sol, 'debug') && ~isempty(sol.debug)
+            sol2 = sol;
+            dr = sol2.res - sol1.res;
+            df = Hf * Hb * sol.du;
+            subplot 211; plot(dr);
+            subplot 212; plot(df - dr);
+            sol.debug = [];
+        end
+        % 0 = F(B(u)) + Hf * Hb * du
+        % H * du = -F(B(u)) = -residual
+        % du = - H \ residual
+        H = Hf * Hb; % Interior's Hessian
+        H = H + eps*speye(size(H)); % Make the inverse more stable.
+        du = -(H \ res);
+        sol = apply(sol, du);
+    end
+    step = @newton_step;
+    
 end
 
 function x = remove_mean(x)

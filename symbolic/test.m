@@ -11,11 +11,10 @@ function test
 
     psi = (W/2) * (a*r - a^3/r)*sin(t)^2;
     V = curl(psi);
-    subs(V, r, a)
+    assert([1 0]*subs(V, r, a) == 0);
     L = simple(vector_laplacian(V));
     L1 = vlapl(V);
     eL = (L - L1)
-    vlapl([r; 0])
     return
     P = W*a*cos(t)/r^2;
     gP = gradient(P);

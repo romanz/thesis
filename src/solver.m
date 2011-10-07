@@ -21,6 +21,7 @@ function solver
             [sol, V, F] = steady(sol, sol.Vinf*[1, 0.9], 5);
         end
         solutions{k} = sol;
+        pause(0);
     end
     save
     tone(300, 0.1)
