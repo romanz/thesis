@@ -71,11 +71,29 @@ Thus the equations for $O(\beta^2)$ have the same form as for $O(\beta)$, but wi
   \bLaplacian \bV_2 - \bnabla P_2 &=& 0
  }
 \end{eqnarray}
+\begin{eqnarray}
+  \varPhi_1 &=& \brcs{\frac{1}{4r^2} - r} \cos\theta \\
+  C_1 &=&  \frac{3}{4r^2} \cos\theta \\
+  V_r &=& 2 \log\brcs{\frac{1 + \gamma^{-1/2}}{2}} \brcs{1 - \frac{a^3}{r^3}} \cos\theta \\
+  V_\theta &=& -2 \log\brcs{\frac{1 + \gamma^{-1/2}}{2}} \brcs{1 + \frac{a^3}{2r^3}} \sin\theta 
+\end{eqnarray}
+
 Boundary conditions:
 \begin{eqnarray}
-  \varPhi &=& -\log C \\
+  C &=& \exp(-\varPhi) \\
   \deriv{C}{r} &=& C\deriv{\varPhi}{r}
 \end{eqnarray}
+Linearized boundary conditions (since $\exp(x) \approx 1 + x + x^2/2$):
+\begin{eqnarray}
+  1 + \beta C_1 + \beta^2 C_2  &=& \exp(-\beta \varPhi_1 - \beta^2 \varPhi_2) \\
+  &=& 1 -\beta \varPhi_1 - \beta^2 \varPhi_2 + (\beta \varPhi_1 + \beta^2 \varPhi_2)^2/2 + o(\beta^2) \\
+  &=& 1 -\beta \varPhi_1 - \beta^2 \varPhi_2 + \beta^2 \varPhi_1^2/2 + o(\beta^2) \\
+  C_2 &=& -\varPhi_2 + \varPhi_1^2/2 \\
+  \beta \deriv{C_1}{r} + \beta^2 \deriv{C_2}{r} &=& 
+   \left(1 + \beta C_1 + \beta^2 C_2\right)\left(\beta \deriv{\varPhi_1}{r} + \beta^2 \deriv{\varPhi_2}{r}\right)   
+   \\ \deriv{C_2}{r} &=& \deriv{\varPhi_2}{r} + C_1 \deriv{\varPhi_1}{r}
+\end{eqnarray}
+
 Stress tensor is:
 \begin{eqnarray}
   \mathbb{S} &=& -P \mathbb{I} + \bnabla \bV + (\bnabla \bV)^\dagger +
