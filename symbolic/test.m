@@ -25,7 +25,21 @@ gC1 = gradient(C1);
 gPhi1 = gradient(Phi1);
 
 RHS1 = simple(-gC1.'*gPhi1);
+sol1 = 3/32*r^-4*sin(t)^2 - 3/8*r^-1*sin(t)^2 - 3/32*r^-4;
+sol1 = simple(sol1);
+assert(simple(scalar_laplacian(sol1) - RHS1) == 0)
+
 RHS2 = simple(V1.'*gC1);
+sol2 = (-3*W/8*(r^-4*sin(t)^2/2 + 5/4*r^-2*sin(t)^2 - r^-4/2 - r^-2/2)); 
+sol2 = simple(sol2);
+assert(simple(RHS2 - scalar_laplacian(sol2)) == 0)
+
+f1 = simple(subs(sol1, r, 1));
+f2 = simple(subs(sol2, r, 1));
+
+dfdr1 = simple(subs(diff(sol1, r), r, 1));
+dfdr2 = simple(subs(diff(sol2, r), r, 1));
+
 return
 P = W*a*cos(t)/r^2;
 gP = gradient(P);
