@@ -1,3 +1,4 @@
+clear;
 syms a r t U W
 clc
 psi = (U/2) * (r^2 - (3*a*r)/2 + a^3/(2*r))*sin(t)^2;
@@ -24,6 +25,8 @@ V1 = subs(V, a, 1);
 gC1 = gradient(C1);
 gPhi1 = gradient(Phi1);
 
+syms A1 A2 A3 A4
+
 RHS_Phi = simple(-gC1.'*gPhi1);
 Phi2 = 3/32*r^-4*sin(t)^2 - 3/8*r^-1*sin(t)^2 - 3/32*r^-4;
 Phi2 = simple(Phi2);
@@ -32,7 +35,6 @@ assert(simple(scalar_laplacian(Phi2) - RHS_Phi) == 0)
 
 RHS_C = simple(V1.'*gC1);
 C2 = (-3*W/8*(r^-4*sin(t)^2/2 + 5/4*r^-2*sin(t)^2 - r^-4/2 - r^-2/2)); 
-syms A1 A2 A3 A4
 C2 = C2 + A1/r + A2*(3*cos(t)^2-1)/r^3;
 C2 = simple(C2);
 assert(simple(RHS_C - scalar_laplacian(C2)) == 0)
@@ -43,11 +45,31 @@ s1 = at(C2 + Phi2 - Phi1^2/2);
 s2 = at(Dr(C2 - Phi2 - C1*Dr(Phi1)));
 
 syms pi
-q(1) = subs(s1, t, 0);
-q(2) = subs(s1, t, pi/2);
-q(3) = subs(s2, t, 0);
-q(4) = subs(s2, t, pi/2);
-q = simple(q.')
+q1 = subs(s1, t, 0);
+q2 = subs(s1, t, pi/2);
+q3 = subs(s2, t, 0);
+q4 = subs(s2, t, pi/2);
+
+S = solve(q1, q2, q3, q4, A1, A2, A3, A4);
+A1 = S.A1;
+A2 = S.A2;
+A3 = S.A3;
+A4 = S.A4;
+
+RHS_Phi = simple(-gC1.'*gPhi1);
+Phi2 = 3/32*r^-4*sin(t)^2 - 3/8*r^-1*sin(t)^2 - 3/32*r^-4;
+Phi2 = simple(Phi2);
+Phi2 = Phi2 + A3/r + A4*(3*cos(t)^2-1)/r^3;
+assert(simple(scalar_laplacian(Phi2) - RHS_Phi) == 0)
+
+RHS_C = simple(V1.'*gC1);
+C2 = (-3*W/8*(r^-4*sin(t)^2/2 + 5/4*r^-2*sin(t)^2 - r^-4/2 - r^-2/2)); 
+C2 = C2 + A1/r + A2*(3*cos(t)^2-1)/r^3;
+C2 = simple(C2);
+assert(simple(RHS_C - scalar_laplacian(C2)) == 0)
+
+assert( 0 == at(C2 + Phi2 - Phi1^2/2) );
+assert( 0 == at(Dr(C2 - Phi2 - C1*Dr(Phi1))) );
 
 return
 P = W*a*cos(t)/r^2;
