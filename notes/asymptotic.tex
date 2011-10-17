@@ -94,6 +94,15 @@ Linearized boundary conditions (since $\exp(x) \approx 1 + x + x^2/2$):
    \\ \deriv{C_2}{r} &=& \deriv{\varPhi_2}{r} + C_1 \deriv{\varPhi_1}{r}
 \end{eqnarray}
 
+Slipping velocity is:
+\begin{eqnarray}
+V_\theta(\varPhi) &=& 4\log\left(\frac{e^\frac{-\varPhi-\log\gamma}{2}+1}{2}\right)\deriv{\varPhi}{\theta} 
+= g(\varPhi) \deriv{\varPhi}{\theta} 
+\\
+V_\theta(\varPhi) &=& \beta \cdot g(0) \deriv{\varPhi_1}{\theta} +
+\beta^2 \left(g(0) \deriv{\varPhi_2}{\theta} + g'(0) \varPhi_1 \deriv{\varPhi_1}{\theta}\right)
+\end{eqnarray}
+
 Stress tensor is:
 \begin{eqnarray}
   \mathbb{S} &=& -P \mathbb{I} + \bnabla \bV + (\bnabla \bV)^\dagger +
