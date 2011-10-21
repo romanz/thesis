@@ -1,3 +1,3 @@
 function L = scalar_laplacian(f)
-    L = divergence(gradient(f));
+    L = simplify(divergence(gradient(f)));
 end

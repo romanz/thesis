@@ -1,4 +1,5 @@
 function V = curl(psi)
     syms r t
-    V = [diff(psi, t) / r; -diff(psi, r)] / (r * sin(t));
+    V = [diff(psi * sin(t), t) / (r * sin(t)); ...
+        -diff(psi * r, r)] / r;
 end
