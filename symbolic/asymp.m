@@ -1,6 +1,6 @@
 function asymp
 
-    syms pi b r t a g U
+    syms pi b r t a g U1 U2
     integral = @(f) int(f, 0, pi);
     
     bnd = @(f) subs(f, r, 1);
@@ -10,16 +10,16 @@ function asymp
     phi1 = (1/4 * r^(-2) - r) * cos(t);
     phi2 = (3/32*r^-4  - 3/8*r^-1)*sin(t)^2 - 3/32*r^-4;
     c1 = 3/4 * r^(-2) * cos(t);
-    c2 = a*U*3/8*((r^-1 + 1/2*r^-4)*sin(t)^2 - 1/2*r^-4);
-    v1 = U * [-(1 - r^-3) * cos(t); (1 + (r^-3)/2) * sin(t)];
-    v2 = 0;
+    c2 = a*U1*3/8*((r^-1 + 1/2*r^-4)*sin(t)^2 - 1/2*r^-4);
+    v1 = U1 * [-(1 - r^-3) * cos(t); (1 + (r^-3)/2) * sin(t)];
+    v2 = U2 * 0;
     
-    phi2 = phi2 + 3*(1/16 - a*U/32)/r + (a*U/32 - 1/16)*(3*cos(t)^2 - 1)/r^3;
-    c2 = c2 + 3*(1/16 - a*U/32)/r + ((5*U*a)/32 + 1/16)*(3*cos(t)^2 - 1)/r^3;
+    phi2 = phi2 + 3*(1/16 - a*U1/32)/r + (a*U1/32 - 1/16)*(3*cos(t)^2 - 1)/r^3;
+    c2 = c2 + 3*(1/16 - a*U1/32)/r + ((5*U1*a)/32 + 1/16)*(3*cos(t)^2 - 1)/r^3;
     
     phi = b * phi1 + b^2 * phi2;
     c = 1 + b * c1 + b^2 * c2;
-    v = b * v1;
+    v = b * v1 + b^2 * v2;
     p = 0;
     
     eq1 = divergence(c * gradient(phi));
@@ -45,7 +45,7 @@ function asymp
 end
 
 function assert_zero(v, msg)
-    v = simplify(v);
+    v = simple(v);
     z = all(v == 0);
     if ~z
         pretty(v)
