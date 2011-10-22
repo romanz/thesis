@@ -12,7 +12,7 @@ function asymp
     c1 = 3/4 * r^(-2) * cos(t);
     c2 = a*U1*3/8*((r^-1 + 1/2*r^-4)*sin(t)^2 - 1/2*r^-4);
     v1 = U1 * [-(1 - r^-3) * cos(t); (1 + (r^-3)/2) * sin(t)];
-    v2 = U2 * 0;
+    v2 = U2 * curl( (cos(t)*sin(t)^2*(r^-2 - 1)) );
     
     phi2 = phi2 + 3*(1/16 - a*U1/32)/r + (a*U1/32 - 1/16)*(3*cos(t)^2 - 1)/r^3;
     c2 = c2 + 3*(1/16 - a*U1/32)/r + ((5*U1*a)/32 + 1/16)*(3*cos(t)^2 - 1)/r^3;
@@ -20,13 +20,13 @@ function asymp
     phi = b * phi1 + b^2 * phi2;
     c = 1 + b * c1 + b^2 * c2;
     v = b * v1 + b^2 * v2;
-    p = 0;
+    p = b^2 * U2 * 2 * r^-3 * (1 - 3*cos(t)^2);
     
     eq1 = divergence(c * gradient(phi));
-    assert_zero( series(eq1, b, 0, 2), 'Poisson' )
+    assert_zero( series(eq1, b, 0, 3), 'Poisson' )
     
     eq2 = scalar_laplacian(c) - a * sum(v .* gradient(c));
-    assert_zero( series(eq2, b, 0, 2), 'Advection' )
+    assert_zero( series(eq2, b, 0, 3), 'Advection' )
     
     eq3 = [vector_laplacian(v) - gradient(p) + ...
             scalar_laplacian(phi)*gradient(phi); ...
