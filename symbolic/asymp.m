@@ -1,6 +1,6 @@
 function asymp
 
-    syms pi b r t a g U1 U2
+    syms pi b r t a g U1 U2 real
     integral = @(f) int(f, 0, pi);
     
     bnd = @(f) subs(f, r, 1);
@@ -23,10 +23,10 @@ function asymp
     p = b^2 * U2 * 2 * r^-3 * (1 - 3*cos(t)^2);
     
     eq1 = divergence(c * gradient(phi));
-    assert_zero( series(eq1, b, 0, 3), 'Poisson' )
+    assert_zero( series(eq1, b, 0, 2), 'Poisson' )
     
     eq2 = scalar_laplacian(c) - a * sum(v .* gradient(c));
-    assert_zero( series(eq2, b, 0, 3), 'Advection' )
+    assert_zero( series(eq2, b, 0, 2), 'Advection' )
     
     eq3 = [vector_laplacian(v) - gradient(p) + ...
             scalar_laplacian(phi)*gradient(phi); ...
@@ -39,8 +39,10 @@ function asymp
 
     vs = slip(phi);
     vs = series(vs, b, 0, 2);
-    us = int(vs * sin(t)^2, 0, pi) / int(sin(t), 0, pi);
-    Us = integral(bnd(v(2)) * sin(t)^2) / integral(sin(t));
+    u1 = integral(vs        * sin(t)^2/b) / int(sin(t), 0, pi);
+    w1 = integral(bnd(v(2)) * sin(t)^2/b) / integral(sin(t));
+    u2 = integral(vs        * b^-2*2*sin(2*t)/pi);
+    w2 = integral(bnd(v(2)) * b^-2*2*sin(2*t)/pi);
     save asymp
 end
 
