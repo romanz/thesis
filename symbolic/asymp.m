@@ -1,7 +1,7 @@
 function asymp
 
     syms pi b r t a g U1 U2 real
-    syms A1 A2 A3 real
+    syms A1 A2 A3 A4 real
     integral = @(f) int(f, 0, pi);
     
     bnd = @(f) subs(f, r, 1);
@@ -18,14 +18,23 @@ function asymp
     
     c1 = 3/4 * r^(-2) * cos(t);
     c2 = a*U1*3/8*((r^-1 + 1/2*r^-4)*sin(t)^2 - 1/2*r^-4);
+    c3 = (3*U1^2*a^2*cos(t)^3)/32 - (3*a*cos(t)*(- 8*a*U1^2*cos(t)^2 + 7*a*U1^2 + 2*U1 + 32*U2*cos(t)^2 - 32*U2))/(128*r^3) - (3*U1*a*cos(t)*(5*U1*a + 2))/64 + (a*(cos(t) - 3*cos(t)^3)*(5*a*U1^2 + 2*U1 + 16*U2))/(128*r^5) + (U1^2*a^2*cos(t)^3)/(32*r^6) - (3*U1*a*cos(t)^3*(5*U1*a + 2))/(64*r^2);
+    
     v1 = U1 * [-(1 - r^-3) * cos(t); (1 + (r^-3)/2) * sin(t)];
     v2 = U2 * curl( (cos(t)*sin(t)^2*(r^-2 - 1)) );
     
     phi2 = phi2 + 3*(1/16 - a*U1/32)/r + (a*U1/32 - 1/16)*(3*cos(t)^2 - 1)/r^3;
     c2 = c2 + 3*(1/16 - a*U1/32)/r + ((5*U1*a)/32 + 1/16)*(3*cos(t)^2 - 1)/r^3;
     
+    phi3 = phi3 + ...
+        ((183*U1^2*a^2)/2560 - (839*U1*a)/2560 - 47/256) * cos(t)/r^2 + ...
+        (- (19*U1^2*a^2)/5120 + (97*U1*a)/5120 + (3*U2*a)/320 + 21/1280) * (5*cos(t)^3 - 3*cos(t))/r^4;
+    c3 = c3 + ...
+        ((797*U1^2*a^2)/2560 + (419*U1*a)/2560 - (U2*a)/5 + 87/1280) * cos(t)/r^2 + ...
+        ((59*U1^2*a^2)/5120 + (103*U1*a)/5120 + (69*U2*a)/320 + 3/1280) * (5*cos(t)^3 - 3*cos(t))/r^4;
+    
     phi = b * phi1 + b^2 * phi2 + b^3 * phi3;
-    c = 1 + b * c1 + b^2 * c2;
+    c = 1 + b * c1 + b^2 * c2 + b^3 * c3;
     v = b * v1 + b^2 * v2;
     p = b^2 * U2 * 2 * r^-3 * (1 - 3*cos(t)^2);
     
@@ -33,19 +42,19 @@ function asymp
     assert_zero( series(eq1, b, 0, 3), 'Poisson' )
     
     eq2 = scalar_laplacian(c) - a * sum(v .* gradient(c));
-    assert_zero( series(eq2, b, 0, 2), 'Advection' )
+    assert_zero( series(eq2, b, 0, 3), 'Advection' )
     
     eq3 = [vector_laplacian(v) - gradient(p) + ...
             scalar_laplacian(phi)*gradient(phi); ...
            divergence(v)];
             
-    assert_zero( series(eq3, b, 0, 2), 'Stokes' )
+    assert_zero( series(eq3, b, 0, 3), 'Stokes' )
     
-    eq4 = series( cond(phi, c), b, 0, 2 );
+    eq4 = series( cond(phi, c), b, 0, 3 );
     assert_zero(eq4, 'Boundary Phi/C' )
 
     vs = slip(phi);
-    vs = series(vs, b, 0, 2);
+    vs = series(vs, b, 0, 3);
     u1 = integral(vs        * sin(t)^2/b) / int(sin(t), 0, pi);
     w1 = integral(bnd(v(2)) * sin(t)^2/b) / integral(sin(t));
     u2 = integral(vs        * b^-2*2*sin(2*t)/pi);
@@ -64,7 +73,7 @@ function assert_zero(e, msg)
 end
 
 function f = series(f, x, x0, n)
-    f = simplify(taylor(f, n+1, x, x0));
+    f = simple(taylor(f, n+1, x, x0));
 end
 
 function DfDr = Dr(f)
