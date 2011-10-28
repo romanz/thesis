@@ -1,44 +1,55 @@
+clc
 clear;
 load assert
-syms r t b A B pi real
-[num, den] = numden(simplify(e / b^3));
-s = expand(num);
-pretty(s)
+syms r t b pi real
+e = e(1:2);
+[num, den] = numden(e);
+num = expand(num);
+C = [];
+for k = 1:numel(num)
+    c = num(k);
+    [c, p] = coeffs(c, r);
+    c = c.*p / den(k);
+    C = [C, (c).'];
+end
+sol = 0;
+for k = 1:size(C ,1)
+    f = C(k, :).';
+    p = (r * diff(f(1), r) ./ f); % powers of r
+    p = r ^ p(1);
 
-for k = 1:numel(s)
+    L = @(psi) simple(vector_laplacian(curl(psi)));
+    G = @(p) -simple(gradient(p));
+
+    ops = {L, L, G, G};
+    u = [sin(t)^2*[1, sin(t)^2]*r^4; cos(t)*r*[1, sin(t)^2]].'*p;
+
+    dot = @(f, g) int(f .* g, t, 0, pi) / pi;
+
+    v = [];
+    for j = 1:numel(u)
+        op = ops{j};
+        v = [v, op(u(j))];
+    end
     
+    f = expand(b^-3 * (f/p));
+    v = (v/p);
+    
+    w = [cos(t) cos(3*t); sin(t) sin(3*t)];
+    M = [];
+    
+    for i = 1:size(w, 1)
+        for j = 1:size(w, 2)
+            M = [M; dot([v(i, :) f(i)], w(i, j))];
+        end
+    end
+    R = rref(M)
+    I = (R(:, end) ~= 0);
+    [~, J] = find(R(I, 1:end-1) ~= 0);
+    
+    c = sym(zeros(numel(u), 1));
+    c(J) = R(I, end);
+    sol = sol + sum(u .* reshape(c, size(u)));
 end
 
-% [C, P] = coeffs(s, r);
-% 
-dot = @(f, g) int(f*g, t, 0, pi) / pi;
-S = {dot(s(1), cos(t)); dot(s(1), cos(t)^3);
-     dot(s(2), cos(t)); dot(s(2), cos(t)^3)};
-sol = solve(S{:}, 'A1', 'A2', 'A3', 'A4')
-
-% power = @(f, r) subs(diff(f, r) / f, r, 1);
-% 
-% sol = 0;
-% for k = 1:numel(C)
-%     c = C(k);
-%     p = P(k);
-%     u = (A*cos(t) + B*cos(t)^3) * p * r^2 / den;
-%     Lu = scalar_laplacian(u);
-%     
-%     f = c * p / den;
-%     res = simple((f - Lu) * den / p);
-%     eq(1) = dot(res, cos(t));
-%     eq(2) = dot(res, cos(t)^3);
-%     
-%     res = subs(eq(:), {A,B}, {0,0});
-%     H = [ diff(eq(:),A) diff(eq(:),B) ];
-%     
-%     I = [ diff(Lu, A); diff(Lu,B)] ~= 0;
-%     R = eye(2); 
-%     R = R(I, :);
-%     
-%     s = R'*(R*H*R' \ R*res);
-%     sol = sol + subs(u, [A,B], s);
-% end
-% sol = simple(sol);
-% pretty(sol)
+sol = simple(sol.')

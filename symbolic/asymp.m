@@ -1,6 +1,6 @@
 function asymp
 
-    syms pi b r t a g U1 U2 real
+    syms pi b r t a g U1 U2 U3 real
     syms A1 A2 A3 A4 real
     integral = @(f) int(f, 0, pi);
     
@@ -22,6 +22,14 @@ function asymp
     
     v1 = U1 * [-(1 - r^-3) * cos(t); (1 + (r^-3)/2) * sin(t)];
     v2 = U2 * curl( (cos(t)*sin(t)^2*(r^-2 - 1)) );
+    v3 = curl( - (sin(t)^2*((-934 + 238*sin(t)^2)*r^4 ...
+        + 1848*r^6*sin(t)^2 - 2079*r^3*sin(t)^2 + 924*r^3 - 7*sin(t)^2 + 10))/(19712*r^5));
+    v3 = v3 - curl(U3*(r^2 - (3/2)*r + (1/2)/r)*sin(t)^2/2);
+    
+    p2 = U2 * 2 * r^-3 * (1 - 3*cos(t)^2);
+    p3 = (-cos(t)*(- 1584*r^6*cos(t)^2 + 1584*r^6 + 1188*r^3*cos(t)^2 - 396*r^3 + 45*cos(t)^2 + 17))/(1408*r^8) ...
+         - 17/704*(3*cos(t) - 5*cos(t)^3)/r^4;
+    p3 = p3 + U3*3/2*cos(t)/r^2;
     
     phi2 = phi2 + 3*(1/16 - a*U1/32)/r + (a*U1/32 - 1/16)*(3*cos(t)^2 - 1)/r^3;
     c2 = c2 + 3*(1/16 - a*U1/32)/r + ((5*U1*a)/32 + 1/16)*(3*cos(t)^2 - 1)/r^3;
@@ -35,8 +43,8 @@ function asymp
     
     phi = b * phi1 + b^2 * phi2 + b^3 * phi3;
     c = 1 + b * c1 + b^2 * c2 + b^3 * c3;
-    v = b * v1 + b^2 * v2;
-    p = b^2 * U2 * 2 * r^-3 * (1 - 3*cos(t)^2);
+    v = b * v1 + b^2 * v2 + b^3 * v3;
+    p = b^2 * p2 + b^3 * p3;
     
     eq1 = divergence(c * gradient(phi));
     assert_zero( series(eq1, b, 0, 3), 'Poisson' )
@@ -47,18 +55,18 @@ function asymp
     eq3 = [vector_laplacian(v) - gradient(p) + ...
             scalar_laplacian(phi)*gradient(phi); ...
            divergence(v)];
-            
+
     assert_zero( series(eq3, b, 0, 3), 'Stokes' )
+    assert_zero( [1 0]*subs(v, r, 1), 'No penetration' );
     
     eq4 = series( cond(phi, c), b, 0, 3 );
     assert_zero(eq4, 'Boundary Phi/C' )
-
+    
+    f = force(v, p, phi);
+    f = series(f, b, 0, 3);
+    
     vs = slip(phi);
     vs = series(vs, b, 0, 3);
-    u1 = integral(vs        * sin(t)^2/b) / int(sin(t), 0, pi);
-    w1 = integral(bnd(v(2)) * sin(t)^2/b) / integral(sin(t));
-    u2 = integral(vs        * b^-2*2*sin(2*t)/pi);
-    w2 = integral(bnd(v(2)) * b^-2*2*sin(2*t)/pi);
     save asymp
 end
 
@@ -86,4 +94,16 @@ end
 
 function v = dukhin_derjaguin(phi, g)
     v = 4 * log((exp((-phi-log(g))/2) + 1)/2) * Dt(phi);
+end
+
+function f = force(v, p, phi)
+    Vr = v(1);
+    Vt = v(2);
+    syms r t pi
+    Fr = -p + 2*Dr(Vr) + ((Dr(phi)^2 - (Dt(phi)/r)^2))/2;
+    Ft = Dr(Vt) + (Dt(Vr) - Vt)/r + Dr(phi)*Dt(phi)/r;
+    df = Fr*cos(t) - Ft*sin(t);
+    df = subs(df, r, 1);
+    df = simple(df);
+    f = int(df * 2 * pi * sin(t), t, 0, pi);
 end
