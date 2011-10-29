@@ -80,10 +80,6 @@ function assert_zero(e, msg)
     end
 end
 
-function f = series(f, x, x0, n)
-    f = simple(taylor(f, n+1, x, x0));
-end
-
 function DfDr = Dr(f)
     DfDr = diff(f, 'r');
 end
