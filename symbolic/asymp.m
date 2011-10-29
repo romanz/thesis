@@ -24,8 +24,8 @@ function asymp
         + (a*(cos(t) - 3*cos(t)^3)*(5*a*U1^2 + 2*U1 + 16*U2))/(128*r^5) ...
         + (U1^2*a^2*cos(t)^3)/(32*r^6) - (3*U1*a*cos(t)^3*(5*U1*a + 2))/(64*r^2);
     
-    v1 = U1 * [-(1 - r^-3) * cos(t); (1 + (r^-3)/2) * sin(t)];
-    v2 = U2 * curl( (cos(t)*sin(t)^2*(r^-2 - 1)) );
+    v1 = U1 * curl( (r^-1 - r^2)*sin(t)^2/2 ); 
+    v2 = U2 * curl( (r^-2 - 1)*(cos(t)*sin(t)^2) );
     v3 = curl( - (sin(t)^2*(1848*r^6*sin(t)^2 - 2079*r^3*sin(t)^2 + 924*r^3 - 7*sin(t)^2 + 10))/(19712*r^5));
     v3 = v3 - curl( (sin(t)^2*(-934 + 238*sin(t)^2))/(19712*r) );
     v3 = v3 - curl(U3*(r^2 - (3/2)*r + (1/2)/r)*sin(t)^2/2);
@@ -68,13 +68,13 @@ function asymp
     f = force(v, p, phi);
     f = series(f, b, 0, 3);
     
-    vb = subs(v, r, 1);
+    vb = simple(subs(v, r, 1));
     assert_zero( vb(1), 'No penetration' );
     
     W1 = 2*log((1+1/sqrt(g))/2);
     W2 = 9/(16*(sqrt(g)+1)) - W1*(W1*a + 1)*3/16;
     vs = slip(phi);
-    vs = series(vs, b, 0, 3);
+    vs = series(subs(vs, [U1 U2], [W1 W2]), b, 0, 3);
     save asymp
     fprintf('All OK!\n')
 end
