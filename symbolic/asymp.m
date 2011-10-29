@@ -18,12 +18,16 @@ function asymp
     
     c1 = 3/4 * r^(-2) * cos(t);
     c2 = a*U1*3/8*((r^-1 + 1/2*r^-4)*sin(t)^2 - 1/2*r^-4);
-    c3 = (3*U1^2*a^2*cos(t)^3)/32 - (3*a*cos(t)*(- 8*a*U1^2*cos(t)^2 + 7*a*U1^2 + 2*U1 + 32*U2*cos(t)^2 - 32*U2))/(128*r^3) - (3*U1*a*cos(t)*(5*U1*a + 2))/64 + (a*(cos(t) - 3*cos(t)^3)*(5*a*U1^2 + 2*U1 + 16*U2))/(128*r^5) + (U1^2*a^2*cos(t)^3)/(32*r^6) - (3*U1*a*cos(t)^3*(5*U1*a + 2))/(64*r^2);
+    c3 = (3*U1^2*a^2*cos(t)^3)/32 ...
+        - (3*a*cos(t)*(- 8*a*U1^2*cos(t)^2 + 7*a*U1^2 + 2*U1 + 32*U2*cos(t)^2 - 32*U2))/(128*r^3) ...
+        - (3*U1*a*cos(t)*(5*U1*a + 2))/64 ...
+        + (a*(cos(t) - 3*cos(t)^3)*(5*a*U1^2 + 2*U1 + 16*U2))/(128*r^5) ...
+        + (U1^2*a^2*cos(t)^3)/(32*r^6) - (3*U1*a*cos(t)^3*(5*U1*a + 2))/(64*r^2);
     
     v1 = U1 * [-(1 - r^-3) * cos(t); (1 + (r^-3)/2) * sin(t)];
     v2 = U2 * curl( (cos(t)*sin(t)^2*(r^-2 - 1)) );
-    v3 = curl( - (sin(t)^2*((-934 + 238*sin(t)^2)*r^4 ...
-        + 1848*r^6*sin(t)^2 - 2079*r^3*sin(t)^2 + 924*r^3 - 7*sin(t)^2 + 10))/(19712*r^5));
+    v3 = curl( - (sin(t)^2*(1848*r^6*sin(t)^2 - 2079*r^3*sin(t)^2 + 924*r^3 - 7*sin(t)^2 + 10))/(19712*r^5));
+    v3 = v3 - curl( (sin(t)^2*(-934 + 238*sin(t)^2))/(19712*r) );
     v3 = v3 - curl(U3*(r^2 - (3/2)*r + (1/2)/r)*sin(t)^2/2);
     
     p2 = U2 * 2 * r^-3 * (1 - 3*cos(t)^2);
@@ -65,7 +69,6 @@ function asymp
     f = series(f, b, 0, 3);
     
     vb = subs(v, r, 1);
-    pretty(vb)
     assert_zero( vb(1), 'No penetration' );
     
     W1 = 2*log((1+1/sqrt(g))/2);
@@ -73,6 +76,7 @@ function asymp
     vs = slip(phi);
     vs = series(vs, b, 0, 3);
     save asymp
+    fprintf('All OK!\n')
 end
 
 function assert_zero(e, msg)
