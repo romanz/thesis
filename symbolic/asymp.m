@@ -57,7 +57,6 @@ function asymp
            divergence(v)];
 
     assert_zero( series(eq3, b, 0, 3), 'Stokes' )
-    assert_zero( [1 0]*subs(v, r, 1), 'No penetration' );
     
     eq4 = series( cond(phi, c), b, 0, 3 );
     assert_zero(eq4, 'Boundary Phi/C' )
@@ -65,6 +64,12 @@ function asymp
     f = force(v, p, phi);
     f = series(f, b, 0, 3);
     
+    vb = subs(v, r, 1);
+    pretty(vb)
+    assert_zero( vb(1), 'No penetration' );
+    
+    W1 = 2*log((1+1/sqrt(g))/2);
+    W2 = 9/(16*(sqrt(g)+1)) - W1*(W1*a + 1)*3/16;
     vs = slip(phi);
     vs = series(vs, b, 0, 3);
     save asymp
