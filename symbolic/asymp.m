@@ -1,7 +1,7 @@
 function asymp
 
     syms pi b r t a g U1 U2 U3 real
-    syms A1 A2 A3 A4 real
+    syms U3a U3b real
     integral = @(f) int(f, 0, pi);
     
     bnd = @(f) subs(f, r, 1);
@@ -24,15 +24,20 @@ function asymp
         + (a*(cos(t) - 3*cos(t)^3)*(5*a*U1^2 + 2*U1 + 16*U2))/(128*r^5) ...
         + (U1^2*a^2*cos(t)^3)/(32*r^6) - (3*U1*a*cos(t)^3*(5*U1*a + 2))/(64*r^2);
     
+    A1 = 829/28160 + U3b*2/5;
+    A2 = -761/5632 - U3b*2;
+    A3 = 35/264 - U3a/3 + U3b*5/3;
+    A4 = -209/3360 + U3a/3 - U3b*1/15;
     v1 = U1 * curl( (r^-1 - r^2)*sin(t)^2/2 ); 
     v2 = U2 * curl( (r^-2 - 1)*(cos(t)*sin(t)^2) );
     v3 = curl( - (sin(t)^2*(1848*r^6*sin(t)^2 - 2079*r^3*sin(t)^2 + 924*r^3 - 7*sin(t)^2 + 10))/(19712*r^5));
-%     v3 = v3 - curl( (sin(t)^2*(-934 + 238*sin(t)^2))/(19712*r) );
+    v3 = v3 - curl( A1*(1-5*cos(t)^2)*sin(t)^2/r^3 + A2*sin(t)^4/r + ...
+        A3*sin(t)^2/r + A4*r^2*sin(t)^2);
     v3 = v3 - curl(U3*(r^2 - (3/2)*r + (1/2)/r)*sin(t)^2/2);
     
     p2 = U2 * 2 * r^-3 * (1 - 3*cos(t)^2);
     p3 = (-cos(t)*(- 1584*r^6*cos(t)^2 + 1584*r^6 + 1188*r^3*cos(t)^2 - 396*r^3 + 45*cos(t)^2 + 17))/(1408*r^8);
-%     p3 = p3 - 17/704*(3*cos(t) - 5*cos(t)^3)/r^4;
+    p3 = p3 - A2*(6*cos(t) - 10*cos(t)^3)/r^4;
     p3 = p3 + U3*3/2*cos(t)/r^2;
     
     phi2 = phi2 + 3*(1/16 - a*U1/32)/r + (a*U1/32 - 1/16)*(3*cos(t)^2 - 1)/r^3;
@@ -69,12 +74,18 @@ function asymp
     f = series(f, b, 0, 3);
     
     vb = simple(subs(v, r, 1));
+    pretty(simple(subs(v, r, 1)))
+    
     assert_zero( vb(1), 'No penetration' );
     
     W1 = 2*log((1+1/sqrt(g))/2);
     W2 = 9/(16*(sqrt(g)+1)) - W1*(W1*a + 1)*3/16;
+    W3a = 69/(512*(g^(1/2) + 1)) - (123*log((g^(1/2) + 1)/(2*g^(1/2))))/1280 - 27/(512*(g^(1/2) + 1)^2) - (1407*W1^2*a^2*log((g^(1/2) + 1)/(2*g^(1/2))))/5120 + (21*W1*a)/(256*(g^(1/2) + 1)) - (1899*W1*a*log((g^(1/2) + 1)/(2*g^(1/2))))/5120 - (9*W2*a*log((g^(1/2) + 1)/(2*g^(1/2))))/320;
+    W3b = (9*log((g^(1/2) + 1)/(2*g^(1/2))))/256 - 27/(512*(g^(1/2) + 1)) - 27/(512*(g^(1/2) + 1)^2) + (57*W1^2*a^2*log((g^(1/2) + 1)/(2*g^(1/2))))/1024 - (27*W1*a)/(256*(g^(1/2) + 1)) + (93*W1*a*log((g^(1/2) + 1)/(2*g^(1/2))))/1024 - (9*W2*a*log((g^(1/2) + 1)/(2*g^(1/2))))/64;
     vs = slip(phi);
-    vs = series(subs(vs, [U1 U2], [W1 W2]), b, 0, 3);
+    vs = series(vs, b, 0, 3);
+    slip_error = subs(vs - vb(2), [U1 U2 U3a U3b], [W1 W2 W3a W3b]);
+    assert_zero( slip_error, 'Slip condition' );
     save asymp
     fprintf('All OK!\n')
 end
