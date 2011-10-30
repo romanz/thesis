@@ -1,7 +1,8 @@
 function asymp
 
-    syms pi b r t a g U1 U2 U3 real
+    syms pi b r t a g U1 U2 real
     syms U3a U3b real
+    U3 = (2 - U1*a)/16;
     integral = @(f) int(f, 0, pi);
     
     bnd = @(f) subs(f, r, 1);
@@ -72,20 +73,22 @@ function asymp
     
     f = force(v, p, phi);
     f = series(f, b, 0, 3);
-    
+    assert_zero( f, 'Zero force' )
+        
     vb = simple(subs(v, r, 1));
-    pretty(simple(subs(v, r, 1)))
-    
-    assert_zero( vb(1), 'No penetration' );
     
     W1 = 2*log((1+1/sqrt(g))/2);
     W2 = 9/(16*(sqrt(g)+1)) - W1*(W1*a + 1)*3/16;
+    
     W3a = 69/(512*(g^(1/2) + 1)) - (123*log((g^(1/2) + 1)/(2*g^(1/2))))/1280 - 27/(512*(g^(1/2) + 1)^2) - (1407*W1^2*a^2*log((g^(1/2) + 1)/(2*g^(1/2))))/5120 + (21*W1*a)/(256*(g^(1/2) + 1)) - (1899*W1*a*log((g^(1/2) + 1)/(2*g^(1/2))))/5120 - (9*W2*a*log((g^(1/2) + 1)/(2*g^(1/2))))/320;
     W3b = (9*log((g^(1/2) + 1)/(2*g^(1/2))))/256 - 27/(512*(g^(1/2) + 1)) - 27/(512*(g^(1/2) + 1)^2) + (57*W1^2*a^2*log((g^(1/2) + 1)/(2*g^(1/2))))/1024 - (27*W1*a)/(256*(g^(1/2) + 1)) + (93*W1*a*log((g^(1/2) + 1)/(2*g^(1/2))))/1024 - (9*W2*a*log((g^(1/2) + 1)/(2*g^(1/2))))/64;
     vs = slip(phi);
     vs = series(vs, b, 0, 3);
     slip_error = subs(vs - vb(2), [U1 U2 U3a U3b], [W1 W2 W3a W3b]);
+
+    assert_zero( vb(1), 'No penetration' );
     assert_zero( slip_error, 'Slip condition' );
+    
     save asymp
     fprintf('All OK!\n')
 end
