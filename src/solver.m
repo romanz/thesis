@@ -1,10 +1,14 @@
+% load
+% v = []; for k = 1:numel(solutions), v(k) = solutions{k}.Vinf; end
+% b = []; for k = 1:numel(solutions), b(k) = solutions{k}.beta; end
+% loglog(b, v)
 function solver
     tic;
     clc;
     sol = struct( ...
         'radius', logspace(0, 4, 95), ...
         'theta', linspace(0, pi, 25), ...
-        'gamma', 2, ...
+        'gamma', 1.001, ...
         'alpha', 0, ...
         'maxres', 1e-12, ...
         'iters', [2 10] ...    
@@ -15,10 +19,10 @@ function solver
     for k = 1:numel(betas)
         sol.beta = betas(k);
         sol = analytic(sol); % approximation
-        alphas = [0 0.5]; % XXX
+        alphas = [0]; % XXX
         for a = alphas
             sol.alpha = a;
-            [sol, V, F] = steady(sol, sol.Vinf*[1, 0.9], 5);
+            [sol, V, F] = steady(sol, sol.Vinf + [0, 0.001], 5);
         end
         solutions{k} = sol;
         pause(0);
@@ -26,3 +30,4 @@ function solver
     save
     tone(300, 0.1)
 end
+
