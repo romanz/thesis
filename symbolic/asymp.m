@@ -4,6 +4,7 @@ function asymp
     syms U3a U3b real
     
     order = 3;
+    a = sym(0);
     
     bnd = @(f) subs(f, r, 1);
     cond = @(phi, c) bnd([phi + log(c); c*Dr(phi) - Dr(c)]);
@@ -110,13 +111,22 @@ function asymp
     vs = series(vs, b, 0, order);
     slip_error = subs(vs - vb(2), [U1 U2 U3a U3b], [W1 W2 W3a W3b]);
     
-    save asymp
-    
     assert_zero( vb(1), 'no penetration' );
     assert_zero( slip_error, 'slip condition' );
 
     assert_zero(limit(gradient(phi), r, inf) - b*[-cos(t);sin(t)], 'boundary R=Inf for Phi' )
     assert_zero(limit(c, r, inf) - 1, 'boundary R=Inf for C' ) % ??? %
+    
+    Uinf = simple([-cos(t), sin(t)]*simple(limit(v, r, inf)));
+    Uinf = subs(Uinf, [U1 U2 U3a U3b], [W1 W2 W3a W3b]);
+    
+    if a == 0
+        Winf = b*(1 - 11/320*b^2)*W1 ...
+             - (9/320*(sqrt(g)+1)^-2 - 31/320*(sqrt(g)+1)^-1 - 1/1680)*b^3;
+        assert_zero(Uinf - Winf, 'Uinf (for a=0)');
+    end
+    
+    save asymp
     
     fprintf('Done.\n')
 end
