@@ -9,7 +9,7 @@ function asymp
     cond = @(phi, c) bnd([phi + log(c); c*Dr(phi) - Dr(c)]);
     slip = @(phi) bnd(dukhin_derjaguin(phi, g));
 
-    % O(beta) : Homogeneous equations
+    %% O(beta) : Homogeneous equations
     % Boundary conditions (by spherical harmonics)
     phi1 = (1/4 * r^(-2) - r) * cos(t);
     c1 = 3/4 * r^(-2) * cos(t);
@@ -18,7 +18,7 @@ function asymp
     assert_zero(E4(psi1), '')
     v1 = U1 * curl( psi1 ); 
     
-    % O(beta^2) : Homogeneous equations
+    %% O(beta^2) : Homogeneous equations
     % Non-homogeneous solution (Phi & C)
     phi2 = (3/32*r^-4  - 3/8*r^-1)*sin(t)^2 - 3/32*r^-4;
     c2 = a*U1*3/8*((r^-1 + 1/2*r^-4)*sin(t)^2 - 1/2*r^-4);
@@ -31,7 +31,7 @@ function asymp
     v2 = U2 * curl( psi2 );
     p2 = U2 * 2 * r^-3 * (1 - 3*cos(t)^2);
 
-    % O(beta^3)
+    %% O(beta^3)
     % Non-homogeneous solution (Phi & C)
     phi3 = (15*U1*a + 6)/64*cos(t) + (-3*U1*a/32)*cos(t)^3 ...
          + (15*U1*a + 6)/64*cos(t)^3/r^2 ...
@@ -67,11 +67,13 @@ function asymp
     
     v3 = curl( psi3 );
     
+    %% Variables
     phi = b * phi1 + b^2 * phi2 + b^3 * phi3;
     c = 1 + b * c1 + b^2 * c2 + b^3 * c3;
     v = b * v1 + b^2 * v2 + b^3 * v3;
     p = b^2 * p2 + b^3 * p3;
     
+    %% Equations
     eq1 = divergence(c * gradient(phi));
     assert_zero( series(eq1, b, 0, order), 'ion flux' )
     
@@ -91,7 +93,7 @@ function asymp
     
     assert_zero( f, 'total force' )
         
-    vb = simple(subs(v, r, 1));
+    vb = simple(subs(v, r, 1)); % slipping
     
     W1 = 2*log((1+1/sqrt(g))/2);
     W2 = 9/(16*(sqrt(g)+1)) - W1*(W1*a + 1)*3/16;
@@ -114,7 +116,7 @@ function asymp
     assert_zero( slip_error, 'slip condition' );
 
     assert_zero(limit(gradient(phi), r, inf) - b*[-cos(t);sin(t)], 'boundary R=Inf for Phi' )
-    % assert_zero(limit(c, r, inf) - 1, 'boundary R=Inf for C' ) % ??? %
+    assert_zero(limit(c, r, inf) - 1, 'boundary R=Inf for C' ) % ??? %
     
     fprintf('Done.\n')
 end

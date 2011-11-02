@@ -1,0 +1,3 @@
+- set a=0
+- test signs
+- compare numerics and asymptotics
