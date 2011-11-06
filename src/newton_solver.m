@@ -84,8 +84,8 @@ function step = newton_solver(grid)
 
         Er = -sol.beta * cos(grid.Phi.y(2:end-1)).';
         dr = grid.Phi.x(end) - grid.Phi.x(end-1);
-        Vx_inf = sol.Vinf * cos(grid.Vx.y(2:end-1)).';
-        Vy_inf = -sol.Vinf * sin(grid.Vy.y(2:end-1)).';
+        Vx_inf = -sol.Vinf * cos(grid.Vx.y(2:end-1)).';
+        Vy_inf = sol.Vinf * sin(grid.Vy.y(2:end-1)).';
 
         Phi0 = -log( sol.C(2, 2:end-1) ); % Phi = -log(C)
         dPhi0_dC = -1 ./ sol.C(2, 2:end-1); % dPhi/dC = -1/C

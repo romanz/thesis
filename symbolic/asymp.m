@@ -5,9 +5,10 @@ function asymp
     
     order = 3;
     a = sym(0);
+    g = 1;
     
     bnd = @(f) subs(f, r, 1);
-    cond = @(phi, c) bnd([phi + log(c); c*Dr(phi) - Dr(c)]);
+    cond = @(phi, c) bnd([phi + log(c); c*diff(phi, r) - diff(c, r)]);
     slip = @(phi) bnd(dukhin_derjaguin(phi, g));
 
     %% O(beta) : Homogeneous equations
@@ -89,8 +90,10 @@ function asymp
     eq4 = series( cond(phi, c), b, 0, order );
     assert_zero(eq4, 'coupled boundary condition on R=1 for C and Phi' )
     
-    f = force(v, p, phi);
+    [f, fn, fm] = force(v, p, phi);
     f = series(f, b, 0, order);
+    fn = series(fn, b, 0, order);
+    fm = series(fm, b, 0, order);
     
     assert_zero( f, 'total force' )
         
@@ -147,26 +150,3 @@ function assert_zero(e, msg)
     end
 end
 
-function DfDr = Dr(f)
-    DfDr = diff(f, 'r');
-end
-
-function DfDt = Dt(f)    
-    DfDt = diff(f, 't');
-end
-
-function v = dukhin_derjaguin(phi, g)
-    v = 4 * log((exp((-phi-log(g))/2) + 1)/2) * Dt(phi);
-end
-
-function f = force(v, p, phi)
-    syms r t b pi
-    Vr = v(1);
-    Vt = v(2);
-    Fr = simple( -p + 2*Dr(Vr) + ((Dr(phi)^2 - (Dt(phi)/r)^2))/2 );
-    Ft = simple( Dr(Vt) + (Dt(Vr) - Vt)/r + Dr(phi)*Dt(phi)/r    );
-    df = Fr*cos(t) - Ft*sin(t);
-    df = subs(df, r, 1);
-    df = simple(df);
-    f = int(df * 2 * pi * sin(t), t, 0, pi);
-end
