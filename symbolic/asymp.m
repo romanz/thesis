@@ -5,7 +5,6 @@ function asymp
     
     order = 3;
     a = sym(0);
-    g = 1;
     
     bnd = @(f) subs(f, r, 1);
     cond = @(phi, c) bnd([phi + log(c); c*diff(phi, r) - diff(c, r)]);
