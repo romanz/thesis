@@ -5,6 +5,7 @@
 function solver
     tic;
     clc;
+    filename = datestr(now, 'YYYYmmmdd-HHMMSS');
     sol = struct( ...
         'radius', logspace(0, 7, 400), ...
         'theta', linspace(0, pi, 50), ...
@@ -28,14 +29,22 @@ function solver
         pause(0);
         pynotify('CEK', sprintf('%.1f%% completed.', 100*k/numel(betas)));
     end
-    b = []; for k = 1:numel(solutions), b(k) = solutions{k}.beta; end
     v = []; for k = 1:numel(solutions), v(k) = solutions{k}.Vinf; end
     
     g = sol.gamma;
     B3 = (31/(320*(g^(1/2) + 1)) - 9/(320*(g^(1/2) + 1)^2) + 1/1680);
     B1 = 2*log(1/(2*g^(1/2)) + 1/2);
+    b = logspace(-3, 0, 1000);
     w = b.^3*(B3 - B1*11/320) + b*B1;
-    plot(log10(b), log10([v; w]), '.-')
-    save
+    clf;
+    graph = @(x, y, s) plot(log10(x(y>0)), log10(y(y>0)), ['b' s], ...
+                         log10(x(y<=0)), log10(-y(y<=0)), ['r' s]);
+    hold on
+    graph(betas, v, '.');
+    graph(b, w, '-');
+    hold off
+    title(sprintf('\\gamma = %.3e\na = %.2f', sol.gamma, sol.alpha))
+    print('-dpng', filename)
+    logger('solver', 'Saving results to %s', filename);
+    save(filename)
 end
-
