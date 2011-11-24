@@ -1,0 +1,95 @@
+\usepackage{amsmath} % Required for \eqref
+\usepackage{amssymb} % Required for \mathbb
+\usepackage{units}   % Required for \nicefrac
+\usepackage{float}   % Required for algorithm and floating environments
+\usepackage{graphicx}% Required for figures and imagesf
+\usepackage{amsfonts}
+\usepackage{mathrsfs}
+\usepackage[colorlinks]{hyperref}
+
+%-------------------------------------------
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{acknowledgment}[theorem]{Acknowledgment}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+%-------------------------------------------
+\floatstyle{ruled}
+\newfloat{program}{thp}{lop}
+%-------------------------------------------
+\newcommand{\diag}{\ensuremath{\mathrm{diag}}}
+\newcommand{\trace}[1]{\ensuremath{\mathrm{trace}\left( #1 \right)}}
+\newcommand{\norm}[1]{\ensuremath{\left\|#1\right\|_2^2}}
+\newcommand{\func}[2]{\ensuremath{\mathrm{#1}\left( #2 \right)}}
+\newcommand\eps \epsilon
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\real}{\ensuremath{\mathbb{R}}}
+\newcommand{\cl}[1]{\ensuremath{\mathcal{#1}}}
+\newcommand{\suppsize}[1]{\ensuremath{|\mathcal{#1}|}}
+\newcommand{\vect}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\matr}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\deriv}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\mat}[2]{\left(\begin{array}{#1}#2\end{array}\right)}
+\newcommand{\brc}[2]{\left\{\begin{array}{#1}#2\end{array}\right.}
+\newcommand{\pars}[1]{\left(#1\right)}
+
+% Bold symbols and operators
+\newcommand\Laplacian{\nabla^2}
+\newcommand\bnabla{\boldsymbol{\nabla}}
+\newcommand\bLaplacian{\boldsymbol{\nabla}^2}
+\newcommand\bcdot{\boldsymbol{\cdot}}
+\newcommand\bU{\mathscr{\boldsymbol{U}}}
+\newcommand\bv{\boldsymbol{v}}
+\newcommand\bV{\boldsymbol{V}}
+\newcommand\bE{\boldsymbol{E}}
+\newcommand\be{\boldsymbol{\hat{e}}}
+\newcommand\bn{\boldsymbol{\hat{n}}}
+\newcommand\bk{\boldsymbol{\hat{k}}}
+\newcommand\bj{\boldsymbol{j}}
+\newcommand\bi{\boldsymbol{i}}
+\newcommand\bA{\boldsymbol{A}}
+\newcommand\bF{\boldsymbol{F}}
+\newcommand\bI{\boldsymbol{I}}
+\newcommand\bJ{\boldsymbol{J}}
+\newcommand\bx{\boldsymbol{x}}
+\newcommand\by{\boldsymbol{y}}
+\newcommand\bz{\boldsymbol{z}}
+\newcommand\br{\boldsymbol{r}}
+\newcommand\bxhat{\hat{\bx}}
+\newcommand\byhat{\hat{\by}}
+\newcommand\bzhat{\hat{\bz}}
+\newcommand\brhat{\hat{\br}}
+\newcommand\bnhat{\hat{\boldsymbol{n}}}
+\newcommand\btheta{\boldsymbol{\theta}}
+\newcommand\bthetahat{\hat{\btheta}}
+\newcommand\bphi{\boldsymbol{\phi}}
+\newcommand\bphihat{\hat{\bphi}}
+\newcommand\bzero{\boldsymbol{0}}
+\newcommand\bomega{\boldsymbol{\omega}}
+\newcommand\bpsi{\boldsymbol{\psi}}
+
+% Calligraphic scalars
+\newcommand\cU{\mathscr{U}}
+\newcommand\cV{\mathscr{V}}
+
+% Tensors
+\newcommand\tI{\mathsf{I}}
+\newcommand\tS{\mathsf{S}}
+\newcommand\tT{\mathsf{T}}
+
+% Unit vector
+\newcommand\ui{\boldsymbol{\hat{\imath}}}
+
+\setlength{\textheight}{8.7in}
+\setlength{\columnsep}{2.0pc}
+\setlength{\textwidth}{6.6in}
+% \setlength{\footheight}{0.2in}
+\setlength{\topmargin}{0.05in}
+\setlength{\headheight}{0.2in}
+\setlength{\headsep}{0.1in}
+\setlength{\evensidemargin}{0in}
+\setlength{\oddsidemargin}{0in}
+% \setlength{\parindent}{1pc}
+\setlength{\parindent}{0.0 in}
+\setlength{\parskip}{0.1 in}

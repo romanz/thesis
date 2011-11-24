@@ -1,0 +1,186 @@
+\section{Physics}
+Electrokinetic phenomena is described by the equations described below.
+An ion-exchanger is described by the chemical kinetics at its boundary.
+The experiment consists of applying an electic field and measuring the drift velocity of the particles.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Microscale}
+Denote positive and negative ionic concentration by $c_+$ and $c_-$ respectively.
+The respective fluxes are denoted by $\bj_+$ and $\bj_-$.
+
+The electrostatic potential is denoted by $\varphi$. 
+
+The velocity and the pressure field are denoted by $\bv$ and $p$ respectively.
+
+\subsubsection{Nernst-Planck Equations}
+The ionic fluxes are given by diffusion (Fick's law), electrostatic forces and advection by the fluid:
+\begin{eqnarray}
+\bj_+ &=& -\bnabla c_+ - c_+ \bnabla \varphi + \alpha \bv c_+ \\
+\bj_- &=& -\bnabla c_- + c_- \bnabla \varphi + \alpha \bv c_-
+\end{eqnarray}
+Due to conservation of ions, the fluxes are divergence-free:
+\begin{eqnarray}
+\bnabla \cdot \bj_\pm &=& 0.
+\end{eqnarray}
+These equation may be re-written by using the following transform:
+\begin{eqnarray}
+c &=& \frac{c_+ + c_-}{2}\\
+q &=& \frac{c_+ - c_-}{2}
+\end{eqnarray}
+Thus, salt and charge fluxes are defined by:
+\begin{eqnarray}
+\bj &=& \frac{\bj_+ + \bj_-}{2} = -\bnabla c - q \bnabla \varphi + \alpha \bv c \\
+\bi &=& \frac{\bj_+ - \bj_-}{2} = -\bnabla q - c \bnabla \varphi + \alpha \bv q
+\end{eqnarray}
+
+These fluxes are also divergence-free:
+\begin{eqnarray}
+\bnabla \cdot \bj &=& 0 \\
+\bnabla \cdot \bi &=& 0 
+\end{eqnarray}
+
+\subsubsection{Incompressible Stokes Flow with Electrostatic Force}
+Mass conservation (due to constant fluid density):
+\begin{eqnarray}
+\bnabla \cdot \bv &=& 0
+\end{eqnarray}
+Momentum conservation (force balance):
+\begin{eqnarray}
+\Laplacian \bv - \bnabla p + \bnabla \varphi \Laplacian \varphi &=& 0
+\end{eqnarray}
+Free charge density is given by Poisson equation:
+\begin{eqnarray}
+\delta^2 \Laplacian \varphi &=& -q
+\end{eqnarray}
+
+\subsubsection{Boundary conditions}
+Away of the particle, we have uniform flow, uniform electrostatic field
+and uniform ionic concentrations:
+\begin{eqnarray}
+\bv &\rightarrow& -\cU \ui \\
+\bE = -\bnabla \varphi &\rightarrow& \beta\ui \\
+c_\pm &\rightarrow& 1
+\end{eqnarray}
+
+We consider a spherical particle. At its surface ($r=1$ with normal $\bn = \brhat$), 
+we have zero slip, anion impermeability, cation selectivity and particle's conductance:
+\begin{eqnarray}
+\bv & = & \bzero \\
+\bn \cdot \bj_- & = & 0 \\
+c_+ & = & \gamma \\
+\varphi & = & \cV
+\end{eqnarray}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Separation of scales}
+Due to strong electrostatic forces, 
+most of the fluid remains electroneutral ($c_+ \approx c_-$), 
+except of a thin boundary layer (``Debye layer'') around the ion exchanger. 
+
+\subsubsection  {Bulk-scale equations}
+Nernst-Planck equations above for the fluid bulk (outside
+the boundary layer) using bulk variables:
+\begin{eqnarray}
+Q & = & 0 \\
+C & = & C_+ = C_- \\
+\bJ &=& -\bnabla C + \alpha \bV C \\
+\bI &=& -C \bnabla \varPhi
+\end{eqnarray}
+Since the flow is incompressible ($\bnabla \cdot V = 0$), 
+ion conservation results in the following equations:
+\begin{eqnarray}
+0 = \bnabla \cdot \bJ &\Rightarrow& \Laplacian C - \alpha \bV \cdot \bnabla C = 0 \\
+0 = \bnabla \cdot \bI &\Rightarrow& \bnabla \cdot \pars{ C \bnabla \varPhi } = 0
+\end{eqnarray}
+Stokes flow equations stay the same:
+\begin{eqnarray}
+\bnabla \cdot \bV &=& 0 \\
+\Laplacian \bV - \bnabla P + \bnabla \varPhi \Laplacian \varPhi &=& 0
+\end{eqnarray}
+
+\subsection{Debye-scale effective boundary conditions}
+We define the rescaled coordinate $\rho$ (normal to ion-exchanger surface), where $\delta \ll 1$:
+\begin{eqnarray}
+\rho &=& \frac{r-1}{\delta} \\
+\end{eqnarray}
+Thus, the electric potential and the ionic concentrations are $O(1)$ at Debye layer ($r \approx 1$):
+\begin{eqnarray}
+\varphi(\rho,\theta) &\sim& \varphi \\
+c_\pm(\rho,\theta) &\sim& c_\pm \\
+c(\rho,\theta) &\sim& c \\
+q(\rho,\theta) &\sim& q
+\end{eqnarray}
+
+The radial fluxes at the Debye layer are $O(\delta^{-1})$, due to coordinate rescaling:
+\begin{eqnarray}
+j_\pm(\rho, \theta) &\sim& \delta^{-1} j_\pm
+\end{eqnarray}
+
+The pressure is $O(\delta^{-2})$, due to momentum balance equations:
+\begin{eqnarray}
+p(\rho, \theta) &\sim& \delta^{-2} p
+\end{eqnarray}
+
+The tangential velocity component is $O(1)$ and the radial one is $O(\delta)$.
+
+In order to match bulk $O(1)$ outer radial ionic flux, 
+the $O(\delta^{-1})$ inner ionic radial flux $j_\pm(\rho, \theta)$ must vanish:
+\begin{eqnarray}
+-\deriv{c_\pm}{\rho} \mp c_\pm \deriv{\varphi}{\rho} &=& 0 \\
+\deriv{\varphi}{\rho} \pm\frac{1}{c_\pm}\deriv{c_\pm}{\rho} &=& 0 \\
+\pars{\varPhi - \varphi} \pm\pars{\log C_\pm - \log c_\pm} &=& 0 \\
+\varPhi - \varphi \pm \log \frac{C_\pm}{c_\pm} &=& 0
+\end{eqnarray}
+This relation can be rewritten as Boltzmann distribution of ionic concentration,
+since $C_\pm|_{\rho\rightarrow\infty} = C$:
+\begin{eqnarray}
+c_\pm = C \exp\left[\pm(\varPhi - \varphi)\right]
+\end{eqnarray}
+
+Due to cation selectivity, $c_+|_{\rho=0} = \gamma$.
+Denote zeta potential as the voltage drop between the particle surface and the end of
+the boundary layer, $\zeta = \cV - \varPhi$. Without loss of generality, we assume that 
+$\cV = 0$ thus $\zeta = -\varPhi$.
+\begin{eqnarray}
+\varPhi + \log\frac{C}{\gamma}&=& 0
+\end{eqnarray}
+Due to anion impermeability and radial flux continuity:
+\begin{eqnarray}
+\br \cdot \bj_- = -\deriv{C_-}{r} + C_- \deriv{\varPhi}{r} &=& 0 \\
+-\deriv{C}{r} + C \deriv{\varPhi}{r} &=& 0
+\end{eqnarray}
+
+The leading-order electric potential in the Debye layer:
+\begin{eqnarray}
+\deriv{^2 \varphi}{\rho^2} &=& -q = -\frac{c_+ - c_-}{2} = 
+-C\frac{\exp\left[+(\varPhi - \varphi)\right] - \exp\left[-(\varPhi - \varphi)\right]}{2} = 
+C \sinh(\varphi - \varPhi)
+\end{eqnarray}
+Integrating with respect to boundary condtions yields:
+\begin{eqnarray}
+\deriv{\varphi}{\rho} &=& -2\sinh\frac{\varphi - \varPhi}{2} \\
+\tanh\frac{\varPhi - \varphi}{4} &=& \tanh\frac{\varPhi}{4} e^{-\rho}
+\end{eqnarray}
+
+
+Leading-order radial momentum balance in the Debye layer yields:
+\begin{eqnarray}
+- \deriv{p}{\rho} + \deriv{\varphi}{\rho} \deriv{^2\varphi}{\rho^2} &=& 0
+\end{eqnarray}
+One integration yields:
+\begin{eqnarray}
+p &=& \frac{1}{2}\pars{\deriv{\varphi}{\rho}}^2
+\end{eqnarray}
+
+Leading-order tangential momentum balance in the Debye layer yields:
+\begin{eqnarray}
+\deriv{^2 v_\theta}{\rho^2} - \deriv{p}{\theta} 
+ + \deriv{\varphi}{\theta} \deriv{^2\varphi}{\rho^2} &=& 0
+\end{eqnarray}
+By integrating from $\rho = 0$ to $r \rightarrow \infty$, we have Dukhin-Derjaguin slip formula
+for tangential velocity component $V_\theta$ (where as the radial component is $V_r = 0$):
+\begin{eqnarray}
+V_\theta &=& \zeta \cdot \deriv{\varPhi}{\theta} + 
+      2\log\pars{1 - \tanh^2 \frac{\zeta}{4}} \cdot \deriv{}{\theta} \log C
+\end{eqnarray}
+
