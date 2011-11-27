@@ -13,10 +13,9 @@ The electrostatic potential is denoted by $\varphi$.
 The velocity and the pressure field are denoted by $\bv$ and $p$ respectively.
 
 \subsubsection{Nernst-Planck Equations}
-The ionic fluxes are given by diffusion (Fick's law), electrostatic forces and advection by the fluid:
+The ionic fluxes are given by ions' diffusion, electrostatic forces and ions' advection by the fluid:
 \begin{eqnarray}
- \nonumber \bj_+ &=& -\bnabla c_+ - c_+ \bnabla \varphi + \alpha \bv c_+ \\
- \nonumber \bj_- &=& -\bnabla c_- + c_- \bnabla \varphi + \alpha \bv c_-
+ \nonumber \bj_\pm &=& -\bnabla c_+ \mp c_+ \bnabla \varphi + \alpha \bv c_\pm
 \end{eqnarray}
 Due to conservation of ions, the fluxes are divergence-free:
 \begin{eqnarray}
@@ -80,8 +79,8 @@ except of a thin boundary layer (``Debye layer'') around the ion exchanger.
 Nernst-Planck equations above for the fluid bulk (outside
 the boundary layer) using bulk variables:
 \begin{eqnarray}
-Q & = & 0 \\
-C & = & C_+ = C_- \\
+ \nonumber Q & = & 0 \\
+ \nonumber C & = & C_+ = C_- \\
 \bJ &=& -\bnabla C + \alpha \bV C \\
 \bI &=& -C \bnabla \varPhi
 \end{eqnarray}
@@ -138,11 +137,13 @@ c_\pm = C \exp\left[\pm(\varPhi - \varphi)\right]
 
 Due to cation selectivity, $c_+|_{\rho=0} = \gamma$.
 Denote zeta potential as the voltage drop between the particle surface and the end of
-the boundary layer, $\zeta = \cV - \varPhi$. Without loss of generality, we assume that 
-$\cV = 0$ thus $\zeta = -\varPhi$.
+the boundary layer, $\zeta = \cV - \varPhi$. 
+Without loss of generality, 
+we assume that $\cV = -\log\gamma$, thus $\zeta = -\log\gamma-\varPhi$:
 \begin{eqnarray}
-\varPhi + \log\frac{C}{\gamma}&=& 0
+\varPhi &=& -\log C
 \end{eqnarray}
+
 Due to anion impermeability and radial flux continuity:
 \begin{eqnarray}
  \nonumber \br \cdot \bj_- = -\deriv{C_-}{r} + C_- \deriv{\varPhi}{r} &=& 0 \\
@@ -151,14 +152,14 @@ Due to anion impermeability and radial flux continuity:
 
 The leading-order electric potential in the Debye layer:
 \begin{eqnarray}  \nonumber
-\deriv{^2 \varphi}{\rho^2} &=& -q = -\frac{c_+ - c_-}{2} = 
+\deriv{^2 \varphi}{\rho^2} = -q = -\frac{c_+ - c_-}{2} = 
 -C\frac{\exp\left[+(\varPhi - \varphi)\right] - \exp\left[-(\varPhi - \varphi)\right]}{2} = 
 C \sinh(\varphi - \varPhi)
 \end{eqnarray}
 Integrating with respect to boundary condtions yields:
 \begin{eqnarray}  \nonumber
 \deriv{\varphi}{\rho} &=& -2\sqrt{C}\sinh\frac{\varphi - \varPhi}{2} \\  \nonumber
-\tanh\frac{\varPhi - \varphi}{4} &=& \tanh\frac{\varPhi}{4} e^{-\rho \sqrt{C}}
+\tanh\frac{\varPhi - \varphi}{4} &=& \tanh\frac{\varPhi}{4} \exp\left\{-\rho \sqrt{C}\right\}
 \end{eqnarray}
 
 Leading-order radial momentum balance in the Debye layer yields:
@@ -183,11 +184,24 @@ V_\theta &=& \zeta \cdot \deriv{\varPhi}{\theta} +
  = \zeta \cdot \deriv{\varPhi}{\theta} -
       4\log\cosh \frac{\zeta}{4} \cdot \deriv{}{\theta} \log C
 \end{eqnarray}
+where $\zeta = \cV - \varPhi = -\log\gamma - \varPhi$.
 
-Note that due to boundary condition, $\log C = \log\gamma -\varPhi$, thus:
+Note that due to boundary condition, $\log C = -\varPhi$, thus:
 \begin{eqnarray}
 V_\theta &=& \zeta \cdot \deriv{\varPhi}{\theta} + 
       4\log\cosh \frac{\zeta}{4} \cdot \deriv{\varPhi}{\theta} = 
-4\log\pars{\frac{1 + e^{\zeta/2}}{2}} \cdot \deriv{\varPhi}{\theta}
+4\log\pars{\frac{1 + \exp\left\{\zeta/2\right\}}{2}} \cdot \deriv{\zeta}{\theta}
 \end{eqnarray}
 
+\subsection{Steady state}
+The stress tensor is composed of Newtonian and Maxwel stresses:
+\begin{eqnarray}
+\tT &=& \bnabla \bV + (\bnabla \bV)^\dagger - P \tI
++ \bnabla \varPhi \bnabla \varPhi - \frac{1}{2} (\bnabla \varPhi \cdot \bnabla \varPhi) \tI \\
+\bnabla \cdot \tT &=& \bzero
+\end{eqnarray}
+The total force acting on the particle is computed by the following surface integral:
+\begin{eqnarray}
+\bF &=& \oint_\mathcal{S} \tT \cdot \bnhat  dA 
+\end{eqnarray}
+In steady state (constant particle drift velocity), it should be zero: $\bF = \bzero$.
