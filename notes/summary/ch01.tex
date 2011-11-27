@@ -15,8 +15,8 @@ The velocity and the pressure field are denoted by $\bv$ and $p$ respectively.
 \subsubsection{Nernst-Planck Equations}
 The ionic fluxes are given by diffusion (Fick's law), electrostatic forces and advection by the fluid:
 \begin{eqnarray}
-\bj_+ &=& -\bnabla c_+ - c_+ \bnabla \varphi + \alpha \bv c_+ \\
-\bj_- &=& -\bnabla c_- + c_- \bnabla \varphi + \alpha \bv c_-
+ \nonumber \bj_+ &=& -\bnabla c_+ - c_+ \bnabla \varphi + \alpha \bv c_+ \\
+ \nonumber \bj_- &=& -\bnabla c_- + c_- \bnabla \varphi + \alpha \bv c_-
 \end{eqnarray}
 Due to conservation of ions, the fluxes are divergence-free:
 \begin{eqnarray}
@@ -24,16 +24,15 @@ Due to conservation of ions, the fluxes are divergence-free:
 \end{eqnarray}
 These equation may be re-written by using the following transform:
 \begin{eqnarray}
-c &=& \frac{c_+ + c_-}{2}\\
-q &=& \frac{c_+ - c_-}{2}
+ \nonumber c &=& \frac{c_+ + c_-}{2}\\
+ \nonumber q &=& \frac{c_+ - c_-}{2}
 \end{eqnarray}
 Thus, salt and charge fluxes are defined by:
 \begin{eqnarray}
-\bj &=& \frac{\bj_+ + \bj_-}{2} = -\bnabla c - q \bnabla \varphi + \alpha \bv c \\
-\bi &=& \frac{\bj_+ - \bj_-}{2} = -\bnabla q - c \bnabla \varphi + \alpha \bv q
+ \nonumber \bj &=& \frac{\bj_+ + \bj_-}{2} = -\bnabla c - q \bnabla \varphi + \alpha \bv c \\
+ \nonumber \bi &=& \frac{\bj_+ - \bj_-}{2} = -\bnabla q - c \bnabla \varphi + \alpha \bv q
 \end{eqnarray}
-
-These fluxes are also divergence-free:
+And are divergence-free as well:
 \begin{eqnarray}
 \bnabla \cdot \bj &=& 0 \\
 \bnabla \cdot \bi &=& 0 
@@ -101,24 +100,24 @@ Stokes flow equations stay the same:
 \subsection{Debye-scale effective boundary conditions}
 We define the rescaled coordinate $\rho$ (normal to ion-exchanger surface), where $\delta \ll 1$:
 \begin{eqnarray}
-\rho &=& \frac{r-1}{\delta} \\
+ \nonumber \rho &=& \frac{r-1}{\delta} 
 \end{eqnarray}
 Thus, the electric potential and the ionic concentrations are $O(1)$ at Debye layer ($r \approx 1$):
 \begin{eqnarray}
-\varphi(\rho,\theta) &\sim& \varphi \\
-c_\pm(\rho,\theta) &\sim& c_\pm \\
-c(\rho,\theta) &\sim& c \\
-q(\rho,\theta) &\sim& q
+ \nonumber \varphi(\rho,\theta) &\sim& \varphi \\
+ \nonumber c_\pm(\rho,\theta) &\sim& c_\pm \\
+ \nonumber c(\rho,\theta) &\sim& c \\
+ \nonumber q(\rho,\theta) &\sim& q
 \end{eqnarray}
 
 The radial fluxes at the Debye layer are $O(\delta^{-1})$, due to coordinate rescaling:
 \begin{eqnarray}
-j_\pm(\rho, \theta) &\sim& \delta^{-1} j_\pm
+ \nonumber j_\pm(\rho, \theta) &\sim& \delta^{-1} j_\pm
 \end{eqnarray}
 
 The pressure is $O(\delta^{-2})$, due to momentum balance equations:
 \begin{eqnarray}
-p(\rho, \theta) &\sim& \delta^{-2} p
+ \nonumber p(\rho, \theta) &\sim& \delta^{-2} p
 \end{eqnarray}
 
 The tangential velocity component is $O(1)$ and the radial one is $O(\delta)$.
@@ -126,10 +125,10 @@ The tangential velocity component is $O(1)$ and the radial one is $O(\delta)$.
 In order to match bulk $O(1)$ outer radial ionic flux, 
 the $O(\delta^{-1})$ inner ionic radial flux $j_\pm(\rho, \theta)$ must vanish:
 \begin{eqnarray}
--\deriv{c_\pm}{\rho} \mp c_\pm \deriv{\varphi}{\rho} &=& 0 \\
-\deriv{\varphi}{\rho} \pm\frac{1}{c_\pm}\deriv{c_\pm}{\rho} &=& 0 \\
-\pars{\varPhi - \varphi} \pm\pars{\log C_\pm - \log c_\pm} &=& 0 \\
-\varPhi - \varphi \pm \log \frac{C_\pm}{c_\pm} &=& 0
+ \nonumber -\deriv{c_\pm}{\rho} \mp c_\pm \deriv{\varphi}{\rho} &=& 0 \\
+ \nonumber \deriv{\varphi}{\rho} \pm\frac{1}{c_\pm}\deriv{c_\pm}{\rho} &=& 0 \\
+ \nonumber \pars{\varPhi - \varphi} \pm\pars{\log C_\pm - \log c_\pm} &=& 0 \\
+ \nonumber \varPhi - \varphi \pm \log \frac{C_\pm}{c_\pm} &=& 0
 \end{eqnarray}
 This relation can be rewritten as Boltzmann distribution of ionic concentration,
 since $C_\pm|_{\rho\rightarrow\infty} = C$:
@@ -146,34 +145,33 @@ $\cV = 0$ thus $\zeta = -\varPhi$.
 \end{eqnarray}
 Due to anion impermeability and radial flux continuity:
 \begin{eqnarray}
-\br \cdot \bj_- = -\deriv{C_-}{r} + C_- \deriv{\varPhi}{r} &=& 0 \\
+ \nonumber \br \cdot \bj_- = -\deriv{C_-}{r} + C_- \deriv{\varPhi}{r} &=& 0 \\
 -\deriv{C}{r} + C \deriv{\varPhi}{r} &=& 0
 \end{eqnarray}
 
 The leading-order electric potential in the Debye layer:
-\begin{eqnarray}
+\begin{eqnarray}  \nonumber
 \deriv{^2 \varphi}{\rho^2} &=& -q = -\frac{c_+ - c_-}{2} = 
 -C\frac{\exp\left[+(\varPhi - \varphi)\right] - \exp\left[-(\varPhi - \varphi)\right]}{2} = 
 C \sinh(\varphi - \varPhi)
 \end{eqnarray}
 Integrating with respect to boundary condtions yields:
-\begin{eqnarray}
-\deriv{\varphi}{\rho} &=& -2\sqrt{C}\sinh\frac{\varphi - \varPhi}{2} \\
+\begin{eqnarray}  \nonumber
+\deriv{\varphi}{\rho} &=& -2\sqrt{C}\sinh\frac{\varphi - \varPhi}{2} \\  \nonumber
 \tanh\frac{\varPhi - \varphi}{4} &=& \tanh\frac{\varPhi}{4} e^{-\rho \sqrt{C}}
 \end{eqnarray}
 
-
 Leading-order radial momentum balance in the Debye layer yields:
-\begin{eqnarray}
+\begin{eqnarray} \nonumber
 - \deriv{p}{\rho} + \deriv{\varphi}{\rho} \deriv{^2\varphi}{\rho^2} &=& 0
 \end{eqnarray}
 One integration yields:
-\begin{eqnarray}
+\begin{eqnarray} \nonumber
 p &=& \frac{1}{2}\pars{\deriv{\varphi}{\rho}}^2
 \end{eqnarray}
 
 Leading-order tangential momentum balance in the Debye layer yields:
-\begin{eqnarray}
+\begin{eqnarray} \nonumber
 \deriv{^2 v_\theta}{\rho^2} - \deriv{p}{\theta} 
  + \deriv{\varphi}{\theta} \deriv{^2\varphi}{\rho^2} &=& 0
 \end{eqnarray}
@@ -181,6 +179,15 @@ By integrating from $\rho = 0$ to $r \rightarrow \infty$, we have Dukhin-Derjagu
 for tangential velocity component $V_\theta$ (where as the radial component is $V_r = 0$):
 \begin{eqnarray}
 V_\theta &=& \zeta \cdot \deriv{\varPhi}{\theta} + 
-      2\log\pars{1 - \tanh^2 \frac{\zeta}{4}} \cdot \deriv{}{\theta} \log C
+      2\log\pars{1 - \tanh^2 \frac{\zeta}{4}} \cdot \deriv{}{\theta} \log C 
+ = \zeta \cdot \deriv{\varPhi}{\theta} -
+      4\log\cosh \frac{\zeta}{4} \cdot \deriv{}{\theta} \log C
+\end{eqnarray}
+
+Note that due to boundary condition, $\log C = \log\gamma -\varPhi$, thus:
+\begin{eqnarray}
+V_\theta &=& \zeta \cdot \deriv{\varPhi}{\theta} + 
+      4\log\cosh \frac{\zeta}{4} \cdot \deriv{\varPhi}{\theta} = 
+4\log\pars{\frac{1 + e^{\zeta/2}}{2}} \cdot \deriv{\varPhi}{\theta}
 \end{eqnarray}
 
