@@ -4,7 +4,7 @@ An ion-exchanger is described by the chemical kinetics at its boundary.
 The experiment consists of applying an electic field and measuring the drift velocity of the particles.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Microscale}
+\subsection{Micro-scale equation}
 Denote positive and negative ionic concentration by $c_+$ and $c_-$ respectively.
 The respective fluxes are denoted by $\bj_+$ and $\bj_-$.
 
@@ -136,6 +136,11 @@ c_\pm = C \exp\left[\pm(\varPhi - \varphi)\right]
 \end{eqnarray}
 
 Due to cation selectivity, $c_+|_{\rho=0} = \gamma$.
+\begin{eqnarray}
+ \nonumber c_+ = \gamma &=& C \exp(\varPhi - \cV) \\
+ \nonumber \cV + \log \gamma &=& \log C + \varPhi
+\end{eqnarray}
+
 Denote zeta potential as the voltage drop between the particle surface and the end of
 the boundary layer, $\zeta = \cV - \varPhi$. 
 Without loss of generality, 
@@ -178,7 +183,7 @@ Leading-order tangential momentum balance in the Debye layer yields:
 \end{eqnarray}
 By integrating from $\rho = 0$ to $r \rightarrow \infty$, we have Dukhin-Derjaguin slip formula
 for tangential velocity component $V_\theta$ (where as the radial component is $V_r = 0$):
-\begin{eqnarray}
+\begin{eqnarray} \nonumber
 V_\theta &=& \zeta \cdot \deriv{\varPhi}{\theta} + 
       2\log\pars{1 - \tanh^2 \frac{\zeta}{4}} \cdot \deriv{}{\theta} \log C 
  = \zeta \cdot \deriv{\varPhi}{\theta} -
@@ -187,11 +192,18 @@ V_\theta &=& \zeta \cdot \deriv{\varPhi}{\theta} +
 where $\zeta = \cV - \varPhi = -\log\gamma - \varPhi$.
 
 Note that due to boundary condition, $\log C = -\varPhi$, thus:
-\begin{eqnarray}
+\begin{eqnarray} \nonumber
 V_\theta &=& \zeta \cdot \deriv{\varPhi}{\theta} + 
       4\log\cosh \frac{\zeta}{4} \cdot \deriv{\varPhi}{\theta} = 
 4\log\pars{\frac{1 + \exp\left\{\zeta/2\right\}}{2}} \cdot \deriv{\zeta}{\theta}
 \end{eqnarray}
+
+Since $V_r = 0$ on the boundary, the slip condition can be written as:
+\begin{eqnarray}
+\bV &=& 
+4\log\pars{\frac{1 + \exp\left\{\zeta/2\right\}}{2}} \cdot \bnabla_S \zeta
+\end{eqnarray}
+
 
 \subsection{Steady state}
 The stress tensor is composed of Newtonian and Maxwel stresses:
@@ -204,4 +216,4 @@ The total force acting on the particle is computed by the following surface inte
 \begin{eqnarray}
 \bF &=& \oint_\mathcal{S} \tT \cdot \bnhat  dA 
 \end{eqnarray}
-In steady state (constant particle drift velocity), it should be zero: $\bF = \bzero$.
+In steady state (constant particle drift velocity $\cU$), it should be zero: $\bF = \bzero$.

@@ -4,15 +4,99 @@
 Since the system has axial symmetry, the operators are written in 
 spherical coordinates $(r,\theta,\phi)$:
 \begin{eqnarray}
-x &=& r \sin \theta \cos \phi \\
-y &=& r \sin \theta \sin \phi \\
-z &=& r \cos \theta
+\brc{l}{
+x = r \sin \theta \cos \phi \\
+y = r \sin \theta \sin \phi \\
+z = r \cos \theta} 
 \end{eqnarray}
-Due to axial symmetry, $\deriv{a}{\phi} = 0$ and $\bphihat \cdot \bA = 0$, 
-so the differential operators have the following form:
+Due to axial symmetry, 
+so the scalar gradient and the divergence can be written as:
+\begin{eqnarray}
+\bnabla f &=& \deriv{f}{r}\brhat + \frac{1}{r}\deriv{f}{\theta}\bthetahat \\
+\bnabla \cdot \bF &=& \frac{1}{r^2}\deriv{}{r}\pars{F_r r^2 } + 
+                     \frac{1}{r \sin\theta}\deriv{}{\theta}\pars{F_\theta \sin\theta}
+\end{eqnarray}
+The scalar laplacian can be written as:
+\begin{eqnarray}
+\Laplacian f &=& \frac{1}{r^2}\deriv{}{r}\pars{r^2 \deriv{f}{r}} + 
+                     \frac{1}{r^2 \sin\theta}\deriv{}{\theta}\pars{\sin\theta \deriv{f}{\theta}}
+\end{eqnarray}
+The vector gradient can be written as:
+\begin{eqnarray}
+\bnabla \bF &=& \deriv{F_r}{r} \brhat \brhat + \deriv{F_\theta}{r} \brhat \bthetahat + 
+\frac{1}{r}\pars{\deriv{F_r}{\theta} - F_\theta} \bthetahat \brhat + 
+\frac{1}{r}\pars{\deriv{F_\theta}{\theta} + F_r} \bthetahat \bthetahat
+\end{eqnarray}
+
+The vector laplacian can be written as:
+\begin{eqnarray}
+\bLaplacian \bF &=& 
+\left(\Laplacian F_r - \frac{2F_r}{r^2} - 
+\frac{2}{r^2 \sin\theta} \deriv{\left(F_\theta \sin\theta \right)}{\theta}\right)\brhat
++ \left(\Laplacian F_\theta - \frac{F_\theta}{r^2 \sin^2\theta} + 
+\frac{2}{r^2}\deriv{F_r}{\theta}\right) \bthetahat
+\end{eqnarray}
+
 \subsubsection{Grids choice}
-\subsubsection{Operator Representation}
-\subsubsection{Boundary Condition}
+In order to discretize the differential operators, 
+a regular grid of size $N_r \times N_\theta$ is used:
+\begin{eqnarray}
+(r_i,\theta_j) &\in& [1, \infty) \times [0,\pi] \\ 
+r_i &=& (1+\Delta_r)^i \\
+\theta_j &=& \Delta_\theta \cdot j
+\end{eqnarray}
+where a logarithmic grid is used for $r$ and an uniform one is used for $\theta$.
+Note that $r_0 = 1$ and $R_{max} = (1+\Delta_r)^{N_r}$. Thus:
+\begin{eqnarray}
+\Delta_r &=& \pars{R_{max}} ^ \frac{1}{N_r} - 1 \\
+\Delta_\theta &=& \frac{\pi}{N_\theta}
+\end{eqnarray}
+
+This grid induces disjoint subdivision of the domain 
+$\Omega = [1, R_{max}] \times [0,\pi]$ into cells:
+\begin{eqnarray}
+\bigcup_{ij}\Omega_{ij} &=& \Omega
+\end{eqnarray}
+A specific cell $\Omega_{ij}$ and its center $(\bar{r}_i, \bar{\theta}_j)$ are defined by:
+\begin{eqnarray}
+\Omega_{ij} &=& [r_{i-1}, r_{i}] \times [\theta_{i-1}, \theta_{i}] \\
+\bar{r}_i &=& \frac{r_{i-1} + r_{i}}{2} \\
+\bar{\theta}_i &=& \frac{\theta_{i-1} + \theta_{i}}{2}
+\end{eqnarray}
+
+Each variable is discretized with respect of the cell:
+\begin{itemize}
+\item $\varPhi$, $C$ and $P$ are represented by their value at the center of each cell, 
+using a central grid:
+\begin{eqnarray}
+\varPhi[i,j] &=& \varPhi(\bar{r}_i, \bar{\theta}_j) \\
+C[i,j] &=& C(\bar{r}_i, \bar{\theta}_j) \\
+P[i,j] &=& P(\bar{r}_i, \bar{\theta}_j) 
+\end{eqnarray}
+\item $\bV$ is represented by its values at cell boundaries, using a staggered grid:
+\begin{eqnarray}
+V_r[i,j] &=& V_r(r_i, \bar{\theta}_j) \\
+V_\theta[i,j] &=& V_\theta(\bar{r}_i, {\theta}_j)
+\end{eqnarray}
+\end{itemize}
+
+\subsubsection{Boundary Conditions}
+The boundary conditions far away from the ion-exchange boundary ($r\rightarrow\infty$) are:
+\begin{eqnarray}
+\deriv{\varPhi}{r} &\rightarrow& -\beta \\
+C &\rightarrow& 1 \\
+V_r &\rightarrow& -\cU \cos\theta \\
+V_\theta &\rightarrow& \cU \sin\theta
+\end{eqnarray}
+The boundary conditions at the ion-exchange boundary ($r=1$) are:
+\begin{eqnarray}
+\varPhi &=& -\log C \\
+\deriv{\varPhi}{r} &=& \deriv{}{r} \log C \\
+V_r &=& 0 \\
+V_\theta &=& 4\log\pars{\frac{1 + \exp\left\{\zeta/2\right\}}{2}} \cdot \deriv{\zeta}{\theta} \\
+ \nonumber \zeta &=& \cV - \varPhi = \log C - \log \gamma
+\end{eqnarray}
+
 \subsection{Solver}
 \subsubsection{Newton's Method}
 \subsubsection{Steady-state}
