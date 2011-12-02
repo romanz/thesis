@@ -1,4 +1,7 @@
 \section{Numerics}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \subsection{Discretization}
 \subsubsection{Spherical Coordinates}
 Since the system has axial symmetry, the operators are written in 
@@ -14,12 +17,13 @@ so the scalar gradient and the divergence can be written as:
 \begin{eqnarray}
 \bnabla f &=& \deriv{f}{r}\brhat + \frac{1}{r}\deriv{f}{\theta}\bthetahat \\
 \bnabla \cdot \bF &=& \frac{1}{r^2}\deriv{}{r}\pars{F_r r^2 } + 
-                     \frac{1}{r \sin\theta}\deriv{}{\theta}\pars{F_\theta \sin\theta}
+               \frac{1}{r \sin\theta}\deriv{}{\theta}\pars{F_\theta \sin\theta}
 \end{eqnarray}
 The scalar laplacian can be written as:
 \begin{eqnarray}
-\Laplacian f &=& \frac{1}{r^2}\deriv{}{r}\pars{r^2 \deriv{f}{r}} + 
-                     \frac{1}{r^2 \sin\theta}\deriv{}{\theta}\pars{\sin\theta \deriv{f}{\theta}}
+\Laplacian f = \bnabla \cdot (\bnabla f)&=& 
+ \frac{1}{r^2}\deriv{}{r}\pars{r^2 \deriv{f}{r}} + 
+ \frac{1}{r^2 \sin\theta}\deriv{}{\theta}\pars{\sin\theta \deriv{f}{\theta}}
 \end{eqnarray}
 The vector gradient can be written as:
 \begin{eqnarray}
@@ -39,17 +43,17 @@ The vector laplacian can be written as:
 
 \subsubsection{Grids choice}
 In order to discretize the differential operators, 
-a regular grid of size $N_r \times N_\theta$ is used:
+a regular grid of size $n_r \times n_\theta$ is used:
 \begin{eqnarray}
 (r_i,\theta_j) &\in& [1, \infty) \times [0,\pi] \\ 
 r_i &=& (1+\Delta_r)^i \\
 \theta_j &=& \Delta_\theta \cdot j
 \end{eqnarray}
 where a logarithmic grid is used for $r$ and an uniform one is used for $\theta$.
-Note that $r_0 = 1$ and $R_{max} = (1+\Delta_r)^{N_r}$. Thus:
+Note that $r_0 = 1$ and $R_{max} = (1+\Delta_r)^{n_r}$. Thus:
 \begin{eqnarray}
-\Delta_r &=& \pars{R_{max}} ^ \frac{1}{N_r} - 1 \\
-\Delta_\theta &=& \frac{\pi}{N_\theta}
+\Delta_r &=& \pars{R_{max}} ^ \frac{1}{n_r} - 1 \\
+\Delta_\theta &=& \frac{\pi}{n_\theta}
 \end{eqnarray}
 
 This grid induces disjoint subdivision of the domain 
@@ -80,24 +84,248 @@ V_\theta[i,j] &=& V_\theta(\bar{r}_i, {\theta}_j)
 \end{eqnarray}
 \end{itemize}
 
-\subsubsection{Boundary Conditions}
-The boundary conditions far away from the ion-exchange boundary ($r\rightarrow\infty$) are:
+\subsubsection{Operator Discretization}
+Finite-volume method with linear interpolation between grids is used for flux 
+$\boldsymbol{f}$ discretization. 
+
+Denote the following discrete central difference operators:
 \begin{eqnarray}
-\deriv{\varPhi}{r} &\rightarrow& -\beta \\
-C &\rightarrow& 1 \\
-V_r &\rightarrow& -\cU \cos\theta \\
-V_\theta &\rightarrow& \cU \sin\theta
-\end{eqnarray}
-The boundary conditions at the ion-exchange boundary ($r=1$) are:
-\begin{eqnarray}
-\varPhi &=& -\log C \\
-\deriv{\varPhi}{r} &=& \deriv{}{r} \log C \\
-V_r &=& 0 \\
-V_\theta &=& 4\log\pars{\frac{1 + \exp\left\{\zeta/2\right\}}{2}} \cdot \deriv{\zeta}{\theta} \\
- \nonumber \zeta &=& \cV - \varPhi = \log C - \log \gamma
+\cD_r(f)[i,j] &=& \frac{f\left[i+\half,j\right] - f\left[i-\half,j\right]}
+                       {r\left[i+\half,j\right] - r\left[i-\half,j\right]} \\
+\cD_\theta(f)[i,j] &=& \frac{f\left[i,j+\half\right] - f\left[i,j-\half\right]}
+					   {\theta\left[i,j+\half\right] - \theta\left[i,j-\half\right]}
 \end{eqnarray}
 
-\subsection{Solver}
-\subsubsection{Newton's Method}
+Denote the following interpolation operators:
+\begin{eqnarray}
+\cI_r(f)[i,j] &=& \frac{
+\pars{r\left[i,j\right] - r\left[i-\half,j\right]} 
+  f\left[i+\half,j\right] + 
+\pars{r\left[i+\half,j\right] - r\left[i,j\right]} 
+  f\left[i-\half,j\right] 
+}{r\left[i+\half,j\right] - r\left[i-\half,j\right]}
+\\
+\cI_\theta(f)[i,j] &=& 
+\frac{
+\pars{r\left[i,j\right] - r\left[i,j-\half\right]} 
+  f\left[i,j+\half\right] + 
+\pars{r\left[i,j+\half\right] - r\left[i,j\right]} 
+  f\left[i,j-\half\right] 
+}{r\left[i,j+\half\right] - r\left[i,j-\half\right]}
+\end{eqnarray}
+
+The total flux of a cell is equal to zero (due to conservation):
+\begin{eqnarray}
+\bnabla \cdot \boldsymbol{f} &=& 0 
+\\
+\frac{1}{r^2} \cD_r\pars{f_r r^2} + 
+\frac{1}{r \sin\theta} \cD_\theta\pars{f_\theta \sin\theta} &=& 0 
+\\
+\cD_r\pars{f_r \cdot r^2 \sin\theta} + \cD_\theta\pars{f_\theta \cdot r \sin\theta} &=& 0 
+\end{eqnarray}
+
+Ion flux are discretized on grid cells' boundaries:
+\begin{eqnarray}
+I_r &=& -\cI_r(C) \cdot \cD_r(\varPhi) \\
+I_\theta &=& -\cI_\theta(C) \cdot \frac{\cD_\theta(\varPhi)}{r} 
+\end{eqnarray}
+
+Salt flux are discretized on grid cells' boundaries 
+(using upwind scheme $\mathcal{U}$ for numerical stability at large cell Peclet number):
+\begin{eqnarray}
+J_r &=& -\cD_r(C) + \alpha V_r \cdot \mathcal{U}^{\bV}_r (C) \\
+J_\theta &=& -\frac{\cD_\theta(C)}{r} + \alpha V_\theta \cdot \mathcal{U}^{\bV}_\theta (C) \\
+\nonumber \mathcal{U}^{\bV}_r(C)[i,j] &=& C\left[i-\frac{\sign(V_r)}{2}, j\right] \\
+\nonumber \mathcal{U}^{\bV}_\theta(C)[i,j] &=& C\left[i, j-\frac{\sign(V_\theta)}{2}\right] 
+\end{eqnarray}
+
+Mass flux $\bV$ is discretized on grid cells boundaries, 
+using velocity staggered grid.
+
+Force components are discretized on velocity staggered grid, where
+linear interpolation is used for Coulomb force.
+\begin{eqnarray}
+F_r &=& -\cD_r(P) 
+          + \cL(V_r) - \frac{2}{r^2} V_r 
+		  - \frac{2}{r^2 \sin\theta} \cI_r(\cD_\theta (V_\theta \sin\theta))
+          + \cD_r(\varPhi) \cdot \cI_r(\cL(\varPhi)) \\
+F_\theta &=& -\frac{\cD_\theta(P)}{r} 
+		  + \cL(V_\theta) - \frac{F_\theta}{r^2 \sin^2\theta} 
+		  + \frac{2}{r^2} \cI_\theta(\cD_\theta(F_r))
+		  + \frac{\cD_\theta(\varPhi)}{r} \cdot \cI_\theta(\cL(\varPhi)) \\
+\nonumber
+\cL(f) &=& \frac{1}{r^2}\cD_r\pars{\cD_r(f) r^2} + 
+\frac{1}{r^2 \sin\theta} \cD_\theta\pars{\cD_\theta(f) \cdot \sin\theta}
+\end{eqnarray}
+
+
+\subsubsection{Boundary Conditions}
+In order to represent discretize problem boundary condtions, 
+``ghost'' points method is used. 
+Variable grid is extended to include points outside the domain's interior,
+so the variables at the ``ghost'' points are set to satisfy 
+the discretized boundary conditions, following the analysis below.
+
+The boundary conditions at the ion-exchange boundary ($r=1$) are:
+\begin{eqnarray}
+\cI_r(\varPhi) &=& -\cI_r(\log C) \\
+\cD_r(\varPhi) &=& \cD_r(\log C) \\
+V_r &=& 0 \\
+V_\theta &=& 4\log\pars{\frac{1 + \exp\left\{\cI_\theta(\zeta)/2\right\}}{2}} \cdot 
+			\cD_\theta(\zeta) \\
+ \nonumber \zeta &=& - \log \gamma - \cI_r(\varPhi)
+\end{eqnarray}
+The equations are discretized by using ``ghost'' points, outside the interior of the domain:
+\begin{eqnarray}
+ \nonumber \frac{\varPhi[0,j] + \varPhi[1,j]}{2} &=& 
+	-\frac{\log C[0,j] + \log C[1,j]}{2} \\
+ \nonumber \frac{\varPhi[1,j] - \varPhi[0,j]}{\Delta r} &=& 
+	\frac{\log C[1,j] - \log C[0,j]}{\Delta r} 
+\end{eqnarray}
+By adding and subtracting the equations, we have:
+\begin{eqnarray}
+\varPhi[0,j] &=& -\log\brcs{C[1,j]} \\
+C[0,j] &=& \exp\brcs{-\varPhi[1,j]} \\
+ \nonumber \zeta[j] &=& \cV -\frac{\varPhi[0,j] + \varPhi[1,j]}{2} 
+                     = -\log\gamma -\frac{\varPhi[0,j] + \varPhi[1,j]}{2}
+\end{eqnarray}
+The slipping conditions can be written by:
+\begin{eqnarray}
+V_r[0,j] &=& 0 \\
+\frac{V_\theta[0,j] + V_\theta[1,j]}{2} &=& V_\theta[j] = 
+4\log\pars{\frac{1 + \exp\left\{\frac{1}{2}\frac{\zeta[j] + \zeta[j+1]}{2}\right\}}{2}} 
+\cdot \frac{\zeta[j+1] - \zeta[j]}{\bar{\theta}_{j+1} - \bar{\theta}_{j}} \\
+ \nonumber V_\theta[0,j] &=& 2 V_\theta[j] - V_\theta[1,j]
+\end{eqnarray}
+
+For $\theta = 0$ and $\theta = \pi$, the ``ghost'' points are defined by:
+\begin{eqnarray} 
+\brc{l}{
+\varPhi[i, 0] = \varPhi[i, 1] \\
+C[i, 0] = C[i, 1] \\
+V_r[i, 0] = V_r[i, 1] \\
+V_\theta[i, 0] = 0
+} 
+\brc{l}{
+\varPhi[i, n_\theta+1] = \varPhi[i, n_\theta] \\
+C[i, n_\theta+1] = C[i, n_\theta] \\
+V_r[i, n_\theta+1] = V_r[i, n_\theta] \\
+V_\theta[i, n_\theta+1] = 0
+} 
+\end{eqnarray}
+
+Far away from the ion-exchange boundary ($r\rightarrow\infty$) are:
+\begin{eqnarray}
+\frac{\varPhi[n_r + 1, j] - \varPhi[n_r, j]}{\bar{r}_{n_r + 1} - \bar{r}_{n_r}} 
+ & = & -\beta \cos\bar{\theta}_j \\
+C[n_r + 1, j] & = & 1 \\
+V_r[n_r + 1, j] & = & -\cU \cos\bar{\theta}_j \\
+V_\theta[n_r + 1, j] & = & \cU \sin\theta_j
+\end{eqnarray}
+Since the actual grid is finite, $r_{n_r} = R_{max}$ will have an effect on the solution too.
+
+Note that $P$ has no boundary conditions -- so the pressure variable is defined 
+on the domain's interior.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Solver Design}
+\subsubsection{Newton Method}
+An operator $\cO$ is defined by its input vector $\bx$ and its output 
+$\by = \cO(\bx)$ is defined on a grid $\cG$.
+
+Using an algebra of operators, the composition of operators is well defined:
+\begin{eqnarray}
+(\cO_1 \circ \cO_2)(\bx) &=& \cO_1(\cO_2(\bx))
+\end{eqnarray}
+Note that the differentiation of composed operators is computed using chain rule:
+\begin{eqnarray}
+\bnabla(\cO_1 \circ \cO_2)(\bx) &=& \bnabla \cO_1(\cO_2(\bx)) \cdot \bnabla \cO_2(\bx)
+\end{eqnarray}
+
+Thus, in order to solve the equation $\cO(\bx) = \bzero$, a Newton step can 
+be computed by:
+\begin{eqnarray}
+\bzero = \cO(\bx_n + \Delta \bx_n) &\approx& \cO(\bx_n) + \bnabla \cO(\bx_n)\cdot\Delta\bx_n \\
+\bnabla \cO(\bx_n) \cdot \Delta \bx_n &=& -\cO(\bx_n) \\
+\bx_{n+1} &=& \bx_{n} + \Delta \bx_n \rightarrow
+\end{eqnarray}
+
+Therefore, in order to apply Newton method, the residual vector $\cO(\bx)$ and
+the gradient matrix of the operator $\bnabla \cO(\bx)$ are to be computed.
+Then, a sparse linear system is to be solved to yield current step vector $\Delta \bx$.
+
+When the method converges $\bx_n \rightarrow \bx_\infty$, 
+the convergence is quadratic:
+\begin{eqnarray}
+\|\bx_{n+1} - \bx_\infty\| \le c\|\bx_{n} - \bx_\infty\|^2
+\end{eqnarray}
+Thus, when the initial guess is close enough to the solution, the solver
+will converge in very few steps.
+
+
+\subsubsection{Operator Representation}
+System variable $\bx$ is defined as the concatenation $[\,\varPhi, C, V_r, V_\theta, P\,]$,
+taking values in the interior of the problem domain grid.
+
+Thus, each problem variable can be computed by applying an appropriate projection operator:
+\begin{eqnarray}
+X &=& \cP_X(\bx) \mbox{ for } X \in \left\{\varPhi, C, V_r, V_\theta, P\right\}
+\end{eqnarray}
+
+The extended variables $\tilde X$ (with ``ghost'' points values 
+from boundary conditions) are be computed, by applying the following non-linear operators:
+\begin{eqnarray}
+\tilde{\varPhi} &=& \cB_\varPhi(\varPhi, C; \beta) \\
+\tilde{C} &=& \cB_C(C, \varPhi) \\
+\tilde{V_r} &=& \cB_{V_r}(V_r; \cU) \\
+\tilde{V_\theta} &=& \cB_{V_\theta}(V_\theta, C, \varPhi; \cU, \gamma) \\
+\tilde{P} &=& P
+\end{eqnarray}
+
+The equations of the system (as described above) can be written as non-linear 
+operators acting on the extended variables:
+\begin{eqnarray}
+0 &=& \cE_I (\tilde\varPhi, \tilde C) \mbox{ -- conservation of charge} \\
+0 &=& \cE_J (\tilde C, \tilde\bV; \alpha) \mbox{ -- conservation of salt} \\
+0 &=& \cE_M (\tilde\bV) \mbox{ -- conservation of mass} \\
+0 &=& \cE_{\boldsymbol{p}} (\tilde\bV, \tilde P, \tilde\varPhi) 
+\mbox{ -- conservation of momentum}
+\end{eqnarray}
+The problem can be casted as solving $\cO(\bx) = \bzero$ for $\cO = \cE \circ \cB$,
+where $\cB$ is the ``ghost'' point extension operator and $\cE$ is the conservation
+equations operator.
+
 \subsubsection{Steady-state}
+After convergence, the ``ghost'' points values are updated using $\cB$,
+so the force $\tT \cdot \bn$ acting on the ion-exchanger surface
+can be computed.
+
+Due to symmetry considerations, the total force $\bF$ is 
+aligned with $\ui$ and it vanishes iff $\ui \cdot \bF = 0$.
+\begin{eqnarray}
+F_\imath = \ui \cdot \bF &=& \oint_\mathcal{S} \ui \cdot \tT \cdot \bnhat  dA = 
+\int_0^\pi f_\imath(\theta) \cdot 2\pi \sin\theta d\theta 
+\\ \nonumber 
+f_\imath &=& \pars{-P + 2\cD_r(V_r) + 
+\frac{1}{2}\pars{\cD_r(\varPhi)}^2 - \frac{1}{2r^2}\pars{\cD_\theta(\varPhi)}^2}\cos\theta 
+\\ \nonumber 
+&& -\pars{\cD_r(V_\theta) - \frac{V_\theta}{r}
++ \frac{1}{r}\cD_r(\varPhi) \cD_{\theta}(\varPhi)}\sin\theta
+\end{eqnarray}
+
+The integral above is approximated by 1D numerical quadrature, to yield 
+the total force $F_\imath$ as a function of steady-state drift velocity $\cU$.
+In order to solve for steady state, Secant method is applied to find
+the root of $F_\imath(\cU) = 0$, given the problem parameters $\alpha, \beta, \gamma$. 
+
 \subsubsection{Continuation}
+
+System steady-state drift velocity $\cU(\beta)$ is computed as a function 
+of the electric field magnitude for many values of $\beta$.
+Since the solution $\bx_\infty$ is continous in $\beta$, the results from previous 
+iteration are used as an initial solution $\bx_0$ for the problem of new $\beta$ 
+-- helping Newton Method convergence.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Solver Implementation}
