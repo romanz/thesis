@@ -15,7 +15,7 @@ The velocity and the pressure field are denoted by $\bv$ and $p$ respectively.
 \subsubsection{Nernst-Planck Equations}
 The ionic fluxes are given by ions' diffusion, electrostatic forces and ions' advection by the fluid:
 \begin{eqnarray}
- \nonumber \bj_\pm &=& -\bnabla c_+ \mp c_+ \bnabla \varphi + \alpha \bv c_\pm
+  \bj_\pm &=& -\bnabla c_+ \mp c_+ \bnabla \varphi + \alpha \bv c_\pm
 \end{eqnarray}
 Due to conservation of ions, the fluxes are divergence-free:
 \begin{eqnarray}
@@ -23,13 +23,13 @@ Due to conservation of ions, the fluxes are divergence-free:
 \end{eqnarray}
 These equation may be re-written by using the following transform:
 \begin{eqnarray}
- \nonumber c &=& \frac{c_+ + c_-}{2}\\
- \nonumber q &=& \frac{c_+ - c_-}{2}
+  c &=& \frac{c_+ + c_-}{2}\\
+  q &=& \frac{c_+ - c_-}{2}
 \end{eqnarray}
 Thus, salt and charge fluxes are defined by:
 \begin{eqnarray}
- \nonumber \bj &=& \frac{\bj_+ + \bj_-}{2} = -\bnabla c - q \bnabla \varphi + \alpha \bv c \\
- \nonumber \bi &=& \frac{\bj_+ - \bj_-}{2} = -\bnabla q - c \bnabla \varphi + \alpha \bv q
+  \bj &=& \frac{\bj_+ + \bj_-}{2} = -\bnabla c - q \bnabla \varphi + \alpha \bv c \\
+  \bi &=& \frac{\bj_+ - \bj_-}{2} = -\bnabla q - c \bnabla \varphi + \alpha \bv q
 \end{eqnarray}
 And are divergence-free as well:
 \begin{eqnarray}
@@ -79,8 +79,8 @@ except of a thin boundary layer (``Debye layer'') around the ion exchanger.
 Nernst-Planck equations above for the fluid bulk (outside
 the boundary layer) using bulk variables:
 \begin{eqnarray}
- \nonumber Q & = & 0 \\
- \nonumber C & = & C_+ = C_- \\
+  Q & = & 0 \\
+  C & = & C_+ = C_- \\
 \bJ &=& -\bnabla C + \alpha \bV C \\
 \bI &=& -C \bnabla \varPhi
 \end{eqnarray}
@@ -99,24 +99,24 @@ Stokes flow equations stay the same:
 \subsubsection{Debye-scale effective boundary conditions}
 We define the rescaled coordinate $\rho$ (normal to ion-exchanger surface), where $\delta \ll 1$:
 \begin{eqnarray}
- \nonumber \rho &=& \frac{r-1}{\delta} 
+  \rho &=& \frac{r-1}{\delta} 
 \end{eqnarray}
 Thus, the electric potential and the ionic concentrations are $O(1)$ at Debye layer ($r \approx 1$):
 \begin{eqnarray}
- \nonumber \varphi(\rho,\theta) &\sim& \varphi \\
- \nonumber c_\pm(\rho,\theta) &\sim& c_\pm \\
- \nonumber c(\rho,\theta) &\sim& c \\
- \nonumber q(\rho,\theta) &\sim& q
+  \varphi(\rho,\theta) &\sim& \varphi \\
+  c_\pm(\rho,\theta) &\sim& c_\pm \\
+  c(\rho,\theta) &\sim& c \\
+  q(\rho,\theta) &\sim& q
 \end{eqnarray}
 
 The radial fluxes at the Debye layer are $O(\delta^{-1})$, due to coordinate rescaling:
 \begin{eqnarray}
- \nonumber j_\pm(\rho, \theta) &\sim& \delta^{-1} j_\pm
+  j_\pm(\rho, \theta) &\sim& \delta^{-1} j_\pm
 \end{eqnarray}
 
 The pressure is $O(\delta^{-2})$, due to momentum balance equations:
 \begin{eqnarray}
- \nonumber p(\rho, \theta) &\sim& \delta^{-2} p
+  p(\rho, \theta) &\sim& \delta^{-2} p
 \end{eqnarray}
 
 The tangential velocity component is $O(1)$ and the radial one is $O(\delta)$.
@@ -124,10 +124,10 @@ The tangential velocity component is $O(1)$ and the radial one is $O(\delta)$.
 In order to match bulk $O(1)$ outer radial ionic flux, 
 the $O(\delta^{-1})$ inner ionic radial flux $j_\pm(\rho, \theta)$ must vanish:
 \begin{eqnarray}
- \nonumber -\deriv{c_\pm}{\rho} \mp c_\pm \deriv{\varphi}{\rho} &=& 0 \\
- \nonumber \deriv{\varphi}{\rho} \pm\frac{1}{c_\pm}\deriv{c_\pm}{\rho} &=& 0 \\
- \nonumber \pars{\varPhi - \varphi} \pm\pars{\log C_\pm - \log c_\pm} &=& 0 \\
- \nonumber \varPhi - \varphi \pm \log \frac{C_\pm}{c_\pm} &=& 0
+  -\deriv{c_\pm}{\rho} \mp c_\pm \deriv{\varphi}{\rho} &=& 0 \\
+  \deriv{\varphi}{\rho} \pm\frac{1}{c_\pm}\deriv{c_\pm}{\rho} &=& 0 \\
+  \pars{\varPhi - \varphi} \pm\pars{\log C_\pm - \log c_\pm} &=& 0 \\
+  \varPhi - \varphi \pm \log \frac{C_\pm}{c_\pm} &=& 0
 \end{eqnarray}
 This relation can be rewritten as Boltzmann distribution of ionic concentration,
 since $C_\pm|_{\rho\rightarrow\infty} = C$:
@@ -137,8 +137,8 @@ c_\pm = C \exp\left[\pm(\varPhi - \varphi)\right]
 
 Due to cation selectivity, $c_+|_{\rho=0} = \gamma$.
 \begin{eqnarray}
- \nonumber c_+ = \gamma &=& C \exp(\varPhi - \cV) \\
- \nonumber \cV + \log \gamma &=& \log C + \varPhi
+  c_+ = \gamma &=& C \exp(\varPhi - \cV) \\
+  \cV + \log \gamma &=& \log C + \varPhi
 \end{eqnarray}
 
 Denote zeta potential as the voltage drop between the particle surface and the end of
@@ -151,57 +151,117 @@ we assume that $\cV = -\log\gamma$, thus $\zeta = -\log\gamma-\varPhi$:
 
 Due to anion impermeability and radial flux continuity:
 \begin{eqnarray}
- \nonumber \br \cdot \bj_- = -\deriv{C_-}{r} + C_- \deriv{\varPhi}{r} &=& 0 \\
+  \br \cdot \bj_- = -\deriv{C_-}{r} + C_- \deriv{\varPhi}{r} &=& 0 \\
 -\deriv{C}{r} + C \deriv{\varPhi}{r} &=& 0
 \end{eqnarray}
 
 The leading-order electric potential in the Debye layer:
-\begin{eqnarray}  \nonumber
+\begin{eqnarray}  
 \deriv{^2 \varphi}{\rho^2} = -q = -\frac{c_+ - c_-}{2} = 
 -C\frac{\exp\left[+(\varPhi - \varphi)\right] - \exp\left[-(\varPhi - \varphi)\right]}{2} = 
 C \sinh(\varphi - \varPhi)
 \end{eqnarray}
+Denote $\psi = \varphi - \varPhi$, such that $\psi(0) = \zeta$ and 
+$\psi(\rho\rightarrow\infty) = 0$.
+\begin{eqnarray}  
+\deriv{^2 \psi}{\rho^2} &=& C \sinh(\psi) = 2 C \sinh{\frac{\psi}{2}}\cosh{\frac{\psi}{2}} 
+\\
+2\deriv{\psi}{\rho} \deriv{^2 \psi}{\rho^2} &=& 
+4 C \sinh{\frac{\psi}{2}}\cosh{\frac{\psi}{2}} \deriv{\psi}{\rho} 
+\\
+\deriv{}{\rho} \pars{\deriv{\psi}{\rho}}^2 &=& 
+\deriv{}{\rho} \pars{2 \sqrt{C} \sinh{\frac{\psi}{2}}}^2 
+\end{eqnarray}
+
 Integrating with respect to boundary condtions yields:
-\begin{eqnarray}  \nonumber
-\deriv{\varphi}{\rho} &=& -2\sqrt{C}\sinh\frac{\varphi - \varPhi}{2} \\  \nonumber
-\tanh\frac{\varPhi - \varphi}{4} &=& \tanh\frac{\varPhi}{4} \exp\left\{-\rho \sqrt{C}\right\}
+\begin{eqnarray}  
+\deriv{\psi}{\rho} &=& -2\sqrt{C}\sinh\frac{\psi}{2} \\  
+\pars{4\sinh\frac{\psi}{4}\cosh\frac{\psi}{4}}^{-1}\deriv{\psi}{\rho} &=& -\sqrt{C} \\  
+\frac{\pars{\tanh\frac{\psi}{4}}^{-1}}{4\cosh^2\frac{\psi}{4}}
+\deriv{\psi}{\rho} &=& -\sqrt{C} \\  
+\deriv{}{\rho}\pars{\log\tanh\frac{\psi}{4}} &=& \deriv{}{\rho}\pars{-\rho \sqrt{C}} \\
+\log\tanh\frac{\psi}{4} - \log\tanh\frac{\zeta}{4} &=& -\rho \sqrt{C} \\
+\psi &=& 4 \tanh^{-1}\pars{\tanh{\frac{\zeta}{4}} \cdot \exp\pars{-\rho \sqrt{C}}}
 \end{eqnarray}
 
 Leading-order radial momentum balance in the Debye layer yields:
-\begin{eqnarray} \nonumber
+\begin{eqnarray} 
 - \deriv{p}{\rho} + \deriv{\varphi}{\rho} \deriv{^2\varphi}{\rho^2} &=& 0
 \end{eqnarray}
 One integration yields:
-\begin{eqnarray} \nonumber
+\begin{eqnarray} 
 p &=& \frac{1}{2}\pars{\deriv{\varphi}{\rho}}^2
 \end{eqnarray}
 
 Leading-order tangential momentum balance in the Debye layer yields:
-\begin{eqnarray} \nonumber
-\deriv{^2 v_\theta}{\rho^2} - \deriv{p}{\theta} 
- + \deriv{\varphi}{\theta} \deriv{^2\varphi}{\rho^2} &=& 0
+\begin{eqnarray} 
+0 &=& \deriv{^2 v_\theta}{\rho^2} - \deriv{p}{\theta} 
+ + \deriv{\varphi}{\theta} \deriv{^2\varphi}{\rho^2} 
+\\
+\deriv{^2 v_\theta}{\rho^2} &=& \frac{1}{2}\deriv{}{\theta}\pars{\deriv{\psi}{\rho}}^2
+- \deriv{(\varPhi + \psi)}{\theta} \deriv{^2\psi}{\rho^2}  
+\\
+ &=& \deriv{}{\theta}\pars{2C \sinh^2\frac{\psi}{2}}
+- \deriv{\psi}{\theta} C \sinh\psi
+- \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
+\\
+ &=& \deriv{}{\theta}\pars{C \pars{\cosh\psi - 1}}
+- C \sinh\psi \deriv{\psi}{\theta}
+- \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
+\\
+ &=& \deriv{C}{\theta} \pars{\cosh\psi - 1}
+- \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
+ = \deriv{C}{\theta} \pars{2 \sinh^2 \frac{\psi}{2}}
+- \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
+\\
+ &=& -\deriv{C}{\theta} \frac{2}{\sqrt{C}} \pars{\half \sinh \frac{\psi}{2} \deriv{\psi}{\rho}}
+- \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
+ = -\deriv{C}{\theta} \frac{2}{\sqrt{C}} \deriv{}{\rho}\pars{\cosh \frac{\psi}{2}}
+- \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
 \end{eqnarray}
-By integrating from $\rho = 0$ to $r \rightarrow \infty$, we have Dukhin-Derjaguin slip formula
-for tangential velocity component $V_\theta$ (where as the radial component is $V_r = 0$):
-\begin{eqnarray} \nonumber
-V_\theta &=& \zeta \cdot \deriv{\varPhi}{\theta} + 
+By integrating from specific $\rho$ to $\rho \rightarrow \infty$:
+\begin{eqnarray}
+\deriv{v_\theta}{\rho} &=& -\deriv{C}{\theta} \frac{2}{\sqrt{C}} 
+\pars{\cosh \frac{\psi}{2} - 1} - \deriv{\varPhi}{\theta} \deriv{\psi}{\rho}   
+= -\deriv{C}{\theta} \frac{4}{\sqrt{C}} \sinh^2 \frac{\psi}{4} 
+  - \deriv{\varPhi}{\theta} \deriv{\psi}{\rho}   
+\end{eqnarray}
+Note that:
+\begin{eqnarray}
+\deriv{\psi}{\rho} &=& -2\sqrt{C}\sinh\frac{\psi}{2} = 
+                       -4\sqrt{C}\sinh\frac{\psi}{4}\cosh\frac{\psi}{4}
+\\
+-4\sinh\frac{\psi}{4} &=& \frac{1}{\sqrt{C} \cosh\frac{\psi}{4}} \deriv{\psi}{\rho}
+\end{eqnarray}
+Thus:
+\begin{eqnarray}
+\deriv{v_\theta}{\rho} &=& 
+  \pars{\deriv{C}{\theta} \frac{1}{C}} \cdot
+  \pars{\frac{\sinh\frac{\psi}{4}}{\cosh\frac{\psi}{4}} \deriv{\psi}{\rho}}
+  - \deriv{\varPhi}{\theta} \deriv{\psi}{\rho}
+=  4\deriv{}{\rho} \pars{\log\cosh\frac{\psi}{4}} \deriv{}{\theta} \log C
+  - \deriv{\psi}{\rho} \deriv{\varPhi}{\theta}
+\end{eqnarray}
+
+By integrating from $\rho = 0$ to $\rho \rightarrow \infty$, 
+we have Dukhin-Derjaguin slip formula for tangential velocity component $V_\theta$ 
+(where the radial component is $V_r = 0$):
+\begin{eqnarray} 
+V_\theta &=& \zeta \cdot \deriv{\varPhi}{\theta} -
+      4\log\cosh \frac{\zeta}{4} \cdot \deriv{}{\theta} \log C 
+\\
+&=& \zeta \cdot \deriv{\varPhi}{\theta} + 
       2\log\pars{1 - \tanh^2 \frac{\zeta}{4}} \cdot \deriv{}{\theta} \log C 
- = \zeta \cdot \deriv{\varPhi}{\theta} -
-      4\log\cosh \frac{\zeta}{4} \cdot \deriv{}{\theta} \log C
 \end{eqnarray}
-where $\zeta = \cV - \varPhi = -\log\gamma - \varPhi$.
+where $\zeta = \cV - \varPhi$.
 
-Note that due to boundary condition, $\log C = -\varPhi$, thus:
-\begin{eqnarray} \nonumber
-V_\theta &=& \zeta \cdot \deriv{\varPhi}{\theta} + 
-      4\log\cosh \frac{\zeta}{4} \cdot \deriv{\varPhi}{\theta} = 
-4\log\pars{\frac{1 + \exp\left\{\zeta/2\right\}}{2}} \cdot \deriv{\zeta}{\theta}
-\end{eqnarray}
-
-Since $V_r = 0$ on the boundary, the slip condition can be written as:
+Since $V_r = 0$ on the boundary, the slip condition can be written using surface
+gradient operator:
 \begin{eqnarray}
 \bV &=& 
-4\log\pars{\frac{1 + \exp\left\{\zeta/2\right\}}{2}} \cdot \bnabla_S \zeta
+\zeta \cdot \bnabla_\mathcal{S} \varPhi 
++ 2\log\pars{1-\tanh^2\frac{\zeta}{4}} \cdot \bnabla_\mathcal{S} \log C \\
+\bnabla_\mathcal{S} &=& \pars{\tI - \bn\bn} \bnabla
 \end{eqnarray}
 
 

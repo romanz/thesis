@@ -1,4 +1,4 @@
-\section{Numerics}
+\section{Numerical Solver}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -135,8 +135,8 @@ Salt flux are discretized on grid cells' boundaries
 \begin{eqnarray}
 J_r &=& -\cD_r(C) + \alpha V_r \cdot \mathcal{U}^{\bV}_r (C) \\
 J_\theta &=& -\frac{\cD_\theta(C)}{r} + \alpha V_\theta \cdot \mathcal{U}^{\bV}_\theta (C) \\
-\nonumber \mathcal{U}^{\bV}_r(C)[i,j] &=& C\left[i-\frac{\sign(V_r)}{2}, j\right] \\
-\nonumber \mathcal{U}^{\bV}_\theta(C)[i,j] &=& C\left[i, j-\frac{\sign(V_\theta)}{2}\right] 
+ \mathcal{U}^{\bV}_r(C)[i,j] &=& C\left[i-\frac{\sign(V_r)}{2}, j\right] \\
+ \mathcal{U}^{\bV}_\theta(C)[i,j] &=& C\left[i, j-\frac{\sign(V_\theta)}{2}\right] 
 \end{eqnarray}
 
 Mass flux $\bV$ is discretized on grid cells boundaries, 
@@ -153,7 +153,6 @@ F_\theta &=& -\frac{\cD_\theta(P)}{r}
 		  + \cL(V_\theta) - \frac{F_\theta}{r^2 \sin^2\theta} 
 		  + \frac{2}{r^2} \cI_\theta(\cD_\theta(F_r))
 		  + \frac{\cD_\theta(\varPhi)}{r} \cdot \cI_\theta(\cL(\varPhi)) \\
-\nonumber
 \cL(f) &=& \frac{1}{r^2}\cD_r\pars{\cD_r(f) r^2} + 
 \frac{1}{r^2 \sin\theta} \cD_\theta\pars{\cD_\theta(f) \cdot \sin\theta}
 \end{eqnarray}
@@ -173,20 +172,20 @@ The boundary conditions at the ion-exchange boundary ($r=1$) are:
 V_r &=& 0 \\
 V_\theta &=& 4\log\pars{\frac{1 + \exp\left\{\cI_\theta(\zeta)/2\right\}}{2}} \cdot 
 			\cD_\theta(\zeta) \\
- \nonumber \zeta &=& - \log \gamma - \cI_r(\varPhi)
+  \zeta &=& - \log \gamma - \cI_r(\varPhi)
 \end{eqnarray}
 The equations are discretized by using ``ghost'' points, outside the interior of the domain:
 \begin{eqnarray}
- \nonumber \frac{\varPhi[0,j] + \varPhi[1,j]}{2} &=& 
+  \frac{\varPhi[0,j] + \varPhi[1,j]}{2} &=& 
 	-\frac{\log C[0,j] + \log C[1,j]}{2} \\
- \nonumber \frac{\varPhi[1,j] - \varPhi[0,j]}{\Delta r} &=& 
+  \frac{\varPhi[1,j] - \varPhi[0,j]}{\Delta r} &=& 
 	\frac{\log C[1,j] - \log C[0,j]}{\Delta r} 
 \end{eqnarray}
 By adding and subtracting the equations, we have:
 \begin{eqnarray}
 \varPhi[0,j] &=& -\log\brcs{C[1,j]} \\
 C[0,j] &=& \exp\brcs{-\varPhi[1,j]} \\
- \nonumber \zeta[j] &=& \cV -\frac{\varPhi[0,j] + \varPhi[1,j]}{2} 
+  \zeta[j] &=& \cV -\frac{\varPhi[0,j] + \varPhi[1,j]}{2} 
                      = -\log\gamma -\frac{\varPhi[0,j] + \varPhi[1,j]}{2}
 \end{eqnarray}
 The slipping conditions can be written by:
@@ -195,7 +194,7 @@ V_r[0,j] &=& 0 \\
 \frac{V_\theta[0,j] + V_\theta[1,j]}{2} &=& V_\theta[j] = 
 4\log\pars{\frac{1 + \exp\left\{\frac{1}{2}\frac{\zeta[j] + \zeta[j+1]}{2}\right\}}{2}} 
 \cdot \frac{\zeta[j+1] - \zeta[j]}{\bar{\theta}_{j+1} - \bar{\theta}_{j}} \\
- \nonumber V_\theta[0,j] &=& 2 V_\theta[j] - V_\theta[1,j]
+  V_\theta[0,j] &=& 2 V_\theta[j] - V_\theta[1,j]
 \end{eqnarray}
 
 For $\theta = 0$ and $\theta = \pi$, the ``ghost'' points are defined by:
@@ -231,7 +230,7 @@ on the domain's interior.
 \subsection{Solver Design}
 \subsubsection{Newton Method}
 An operator $\cO$ is defined by its input vector $\bx$ and its output 
-$\by = \cO(\bx)$ is defined on a grid $\cG$.
+$\by = \cO(\bx)$.
 
 Using an algebra of operators, the composition of operators is well defined:
 \begin{eqnarray}
@@ -247,7 +246,7 @@ be computed by:
 \begin{eqnarray}
 \bzero = \cO(\bx_n + \Delta \bx_n) &\approx& \cO(\bx_n) + \bnabla \cO(\bx_n)\cdot\Delta\bx_n \\
 \bnabla \cO(\bx_n) \cdot \Delta \bx_n &=& -\cO(\bx_n) \\
-\bx_{n+1} &=& \bx_{n} + \Delta \bx_n \rightarrow
+\bx_{n+1} &=& \bx_{n} + \Delta \bx_n 
 \end{eqnarray}
 
 Therefore, in order to apply Newton method, the residual vector $\cO(\bx)$ and
@@ -257,7 +256,7 @@ Then, a sparse linear system is to be solved to yield current step vector $\Delt
 When the method converges $\bx_n \rightarrow \bx_\infty$, 
 the convergence is quadratic:
 \begin{eqnarray}
-\|\bx_{n+1} - \bx_\infty\| \le c\|\bx_{n} - \bx_\infty\|^2
+\|\bx_{n+1} - \bx_\infty\| \le \|\bx_{n} - \bx_\infty\|^2
 \end{eqnarray}
 Thus, when the initial guess is close enough to the solution, the solver
 will converge in very few steps.
@@ -282,18 +281,12 @@ from boundary conditions) are be computed, by applying the following non-linear 
 \tilde{P} &=& P
 \end{eqnarray}
 
-The equations of the system (as described above) can be written as non-linear 
-operators acting on the extended variables:
-\begin{eqnarray}
-0 &=& \cE_I (\tilde\varPhi, \tilde C) \mbox{ -- conservation of charge} \\
-0 &=& \cE_J (\tilde C, \tilde\bV; \alpha) \mbox{ -- conservation of salt} \\
-0 &=& \cE_M (\tilde\bV) \mbox{ -- conservation of mass} \\
-0 &=& \cE_{\boldsymbol{p}} (\tilde\bV, \tilde P, \tilde\varPhi) 
-\mbox{ -- conservation of momentum}
-\end{eqnarray}
+The concatenated equations of the system (as described above) can be written 
+as a non-linear operator $\cE(\tilde\bx) = \bzero$ acting on the extended variables $\tilde\bx = \cB(\bx)$:
 The problem can be casted as solving $\cO(\bx) = \bzero$ for $\cO = \cE \circ \cB$,
-where $\cB$ is the ``ghost'' point extension operator and $\cE$ is the conservation
-equations operator.
+where $\cB$ is the ``ghost'' point extension operator (derived using boundary conditions) 
+and $\cE$ is the conservation equations operator (derived by concatenation of the system
+equations).
 
 \subsubsection{Steady-state}
 After convergence, the ``ghost'' points values are updated using $\cB$,
@@ -305,27 +298,129 @@ aligned with $\ui$ and it vanishes iff $\ui \cdot \bF = 0$.
 \begin{eqnarray}
 F_\imath = \ui \cdot \bF &=& \oint_\mathcal{S} \ui \cdot \tT \cdot \bnhat  dA = 
 \int_0^\pi f_\imath(\theta) \cdot 2\pi \sin\theta d\theta 
-\\ \nonumber 
+\\  
+f_\imath &=& \imath \cdot \tT \cdot \bnhat
+\\  
 f_\imath &=& \pars{-P + 2\cD_r(V_r) + 
 \frac{1}{2}\pars{\cD_r(\varPhi)}^2 - \frac{1}{2r^2}\pars{\cD_\theta(\varPhi)}^2}\cos\theta 
-\\ \nonumber 
+\\  
 && -\pars{\cD_r(V_\theta) - \frac{V_\theta}{r}
-+ \frac{1}{r}\cD_r(\varPhi) \cD_{\theta}(\varPhi)}\sin\theta
++ \frac{1}{r}\cD_r(\varPhi) \cD_{\theta}(\varPhi)}\sin\theta \\
+ \mathcal{S} &=& \{\br : \|\br\|_2 = 1\}
 \end{eqnarray}
 
 The integral above is approximated by 1D numerical quadrature, to yield 
-the total force $F_\imath$ as a function of steady-state drift velocity $\cU$.
-In order to solve for steady state, Secant method is applied to find
-the root of $F_\imath(\cU) = 0$, given the problem parameters $\alpha, \beta, \gamma$. 
+the total force $F_\imath$ as a function of the drift velocity $\cU$.
+
+Since the goal is to find steady-state solution, $F_\imath(\cU)$ is required to be zero --
+and the appropriate $\cU$ is found by 1D root-finding algorithm.
 
 \subsubsection{Continuation}
 
 System steady-state drift velocity $\cU(\beta)$ is computed as a function 
-of the electric field magnitude for many values of $\beta$.
-Since the solution $\bx_\infty$ is continous in $\beta$, the results from previous 
-iteration are used as an initial solution $\bx_0$ for the problem of new $\beta$ 
--- helping Newton Method convergence.
-
+of the electric field magnitude for several values of $\beta$.
+Since the solution $\bx_\infty$ is continous in $\beta$ and $\cU$, 
+the result of the current iteration is used as an initial solution $\bx_0$ for the problem 
+of the next iteration -- helping the convergence of the iterative solver in use.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Solver Implementation}
+
+Object-Oriented Design methodology is used to for solver implementation.
+MATLAB programming language is chosen due to strong numerical capabilities
+and high-level language features.
+
+\subsubsection{Operator Interface}
+The base \verb|Operator| interface is defined by 
+supporting the computation of a residual/result vector \verb|op.res()|
+and a gradient matrix \verb|op.grad()|.
+This interface is implemented in various operators classes,
+which are used to constuct $\cO = \cE \circ \cB$ and to apply Newton method
+to the problem by computing the residual and the gradient automatically.
+Each such operator may be defined using other operators, so its residual
+and gradient are computed recursively.
+
+\subsubsection{Unary operators}
+\paragraph{Linear operator}
+If $\cO$ is linear, it can be represented by a matrix $L$, such that:
+\begin{eqnarray}
+\cO(\bx) &=& L \bx \\
+\bnabla\cO &=& L 
+\end{eqnarray}
+Note that finite difference $\cD$, interpolation $\cI$ and 
+upwind selection $\mathcal{U}$ operators
+can be implemented as linear sparse operators, by constructing 
+an appropriate sparse matrix $L$, having $O(\dim \bx)$ non-zeroes) 
+
+\paragraph{Pointwise scalar function}
+Let $f: \R \rightarrow \R$ be a differentiable 1D function, whose derivative is
+denoted by $f': \R \rightarrow \R$. The operator $\cF$ can be defined to
+represent pointwise application of $f$:
+\begin{eqnarray}
+\cF(\bx) &=& [f(x_1); \ldots; f(x_n)] \\
+\bnabla\cF(\bx) &=& \diag(f'(x_1), \ldots, f'(x_n))
+\end{eqnarray}
+$f$ is defined and differentiated automatically using MATLAB symbolic toolbox.
+
+\paragraph{Constant value}
+A constant operator $\mathcal{C}$ is defined as having constant vector value $\bc$ 
+(that does not depend on $\bx$):
+\begin{eqnarray}
+\mathcal{C}(\bx) &=& \bc \\
+\bnabla\mathcal{C} &=& \bzero
+\end{eqnarray}
+
+\subsubsection{Binary operators}
+Let $\cO_1$ and $\cO_2$ be two operators, so their pointwise addition, subtraction
+and multiplication are defined as follows:
+\begin{eqnarray}
+(\cO_1 \pm \cO_2)(\bx) &=& \cO_1)(\bx) \pm \cO_2(\bx) \\
+\bnabla (\cO_1 \pm \cO_2)(\bx)   &=& \bnabla\cO_1(\bx) \pm \bnabla\cO_2(\bx) \\
+(\cO_1 \cdot \cO_2)(\bx) &=& \diag(\diag(\cO_1(\bx)) \cdot \diag(\cO_2(\bx))) \\
+\bnabla (\cO_1 \cdot \cO_2)(\bx) &=& \diag(\cO_2(\bx)) \bnabla\cO_1(\bx) 
+                                  + \diag(\cO_1(\bx)) \bnabla\cO_2(\bx)
+\end{eqnarray}
+
+\subsubsection{N-ary operators}
+Given $N$ operators $\{\cO_i\}_{i=1}^N$, their concatenation $\cO$ is defined as:
+\begin{eqnarray}
+\cO(\bx) &=& [\cO_1(\bx); \ldots; \cO_N(\bx)] \\
+(\bnabla\cO)(\bx) &=& [(\bnabla\cO_1)(\bx); \ldots; (\bnabla\cO_N)(\bx)]
+\end{eqnarray}
+
+\subsubsection{Iterative Newton solver}
+Given an initial solution $\bx_0$, we apply the following algorithm 
+until convergence ($\|\Delta \bx\| < \eps$):
+\begin{enumerate}
+\item Update the system: $\verb|op| = \verb|System|(\bx_{n})$
+\item Compute the gradient: $\boldsymbol{A}_n = \verb|op.grad()|$
+\item Compute the right-hand side: $\boldsymbol{b}_n = \verb|-op.res()|$
+\item Solve sparse linear system: $\boldsymbol{A}_n \Delta \bx_n = \boldsymbol{b}_n$
+\item Update solution: $\bx_{n+1} = \bx_{n} + \Delta \bx_{n}$
+\end{enumerate}
+
+\subsubsection{Total force integration -- $F_\imath$}
+After the solver converges ($\bx_n \rightarrow \bx_\infty$), 
+the ``ghost'' points values are computed by applying $\cB$ and
+solving for zero force  $\brhat$ component on $r=1$ boundary
+
+$F_\imath$ is computed using mid-point quadrature method:
+\begin{eqnarray}
+F_\imath &=& \sum_{i=1}^{n_\theta} f(\bar\theta_i) \cdot 
+              2 \pi \sin\bar\theta_i \cdot (\theta_i - \theta_{i-1})
+\end{eqnarray}
+
+\subsubsection{Steady state drift velocity -- $\cU$}
+In steady state, the force acting on the particle $F_\imath$ shoud vanish.
+This yields an equation on $\cU$:
+\begin{eqnarray}
+F_\imath(\cU) &=& 0
+\end{eqnarray}
+This equation can be solved using 1D root finding algorithm, e.g. Secant method:
+\begin{eqnarray}
+\cU_{n+1} = \frac{F_\imath(\cU_{n})\cU_{n-1} - F_\imath(\cU_{n-1})\cU_{n}}
+{F_\imath(\cU_{n}) - F_\imath(\cU_{n-1})} \rightarrow \cU_\infty
+\end{eqnarray}
+The result $\cU_\infty$ is the 
+steady state particle drift velocity for the electric field $\beta$.
+
