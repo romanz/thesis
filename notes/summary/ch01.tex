@@ -5,17 +5,20 @@ The experiment consists of applying an electic field and measuring the drift vel
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Micro-scale phenomena}
-Denote positive and negative ionic concentration by $c_+$ and $c_-$ respectively.
-The respective fluxes are denoted by $\bj_+$ and $\bj_-$.
+
+\subsubsection{Dimensionless Notation}
+Positive and negative ionic concentrations are denoted by $c_+$ and $c_-$ respectively.
+
+The respective ionic fluxes are denoted by $\bj_+$ and $\bj_-$.
 
 The electrostatic potential is denoted by $\varphi$. 
 
-The velocity and the pressure field are denoted by $\bv$ and $p$ respectively.
+The fluid velocity and the pressure field are denoted by $\bv$ and $p$ respectively.
 
 \subsubsection{Nernst-Planck Equations}
 The ionic fluxes are given by ions' diffusion, electrostatic forces and ions' advection by the fluid:
 \begin{eqnarray}
-  \bj_\pm &=& -\bnabla c_+ \mp c_+ \bnabla \varphi + \alpha \bv c_\pm
+  \bj_\pm &=& -\bnabla c_\pm \mp c_\pm \bnabla \varphi + \alpha \bv c_\pm
 \end{eqnarray}
 Due to conservation of ions, the fluxes are divergence-free:
 \begin{eqnarray}
@@ -71,9 +74,10 @@ c_+ & = & \gamma \\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Separation of scales}
-Due to strong electrostatic forces, 
+When $\delta \ll 1$, 
 most of the fluid remains electroneutral ($c_+ \approx c_-$), 
-except of a thin boundary layer (``Debye layer'') around the ion exchanger. 
+except of a thin boundary layer of width $O(\delta)$ 
+, also known as ``Debye layer'', around the ion exchanger. 
 
 \subsubsection  {Bulk-scale equations}
 Nernst-Planck equations above for the fluid bulk (outside
@@ -85,12 +89,21 @@ the boundary layer) using bulk variables:
 \bI &=& -C \bnabla \varPhi
 \end{eqnarray}
 Since the flow is incompressible ($\bnabla \cdot V = 0$), 
-ion conservation results in the following equations:
+ion conservation results in the following equations.
+
+\begin{enumerate}
+\item Salt conservation macroscale equation:
 \begin{eqnarray}
-0 = \bnabla \cdot \bJ &\Rightarrow& \Laplacian C - \alpha \bV \cdot \bnabla C = 0 \\
-0 = \bnabla \cdot \bI &\Rightarrow& \bnabla \cdot \pars{ C \bnabla \varPhi } = 0
+\bnabla \cdot \bJ = \Laplacian C - \alpha \bV \cdot \bnabla C = 0 
 \end{eqnarray}
-Stokes flow equations stay the same:
+
+\item Charge conservation macroscale equation:
+\begin{eqnarray}
+\bnabla \cdot \bI = \bnabla \cdot \pars{ C \bnabla \varPhi } = 0
+\end{eqnarray}
+\end{enumerate}
+
+Stokes flow equations have the same form:
 \begin{eqnarray}
 \bnabla \cdot \bV &=& 0 \\
 \Laplacian \bV - \bnabla P + \bnabla \varPhi \Laplacian \varPhi &=& 0
@@ -122,7 +135,7 @@ The pressure is $O(\delta^{-2})$, due to momentum balance equations:
 The tangential velocity component is $O(1)$ and the radial one is $O(\delta)$.
 
 In order to match bulk $O(1)$ outer radial ionic flux, 
-the $O(\delta^{-1})$ inner ionic radial flux $j_\pm(\rho, \theta)$ must vanish:
+the $O(\delta^{-1})$ term of the inner ionic radial flux $j_\pm(\rho, \theta)$ must vanish:
 \begin{eqnarray}
   -\deriv{c_\pm}{\rho} \mp c_\pm \deriv{\varphi}{\rho} &=& 0 \\
   \deriv{\varphi}{\rho} \pm\frac{1}{c_\pm}\deriv{c_\pm}{\rho} &=& 0 \\
@@ -146,13 +159,14 @@ the boundary layer, $\zeta = \cV - \varPhi$.
 Without loss of generality, 
 we assume that $\cV = -\log\gamma$, thus $\zeta = -\log\gamma-\varPhi$:
 \begin{eqnarray}
-\varPhi &=& -\log C
+\varPhi + \log C &=& 0
 \end{eqnarray}
 
 Due to anion impermeability and radial flux continuity:
 \begin{eqnarray}
-  \br \cdot \bj_- = -\deriv{C_-}{r} + C_- \deriv{\varPhi}{r} &=& 0 \\
--\deriv{C}{r} + C \deriv{\varPhi}{r} &=& 0
+  \br \cdot \bj_- = -\deriv{c_-}{r} + c_- \deriv{\varPhi}{r} &=& 0 \\
+-\deriv{C}{r} + C \deriv{\varPhi}{r} &=& 0 \\
+\deriv{}{r}\pars{\varPhi - \log C} &=& 0
 \end{eqnarray}
 
 The leading-order electric potential in the Debye layer:
@@ -161,7 +175,7 @@ The leading-order electric potential in the Debye layer:
 -C\frac{\exp\left[+(\varPhi - \varphi)\right] - \exp\left[-(\varPhi - \varphi)\right]}{2} = 
 C \sinh(\varphi - \varPhi)
 \end{eqnarray}
-Denote $\psi = \varphi - \varPhi$, such that $\psi(0) = \zeta$ and 
+Denote $\psi = \varphi - \varPhi$, so that $\psi(0) = \cV - \varPhi = \zeta$ and 
 $\psi(\rho\rightarrow\infty) = 0$.
 \begin{eqnarray}  
 \deriv{^2 \psi}{\rho^2} &=& C \sinh(\psi) = 2 C \sinh{\frac{\psi}{2}}\cosh{\frac{\psi}{2}} 
@@ -179,9 +193,14 @@ Integrating with respect to boundary condtions yields:
 \pars{4\sinh\frac{\psi}{4}\cosh\frac{\psi}{4}}^{-1}\deriv{\psi}{\rho} &=& -\sqrt{C} \\  
 \frac{\pars{\tanh\frac{\psi}{4}}^{-1}}{4\cosh^2\frac{\psi}{4}}
 \deriv{\psi}{\rho} &=& -\sqrt{C} \\  
-\deriv{}{\rho}\pars{\log\tanh\frac{\psi}{4}} &=& \deriv{}{\rho}\pars{-\rho \sqrt{C}} \\
+\deriv{}{\rho}\pars{\log\tanh\frac{\psi}{4}} &=& \deriv{}{\rho}\pars{-\rho \sqrt{C}} 
+\end{eqnarray}
+
+Integrating with respect to boundary condtions yields:
+\begin{eqnarray}
 \log\tanh\frac{\psi}{4} - \log\tanh\frac{\zeta}{4} &=& -\rho \sqrt{C} \\
-\psi &=& 4 \tanh^{-1}\pars{\tanh{\frac{\zeta}{4}} \cdot \exp\pars{-\rho \sqrt{C}}}
+\psi = \varphi - \varPhi &=& 
+4 \tanh^{-1}\pars{\tanh{\frac{\zeta}{4}} \cdot \exp\pars{-\rho \sqrt{C}}}
 \end{eqnarray}
 
 Leading-order radial momentum balance in the Debye layer yields:
@@ -190,7 +209,7 @@ Leading-order radial momentum balance in the Debye layer yields:
 \end{eqnarray}
 One integration yields:
 \begin{eqnarray} 
-p &=& \frac{1}{2}\pars{\deriv{\varphi}{\rho}}^2
+p &=& \frac{1}{2}\pars{\deriv{\varphi}{\rho}}^2 = \frac{1}{2}\pars{\deriv{\psi}{\rho}}^2
 \end{eqnarray}
 
 Leading-order tangential momentum balance in the Debye layer yields:
@@ -199,7 +218,7 @@ Leading-order tangential momentum balance in the Debye layer yields:
  + \deriv{\varphi}{\theta} \deriv{^2\varphi}{\rho^2} 
 \\
 \deriv{^2 v_\theta}{\rho^2} &=& \frac{1}{2}\deriv{}{\theta}\pars{\deriv{\psi}{\rho}}^2
-- \deriv{(\varPhi + \psi)}{\theta} \deriv{^2\psi}{\rho^2}  
+- \deriv{(\psi + \varPhi)}{\theta} \deriv{^2\psi}{\rho^2}  
 \\
  &=& \deriv{}{\theta}\pars{2C \sinh^2\frac{\psi}{2}}
 - \deriv{\psi}{\theta} C \sinh\psi
@@ -219,7 +238,7 @@ Leading-order tangential momentum balance in the Debye layer yields:
  = -\deriv{C}{\theta} \frac{2}{\sqrt{C}} \deriv{}{\rho}\pars{\cosh \frac{\psi}{2}}
 - \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
 \end{eqnarray}
-By integrating from specific $\rho$ to $\rho \rightarrow \infty$:
+By integrating from specific $\rho$ to $\rho \rightarrow \infty$ (where $\psi = 0$):
 \begin{eqnarray}
 \deriv{v_\theta}{\rho} &=& -\deriv{C}{\theta} \frac{2}{\sqrt{C}} 
 \pars{\cosh \frac{\psi}{2} - 1} - \deriv{\varPhi}{\theta} \deriv{\psi}{\rho}   
@@ -241,6 +260,10 @@ Thus:
   - \deriv{\varPhi}{\theta} \deriv{\psi}{\rho}
 =  4\deriv{}{\rho} \pars{\log\cosh\frac{\psi}{4}} \deriv{}{\theta} \log C
   - \deriv{\psi}{\rho} \deriv{\varPhi}{\theta}
+\\
+\deriv{v_\theta}{\rho} &=& 
+\deriv{}{\rho} \pars{ 4\log\cosh\frac{\psi}{4} \deriv{}{\theta} \log C
+  - \psi \deriv{\varPhi}{\theta} }
 \end{eqnarray}
 
 By integrating from $\rho = 0$ to $\rho \rightarrow \infty$, 
