@@ -1,7 +1,56 @@
 \section{Physics}
-Electrokinetic phenomena is described by the equations described below.
-An ion-exchanger is described by the chemical kinetics at its boundary.
-The experiment consists of applying an electic field and measuring the drift velocity of the particles.
+\subsection{Introduction}
+Electrokinetic theory describes the dynamics of charged particles
+in ionic fluids \cite{kirby2010book}. When a particle acquires surface charge, a layer
+of ions of opposite charge is attracted to the surface via
+electric forces, creating a double-layer structure around the
+particle (see Figure \ref{fig:EDL}). This structure, called
+``Debye layer'', electrically screens the surface charge, thus
+creating a potential difference between the particle and the outer
+layer of the fluid bulk.
+\begin{figure}[htbp]
+\begin{framed}
+    \begin{center}
+        \includegraphics[width=0.25\textwidth]
+            {figs/ElectricDoubleLayer.eps}
+        \caption{Schematic structure of the double layer:
+        (1) particle surface, (2) Debye layer and (3) fluid bulk.
+        If the particle surface has positive (blue) surface charge,
+        it attracts negative (red) ions from the fluid making the
+        Debye layer negatively charged (as opposed to the rest of
+        the fluid bulk, which is electrically neutral).
+        Zeta potential is defined as the voltage drop on (2).}
+        \label{fig:EDL}
+    \end{center}
+\end{framed}
+\end{figure}
+In cases where the layer width is much smaller than the particle's
+size, an analytical asymptotic solution for the Debye layer
+dynamics can be found \cite{yariv2010asymptotic}.
+
+The partial differential equations that descibe the system dynamics
+are coupled and non-linear. 
+In general, they have no analytic solution. Moreover,
+any numerical solver must handle the scale disparity caused by the
+Debye layer width being much smaller than the particle's size. A
+closed-form linear asymptotic solution has been developed for
+spherical ion-exchanging particles and weak electric field in an
+axisymmetric setting \cite{yariv2010migration} but it is hard to extend this
+analytic solution to more general systems. Once the electric field
+becomes stronger, significant nonlinear phenomena are expected.
+This interesting regime has not yet been explored.
+
+Recently, it has been conceived that such type of dynamics
+can be very useful in transporting and manipulating micro-
+and nanoscale objects for many nanotechnology applications,
+such as the self-assembly of superstructures, roving sensors, 
+drug-delivery systems and useful nanomachinery 
+\cite{pumera2010electrochemically,paxton2004catalytic,howse2007self}.
+However, since the analytic model for these electrokinetic
+phenomena has no closed-form analytic solution, a numerical
+solver has to be developed.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Micro-scale phenomena}
@@ -63,8 +112,10 @@ and uniform ionic concentrations:
 c_\pm &\rightarrow& 1
 \end{eqnarray}
 
-We consider a spherical particle. At its surface ($r=1$ with normal $\bn = \brhat$), 
-we have zero slip, anion impermeability, cation selectivity and particle's conductance:
+We consider a spherical ion-exchanger. 
+At its surface $\mathcal{S}$ (defined at $r=1$ with normal $\bn = \brhat$), 
+we have zero slip, anion impermeability, cation selectivity 
+and particle's conductance:
 \begin{eqnarray}
 \bv & = & \bzero \\
 \bn \cdot \bj_- & = & 0 \\
@@ -76,8 +127,8 @@ c_+ & = & \gamma \\
 \subsection{Separation of scales}
 When $\delta \ll 1$, 
 most of the fluid remains electroneutral ($c_+ \approx c_-$), 
-except of a thin boundary layer of width $O(\delta)$ 
-, also known as ``Debye layer'', around the ion exchanger. 
+except of a thin boundary layer of width $O(\delta)$, 
+also known as ``Debye layer'', around the ion exchanger. 
 
 \subsubsection  {Bulk-scale equations}
 Nernst-Planck equations above for the fluid bulk (outside
@@ -142,10 +193,10 @@ the $O(\delta^{-1})$ term of the inner ionic radial flux $j_\pm(\rho, \theta)$ m
   \pars{\varPhi - \varphi} \pm\pars{\log C_\pm - \log c_\pm} &=& 0 \\
   \varPhi - \varphi \pm \log \frac{C_\pm}{c_\pm} &=& 0
 \end{eqnarray}
-This relation can be rewritten as Boltzmann distribution of ionic concentration,
-since $C_\pm|_{\rho\rightarrow\infty} = C$:
+This relation can be rewritten as Boltzmann distribution of ionic concentration:
 \begin{eqnarray}
-c_\pm = C \exp\left[\pm(\varPhi - \varphi)\right]
+\lim_{\rho\rightarrow\infty} c_\pm &=& C \\
+c_\pm &=& C \exp\left[\pm(\varPhi - \varphi)\right]
 \end{eqnarray}
 
 Due to cation selectivity, $c_+|_{\rho=0} = \gamma$.
@@ -156,6 +207,7 @@ Due to cation selectivity, $c_+|_{\rho=0} = \gamma$.
 
 Denote zeta potential as the voltage drop between the particle surface and the end of
 the boundary layer, $\zeta = \cV - \varPhi$. 
+
 Without loss of generality, 
 we assume that $\cV = -\log\gamma$, thus $\zeta = -\log\gamma-\varPhi$:
 \begin{eqnarray}
@@ -169,116 +221,8 @@ Due to anion impermeability and radial flux continuity:
 \deriv{}{r}\pars{\varPhi - \log C} &=& 0
 \end{eqnarray}
 
-The leading-order electric potential in the Debye layer:
-\begin{eqnarray}  
-\deriv{^2 \varphi}{\rho^2} = -q = -\frac{c_+ - c_-}{2} = 
--C\frac{\exp\left[+(\varPhi - \varphi)\right] - \exp\left[-(\varPhi - \varphi)\right]}{2} = 
-C \sinh(\varphi - \varPhi)
-\end{eqnarray}
-Denote $\psi = \varphi - \varPhi$, so that $\psi(0) = \cV - \varPhi = \zeta$ and 
-$\psi(\rho\rightarrow\infty) = 0$.
-\begin{eqnarray}  
-\deriv{^2 \psi}{\rho^2} &=& C \sinh(\psi) = 2 C \sinh{\frac{\psi}{2}}\cosh{\frac{\psi}{2}} 
-\\
-2\deriv{\psi}{\rho} \deriv{^2 \psi}{\rho^2} &=& 
-4 C \sinh{\frac{\psi}{2}}\cosh{\frac{\psi}{2}} \deriv{\psi}{\rho} 
-\\
-\deriv{}{\rho} \pars{\deriv{\psi}{\rho}}^2 &=& 
-\deriv{}{\rho} \pars{2 \sqrt{C} \sinh{\frac{\psi}{2}}}^2 
-\end{eqnarray}
-
-Integrating with respect to boundary condtions yields:
-\begin{eqnarray}  
-\deriv{\psi}{\rho} &=& -2\sqrt{C}\sinh\frac{\psi}{2} \\  
-\pars{4\sinh\frac{\psi}{4}\cosh\frac{\psi}{4}}^{-1}\deriv{\psi}{\rho} &=& -\sqrt{C} \\  
-\frac{\pars{\tanh\frac{\psi}{4}}^{-1}}{4\cosh^2\frac{\psi}{4}}
-\deriv{\psi}{\rho} &=& -\sqrt{C} \\  
-\deriv{}{\rho}\pars{\log\tanh\frac{\psi}{4}} &=& \deriv{}{\rho}\pars{-\rho \sqrt{C}} 
-\end{eqnarray}
-
-Integrating with respect to boundary condtions yields:
-\begin{eqnarray}
-\log\tanh\frac{\psi}{4} - \log\tanh\frac{\zeta}{4} &=& -\rho \sqrt{C} \\
-\psi = \varphi - \varPhi &=& 
-4 \tanh^{-1}\pars{\tanh{\frac{\zeta}{4}} \cdot \exp\pars{-\rho \sqrt{C}}}
-\end{eqnarray}
-
-Leading-order radial momentum balance in the Debye layer yields:
-\begin{eqnarray} 
-- \deriv{p}{\rho} + \deriv{\varphi}{\rho} \deriv{^2\varphi}{\rho^2} &=& 0
-\end{eqnarray}
-One integration yields:
-\begin{eqnarray} 
-p &=& \frac{1}{2}\pars{\deriv{\varphi}{\rho}}^2 = \frac{1}{2}\pars{\deriv{\psi}{\rho}}^2
-\end{eqnarray}
-
-Leading-order tangential momentum balance in the Debye layer yields:
-\begin{eqnarray} 
-0 &=& \deriv{^2 v_\theta}{\rho^2} - \deriv{p}{\theta} 
- + \deriv{\varphi}{\theta} \deriv{^2\varphi}{\rho^2} 
-\\
-\deriv{^2 v_\theta}{\rho^2} &=& \frac{1}{2}\deriv{}{\theta}\pars{\deriv{\psi}{\rho}}^2
-- \deriv{(\psi + \varPhi)}{\theta} \deriv{^2\psi}{\rho^2}  
-\\
- &=& \deriv{}{\theta}\pars{2C \sinh^2\frac{\psi}{2}}
-- \deriv{\psi}{\theta} C \sinh\psi
-- \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
-\\
- &=& \deriv{}{\theta}\pars{C \pars{\cosh\psi - 1}}
-- C \sinh\psi \deriv{\psi}{\theta}
-- \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
-\\
- &=& \deriv{C}{\theta} \pars{\cosh\psi - 1}
-- \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
- = \deriv{C}{\theta} \pars{2 \sinh^2 \frac{\psi}{2}}
-- \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
-\\
- &=& -\deriv{C}{\theta} \frac{2}{\sqrt{C}} \pars{\half \sinh \frac{\psi}{2} \deriv{\psi}{\rho}}
-- \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
- = -\deriv{C}{\theta} \frac{2}{\sqrt{C}} \deriv{}{\rho}\pars{\cosh \frac{\psi}{2}}
-- \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
-\end{eqnarray}
-By integrating from specific $\rho$ to $\rho \rightarrow \infty$ (where $\psi = 0$):
-\begin{eqnarray}
-\deriv{v_\theta}{\rho} &=& -\deriv{C}{\theta} \frac{2}{\sqrt{C}} 
-\pars{\cosh \frac{\psi}{2} - 1} - \deriv{\varPhi}{\theta} \deriv{\psi}{\rho}   
-= -\deriv{C}{\theta} \frac{4}{\sqrt{C}} \sinh^2 \frac{\psi}{4} 
-  - \deriv{\varPhi}{\theta} \deriv{\psi}{\rho}   
-\end{eqnarray}
-Note that:
-\begin{eqnarray}
-\deriv{\psi}{\rho} &=& -2\sqrt{C}\sinh\frac{\psi}{2} = 
-                       -4\sqrt{C}\sinh\frac{\psi}{4}\cosh\frac{\psi}{4}
-\\
--4\sinh\frac{\psi}{4} &=& \frac{1}{\sqrt{C} \cosh\frac{\psi}{4}} \deriv{\psi}{\rho}
-\end{eqnarray}
-Thus:
-\begin{eqnarray}
-\deriv{v_\theta}{\rho} &=& 
-  \pars{\deriv{C}{\theta} \frac{1}{C}} \cdot
-  \pars{\frac{\sinh\frac{\psi}{4}}{\cosh\frac{\psi}{4}} \deriv{\psi}{\rho}}
-  - \deriv{\varPhi}{\theta} \deriv{\psi}{\rho}
-=  4\deriv{}{\rho} \pars{\log\cosh\frac{\psi}{4}} \deriv{}{\theta} \log C
-  - \deriv{\psi}{\rho} \deriv{\varPhi}{\theta}
-\\
-\deriv{v_\theta}{\rho} &=& 
-\deriv{}{\rho} \pars{ 4\log\cosh\frac{\psi}{4} \deriv{}{\theta} \log C
-  - \psi \deriv{\varPhi}{\theta} }
-\end{eqnarray}
-
-By integrating from $\rho = 0$ to $\rho \rightarrow \infty$, 
-we have Dukhin-Derjaguin slip formula for tangential velocity component $V_\theta$ 
-(where the radial component is $V_r = 0$):
-\begin{eqnarray} 
-V_\theta &=& \zeta \cdot \deriv{\varPhi}{\theta} -
-      4\log\cosh \frac{\zeta}{4} \cdot \deriv{}{\theta} \log C 
-\\
-&=& \zeta \cdot \deriv{\varPhi}{\theta} + 
-      2\log\pars{1 - \tanh^2 \frac{\zeta}{4}} \cdot \deriv{}{\theta} \log C 
-\end{eqnarray}
-where $\zeta = \cV - \varPhi$.
-
-Since $V_r = 0$ on the boundary, the slip condition can be written using surface
+Using the derivation at Appendix \ref{append:slip} and that $V_r = 0$ 
+on the boundary, the slip condition can be written using surface
 gradient operator:
 \begin{eqnarray}
 \bV &=& 
@@ -286,7 +230,6 @@ gradient operator:
 + 2\log\pars{1-\tanh^2\frac{\zeta}{4}} \cdot \bnabla_\mathcal{S} \log C \\
 \bnabla_\mathcal{S} &=& \pars{\tI - \bn\bn} \bnabla
 \end{eqnarray}
-
 
 \subsection{Steady state}
 The stress tensor is composed of Newtonian and Maxwel stresses:
@@ -299,4 +242,7 @@ The total force acting on the particle is computed by the following surface inte
 \begin{eqnarray}
 \bF &=& \oint_\mathcal{S} \tT \cdot \bnhat  dA 
 \end{eqnarray}
-In steady state (constant particle drift velocity $\cU$), it should be zero: $\bF = \bzero$.
+In steady state (constant particle drift velocity $\cU$), it should be zero: 
+\begin{eqnarray}
+\bF = \bzero
+\end{eqnarray}

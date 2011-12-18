@@ -5,13 +5,9 @@
 \subsection{Discretization}
 \subsubsection{Spherical Coordinates}
 Since the system has axial symmetry, the operators are written in 
-spherical coordinates $(r,\theta,\phi)$:
-\begin{eqnarray}
-\brc{l}{
-x = r \sin \theta \cos \phi \\
-y = r \sin \theta \sin \phi \\
-z = r \cos \theta} 
-\end{eqnarray}
+spherical coordinates $(r,\theta,\phi)$ 
+(using the derivation at Appendix \ref{append:spherical}).
+
 Due to axial symmetry, 
 so the scalar gradient and the divergence can be written as:
 \begin{eqnarray}
@@ -41,7 +37,7 @@ The vector laplacian can be written as:
 \frac{2}{r^2}\deriv{F_r}{\theta}\right) \bthetahat
 \end{eqnarray}
 
-\subsubsection{Grids choice}
+\subsubsection{Grid Choice}
 In order to discretize the differential operators, 
 a regular grid of size $n_r \times n_\theta$ is used:
 \begin{eqnarray}
@@ -50,7 +46,7 @@ r_i &=& (1+\Delta_r)^i \\
 \theta_j &=& \Delta_\theta \cdot j
 \end{eqnarray}
 where a logarithmic grid is used for $r$ and an uniform one is used for $\theta$.
-Note that $r_0 = 1$ and $R_{max} = (1+\Delta_r)^{n_r}$. Thus:
+Note that $r_0 = 1$ and $R_{max} = (1+\Delta_r)^{n_r}$ should be $\gg 1$. Thus:
 \begin{eqnarray}
 \Delta_r &=& \pars{R_{max}} ^ \frac{1}{n_r} - 1 \\
 \Delta_\theta &=& \frac{\pi}{n_\theta}
@@ -232,15 +228,6 @@ on the domain's interior.
 An operator $\cO$ is defined by its input vector $\bx$ and its output 
 $\by = \cO(\bx)$.
 
-Using an algebra of operators, the composition of operators is well defined:
-\begin{eqnarray}
-(\cO_1 \circ \cO_2)(\bx) &=& \cO_1(\cO_2(\bx))
-\end{eqnarray}
-Note that the differentiation of composed operators is computed by using the chain rule:
-\begin{eqnarray}
-\bnabla(\cO_1 \circ \cO_2)(\bx) &=& \bnabla \cO_1(\cO_2(\bx)) \cdot \bnabla \cO_2(\bx)
-\end{eqnarray}
-
 In order to solve the equation $\cO(\bx) = \bzero$, the Newton's method can 
 be applied, given an initial solution $\bx_0$:
 \begin{eqnarray}
@@ -285,11 +272,11 @@ from boundary conditions) are be computed, by applying the following non-linear 
 The extended system variable can be written as $\tilde{\bx} = \cB(\bx)$, 
 where $\cB$ is the ``ghost'' point extension operator (derived using boundary conditions)
 so the concatenated equations of the system (as described above) can be written 
-as a non-linear operator $\cE(\tilde\bx) = \bzero$ acting on the extended system variable,
-where $\cE$ is the conservation equations operator (derived by concatenation of the system
-equations).
+as a non-linear operator $\cE(\tilde\bx) = \bzero$ acting on the extended system variable 
+$\tilde{\bx}$, where $\cE$ is the conservation equations operator 
+(derived by concatenation of the system equations).
 
-The problem can be casted as to solve the following non-linear system:
+The problem can be casted to find a solution to the following non-linear system:
 \begin{eqnarray}
 \bzero = \cE (\tilde{\bx}) = \cE (\cB (\bx)) = \cO(\bx)
 \end{eqnarray}
