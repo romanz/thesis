@@ -8,51 +8,51 @@ The leading-order electric potential in the Debye layer:
 \begin{eqnarray}  
 \deriv{^2 \varphi}{\rho^2} = -q = -\frac{c_+ - c_-}{2} = 
 -C\frac{\exp\left[+(\varPhi - \varphi)\right] - \exp\left[-(\varPhi - \varphi)\right]}{2} = 
-C \sinh(\varphi - \varPhi)
+C \sinh(\varphi - \varPhi).
 \end{eqnarray}
 Denote $\psi = \varphi - \varPhi$, so that $\psi(0) = \cV - \varPhi = \zeta$ and 
-$\psi(\rho\rightarrow\infty) = 0$.
+$\psi(\rho\rightarrow\infty) = 0$:
 \begin{eqnarray}  
-\deriv{^2 \psi}{\rho^2} &=& C \sinh(\psi) = 2 C \sinh{\frac{\psi}{2}}\cosh{\frac{\psi}{2}} 
+\deriv{^2 \psi}{\rho^2} &=& C \sinh(\psi) = 2 C \sinh{\frac{\psi}{2}}\cosh{\frac{\psi}{2}} ,
 \\
 2\deriv{\psi}{\rho} \deriv{^2 \psi}{\rho^2} &=& 
-4 C \sinh{\frac{\psi}{2}}\cosh{\frac{\psi}{2}} \deriv{\psi}{\rho} 
+4 C \sinh{\frac{\psi}{2}}\cosh{\frac{\psi}{2}} \deriv{\psi}{\rho} ,
 \\
 \deriv{}{\rho} \pars{\deriv{\psi}{\rho}}^2 &=& 
-\deriv{}{\rho} \pars{2 \sqrt{C} \sinh{\frac{\psi}{2}}}^2 
+\deriv{}{\rho} \pars{2 \sqrt{C} \sinh{\frac{\psi}{2}}}^2 .
 \end{eqnarray}
 
 Integrating with respect to boundary condtions yields:
 \begin{eqnarray}  
-\deriv{\psi}{\rho} &=& -2\sqrt{C}\sinh\frac{\psi}{2} \\  
-\pars{4\sinh\frac{\psi}{4}\cosh\frac{\psi}{4}}^{-1}\deriv{\psi}{\rho} &=& -\sqrt{C} \\  
+\deriv{\psi}{\rho} &=& -2\sqrt{C}\sinh\frac{\psi}{2}, \\  
+\pars{4\sinh\frac{\psi}{4}\cosh\frac{\psi}{4}}^{-1}\deriv{\psi}{\rho} &=& -\sqrt{C}, \\  
 \frac{\pars{\tanh\frac{\psi}{4}}^{-1}}{4\cosh^2\frac{\psi}{4}}
-\deriv{\psi}{\rho} &=& -\sqrt{C} \\  
-\deriv{}{\rho}\pars{\log\tanh\frac{\psi}{4}} &=& \deriv{}{\rho}\pars{-\rho \sqrt{C}} 
+\deriv{\psi}{\rho} &=& -\sqrt{C}, \\  
+\deriv{}{\rho}\pars{\log\tanh\frac{\psi}{4}} &=& \deriv{}{\rho}\pars{-\rho \sqrt{C}} .
 \end{eqnarray}
 
 Integrating with respect to boundary condtions yields:
 \begin{eqnarray}
-\log\tanh\frac{\psi}{4} - \log\tanh\frac{\zeta}{4} &=& -\rho \sqrt{C} \\
+\log\tanh\frac{\psi}{4} - \log\tanh\frac{\zeta}{4} &=& -\rho \sqrt{C}, \\
 \psi = \varphi - \varPhi &=& 
-4 \tanh^{-1}\pars{\tanh{\frac{\zeta}{4}} \cdot \exp\pars{-\rho \sqrt{C}}}
+4 \tanh^{-1}\pars{\tanh{\frac{\zeta}{4}} \cdot \exp\pars{-\rho \sqrt{C}}}.
 \end{eqnarray}
 
 \subsection{Radial Momentum}
 Leading-order $O(\delta^{-3})$ radial momentum balance in the Debye layer yields:
 \begin{eqnarray} 
-- \deriv{p}{\rho} + \deriv{\varphi}{\rho} \deriv{^2\varphi}{\rho^2} &=& 0
+- \deriv{p}{\rho} + \deriv{\varphi}{\rho} \deriv{^2\varphi}{\rho^2} &=& 0.
 \end{eqnarray}
 One integration yields:
 \begin{eqnarray} 
-p &=& \frac{1}{2}\pars{\deriv{\varphi}{\rho}}^2 = \frac{1}{2}\pars{\deriv{\psi}{\rho}}^2
+p &=& \frac{1}{2}\pars{\deriv{\varphi}{\rho}}^2 = \frac{1}{2}\pars{\deriv{\psi}{\rho}}^2.
 \end{eqnarray}
 
 \subsection{Tangential Momentum}
 Leading-order $O(\delta^{-2})$ tangential momentum balance in the Debye layer yields:
 \begin{eqnarray} 
 0 &=& \deriv{^2 v_\theta}{\rho^2} - \deriv{p}{\theta} 
- + \deriv{\varphi}{\theta} \deriv{^2\varphi}{\rho^2} 
+ + \deriv{\varphi}{\theta} \deriv{^2\varphi}{\rho^2} ,
 \\
 \deriv{^2 v_\theta}{\rho^2} &=& \frac{1}{2}\deriv{}{\theta}\pars{\deriv{\psi}{\rho}}^2
 - \deriv{(\psi + \varPhi)}{\theta} \deriv{^2\psi}{\rho^2}  
@@ -73,21 +73,21 @@ Leading-order $O(\delta^{-2})$ tangential momentum balance in the Debye layer yi
  &=& -\deriv{C}{\theta} \frac{2}{\sqrt{C}} \pars{\half \sinh \frac{\psi}{2} \deriv{\psi}{\rho}}
 - \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
  = -\deriv{C}{\theta} \frac{2}{\sqrt{C}} \deriv{}{\rho}\pars{\cosh \frac{\psi}{2}}
-- \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
+- \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  .
 \end{eqnarray}
 By integrating from specific $\rho$ to $\rho \rightarrow \infty$ (where $\psi = 0$):
 \begin{eqnarray}
 \deriv{v_\theta}{\rho} &=& -\deriv{C}{\theta} \frac{2}{\sqrt{C}} 
 \pars{\cosh \frac{\psi}{2} - 1} - \deriv{\varPhi}{\theta} \deriv{\psi}{\rho}   
 = -\deriv{C}{\theta} \frac{4}{\sqrt{C}} \sinh^2 \frac{\psi}{4} 
-  - \deriv{\varPhi}{\theta} \deriv{\psi}{\rho}   
+  - \deriv{\varPhi}{\theta} \deriv{\psi}{\rho}   .
 \end{eqnarray}
 Note that:
 \begin{eqnarray}
 \deriv{\psi}{\rho} &=& -2\sqrt{C}\sinh\frac{\psi}{2} = 
-                       -4\sqrt{C}\sinh\frac{\psi}{4}\cosh\frac{\psi}{4}
+                       -4\sqrt{C}\sinh\frac{\psi}{4}\cosh\frac{\psi}{4},
 \\
--4\sinh\frac{\psi}{4} &=& \frac{1}{\sqrt{C} \cosh\frac{\psi}{4}} \deriv{\psi}{\rho}
+-4\sinh\frac{\psi}{4} &=& \frac{1}{\sqrt{C} \cosh\frac{\psi}{4}} \deriv{\psi}{\rho}.
 \end{eqnarray}
 Thus:
 \begin{eqnarray}
@@ -96,11 +96,11 @@ Thus:
   \pars{\frac{\sinh\frac{\psi}{4}}{\cosh\frac{\psi}{4}} \deriv{\psi}{\rho}}
   - \deriv{\varPhi}{\theta} \deriv{\psi}{\rho}
 =  4\deriv{}{\rho} \pars{\log\cosh\frac{\psi}{4}} \deriv{}{\theta} \log C
-  - \deriv{\psi}{\rho} \deriv{\varPhi}{\theta}
+  - \deriv{\psi}{\rho} \deriv{\varPhi}{\theta},
 \\
 \deriv{v_\theta}{\rho} &=& 
 \deriv{}{\rho} \pars{ 4\log\cosh\frac{\psi}{4} \deriv{}{\theta} \log C
-  - \psi \deriv{\varPhi}{\theta} }
+  - \psi \deriv{\varPhi}{\theta} }.
 \end{eqnarray}
 
 By integrating from $\rho = 0$ to $\rho \rightarrow \infty$, 
@@ -110,7 +110,7 @@ we have Dukhin-Derjaguin slip formula for tangential velocity component $V_\thet
 V_\theta = \zeta \cdot \deriv{\varPhi}{\theta} -
       4\log\cosh \frac{\zeta}{4} \cdot \deriv{}{\theta} \log C 
 = \zeta \cdot \deriv{\varPhi}{\theta} + 
-      2\log\pars{1 - \tanh^2 \frac{\zeta}{4}} \cdot \deriv{}{\theta} \log C 
+      2\log\pars{1 - \tanh^2 \frac{\zeta}{4}} \cdot \deriv{}{\theta} \log C .
 \end{eqnarray}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
