@@ -55,32 +55,77 @@ solver has to be developed for analysing such system.
 \subsection{Micro-scale phenomena}
 
 \subsubsection{Dimensionless Notation}
+
 Spatial coordinates $\br$ are normalized by $a^*$ (the characteristic size of the ion-exchanger).
+
 Positive and negative ionic concentrations are denoted by $c_+$ and $c_-$ respectively, and
-normalized by ambient ionic concentration $c^*$.
-The charge concentration is denoted by $q$ and normalized by $q^* = z F^* c^*$ (where $z$
-is the ionic valence and $F^* = e N_A$ is the Faraday number).
-The respective ionic fluxes are denoted by $\bj_+$ and $\bj_-$ and 
-normalized by $D^* c^*/a^*$ (where $D^*$ is the ionic diffusivity).
-The electrostatic potential is denoted by $\varphi$ and normalized 
-by the thermal voltage $\varphi^* = R^* T^* / z F^*$.
-The fluid velocity and the pressure field are denoted by $\bv$ and $p$ respectively.
-The velocity is normalized by $\eps^* (\varphi^*)^2 / \mu^* a^*$ and the pressure
-is normalized by $\mu^* v^* / a^*$.
-The force is denoted by $\bF$ normalized by $\mu^* v^* a^*$.
-The electric field is denoted by $\bE$ and normalized by $\varphi^* / a^*$.
-The dimensional equations and the nondimensional derivation are 
-described in Appendix \ref{append:nondim}.
+are normalized by ambient ionic concentration $c^*$. The ionic valences are $\pm z$.
+
+The dimensional ionic fluxes are given by Nernst-Plank equation 
+(using Einstein relation for the electric mobility, $\mu_q^* = D^* / k_B^* T^*$):
+\begin{eqnarray}
+\bj^*_\pm &=& 
+-D^* \bnabla c^*_\pm + \bv^* c^*_\pm \mp \frac{z e^* D^*}{k_B^* T^*} c^*_\pm \bnabla \varphi^*,
+\end{eqnarray}
+where $D^*_\pm \approx D^*$ is the ionic diffusivity.
+
+The electric potential $\varphi$ is normalized by the thermal voltage:
+\begin{eqnarray}
+\varphi^* &=& \frac{k_B^* T^*}{z e^*} = \frac{R^* T^*}{z F^*},
+\end{eqnarray}
+where $R^* = k_B^* N_A$ and $F^* = e^* N_A$ is the Faraday number.
+
+The dimensional Stokes equation:
+\begin{eqnarray}
+-\bnabla p^* + \mu^* \bLaplacian \bv^* + \eps^* \Laplacian \varphi^* \bnabla \varphi^* &=& 0.
+\end{eqnarray}
+
+The velocity $\bv$ is normalized by:
+\begin{eqnarray}
+v^* &=& \frac{\eps^* (\varphi^*)^2}{a^* \mu^*},
+\end{eqnarray}
+and the pressure $p$ is normalized by:
+\begin{eqnarray}
+p^* &=& \frac{\mu^* v^*}{a^*} = \frac{\eps^* (\varphi^*)^2}{(a^*)^2}.
+\end{eqnarray}
+
+The fluxes $\bj^*_\pm$ are normalized by:
+\begin{eqnarray}
+j^* = \frac{D^* c^*}{a^*}.
+\end{eqnarray}
+
+The nondimensional Nernst-Plank equation is written as:
+\begin{eqnarray}
+\bj_\pm &=& 
+-\bnabla c_\pm + \alpha \bv c_\pm \mp c_\pm \bnabla \varphi, \\
+\alpha &=&
+\frac{v^* a^*}{D^*} = \frac{\eps^* (\varphi^*)^2}{\mu^* D^*}.
+\end{eqnarray}
+where $\alpha$ is the dimensionless Peclet number.
+
+The dimensional Poisson equation is:
+\begin{eqnarray}
+(c^*_+ - c^*_-) z F^* &=& -\eps^* \Laplacian \varphi^*,
+\end{eqnarray}
+and after nondimensionalization, is:
+\begin{eqnarray}
+c_+ - c_- &=& -\frac{\eps^* \varphi^*}{z F^* c^* (a^*)^2} \Laplacian \varphi = 
+-\delta^2 \Laplacian \varphi,
+\\
+\delta^2 &=& \frac{\eps^* \varphi^*}{c^* F^* z (a^*)^2} = 
+\pars{\frac{\delta^*}{a^*}}^2.
+\end{eqnarray}
+
+The force is denoted by $\bF$ normalized by $\mu^* v^* a^* = \eps^* (\varphi^*)^2$.
+The stress tensor is denoted by $\tT$ and normalized by $p^* = \mu^* v^* / a^*$.
+The electric field is denoted by $\bE$ and normalized by $E^* = \varphi^* / a^*$.
 
 \subsubsection{Nernst-Planck Equations}
 The ionic fluxes are given by ion diffusion, electrostatic forces and ion advection by the fluid:
 \begin{eqnarray}
   \bj_\pm &=& -\bnabla c_\pm \mp c_\pm \bnabla \varphi + \alpha \bv c_\pm,
 \end{eqnarray}
-where $\alpha$ is the dimensionless Peclet number:
-\begin{eqnarray}
-\alpha &=&  \frac{a^* v^*}{D^*} = \frac{\eps^* (\varphi^*)^2}{\mu^* D^*}
-\end{eqnarray}
+
 Due to conservation of ions, the fluxes are divergence-free:
 \begin{eqnarray}
 \bnabla \cdot \bj_\pm &=& 0.
@@ -112,11 +157,7 @@ Momentum conservation (force balance):
 \end{eqnarray}
 Free charge density is given by the Poisson equation:
 \begin{eqnarray}
-\delta^2 \Laplacian \varphi &=& -2q,
-\end{eqnarray}
-where $\delta = \delta^* / a^*$ is nondimensional Debye length:
-\begin{eqnarray}
-\delta^2 = \frac{\eps^* \varphi^* / q^*}{(a^*)^2}
+\delta^2 \Laplacian \varphi &=& -2q.
 \end{eqnarray}
 
 \subsubsection{Boundary conditions}
@@ -146,7 +187,7 @@ and high conductance of the particle (yielding uniform electric potential):
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Separation of scales}
 When $\delta \ll 1$, 
-most of the fluid remains electroneutral ($c_+ \approx c_-$), 
+most of the fluid remains electroneutral ($q \approx 0$, thus $c_+ \approx c_-$), 
 except a thin boundary layer of width $O(\delta)$, 
 also known as the ``Debye layer'', surrounding the ion exchanger. 
 
