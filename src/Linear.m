@@ -1,3 +1,4 @@
+% Linear Sparse operator.
 classdef Linear < Operator
 properties
     L;
@@ -12,7 +13,7 @@ methods
             L = speye(grid.numel); % Default copy operator
         end
         assert(size(L, 1) == grid.numel);
-%         assert(size(L, 2) == op.grid.numel);
+        assert(size(L, 2) == op.grid.numel);
         self.L = L;
     end
     function r = res(self)

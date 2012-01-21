@@ -1,34 +1,38 @@
-function g = Grid(radius, theta)
-    g.r = radius(:);
-    g.t = theta(:);
-    [g.R, g.T] = ndgrid(g.r, g.t);
-    g.sz = [numel(g.r), numel(g.t)];
-    g.numel = prod(g.sz);
-    function res = init(varargin)
-        res = Grid(axis(g.r, varargin{1}), axis(g.t, varargin{2}));
-        res.ghost = ~strcmp('interior', varargin);
-    end
-    g.init = @init;
+% Regular structured grid class
+classdef Grid < handle
+properties
+    r, t;
+    R, T;
+    size;
 end
 
-function x = axis(x, type)    
-    if isempty(type)
-        return
+methods
+    function self = Grid(radius, theta)
+        self.r = radius(:);
+        self.t = theta(:);
+        [self.R, self.T] = ndgrid(self.r, self.t);
+        self.size = [numel(self.r), numel(self.t)];
     end
-    x = x(:);
-    xc = [ghost(flipud(x(1:3))); x; ghost(x(end-2:end))];
-    xc = (xc(1:end-1) + xc(2:end)) / 2;
-    switch type
-        case 'central'
-            x = xc;
-        case 'interior'
-            x = xc(2:end-1);
+    
+    function res = eq(g1, g2)
+        res = isequal(g1.r, g2.r) && isequal(g1.t, g2.t);
+    end
+    
+    function g = crop(self, br, bt)
+        gr = self.r(1+br:end-br);
+        gt = self.t(1+bt:end-bt);
+        g = Grid(gr, gt);
+    end
+    
+    function g = boundary(self, b, dim)
+        gr = self.r;
+        gt = self.t;
+        switch dim
+            case 1, gr = [gr(1:b); gr(end+b+1:end)];
+            case 2, gt = [gt(1:b); gt(end+b+1:end)];
+        end
+        g = Grid(gr, gt);
     end
 end
 
-function y = ghost(x)
-    dx = diff(x);
-    t = dx(2:end) ./ dx(1:end-1);    
-    y = x(end) + dx(end) * t(end);    
-%     y = x(end) + dx(end);
 end

@@ -15,14 +15,18 @@ methods
         I = repmat(1:N, 1, 2); % row indices
 
         % Finite difference operator
-        L = sparse(I, J, repmat([-1 1], N, 1), N, M); 
+        D = sparse(I, J, repmat([-1 1], N, 1), N, M); 
         
         switch dim % Choose coordinate
-            case 1, a = op.grid.R;
-            case 2, a = op.grid.T;
+            case 1, x = op.grid.R;
+            case 2, x = op.grid.T;
         end
         
-        L = spdiag( 1./(L * a(:)) ) * L;
+        % L = D/Dx
+        Dx = D * x(:);
+        assert(all(Dx));
+        
+        L = spdiag( 1./Dx ) * D;
         self = self@Linear(grid, op, L);        
     end
 end

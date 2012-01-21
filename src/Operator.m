@@ -1,6 +1,7 @@
+% An operator base class.
 classdef Operator < handle
 properties
-    grid; % output
+    grid; % a grid object for the output
 end
 methods
     function op = Operator(grid)

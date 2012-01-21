@@ -1,52 +1,17 @@
 function [] = main
-    for k = 4:8
-        sz = [2 2].^k;
-        g = Grid(logspace(0, 1, sz(1)), linspace(0, pi, sz(2)));
-        % variables with boundary conditions
-        grid.Phi = g.init('central', 'central');
-        grid.C   = g.init('central', 'central');
-        grid.Vr  = g.init('', 'central');
-        grid.Vt  = g.init('central', '');
-        grid.P   = g.init('interior', 'interior');
-        igrid = noghost(grid);
-
-        b = 0.0001;
-        s.Phi = Const(grid.Phi, @(r, t) b * (0.25/r^2 - r) * cos(t));
-        s.C = Const(grid.C, @(r,t) 1 + 0 * (0.75/r^2) * cos(t));
-        s.Vr = Const(grid.Vr, @(r,t)  b * cos(t)*(1 - 1.0/r^3));
-        s.Vt = Const(grid.Vt, @(r,t) -b * sin(t)*(1 + 0.5/r^3));
-        s.P = Const(grid.P, @(r,t) 0);
-
-        [fR, fT] = momentum(s);
-        fs = salt(s);
-        fc = charge(s);
-        fm = mass(s);
-        
-        z = regrid(fc);
-        % z = z(2:end-1, 2:end-1);
-        fprintf('\t%.2f', log(norm(z(:), inf))/log(2));
-%         mesh(f.grid.R, f.grid.T, z)
-        mesh(z)
-        drawnow;
-    end
-    fprintf('\n');
-    return;
+    % variables with boundary conditions
+    [grid.full, grid.int] = grids(logspace(0, 7, 400), linspace(0, pi, 50));
     
     % interior grid (ghost points removed)
-    sol = Solution(igrid, ...
-        zeros(igrid.Phi.sz), ...
-        ones(igrid.C.sz), ...
-        zeros(igrid.Vr.sz), ...
-        zeros(igrid.Vt.sz), ...
-        zeros(igrid.P.sz));
+    sol = Solution(grid.int);
     sol.alpha = 0;
     sol.beta = 0.001;
     sol.gamma = 0.1;
     sol.Vinf = 0.001;
     
     iters = 10;
-    [bnd] = boundaries(grid, sol);
-    [eqn] = equations(bnd);
+    [full] = boundary(grid, sol);
+    [eqn] = equations(full);
     [~, J] = find(sol.P.L); % Pressure indices
     for k = 1:iters
         r = eqn.res();
@@ -59,8 +24,32 @@ function [] = main
     end
 end
 
+function [full, interior] = grids(r, t)
+    r = r(:);
+    t = t(:);
+    rg = [2*r(1) - r(2); r; 2*r(end) - r(end-1)];
+    tg = [2*t(1) - t(2); t; 2*t(end) - t(end-1)];
+    rc = average(rg, [1; 1]/2);
+    tc = average(tg, [1; 1]/2);
+    
+    full.Phi = Grid(rc, tc);
+    full.C = Grid(rc, tc);
+    full.Vr = Grid(r, tc);
+    full.Vt = Grid(rc, t);
+    full.P = Grid(rc(2:end-1), tc(2:end-1));
+    
+    names = fieldnames(full);
+    for k = 1:numel(names)
+        n = names{k};
+        g = full.(n);
+        if ~strcmp(n, 'P')
+            g = Grid(g.r(2:end-1), g.t(2:end-1));
+        end
+        interior.(n) = g;
+    end
+end
 
-function sol = boundaries(grid, sol)
+function sol = boundary(grid, sol)
     Phi = Interp(grid.Phi, sol.Phi);
     C = Interp(grid.C, sol.C);
     Vr = Interp(grid.Vr, sol.Vr);
@@ -207,13 +196,4 @@ function sol = Solution(grid, varargin)
         sol.(name) = op;
         offset = offset + g.numel;
     end    
-end
-
-function grid = noghost(grid)
-    for n = fieldnames(grid).'
-        g = grid.(n{1}); % remove ghost points from grid
-        r = g.r((1+g.ghost(1)):(end-g.ghost(1)));
-        t = g.t((1+g.ghost(2)):(end-g.ghost(2)));
-        grid.(n{1}) = Grid(r, t);
-    end
 end
