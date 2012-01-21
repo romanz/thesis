@@ -55,15 +55,31 @@ solver has to be developed for analysing such system.
 \subsection{Micro-scale phenomena}
 
 \subsubsection{Dimensionless Notation}
-Positive and negative ionic concentrations are denoted by $c_+$ and $c_-$ respectively.
-The respective ionic fluxes are denoted by $\bj_+$ and $\bj_-$.
-The electrostatic potential is denoted by $\varphi$. 
+Spatial coordinates $\br$ are normalized by $a^*$ (the characteristic size of the ion-exchanger).
+Positive and negative ionic concentrations are denoted by $c_+$ and $c_-$ respectively, and
+normalized by ambient ionic concentration $c^*$.
+The charge concentration is denoted by $q$ and normalized by $q^* = z F^* c^*$ (where $z$
+is the ionic valence and $F^* = e N_A$ is the Faraday number).
+The respective ionic fluxes are denoted by $\bj_+$ and $\bj_-$ and 
+normalized by $D^* c^*/a^*$ (where $D^*$ is the ionic diffusivity).
+The electrostatic potential is denoted by $\varphi$ and normalized 
+by the thermal voltage $\varphi^* = R^* T^* / z F^*$.
 The fluid velocity and the pressure field are denoted by $\bv$ and $p$ respectively.
+The velocity is normalized by $\eps^* (\varphi^*)^2 / \mu^* a^*$ and the pressure
+is normalized by $\mu^* v^* / a^*$.
+The force is denoted by $\bF$ normalized by $\mu^* v^* a^*$.
+The electric field is denoted by $\bE$ and normalized by $\varphi^* / a^*$.
+The dimensional equations and the nondimensional derivation are 
+described in Appendix \ref{append:nondim}.
 
 \subsubsection{Nernst-Planck Equations}
 The ionic fluxes are given by ion diffusion, electrostatic forces and ion advection by the fluid:
 \begin{eqnarray}
-  \bj_\pm &=& -\bnabla c_\pm \mp c_\pm \bnabla \varphi + \alpha \bv c_\pm.
+  \bj_\pm &=& -\bnabla c_\pm \mp c_\pm \bnabla \varphi + \alpha \bv c_\pm,
+\end{eqnarray}
+where $\alpha$ is the dimensionless Peclet number:
+\begin{eqnarray}
+\alpha &=&  \frac{a^* v^*}{D^*} = \frac{\eps^* (\varphi^*)^2}{\mu^* D^*}
 \end{eqnarray}
 Due to conservation of ions, the fluxes are divergence-free:
 \begin{eqnarray}
@@ -96,12 +112,20 @@ Momentum conservation (force balance):
 \end{eqnarray}
 Free charge density is given by the Poisson equation:
 \begin{eqnarray}
-\delta^2 \Laplacian \varphi &=& -q.
+\delta^2 \Laplacian \varphi &=& -2q,
+\end{eqnarray}
+where $\delta = \delta^* / a^*$ is nondimensional Debye length:
+\begin{eqnarray}
+\delta^2 = \frac{\eps^* \varphi^* / q^*}{(a^*)^2}
 \end{eqnarray}
 
 \subsubsection{Boundary conditions}
-Far away from the particle, we have uniform flow, uniform electrostatic field
-and uniform ionic concentrations:
+An constant electric field $\bE$ is applied to the system, such that $|\bE| = \beta$.
+The ion-exchanger will acquire a non-zero steady-state velocity $\cU$, which is
+a function of the applied field, and is not known a priori.
+
+Far away from the particle, we have uniform applied electrostatic field, uniform flow 
+and ambient ionic concentrations:
 \begin{eqnarray}
 \bv &\rightarrow& -\cU \ui, \\
 \bE = -\bnabla \varphi &\rightarrow& \beta\ui, \\
@@ -110,12 +134,12 @@ c_\pm &\rightarrow& 1.
 
 We consider a spherical ion-exchanger. 
 At its surface $\mathcal{S}$ (defined at $r=1$ with normal $\bn = \brhat$), 
-we have zero slip, anion impermeability, cation selectivity 
-and conductance of the particle:
+we have zero slip, anion impermeability, cation selectivity (with fast Butler-Volmer kinetics)
+and high conductance of the particle (yielding uniform electric potential):
 \begin{eqnarray}
 \bv & = & \bzero, \\
 \bn \cdot \bj_- & = & 0, \\
-c_+ & = & \gamma, \\
+\bn \cdot \bj_+ & = & k (1 - c_+/\gamma) \Rightarrow c_+ \rightarrow \gamma, \\
 \varphi & = & \cV.
 \end{eqnarray}
 
@@ -150,7 +174,7 @@ ion conservation results in the following equations:
 \end{eqnarray}
 \end{enumerate}
 
-The Stokes flow equations have the same form as microscale equations:
+The macroscale Stokes flow equations have the same form as the microscale equations:
 \begin{eqnarray}
 \bnabla \cdot \bV &=& 0, \\
 \Laplacian \bV - \bnabla P + \bnabla \varPhi \Laplacian \varPhi &=& 0.
@@ -244,3 +268,9 @@ the total force must be zero:
 \begin{eqnarray}
 \bF = \bzero.
 \end{eqnarray}
+
+The total force $\bF(\beta, \cU)$ is a function of the applied electric field $\beta$ and
+the velocity $\cU$.
+For any given electric field $\beta$, the force-free constraint above 
+can be solved numerically for $\cU$ to
+yield the corresponding steady-state velocity.

@@ -82,58 +82,58 @@ V_\theta^h[i,j] &=& V_\theta(\bar{r}_i, {\theta}_j).
 
 \subsubsection{Operator Discretization}
 A finite-volume method with linear interpolation is used for flux 
-$\boldsymbol{f}$ discretization. 
+$\boldsymbol{f}^h$ discretization. 
 
 Define the following discrete central difference operators:
 \begin{eqnarray}
-\cD_r(f)[i,j] &=& \frac{f\left[i+\half,j\right] - f\left[i-\half,j\right]}
+\cD_r(f^h)[i,j] &=& \frac{f^h\left[i+\half,j\right] - f^h\left[i-\half,j\right]}
                        {r\left[i+\half,j\right] - r\left[i-\half,j\right]}, \\
-\cD_\theta(f)[i,j] &=& \frac{f\left[i,j+\half\right] - f\left[i,j-\half\right]}
+\cD_\theta(f^h)[i,j] &=& \frac{f^h\left[i,j+\half\right] - f^h\left[i,j-\half\right]}
 					   {\theta\left[i,j+\half\right] - \theta\left[i,j-\half\right]}.
 \end{eqnarray}
 
 Define the following interpolation operators:
 \begin{eqnarray}
-\cI_r(f)[i,j] &=& \frac{
+\cI_r(f^h)[i,j] &=& \frac{
 \pars{r\left[i,j\right] - r\left[i-\half,j\right]} 
-  f\left[i+\half,j\right] + 
+  f^h\left[i+\half,j\right] + 
 \pars{r\left[i+\half,j\right] - r\left[i,j\right]} 
-  f\left[i-\half,j\right] 
+  f^h\left[i-\half,j\right] 
 }{r\left[i+\half,j\right] - r\left[i-\half,j\right]},
 \\
-\cI_\theta(f)[i,j] &=& 
+\cI_\theta(f^h)[i,j] &=& 
 \frac{
 \pars{r\left[i,j\right] - r\left[i,j-\half\right]} 
-  f\left[i,j+\half\right] + 
+  f^h\left[i,j+\half\right] + 
 \pars{r\left[i,j+\half\right] - r\left[i,j\right]} 
-  f\left[i,j-\half\right] 
+  f^h\left[i,j-\half\right] 
 }{r\left[i,j+\half\right] - r\left[i,j-\half\right]}.
 \end{eqnarray}
 
 The total flux of a cell is equal to zero (due to conservation):
 \begin{eqnarray}
-\bnabla \cdot \boldsymbol{f} &=& 0, 
+\bnabla \cdot \boldsymbol{f}^h &=& 0, 
 \\
-\frac{1}{r^2} \cD_r\pars{f_r r^2} + 
-\frac{1}{r \sin\theta} \cD_\theta\pars{f_\theta \sin\theta} &=& 0, 
+\frac{1}{r^2} \cD_r\pars{f^h_r r^2} + 
+\frac{1}{r \sin\theta} \cD_\theta\pars{f^h_\theta \sin\theta} &=& 0, 
 \\
-\cD_r\pars{f_r \cdot r^2 \sin\theta} + 
-\cD_\theta\pars{f_\theta \cdot r \sin\theta} &=& 0. 
+\cD_r\pars{f^h_r \cdot r^2 \sin\theta} + 
+\cD_\theta\pars{f^h_\theta \cdot r \sin\theta} &=& 0. 
 \end{eqnarray}
 
 Ion fluxes are discretized on grid cell boundaries:
 \begin{eqnarray}
-I_r &=& -\cI_r(C) \cdot \cD_r(\varPhi), \\
-I_\theta &=& -\cI_\theta(C) \cdot \frac{\cD_\theta(\varPhi)}{r}.
+I^h_r &=& -\cI_r(C^h) \cdot \cD_r(\varPhi^h), \\
+I^h_\theta &=& -\cI_\theta(C^h) \cdot \frac{\cD_\theta(\varPhi^h)}{r}.
 \end{eqnarray}
 
 Salt fluxes are discretized on grid cell boundaries 
 (using upwind scheme $\mathcal{U}$ for numerical stability at large cell Peclet number):
 \begin{eqnarray}
-J_r &=& -\cD_r(C) + \alpha V_r \cdot \mathcal{U}^{\bV}_r (C), \\
-J_\theta &=& -\frac{\cD_\theta(C)}{r} + \alpha V_\theta \cdot \mathcal{U}^{\bV}_\theta (C), \\
- \mathcal{U}^{\bV}_r(C)[i,j] &=& C\left[i-\frac{\sign(V_r)}{2}, j\right], \\
- \mathcal{U}^{\bV}_\theta(C)[i,j] &=& C\left[i, j-\frac{\sign(V_\theta)}{2}\right]. 
+J^h_r &=& -\cD_r(C^h) + \alpha V^h_r \cdot \mathcal{U}^{\bV^h}_r (C^h), \\
+J^h_\theta &=& -\frac{\cD_\theta(C^h)}{r} + \alpha V^h_\theta \cdot \mathcal{U}^{\bV^h}_\theta (C^h), \\
+ \mathcal{U}^{\bV^h}_r(C^h)[i,j] &=& C^h\left[i-\frac{\sign(V^h_r)}{2}, j\right], \\
+ \mathcal{U}^{\bV^h}_\theta(C^h)[i,j] &=& C^h\left[i, j-\frac{\sign(V^h_\theta)}{2}\right]. 
 \end{eqnarray}
 
 Mass flux $\bV$ is discretized on grid cells boundaries, 
@@ -142,16 +142,16 @@ using the velocity staggered grid.
 Force components are discretized on the velocity staggered grid, where
 linear interpolation is used for the Coulomb force.
 \begin{eqnarray}
-F_r &=& -\cD_r(P) 
-          + \cL(V_r) - \frac{2}{r^2} V_r 
-		  - \frac{2}{r^2 \sin\theta} \cI_r(\cD_\theta (V_\theta \sin\theta))
-          + \cD_r(\varPhi) \cdot \cI_r(\cL(\varPhi)), \\
-F_\theta &=& -\frac{\cD_\theta(P)}{r} 
-		  + \cL(V_\theta) - \frac{F_\theta}{r^2 \sin^2\theta} 
-		  + \frac{2}{r^2} \cI_\theta(\cD_\theta(F_r))
-		  + \frac{\cD_\theta(\varPhi)}{r} \cdot \cI_\theta(\cL(\varPhi)), \\
-\cL(f) &=& \frac{1}{r^2}\cD_r\pars{\cD_r(f) r^2} + 
-\frac{1}{r^2 \sin\theta} \cD_\theta\pars{\cD_\theta(f) \cdot \sin\theta}.
+F^h_r &=& -\cD_r(P^h) 
+          + \cL(V^h_r) - \frac{2}{r^2} V^h_r 
+		  - \frac{2}{r^2 \sin\theta} \cI_r(\cD_\theta (V^h_\theta \sin\theta))
+          + \cD_r(\varPhi^h) \cdot \cI_r(\cL(\varPhi^h)), \\
+F^h_\theta &=& -\frac{\cD_\theta(P^h)}{r} 
+		  + \cL(V^h_\theta) - \frac{F^h_\theta}{r^2 \sin^2\theta} 
+		  + \frac{2}{r^2} \cI_\theta(\cD_\theta(F^h_r))
+		  + \frac{\cD_\theta(\varPhi^h)}{r} \cdot \cI_\theta(\cL(\varPhi^h)), \\
+\cL(f^h) &=& \frac{1}{r^2}\cD_r\pars{\cD_r(f^h) r^2} + 
+\frac{1}{r^2 \sin\theta} \cD_\theta\pars{\cD_\theta(f^h) \cdot \sin\theta}.
 \end{eqnarray}
 
 
@@ -164,12 +164,12 @@ the discretized boundary conditions, following the analysis below.
 
 The boundary conditions at the ion-exchange boundary ($r=1$) are:
 \begin{eqnarray}
-\cI_r(\varPhi) &=& -\cI_r(\log C), \\
-\cD_r(\varPhi) &=& \cD_r(\log C), \\
-V_r &=& 0, \\
-V_\theta &=& 4\log\pars{\frac{1 + \exp\left\{\cI_\theta(\zeta)/2\right\}}{2}} \cdot 
-			\cD_\theta(\zeta), \\
-  \zeta &=& - \log \gamma - \cI_r(\varPhi).
+\cI_r(\varPhi^h) &=& -\cI_r(\log C^h), \\
+\cD_r(\varPhi^h) &=& \cD_r(\log C^h), \\
+V^h_r &=& 0, \\
+V^h_\theta &=& 4\log\pars{\frac{1 + \exp\left\{\cI_\theta(\zeta^h)/2\right\}}{2}} \cdot 
+			\cD_\theta(\zeta^h), \\
+  \zeta^h &=& - \log \gamma - \cI_r(\varPhi^h).
 \end{eqnarray}
 The equations are discretized using ``ghost'' points outside the interior of the domain:
 \begin{eqnarray}
@@ -198,33 +198,33 @@ V_\theta^h[1/2,j] &=&
 For $\theta = 0$ and $\theta = \pi$, the ``ghost'' points are defined by:
 \begin{eqnarray} 
 \brc{l}{
-\varPhi[i, 0] = \varPhi[i, 1] \\
-C[i, 0] = C[i, 1] \\
-V_r[i, 0] = V_r[i, 1] \\
-V_\theta[i, 0] = 0
+\varPhi^h[i, 0] = \varPhi^h[i, 1] \\
+C^h[i, 0] = C^h[i, 1] \\
+V_r^h[i, 0] = V_r^h[i, 1] \\
+V_\theta^h[i, 0] = 0
 } 
 \brc{l}{
-\varPhi[i, n_\theta+1] = \varPhi[i, n_\theta], \\
-C[i, n_\theta+1] = C[i, n_\theta], \\
-V_r[i, n_\theta+1] = V_r[i, n_\theta], \\
-V_\theta[i, n_\theta+1] = 0.
+\varPhi^h[i, n_\theta+1] = \varPhi^h[i, n_\theta], \\
+C^h[i, n_\theta+1] = C^h[i, n_\theta], \\
+V_r^h[i, n_\theta+1] = V_r^h[i, n_\theta], \\
+V_\theta^h[i, n_\theta+1] = 0.
 } 
 \end{eqnarray}
 
 Far away from the ion-exchange boundary ($r\rightarrow\infty$) we have:
 \begin{eqnarray}
-\frac{\varPhi[n_r + 1, j] - \varPhi[n_r, j]}{\bar{r}_{n_r + 1} - \bar{r}_{n_r}}, 
+\frac{\varPhi^h[n_r + 1, j] - \varPhi^h[n_r, j]}{\bar{r}_{n_r + 1} - \bar{r}_{n_r}}, 
  & = & -\beta \cos\bar{\theta}_j, \\
-C[n_r + 1, j] & = & 1 \\
-V_r[n_r + 1, j] & = & -\cU \cos\bar{\theta}_j, \\
-V_\theta[n_r + 1, j] & = & \cU \sin\theta_j.
+C^h[n_r + 1, j] & = & 1 \\
+V_r^h[n_r + 1, j] & = & -\cU \cos\bar{\theta}_j, \\
+V_\theta^h[n_r + 1, j] & = & \cU \sin\theta_j.
 \end{eqnarray}
 
 Because the actual grid is finite, the choice 
 $r_{n_r} = R_{max}$ must be taken large enough so as to have a negligible effect
 on the solution.
 
-Note that $P$ has no boundary conditions -- so the pressure variable is defined 
+Note that $P^h$ has no boundary conditions -- so the pressure variable is defined 
 only in the domain interior.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -288,7 +288,7 @@ The problem can be cast as the following non-linear system:
 \subsubsection{Steady-state}
 Assume that $\cU \ui$ is the velocity of the ion exchanger 
 (given that the fluid is at rest far away from the particle).
-After the convergence of the Newton method solver, $\cO(\bx_n) \rightarrow \bzero$, 
+After the convergence of the solver, $\cO(\bx_n) \rightarrow \bzero$, 
 the ``ghost'' point values are updated using $\tilde\bx = \cB(\bx_\infty)$,
 so  that the surface force $\boldsymbol{f} = \tT \cdot \bn$ acting 
 on the ion-exchanger surface
@@ -314,7 +314,7 @@ f_\imath &=& \pars{-P + 2\cD_r(V_r) +
 \end{eqnarray}
 
 The integral for $F_\imath$ is approximated by 1D numerical quadrature
-(using trapezoidal rule), to yield 
+(using the mid-point rule), to yield 
 the total force $F_\imath(\cU)$ as a function of the drift velocity $\cU$.
 
 Since the goal is to find steady-state solution, $F_\imath(\cU)$ 
@@ -324,11 +324,20 @@ applied as an outer loop.
 
 \subsubsection{Continuation}
 
-The steady-state drift velocity $\cU(\beta)$ is computed as a function 
-of the electric field magnitude for various values of $\beta$.
-Since the solution $\bx_\infty$ is continous in $\beta$ and $\cU$, 
-the result of the current iteration is used as an initial solution $\bx_0$ for the problem 
-of the next iteration -- helping the convergence of the iterative solver in use.
+The iterative solver above can be used to compute the steady-state solution for any given $\beta$.
+For $\beta \ll 1$, the linear terms are the dominant ones, so the solution is linear in $\beta$ 
+(as derived in \cite{yariv2010migration}), and the solver convergence is fast.
+
+However, it is no longer true for $\beta \sim O(1)$, since the nonlinear terms become dominant
+and the iterative solver may not converge at all.
+In order to find a solution for such $\beta$, continuation method is used:
+the solver is applied to a sequence of $\{\beta_i\}_{i=0}^n$ such that $\beta_0 = 0$,
+$\beta_n = \beta$ and the solution $\bx_i$ for $\beta_i$ is used as the solver initializer
+for the problem of $\beta_{i+1}$.
+
+Given that $|\beta_{i+1} - \beta_i| < \eps$ for small enough $\eps$, 
+the next solution $\bx_{i+1}$ is close to the previous one $\bx_i$,
+so the iterative solver converges well.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Solver Implementation}
@@ -366,8 +375,8 @@ Let $f: \R \rightarrow \R$ be a differentiable 1D function, whose derivative is
 denoted by $f': \R \rightarrow \R$. The operator $\cF$ can be defined to
 represent pointwise application of $f$:
 \begin{eqnarray}
-\cF(\bx) &=& [f(x_1); \ldots; f(x_n)] \\
-\bnabla\cF(\bx) &=& \diag(f'(x_1), \ldots, f'(x_n))
+\cF(\bx) &=& [f(x_1); \ldots; f(x_n)], \\
+\bnabla\cF(\bx) &=& \diag\{f'(x_1), \ldots, f'(x_n)\}.
 \end{eqnarray}
 $f$ is defined and differentiated automatically using the MATLAB symbolic toolbox.
 
@@ -410,27 +419,27 @@ until convergence ($\|\Delta \bx\| < \eps$):
 \end{enumerate}
 
 \subsubsection{Total force integration $\rightarrow F_\imath$}
-After the solver converges ($\bx_n \rightarrow \bx_\infty$), 
-the ``ghost'' point values are computed by applying $\cB$ and
-solving for zero total force $\bF$.
+After the iterative Newton solver converges ($\bx_n \rightarrow \bs$), 
+the ``ghost'' point values are computed by computing $\cB(\bs)$ and
+the total force $\bF$ acting on the ion-exchanger.
 
-$F_\imath = \bF \cdot \ui$ is computed using mid-point quadrature method:
+$F_\imath = \bF \cdot \ui$ is computed by using the mid-point quadrature method:
 \begin{eqnarray}
 F_\imath &=& \sum_{i=1}^{n_\theta} f(\bar\theta_i) \cdot 
-              2 \pi \sin\bar\theta_i \cdot (\theta_i - \theta_{i-1})
+              2 \pi \sin\bar\theta_i \cdot \Delta\theta_i
 \end{eqnarray}
 
 \subsubsection{Steady state drift velocity $\rightarrow \cU$}
 In steady state, the total force acting on the particle $F_\imath$ must vanish.
-This yields an equation on $\cU$:
+This constraint yields an equation, whose solution is the steady-state velocity $\cU$:
 \begin{eqnarray}
 F_\imath(\cU) &=& 0
 \end{eqnarray}
 This equation can be solved using a 1D root finding algorithm, e.g. the secant method:
 \begin{eqnarray}
 \cU_{n+1} = \frac{F_\imath(\cU_{n})\cU_{n-1} - F_\imath(\cU_{n-1})\cU_{n}}
-{F_\imath(\cU_{n}) - F_\imath(\cU_{n-1})} \rightarrow \cU_\infty
+{F_\imath(\cU_{n}) - F_\imath(\cU_{n-1})} \rightarrow \cU
 \end{eqnarray}
-The result $\cU_\infty$ is the 
+The result $\cU$ is the 
 steady state particle drift velocity for the electric field $\beta$.
 

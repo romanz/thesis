@@ -1,13 +1,5 @@
 \section{Asymptotic Expansion}
 
-For $\beta = 0$ (no electric field is applied), the steady-state solution is $\cU = 0$:
-\begin{eqnarray}
-\varPhi_0(r,\theta) &=& 0, \\
-C_0(r,\theta) &=& 1, \\
-\bV_0(r,\theta) &=& \bzero, \\
-P_0(r,\theta) &=& 0.
-\end{eqnarray}
-
 The non-linear system is defined by the following PDEs:
 \label{PDEs}
 \begin{eqnarray}
@@ -28,9 +20,9 @@ The boundary conditions for $r \rightarrow \infty$ are:
 \begin{eqnarray}
 \bnabla \varPhi &=& -\beta \ui, \\
 C &=& 1, \\
-\bV &=& -\cU \ui.
+\bV &=& -\cU \ui,
 \end{eqnarray}
-and the total force on the particle is zero: $\bF = \bzero$.
+and the total force acting on the particle is zero: $\bF = \bzero$.
 
 The nonlinear system can be written as: 
 \begin{eqnarray}
@@ -79,6 +71,14 @@ given the previous solutions for $\bx_0, \ldots, \bx_{k-1}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Linear Solution $(k=1)$}
+
+For $\beta = 0$ (no electric field is applied), the steady-state solution is $\cU = 0$:
+\begin{eqnarray}
+\varPhi_0(r,\theta) &=& 0, \\
+C_0(r,\theta) &=& 1, \\
+\bV_0(r,\theta) &=& \bzero, \\
+P_0(r,\theta) &=& 0.
+\end{eqnarray}
 
 Assuming $\beta \ll 1$, the linearized equations and boundary conditions are:
 \begin{eqnarray}
