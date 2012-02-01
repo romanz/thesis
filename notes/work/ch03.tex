@@ -80,7 +80,8 @@ C_0(r,\theta) &=& 1, \\
 P_0(r,\theta) &=& 0.
 \end{eqnarray}
 
-Assuming $\beta \ll 1$, the linearized equations and boundary conditions are:
+Assuming $\beta \ll 1$, the linearized equations and boundary conditions are 
+(as developed in \cite{yariv2010migration}):
 \begin{eqnarray}
 \Laplacian \varPhi_1 &=& 0, \\
 \Laplacian C_1 &=& 0, \\
@@ -105,13 +106,13 @@ V_\theta &=& 4 \log \pars{\frac{1 + e ^ \frac{\zeta}{2}}{2}} \deriv{\varPhi}{\th
 =
  3 \beta \log \pars{\frac{1 + e ^ \frac{\zeta}{2}}{2}} \sin\theta, \\
 \cU_1 &=& 2 \log \pars{\frac{1 + e ^ \frac{\zeta}{2}}{2}} 
-       =  2 \log \pars{\frac{1 + \gamma ^ {-\frac{1}{2}}}{2}} = \cW_1,
+       =  2 \log \pars{\frac{1 + \gamma ^ {-\frac{1}{2}}}{2}}.
 \end{eqnarray}
 because $\varPhi_1 = -C_1 = -\frac{3}{4} \cos\theta$ on $r=1$
 and $\zeta_0 = -\log\gamma$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{High-order Solution}
+\subsection{Nonlinear Solution}
 Note that, due to symmetry considerations, $\cU(\beta)$ is an anti-symmetric function:
 \begin{eqnarray}
 \cU(-\beta) &=& -\cU(\beta).
@@ -121,40 +122,39 @@ Therefore, $\cU_2 = 0$ and the next velocity term is the cubic one:
 \cU(\beta) &\approx& \beta \cU_1 + \beta^3 \cU_3 + O(\beta^5)
 \end{eqnarray}
 
+In order to find the cubic terms, the quadratic term should be found first.
+
+\subsubsection{Quadratic Solution}
 The quadratic terms $\bx_2$ are computed by solving a linear PDE system 
-with a right-hand side determined by the linear terms $\bx_1$, and using 
-homogenous solutions to satisfy boundary conditions:
+with a right-hand side determined by the linear terms $\bx_1$:
 \begin{eqnarray}
 \varPhi_2 &=& \frac{\left(\frac{\cU_1\, \alpha}{32} - \frac{1}{16}\right)\, \left(3\, {\cos^2\theta} - 1\right)}{r^3} - \frac{3}{32\, r^4} - \frac{3\, {\sin^2\theta}\, \left(4\, r^3 - 1\right)}{32\, r^4} - \frac{3\, \cU_1\, \alpha - 6}{32\, r},
 \\
 C_2 &=& \frac{\left(\frac{5\, \cU_1\, \alpha}{32} + \frac{1}{16}\right)\, \left(3\, {\cos^2\theta} - 1\right)}{r^3} - \frac{3\, \cU_1\, \alpha - 6}{32\, r} + \frac{3\, \cU_1\, \alpha\, \left(2\, r^3\, {\sin^2\theta} + {\sin^2\theta} - 1\right)}{16\, r^4},
 \\
-\Psi_2 &=& \cW_2
+\Psi_2 &=& \cU_2
  \left(\frac{1}{r^2} - 1\right) \cos\theta \sin^2\theta,  \\
-\cW_2 &=& \pars{\frac{9}{16(\sqrt{\gamma}+1)} - \frac{3}{16} \cU_1 (\cU_1 \alpha + 1)},\\
+\cU_2 &=& \pars{\frac{9}{16(\sqrt{\gamma}+1)} - \frac{3}{16} \cU_1 (\cU_1 \alpha + 1)},\\
 \bF_2 &=& \bzero, \\ \cU_2 &=& 0.
 \end{eqnarray}
+Note that the quadratic term does not contribute to force and velocity terms, but it does
+change the fluid flow, the electric potential and the ionic concentration.
 
-The cubic terms $\bx_3$ are computed  by solving a linear PDE system 
-with a right-hand side determined by the linear and 
-quadratic terms $\bx_1, \bx_2$, and using 
-homogenous solutions to satisfy boundary conditions.
+\subsubsection{Cubic Solution}
 
 \begin{eqnarray*}
-\varPhi_3 &=& \cos\theta \left(\frac{15 \cW_1\alpha}{64} + \frac{3}{32}\right) - \frac{3 \cW_1\alpha {\cos}^3\theta}{32} - \frac{\cos\theta \left( - 183 {\cW_1}^2\alpha^2 + 839 \cW_1\alpha + 470\right)}{2560 r^2} \\ 
-&&+ \frac{3 \cos\theta \left(5 \cW_1\alpha - 6 {\cos^2\theta} - 4 \cW_1\alpha {\cos^2\theta} + 4\right)}{64 r^3} + \frac{\left(2 \cW_1\alpha - 1\right) \left(\cos\theta - 3 {\cos}^3\theta\right)}{64 r^5} 
+\varPhi_3 &=& \cos\theta \left(\frac{15 \cU_1\alpha}{64} + \frac{3}{32}\right) - \frac{3 \cU_1\alpha {\cos}^3\theta}{32} - \frac{\cos\theta \left( - 183 {\cU_1}^2\alpha^2 + 839 \cU_1\alpha + 470\right)}{2560 r^2} \\ 
+&&+ \frac{3 \cos\theta \left(5 \cU_1\alpha - 6 {\cos^2\theta} - 4 \cU_1\alpha {\cos^2\theta} + 4\right)}{64 r^3} + \frac{\left(2 \cU_1\alpha - 1\right) \left(\cos\theta - 3 {\cos}^3\theta\right)}{64 r^5} 
 \\ 
-&&- \frac{\left(3 \cos\theta - 5 {\cos}^3\theta\right) \left( - \frac{19 {\cW_1}^2\alpha^2}{5120} + \frac{97 \cW_1\alpha}{5120} + \frac{3 \cW_2\alpha}{320} + \frac{21}{1280}\right)}{r^4} + \frac{{\cos}^3\theta \left(\frac{15 \cW_1\alpha}{64} + \frac{3}{32}\right)}{r^2} \\ 
-&&+ \frac{{\cos}^3\theta \left(\frac{\cW_1\alpha}{64} + \frac{3}{64}\right)}{r^6},
-\end{eqnarray*}
-\begin{eqnarray*}
+&&- \frac{\left(3 \cos\theta - 5 {\cos}^3\theta\right) \left( - \frac{19 {\cU_1}^2\alpha^2}{5120} + \frac{97 \cU_1\alpha}{5120} + \frac{3 \cU_2\alpha}{320} + \frac{21}{1280}\right)}{r^4} + \frac{{\cos}^3\theta \left(\frac{15 \cU_1\alpha}{64} + \frac{3}{32}\right)}{r^2} \\ 
+&&+ \frac{{\cos}^3\theta \left(\frac{\cU_1\alpha}{64} + \frac{3}{64}\right)}{r^6},
+\\
 C_3 &=&
 \frac{3 {{\cU_1}}^2\alpha^2 {\cos^3\theta}}{32} + \frac{\cos\theta \left(797 {{\cU_1}}^2\alpha^2 + 419 {\cU_1}\alpha - 512 {\cU_2}\alpha + 174\right)}{2560 r^2} \\
 &&- \frac{\left(3 \cos\theta - 5 {\cos^3\theta}\right) \left(\frac{59 {{\cU_1}}^2\alpha^2}{5120} + \frac{103 {\cU_1}\alpha}{5120} + \frac{69 {\cU_2}\alpha}{320} + \frac{3}{1280}\right)}{r^4} \\
 &&- \frac{3\alpha \cos\theta \left( - 8\alpha {{\cU_1}}^2 {\cos^2\theta} + 7\alpha {{\cU_1}}^2 + 2 {\cU_1} + 32 {\cU_2} {\cos^2\theta} - 32 {\cU_2}\right)}{128 r^3} - \frac{3 {\cU_1}\alpha \cos\theta \left(5 {\cU_1}\alpha + 2\right)}{64} \\
 &&+ \frac{\alpha \left(\cos\theta - 3 {\cos^3\theta}\right) \left(5\alpha {{\cU_1}}^2 + 2 {\cU_1} + 16 {\cU_2}\right)}{128 r^5} + \frac{{{\cU_1}}^2\alpha^2 {\cos^3\theta}}{32 r^6} - \frac{3 {\cU_1}\alpha {\cos^3\theta} \left(5 {\cU_1}\alpha + 2\right)}{64 r^2},
-\end{eqnarray*}
-\begin{eqnarray*}
+\\
 \Psi_3 &=&
 r^2 {\sin^2\theta} \left(\frac{{\cU_{3b}}}{15} - \frac{{\cU_{3a}}}{3} + \frac{209}{3360}\right) 
  - \frac{{\sin^2\theta} \left(\frac{5 {\cU_{3b}}}{3} - \frac{{\cU_{3a}}}{3} + \frac{35}{264}\right)}{r}
@@ -171,34 +171,25 @@ r^2 {\sin^2\theta} \left(\frac{{\cU_{3b}}}{15} - \frac{{\cU_{3a}}}{3} + \frac{20
 - \frac{297\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{1024 \left(\sqrt{\gamma} + 1\right)}.
 \end{eqnarray*}
 
-\subsection{Analysis}
+The cubic solution satisfies the $\lim_{r\rightarrow\infty}C_3 = 0$ boundary condition, 
+when $\alpha\cU_1 = 0$.
 
-\subsubsection{Advection-less regime}
-The solution satisfies the $\lim_{r\rightarrow\infty}C_3 = 0$ boundary condition, 
-when advection is absent:
+The steady-state velocity can be expanded using odd powers of $\beta$:
 \begin{eqnarray}
-\alpha = 0.
+\cU(\beta, \gamma) &=& \cU_1(\gamma) \beta + \cU_3(\gamma) \beta^3
 \end{eqnarray}
 
-In this case, the steady-state velocity is:
-\begin{eqnarray}
-\cU(\beta, \gamma) &=& \cU_1(\gamma) \beta + \cU_3(\gamma) \beta^3 \\ &=&
-\beta \cU_1(\gamma) \pars{1 - \frac{11\beta^2}{320}} + 
-\beta^3 \pars{\frac{31}{320(\sqrt\gamma + 1)} - \frac{9}{320(\sqrt\gamma + 1)^2} + \frac{1}{1680}}.
-\end{eqnarray}
-The velocity terms are:
+The velocity terms (for $\alpha = 0$) are:
 \begin{eqnarray}
 \cU_1(\gamma) &=& 2 \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}, \\
-\cU_3(\gamma) &=& \frac{31}{320(\sqrt\gamma + 1)} - \frac{9}{320(\sqrt\gamma + 1)^2} + \frac{1}{1680} - \frac{11 \cU_1(\gamma)}{320}.
+\cU_3(\gamma) &=& \frac{31}{320(\sqrt\gamma + 1)} - \frac{9}{320(\sqrt\gamma + 1)^2} + \frac{1}{1680} - \frac{11}{160} \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}.
 \end{eqnarray}
 
-\subsubsection{Cubic regime}
-Note that, for $\gamma = 1$, the steady-state velocity leading term is $O(\beta^3)$:
+Note that, for $\gamma = 1$, the linear term vanishes and the velocity leading term is $O(\beta^3)$:
 \begin{eqnarray}
 \cU(\beta) = \frac{1129}{26880}\beta^3.
 \end{eqnarray}
 
-\subsubsection{Stationary solution}
 Note that a $\cU = 0$ solution may exist for $\beta_c \ne 0$ and $\alpha = 0$, 
 if it satisfies:
 \begin{eqnarray}

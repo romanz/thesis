@@ -1,5 +1,5 @@
-function animate
-    S = load('matlab');
+function animate(name)
+    S = load(name);
     figure(1)
     set(gcf, 'PaperPositionMode', 'auto');
 %     set(gcf, 'Position',[100 100 900 600]);
@@ -24,7 +24,7 @@ function animate
         ylabel('Particle velocity magnitude (V)', 'FontSize', 12)
         legend({'Numerical Solver', 'Analytical Approximation'}, ...
             'Location', 'SouthEast', 'FontSize', 8, 'Box', 'on')
-        axis([0.01 1 0.001 1])
+        axis([0.1 10 0.001 10])
         text(0.04, 0.4, s, 'FontSize', 12);
         subplot(2,2,2);
         hold on
@@ -57,3 +57,16 @@ function sphere()
     t = linspace(0, 2*pi, 100);
     fill(cos(t), sin(t), 'k');
 end
+
+function show(func, sol, name, Rmax, dir, varargin)
+    g = sol.grid.(name);
+    Z = (sol.(name));
+    I = g.x < Rmax;
+    X = g.X .* cos(g.Y);
+    Y = g.X .* sin(g.Y);
+    X = X(I, :);
+    Y = Y(I, :) * dir;
+    Z = Z(I, :);
+    func(X, Y, Z, varargin{:});
+end
+

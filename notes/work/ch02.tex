@@ -443,3 +443,41 @@ This equation can be solved using a 1D root finding algorithm, e.g. the secant m
 The result $\cU$ is the 
 steady state particle drift velocity for the electric field $\beta$.
 
+\subsection{Numerical Results}
+The results for steady-state velocity $\cU$ as a function of the electric field magnitude $\beta$
+are shown at Figures \ref{fig:NumResA} and \ref{fig:NumResB}. 
+Since log-log scale is used, blue and red colors are used 
+for positive and negative velocities, respectively.
+
+For small $\beta$, the linear regime dominates, $\cU \propto \beta$. 
+However, from a specific $\beta_c$, the nonlinear regime dominates, such that
+$\cU \propto \beta^3$, until $\beta \sim O(1)$.
+
+The theoretical results for the nonlinear regime are computed by asymptotic expansion of the
+nonlinear system, as described in the following section.
+\begin{figure}[htbp]
+\begin{framed}
+    \begin{center}
+        \includegraphics[width=0.45\textwidth]{figs/A1.eps}
+        \includegraphics[width=0.45\textwidth]{figs/A2.eps}
+        \includegraphics[width=0.45\textwidth]{figs/A3.eps}
+        \includegraphics[width=0.45\textwidth]{figs/A4.eps}
+        \caption{Steady-state velocity $\cU$ as a function of the electric field magnitude $\beta$, 
+        for $\gamma > 1$.}
+        \label{fig:NumResA}
+    \end{center}
+\end{framed}
+\end{figure}
+\begin{figure}[htbp]
+\begin{framed}
+    \begin{center}
+        \includegraphics[width=0.45\textwidth]{figs/B1.eps}
+        \includegraphics[width=0.45\textwidth]{figs/B2.eps}
+        \includegraphics[width=0.45\textwidth]{figs/B3.eps}
+        \includegraphics[width=0.45\textwidth]{figs/B4.eps}
+        \caption{Steady-state velocity $\cU$ as a function of the electric field magnitude $\beta$,
+        for $\gamma < 1$.}
+        \label{fig:NumResB}
+    \end{center}
+\end{framed}
+\end{figure}

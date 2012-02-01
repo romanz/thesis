@@ -2,7 +2,7 @@ function asymp
 
     syms pi b r t a g U1 U2 U3 real
     syms U3a U3b real
-    
+      
     order = 3;
         
     bnd = @(f) subs(f, r, 1);
@@ -148,3 +148,7 @@ function assert_zero(e, msg)
     end
 end
 
+function F = gradient(f)
+    syms r t
+    F = [diff(f, r); diff(f, t) / r];
+end
