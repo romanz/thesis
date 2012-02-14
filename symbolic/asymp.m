@@ -14,9 +14,9 @@ function asymp
     phi1 = (1/4 * r^(-2) - r) * cos(t);
     c1 = 3/4 * r^(-2) * cos(t);
     % Streamfunction
-    psi1 = (r^-1 - r^2)*sin(t)^2/2;
+    psi1 = U1 * (r^-1 - r^2)*sin(t)^2/2;
     assert_zero(E4(psi1), '')
-    v1 = U1 * curl( psi1 ); 
+    v1 = curl( psi1 ); 
     
     %% O(beta^2) : Homogeneous equations
     % Non-homogeneous solution (Phi & C)
@@ -26,9 +26,9 @@ function asymp
     phi2 = phi2 + 3*(1/16 - a*U1/32)/r + (a*U1/32 - 1/16)*(3*cos(t)^2 - 1)/r^3;
     c2 = c2 + 3*(1/16 - a*U1/32)/r + ((5*U1*a)/32 + 1/16)*(3*cos(t)^2 - 1)/r^3;
     % Streamfunction (homogeneous Stokes, for sin(2t) boundary conditions)
-    psi2 = (r^-2 - 1)*(cos(t)*sin(t)^2);
+    psi2 = U2 * (r^-2 - 1)*(cos(t)*sin(t)^2);
     assert_zero(E4(psi2), '')
-    v2 = U2 * curl( psi2 );
+    v2 = curl( psi2 );
     p2 = U2 * 2 * r^-3 * (1 - 3*cos(t)^2);
 
     %% O(beta^3)
@@ -70,7 +70,9 @@ function asymp
     %% Variables
     phi = b * phi1 + b^2 * phi2 + b^3 * phi3;
     c = 1 + b * c1 + b^2 * c2 + b^3 * c3;
+    psi = b * psi1 + b^2 * psi2 + b^3 * psi3;
     v = b * v1 + b^2 * v2 + b^3 * v3;
+    assert_zero( v - curl(psi), 'streamfunction' );
     p = b^2 * p2 + b^3 * p3;
     
     %% Equations
@@ -120,6 +122,7 @@ function asymp
     
     Uinf = simple([-cos(t), sin(t)]*simple(limit(v, r, inf)));
     Uinf = subs(Uinf, [U1 U2 U3a U3b], [W1 W2 W3a W3b]);
+    psi = subs(psi, [U1 U2 U3a U3b], [W1 W2 W3a W3b]);
     
     if a == 0
         Winf = b*(1 - 11/320*b^2)*W1 ...
