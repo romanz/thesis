@@ -19,7 +19,7 @@ for k = 1:size(C ,1)
     p = r ^ p(1);
 
     L = @(psi) simple(vector_laplacian(curl(psi)));
-    G = @(p) -simple(gradient(p));
+    G = @(p) -simple(grad(p));
 
     ops = {L, L, G, G};
     u = [sin(t)^2*[1, sin(t)^2]*r^4; cos(t)*r*[1, sin(t)^2]].'*p;

@@ -74,13 +74,13 @@ function asymp
     p = b^2 * p2 + b^3 * p3;
     
     %% Equations
-    eq1 = divergence(c * gradient(phi));
+    eq1 = divergence(c * grad(phi));
     assert_zero( series(eq1, b, 0, order), 'ion flux' )
     
-    eq2 = scalar_laplacian(c) - a * sum(v .* gradient(c));
+    eq2 = scalar_laplacian(c) - a * sum(v .* grad(c));
     assert_zero( series(eq2, b, 0, order), 'salt flux' )
     
-    eq3 = [vector_laplacian(v) - gradient(p) + scalar_laplacian(phi)*gradient(phi); ...
+    eq3 = [vector_laplacian(v) - grad(p) + scalar_laplacian(phi)*grad(phi); ...
            divergence(v)];
 
     assert_zero( series(eq3, b, 0, order), 'Stokes' )
@@ -115,7 +115,7 @@ function asymp
     assert_zero( vb(1), 'no penetration' );
     assert_zero( slip_error, 'slip condition' );
 
-    assert_zero(limit(gradient(phi), r, inf) - b*[-cos(t);sin(t)], 'boundary R=Inf for Phi' )
+    assert_zero(limit(grad(phi), r, inf) - b*[-cos(t);sin(t)], 'boundary R=Inf for Phi' )
 %     assert_zero(limit(c, r, inf) - 1, 'boundary R=Inf for C' ) % ??? %
     
     Uinf = simple([-cos(t), sin(t)]*simple(limit(v, r, inf)));
@@ -148,7 +148,3 @@ function assert_zero(e, msg)
     end
 end
 
-function F = gradient(f)
-    syms r t
-    F = [diff(f, r); diff(f, t) / r];
-end
