@@ -13,7 +13,9 @@ $\cV = -\log \gamma$, the boundary conditions on $r = 1$ are:
 \begin{eqnarray}
 \varPhi + \log C &=& \cV + \log \gamma = 0, \\
 \deriv{}{r}\pars{\varPhi - \log C} &=& \frac{J_-}{C} = 0, \\
-\bV &=& 4\log\pars{\frac{1 + e^\frac{\zeta}{2}}{2}} \bnabla_S \varPhi.
+\bV = \zeta \cdot \bnabla_\mathcal{S} \varPhi 
++ 2\log\pars{1-\tanh^2\frac{\zeta}{4}} \cdot \bnabla_\mathcal{S} \log C
+&=& 4\log\pars{\frac{1 + e^\frac{\zeta}{2}}{2}} \bnabla_S \varPhi.
 \end{eqnarray}
 
 The boundary conditions for $r \rightarrow \infty$ are:
@@ -47,13 +49,10 @@ where the velocity $\bV$ and pressure $P$ are computed from the streamfunction $
 - \frac{1}{r \sin\theta} \deriv{\Psi}{r} \bthetahat.
 \end{eqnarray}
 
-The nonlinear equations and the boundary conditions are expanded up to the cubic term
+The nonlinear equations and the boundary conditions are expanded around $\beta = 0$
 and arranged by powers of $\beta$:
 \begin{eqnarray}
-\bzero = \cO(\bx) = \cO_0(\bx_0) 
-   + \beta \cO_1(\bx_0, \bx_1) 
- + \beta^2 \cO_2(\bx_0, \bx_1, \bx_2) 
- + \beta^3 \cO_3(\bx_0, \bx_1, \bx_2, \bx_3) \ldots
+\bzero = \cO(\bx) = \sum_k \cO_k(\bx_0, \ldots \bx_k) \beta^k
 \end{eqnarray}
 This can be rewritten as a system of equations:
 \begin{eqnarray}
@@ -112,7 +111,7 @@ because $\varPhi_1 = -C_1 = -\frac{3}{4} \cos\theta$ on $r=1$
 and $\zeta_0 = -\log\gamma$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Nonlinear Solution}
+\subsection{Nonlinear Solution ($k > 1$)}
 Note that, due to symmetry considerations, $\cU(\beta)$ is an anti-symmetric function:
 \begin{eqnarray}
 \cU(-\beta) &=& -\cU(\beta).
@@ -124,7 +123,7 @@ Therefore, $\cU_2 = 0$ and the next velocity term is the cubic one:
 
 In order to find the cubic terms, the quadratic term should be found first.
 
-\subsubsection{Quadratic Solution}
+\subsubsection{Quadratic Solution ($k = 2$)}
 The quadratic terms $\bx_2$ are computed by solving a linear PDE system 
 with a right-hand side determined by the linear terms $\bx_1$:
 \begin{eqnarray}
@@ -140,7 +139,7 @@ Note that the quadratic term does not contribute to the total force and staedy-s
 velocity terms, but it does change the fluid flow, 
 the electric potential and the ionic concentration.
 
-\subsubsection{Cubic Solution}
+\subsubsection{Cubic Solution ($k = 3$)}
 
 \begin{eqnarray*}
 \varPhi_3 &=& \cos\theta \left(\frac{15 \cU_1\alpha}{64} + \frac{3}{32}\right) - \frac{3 \cU_1\alpha {\cos}^3\theta}{32} - \frac{\cos\theta \left( - 183 {\cU_1}^2\alpha^2 + 839 \cU_1\alpha + 470\right)}{2560 r^2} \\ 
@@ -165,9 +164,9 @@ r^2 {\sin^2\theta} \left(\frac{{\cW_2}}{15} - \frac{{\cW_1}}{3} + \frac{209}{336
 \frac{1899\alpha {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^2}{2560} - \frac{\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) \left(\frac{81}{16 \left(\sqrt{\gamma} + 1\right)} - \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) \left(\frac{27\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{4} + \frac{27}{8}\right)\right)}{320} \\ && + 
 \frac{21\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{128 \left(\sqrt{\gamma} + 1\right)},
 \\
-\cW_2 &=& \frac{9 \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{256} + \frac{21\alpha^2 {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^3}{64} - \frac{27}{512 \left(\sqrt{\gamma} + 1\right)} 
+\cW_2 &=& \frac{9 \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{256} + \frac{21\alpha^2 {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^3}{64} - \frac{27}{512 \left(\sqrt{\gamma} + 1\right)} - \frac{27}{512 {\left(\sqrt{\gamma} + 1\right)}^2}
+ + \frac{15\alpha {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^2}{64} 
 \\ && 
-- \frac{27}{512 {\left(\sqrt{\gamma} + 1\right)}^2} + \frac{15\alpha {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^2}{64} 
 - \frac{297\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{1024 \left(\sqrt{\gamma} + 1\right)}.
 \end{eqnarray*}
 
@@ -180,8 +179,13 @@ The steady-state velocity can be expanded using odd powers of $\beta$:
 \end{eqnarray}
 
 The velocity terms (for $\alpha = 0$) are:
+
+The linear term is:
 \begin{eqnarray}
-\cU_1(\gamma) &=& 2 \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}, \\
+\cU_1(\gamma) &=& 2 \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}. \\
+\end{eqnarray}
+The cubic term is:
+\begin{eqnarray}
 \cU_3(\gamma) &=& \frac{31}{320(\sqrt\gamma + 1)} - \frac{9}{320(\sqrt\gamma + 1)^2} + \frac{1}{1680} - \frac{11}{160} \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}.
 \end{eqnarray}
 
@@ -204,3 +208,5 @@ However, for $\gamma \gg 1$, we have:
 \begin{eqnarray}
 \beta_c =  \pars{\frac{11}{320} + \frac{1}{1680 \log 4}}^{-\frac{1}{2}} \approx 5.36.
 \end{eqnarray}
+
+The cubic term becomes dominant for small $\beta$ when $\gamma \approx 1$.

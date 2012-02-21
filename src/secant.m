@@ -20,7 +20,7 @@ end
 function sol = step(x, y)
     dx = x(2) - x(1);
     dy = y(2) - y(1);
-    if dx && dy
+    if dx ~= 0 && dy ~= 0
         sol = x(1) - y(1) * dx / dy;
     else
         sol = x(2);
