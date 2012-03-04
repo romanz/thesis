@@ -118,13 +118,13 @@ function asymp
     assert_zero( slip_error, 'slip condition' );
 
     assert_zero(limit(grad(phi), r, inf) - b*[-cos(t);sin(t)], 'boundary R=Inf for Phi' )
-%     assert_zero(limit(c, r, inf) - 1, 'boundary R=Inf for C' ) % ??? %
     
     Uinf = simple([-cos(t), sin(t)]*simple(limit(v, r, inf)));
     Uinf = subs(Uinf, [U1 U2 U3a U3b], [W1 W2 W3a W3b]);
     psi = subs(psi, [U1 U2 U3a U3b], [W1 W2 W3a W3b]);
     
     if a == 0
+        assert_zero(limit(c, r, inf) - 1, 'boundary R=Inf for C' ) 
         Winf = b*(1 - 11/320*b^2)*W1 ...
              - (9/320*(sqrt(g)+1)^-2 - 31/320*(sqrt(g)+1)^-1 - 1/1680)*b^3;
         assert_zero(Uinf - Winf, 'Uinf (for a=0)');
