@@ -1,6 +1,6 @@
 \documentclass[final]{elsarticle}
 
-%\usepackage{setspace}\doublespacing
+\usepackage{setspace}\doublespacing
 
 \usepackage{graphicx}
 \usepackage{tikz}
@@ -14,6 +14,7 @@
 \usepackage{mathrsfs}
 \usepackage[colorlinks]{hyperref}
 \usepackage{framed}
+\usepackage{url}
 
 \floatstyle{ruled}
 \newfloat{program}{thp}{lop}
@@ -199,7 +200,7 @@ However, since the analytic model for these electrokinetic
 phenomena has no closed-form analytic solution, a numerical
 solver has to be developed for analysing such system.
 
-The goal of this work is to implement an accurate and fast iterative numerical
+The goal of this work is to implement an iterative numerical
 solver for nonlinear electrokinetic problems, and apply it to the study
 of systems that have no closed-form solutions.
 It is expected to gain insight into the chemical and physical behavior 
@@ -762,6 +763,7 @@ so the iterative solver converges well.
 Object-Oriented Design methodology is used for implementation.
 The MATLAB programming language is chosen due to strong numerical capabilities
 and high-level language features.
+The source code of solver can be found at \cite{source}.
 
 \subsubsection{Operator Interface}
 The base \verb|Operator| interface is defined by 
@@ -882,11 +884,11 @@ The resulting $\cU(\beta)$ is plotted using a log-log graph, so the asymptotic b
 of the solution could be examined for a wide range of $\beta$ values.
 
 In order to validate the numerical solver, an asymptotic analysis of the nonlinear system
-is performed as described in \ref{sec:asymp}. The numerical results are compared to 
+is performed as described in \ref{app:asymp}. The numerical results are compared to 
 to the asymptotic solutions, and good correspondence is achieved.
 
 \subsection{Linear Regime}
-For $\beta \ll 1$, the linear regime takes place:
+For $\beta \ll 1$, the linear regime takes place (for derivation, see \ref{app:linear}):
 \begin{eqnarray*}
 \cU = 2\log\pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}\beta.
 \end{eqnarray*}
@@ -894,20 +896,26 @@ Thus, for $\gamma > 1$, the Debye layer has positive space charge, corresponding
 particle charge -- yielding negative drift velocity, $\cU < 0$. 
 For $\gamma < 1$, we have $\cU > 0$, respectively.
 
-The linear regime is simulated for $\gamma > 1$ (at Figure \ref{Linear1})  
-and for $\gamma < 1$ (at Figure \ref{Linear2}).
+The linear regime is simulated for $\gamma > 1$ (at Figure \ref{fig:Linear1})  
+and for $\gamma < 1$ (at Figure \ref{fig:Linear2}).
 
 \subsection{Cubic Regime}
-When $\gamma \approx 1$, the cubic regime, $\cU = O(\beta^3)$, 
+When $\gamma \approx 1$, the cubic regime  (for derivation, see \ref{app:cubic}), where
+\begin{eqnarray*}
+\cU = O(\beta^3), 
+\end{eqnarray*}
 dominates the linear one, even for weak electric fields. 
 
 This phenomenon is confirmed both by the numerical
 results and by asymptotic expansion of the nonlinear system (for $\alpha=0$).
 The switch from the linear regime to the cubic one happens at a critical electric
-field value $\beta_c = O(\sqrt{|\gamma - 1|})$.
+field value
+\begin{eqnarray*}
+\beta_c = O(\sqrt{|\gamma - 1|}).
+\end{eqnarray*}
 
 The numerical results, as well as the analytical ones, are given at Figure
-\ref{} (for $\gamma > 1$) and at Figure \ref{} (for $\gamma < 1$).
+\ref{fig:Cubic1} (for $\gamma > 1$) and at Figure \ref{fig:Cubic2} (for $\gamma < 1$).
 Since log-log scale is employed, positive and negative velocities are shown in
 the same plot using different markers and line styles.
 
@@ -919,11 +927,19 @@ which can be approximated for small $|\zeta| \ll 1$ as:
 \begin{eqnarray*}
 V_\theta \approx \zeta \cdot \bnabla_S \varPhi.
 \end{eqnarray*} 
-This sign change creates a vortex at the downstream part of the ion-exchanger, 
+This sign change creates a vortex at the downstream end of the ion-exchanger, 
 as demonstrated by the numerical simulation and the asymptotic analysis results 
-in Figure \ref{}.
+in Figure \ref{fig:Vortex}.
 
-%        \includegraphics[width=0.7\textwidth]{figs}
+\subsection{Discussion}
+The numerical solver results have good correspondence to the asymptotic linear model as
+shown above.
+
+Moreover, two interesting phenomena (cubic regime and downstream vortex) were predicted
+using the numerical results, and later verified using asymptotic expansion of the
+nonlinear system.
+
+
 
 \begin{figure}[htbp]
     \begin{center}
@@ -935,7 +951,7 @@ in Figure \ref{}.
         electric field magnitude $\beta$, for $\gamma > 1$. 
         The analytic solution velocity is represented by dashed lines, and the numerical
         results are represented by squares.}
-    \label{Linear1}
+    \label{fig:Linear1}
     \end{center}
 \end{figure}
 
@@ -949,7 +965,7 @@ in Figure \ref{}.
         electric field magnitude $\beta$, for $\gamma < 1$. 
         The analytic solution velocity is represented by solid lines, and the numerical
         results are represented by circles.}
-    \label{Linear2}
+    \label{fig:Linear2}
     \end{center}
 \end{figure}
 
@@ -963,8 +979,8 @@ in Figure \ref{}.
         electric field magnitude $\beta$, for $\gamma < 1$. 
         The analytic solution velocity is represented by solid lines, 
         and the numerical results are represented by square markers.}
+	    \label{fig:Cubic1}
     \end{center}
-    \label{fig:Cubic1}
 \end{figure}
 \begin{figure}[htbp]
     \begin{center}
@@ -978,8 +994,8 @@ in Figure \ref{}.
         (solid lines for $\cU > 0$, dashed lines for $\cU < 0$), 
         and the numerical results are represented by markers 
         (squares for $\cU > 0$, circles for $\cU < 0$).}
+	    \label{fig:Cubic2}
     \end{center}
-    \label{fig:Cubic2}
 \end{figure}
 \begin{figure}[htbp]
     \begin{center}
@@ -994,13 +1010,14 @@ in Figure \ref{}.
         \caption{Streamlines of the flow for various electric field $\beta$ values: 
         numerical results (left) and analytical approximation (right) for 
         $\gamma = 0.99$.  The steady-state velocity $\cU$ is positive, so the
-        ion-exchanger drifts to the right.}
-    \end{center}
+        ion-exchanger drifts to the right. 
+        }
     \label{fig:Vortex}
+    \end{center}
 \end{figure}
 
 \begin{appendix}
-\section{Asymptotic Analysis} \label{sec:asymp}
+\section{Asymptotic Analysis} \label{app:asymp}
 The nonlinear system is defined by the following PDEs:
 \label{PDEs}
 \begin{eqnarray*}
@@ -1070,7 +1087,7 @@ $\cO_k(\bx_0, \bx_1, \ldots, \bx_k) = \bzero$,
 given the previous solutions for $\bx_0, \ldots, \bx_{k-1}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Linear Solution $(k=1)$}
+\section{Linear Solution $(k=1)$} \label{app:linear}
 
 For $\beta = 0$ (no electric field is applied), the steady-state solution is $\cU = 0$:
 \begin{eqnarray*}
@@ -1112,7 +1129,7 @@ because $\varPhi_1 = -C_1 = -\frac{3}{4} \cos\theta$ on $r=1$
 and $\zeta_0 = -\log\gamma$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Nonlinear Solution ($k > 1$)}
+\section{Nonlinear Solution ($k > 1$)} \label{app:cubic}
 Note that, due to symmetry considerations, $\cU(\beta)$ is an anti-symmetric function:
 \begin{eqnarray*}
 \cU(-\beta) &=& -\cU(\beta).
@@ -1210,6 +1227,5 @@ The cubic term becomes dominant for small $\beta$ when $\gamma \approx 1$.
 
 \bibliographystyle{elsarticle-num}
 \bibliography{main}
-
 
 \end{document}
