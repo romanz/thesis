@@ -151,3 +151,4 @@ function assert_zero(e, msg)
     end
 end
 
+% inline(vectorize(char

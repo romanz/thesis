@@ -178,7 +178,7 @@ The boundary conditions are determined by the specific
 problem under consideration and defined by the particle's
 geometry, chemical characteristics, and the fluid dynamics.
 The partial differential equations that describe the system dynamics
-under an external electric field, are coupled and non-linear, and
+under an external electric field, are coupled and nonlinear, and
 in general, they have no analytic solution. 
 Moreover, any numerical solver must handle the scale disparity caused by the
 Debye layer width being much smaller than the particle's size. 
@@ -696,11 +696,11 @@ are computed by applying the following nonlinear operators:
 The extended system variable can be written as $\tilde{\bx} = \cB(\bx)$, 
 where $\cB$ is the ``ghost'' point extension operator (derived using boundary conditions)
 so the concatenated equations of the system (as described above) can be written 
-as a non-linear operator $\cE(\tilde\bx) = \bzero$ acting on the extended system variable 
+as a nonlinear operator $\cE(\tilde\bx) = \bzero$ acting on the extended system variable 
 $\tilde{\bx}$, where $\cE$ is the conservation equations operator 
 (derived by concatenation of the system equations).
 
-The problem can be cast as the following non-linear system (where $\cO = \cE \circ \cB$):
+The problem can be cast as the following nonlinear system (where $\cO = \cE \circ \cB$):
 \begin{eqnarray*}
 \cO(\bx) = \bzero.
 \end{eqnarray*}
@@ -745,7 +745,7 @@ The iterative solver above can be used to compute the steady-state solution for 
 For $\beta \ll 1$, the linear terms are the dominant ones, so the solution is linear in $\beta$ 
 (as derived in \cite{yariv2010migration}), and the solver convergence is fast.
 
-However, it is no longer true for $\beta \sim O(1)$, since the non-linear terms become dominant
+However, it is no longer true for $\beta \sim O(1)$, since the nonlinear terms become dominant
 and the iterative solver may not converge at all.
 In order to find a solution for such $\beta$, continuation method is used:
 the solver is applied to a sequence of $\{\beta_i\}_{i=0}^n$ such that $\beta_0 = 0$,
@@ -863,96 +863,145 @@ The result $\cU$ is the
 steady state particle drift velocity for the electric field $\beta$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Numerical Results} \label{sec:results}
-The numerical solver is applied to the non-linear problem of the migration ion-exchanger
+\section{Numerical Results and Discussion} \label{sec:results}
+The numerical solver is applied to the nonlinear problem of the migration ion-exchanger
 driven by an electric field (as described in \cite{yariv2010migration}). 
 
 The computational grid for the problem is chosen to be of the size $400 \times 50$.
+
 Since there are five variables ($\varPhi, C, V_r, V_\theta, P$), the concatenated
 variable $\bx$ has dimension of $\sim 10^5$.
+
 $R_{\max}$ is chosen to be $10^{7}$ so truncation effect should be negligible.
 
 The solver is applied to a series of values of $\beta$, from $\beta \ll 1$ up to $\beta \sim O(1)$.
 For each $\beta$ value, the steady-state velocity $\cU(\beta)$ is computed. The solver
-is applied to various values of $\gamma$. 
+is applied to various values of $\gamma$, representing various ion-exchangers.
 
+The resulting $\cU(\beta)$ is plotted using a log-log graph, so the asymptotic behaviour
+of the solution could be examined for a wide range of $\beta$ values.
+
+In order to validate the numerical solver, an asymptotic analysis of the nonlinear system
+is performed as described in \ref{sec:asymp}. The numerical results are compared to 
+to the asymptotic solutions, and good correspondence is achieved.
+
+\subsection{Linear Regime}
 For $\beta \ll 1$, the linear regime takes place:
 \begin{eqnarray*}
 \cU = 2\log\pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}\beta.
 \end{eqnarray*}
+Thus, for $\gamma > 1$, the Debye layer has positive space charge, corresponding to a negative
+particle charge -- yielding negative drift velocity, $\cU < 0$. 
+For $\gamma < 1$, we have $\cU > 0$, respectively.
 
-If $\gamma \approx 1$, the the non-linear regime, where $\cU \approx 0.042 \beta^3$ takes place 
-for weak electric fields. This phenomenon is confirmed both by the numerical
-results and by asymptotic expansion of the non-linear system.
-For $\alpha=0$, the switch from the linear regime to the cubic one happens at:
+The linear regime is simulated for $\gamma > 1$ (at Figure \ref{Linear1})  
+and for $\gamma < 1$ (at Figure \ref{Linear2}).
+
+\subsection{Cubic Regime}
+When $\gamma \approx 1$, the cubic regime, $\cU = O(\beta^3)$, 
+dominates the linear one, even for weak electric fields. 
+
+This phenomenon is confirmed both by the numerical
+results and by asymptotic expansion of the nonlinear system (for $\alpha=0$).
+The switch from the linear regime to the cubic one happens at a critical electric
+field value $\beta_c = O(\sqrt{|\gamma - 1|})$.
+
+The numerical results, as well as the analytical ones, are given at Figure
+\ref{} (for $\gamma > 1$) and at Figure \ref{} (for $\gamma < 1$).
+Since log-log scale is employed, positive and negative velocities are shown in
+the same plot using different markers and line styles.
+
+\subsection{Vortices}
+The linear solution for $\gamma \approx 1$, 
+yields a sign change in the zeta potential $\zeta = \log (C/\gamma)$, when
+$|\log\gamma| \approx 3\beta / 4$. This results in a sign change in the slip velocity,
+which can be approximated for small $|\zeta| \ll 1$ as:
 \begin{eqnarray*}
-\beta_c & \approx & 3.45 \sqrt{|\gamma - 1|}
-\end{eqnarray*}
-as described in \ref{sec:asymp}.
-The numerical results as well as the analytical ones are given in Figures 
-\ref{fig:NumResA} and \ref{fig:NumResB}.
-Good correspondence between the numerical results and the analytical expression is achieved.
+V_\theta \approx \zeta \cdot \bnabla_S \varPhi.
+\end{eqnarray*} 
+This sign change creates a vortex at the downstream part of the ion-exchanger, 
+as demonstrated by the numerical simulation and the asymptotic analysis results 
+in Figure \ref{}.
 
-When $\beta > 4/3 |\log \gamma|$, the zeta potential $\zeta = -\log \gamma - \varPhi$ 
-changes sign on the surface of the ion-exchanger. The slipping velocity changes signs
-as well, causing a vortex at the downstream part of the sphere.
-The numerical results as well as the analytical ones are given in Figures 
-\ref{fig:NumResC}, \ref{fig:NumResD} and \ref{fig:NumResE}.
-Good correspondence between the numerical results and the analytical expression is achieved.
+%        \includegraphics[width=0.7\textwidth]{figs}
 
 \begin{figure}[htbp]
     \begin{center}
-        \includegraphics[width=0.7\textwidth]{figs/A2.eps}
-        \includegraphics[width=0.7\textwidth]{figs/A4.eps}
-        \caption{Steady-state velocity $\cU$ as a function of the electric field magnitude $\beta$, 
-        for $\gamma > 1$.}
-        \label{fig:NumResA}
-    \end{center}
-\end{figure}
-\begin{figure}[htbp]
-    \begin{center}
-        \includegraphics[width=0.7\textwidth]{figs/B2.eps}
-        \includegraphics[width=0.7\textwidth]{figs/B4.eps}
-        \caption{Steady-state velocity $\cU$ as a function of the electric field magnitude $\beta$,
-        for $\gamma < 1$.}
-        \label{fig:NumResB}
-    \end{center}
-\end{figure}
-\begin{figure}[htbp]
-    \begin{center}
-        \includegraphics[width=0.7\textwidth]{figs/D1n.eps}
-        \includegraphics[width=0.7\textwidth]{figs/D1a.eps}
-        \caption{Streamlines of the flow for various electric field values: numerical results (left)
-        and analytical approximation (right).}
-        \label{fig:NumResC}
-    \end{center}
-\end{figure}
-\begin{figure}[htbp]
-    \begin{center}
-        \includegraphics[width=0.7\textwidth]{figs/D2n.eps}
-        \includegraphics[width=0.7\textwidth]{figs/D2a.eps}
-        \caption{Streamlines of the flow for various electric field values: numerical results (left)
-        and analytical approximation (right).}
-        \label{fig:NumResD}
-    \end{center}
-\end{figure}
-\begin{figure}[htbp]
-    \begin{center}
-        \includegraphics[width=0.7\textwidth]{figs/D3n.eps}
-        \includegraphics[width=0.7\textwidth]{figs/D3a.eps}
-        \caption{Streamlines of the flow for various electric field values: numerical results (left)
-        and analytical approximation (right).}
-        \label{fig:NumResE}
+    \includegraphics[width=0.45\textwidth]{figs/Linear/g=2.00.eps}
+    \includegraphics[width=0.45\textwidth]{figs/Linear/g=5.00.eps}
+    \includegraphics[width=0.45\textwidth]{figs/Linear/g=10.00.eps}
+    \includegraphics[width=0.45\textwidth]{figs/Linear/g=100.00.eps}
+    \caption{Steady-state velocity $\cU$ as a function of the 
+        electric field magnitude $\beta$, for $\gamma > 1$. 
+        The analytic solution velocity is represented by dashed lines, and the numerical
+        results are represented by squares.}
+    \label{Linear1}
     \end{center}
 \end{figure}
 
+\begin{figure}[htbp]
+    \begin{center}
+    \includegraphics[width=0.45\textwidth]{figs/Linear/g=0.50.eps}
+    \includegraphics[width=0.45\textwidth]{figs/Linear/g=0.20.eps}
+    \includegraphics[width=0.45\textwidth]{figs/Linear/g=0.10.eps}
+    \includegraphics[width=0.45\textwidth]{figs/Linear/g=0.01.eps}
+    \caption{Steady-state velocity $\cU$ as a function of the 
+        electric field magnitude $\beta$, for $\gamma < 1$. 
+        The analytic solution velocity is represented by solid lines, and the numerical
+        results are represented by circles.}
+    \label{Linear2}
+    \end{center}
+\end{figure}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Discussion and Future Work} \label{sec:discussion}
+\begin{figure}[htbp]
+    \begin{center}
+    \includegraphics[width=0.45\textwidth]{figs/Cubic/g=0.999900.eps}
+    \includegraphics[width=0.45\textwidth]{figs/Cubic/g=0.999000.eps}
+    \includegraphics[width=0.45\textwidth]{figs/Cubic/g=0.990000.eps}
+    \includegraphics[width=0.45\textwidth]{figs/Cubic/g=0.900000.eps}
+        \caption{Steady-state velocity $\cU$ as a function of the 
+        electric field magnitude $\beta$, for $\gamma < 1$. 
+        The analytic solution velocity is represented by solid lines, 
+        and the numerical results are represented by square markers.}
+    \end{center}
+    \label{fig:Cubic1}
+\end{figure}
+\begin{figure}[htbp]
+    \begin{center}
+    \includegraphics[width=0.45\textwidth]{figs/Cubic/g=1.000100.eps}
+    \includegraphics[width=0.45\textwidth]{figs/Cubic/g=1.001000.eps}
+    \includegraphics[width=0.45\textwidth]{figs/Cubic/g=1.010000.eps}
+    \includegraphics[width=0.45\textwidth]{figs/Cubic/g=1.100000.eps}
+        \caption{Steady-state velocity $\cU$ as a function of the 
+        electric field magnitude $\beta$, for $\gamma < 1$. 
+        The analytic solution velocity is represented by lines 
+        (solid lines for $\cU > 0$, dashed lines for $\cU < 0$), 
+        and the numerical results are represented by markers 
+        (squares for $\cU > 0$, circles for $\cU < 0$).}
+    \end{center}
+    \label{fig:Cubic2}
+\end{figure}
+\begin{figure}[htbp]
+    \begin{center}
+	\includegraphics[width=0.45\textwidth]{figs/Stream/N0.01.eps}
+	\includegraphics[width=0.45\textwidth]{figs/Stream/A0.01.eps}
+	\includegraphics[width=0.45\textwidth]{figs/Stream/N0.02.eps}
+	\includegraphics[width=0.45\textwidth]{figs/Stream/A0.02.eps}
+	\includegraphics[width=0.45\textwidth]{figs/Stream/N0.04.eps}
+	\includegraphics[width=0.45\textwidth]{figs/Stream/A0.04.eps}
+	\includegraphics[width=0.45\textwidth]{figs/Stream/N0.08.eps}
+	\includegraphics[width=0.45\textwidth]{figs/Stream/A0.08.eps}
+        \caption{Streamlines of the flow for various electric field $\beta$ values: 
+        numerical results (left) and analytical approximation (right) for 
+        $\gamma = 0.99$.  The steady-state velocity $\cU$ is positive, so the
+        ion-exchanger drifts to the right.}
+    \end{center}
+    \label{fig:Vortex}
+\end{figure}
 
 \begin{appendix}
 \section{Asymptotic Analysis} \label{sec:asymp}
-The non-linear system is defined by the following PDEs:
+The nonlinear system is defined by the following PDEs:
 \label{PDEs}
 \begin{eqnarray*}
 \bnabla \cdot \pars{C \bnabla \varPhi} &=& 0, \\
@@ -983,7 +1032,7 @@ The nonlinear system can be written as:
 \cO(\bx;\beta) &=& \bzero.
 \end{eqnarray*}
 
-The solution to the non-linear system can be written as a Taylor series in $\beta$.
+The solution to the nonlinear system can be written as a Taylor series in $\beta$.
 \begin{eqnarray*}
 \bx = \bx(\beta) &\approx& \sum_n \bx_n \beta^n.
 \end{eqnarray*}
