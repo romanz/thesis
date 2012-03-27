@@ -212,7 +212,8 @@ phenomena that have been observed experimentally.
 The paper is structured as follows: the governing equations of the electrokinetic model
 are derived in Section \ref{sec:equations}. The algorithm for the discretization and 
 the solution of the system is described in Section \ref{sec:algorithm}.
-The non-linear analytical asymptotic solution are presented in Section{sec:asymp}.
+The analytical asymptotic solution for the non-linear system is derived 
+and presented in Section \ref{sec:asymp}.
 The numerical results and their comparison to the analytical asymptotic solution 
 are presented and discussed in Section \ref{sec:results}. 
 
@@ -337,16 +338,18 @@ c_\pm &\rightarrow& 1.
 
 We consider a spherical ion-exchanger. 
 At its surface $\mathcal{S}$ (defined at $r=1$ with normal $\bn = \brhat$), 
-we assume zero slip, anion impermeability, cation selectivity 
+we assume high conductance of the particle (yielding a uniform electric potential),
+zero slip, anion impermeability, cation selectivity 
 (with fast Butler-Volmer\cite{bard2000book} kinetics
-$\bn \cdot \bj_+ = k (1 - c_+/\gamma)$, where $k \rightarrow \infty$),
-and high conductance of the particle (yielding a uniform electric potential):
+$\bn \cdot \bj_+ = k (1 - c_+/\gamma)$, where $k \rightarrow \infty$):
 \begin{eqnarray*}
+\varphi & = & \cV, \\
 \bv & = & \bzero, \\
 \bn \cdot \bj_- & = & 0, \\
 c_+ &=& \gamma, \\
-\varphi & = & \cV.
 \end{eqnarray*}
+where $\gamma$ is the ratio between the cationic concentration on the surface and the cationic
+concentration in the fluid bulk.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Separation of scales}
@@ -395,7 +398,7 @@ the effective boundary conditions at the ion-exchanger surface are:
 0 &=& \bnhat \cdot \bnabla \pars{\varPhi - \log C}, \\
 \bV &=& 
 \zeta \cdot \bnabla_\mathcal{S} \varPhi 
-+ 2\log\pars{1-\tanh^2\frac{\zeta}{4}} \cdot \bnabla_\mathcal{S} \log C.
++ 2\log\pars{1-\tanh^2\frac{\zeta}{4}} \cdot \bnabla_\mathcal{S} \log C,
 \end{eqnarray*}
 where $\zeta = \cV - \varPhi = \log (C / \gamma)$ 
 is the zeta potential (the voltage drop across the Debye layer).
@@ -757,7 +760,8 @@ applied as an outer loop.
 
 \subsubsection{Continuation}
 
-The iterative solver above can be used in principle to compute the steady-state solution for any given $\beta$.
+The iterative solver above can in principle be used 
+to compute the steady-state solution for any given $\beta$.
 For $\beta \ll 1$, the linear terms are the dominant ones, 
 so the solution is approximately linear in $\beta$ 
 (as derived in \cite{yariv2010migration}), and the solver convergence is fast.
@@ -880,6 +884,214 @@ This equation can be solved using a 1D root finding algorithm, e.g., the secant 
 The result $\cU$ is the 
 steady state particle drift velocity for the electric field $\beta$.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Asymptotic Analysis} \label{sec:asymp}
+The nonlinear system is defined by the following PDEs:
+\label{PDEs}
+\begin{eqnarray*}
+\bnabla \cdot \pars{C \bnabla \varPhi} &=& 0, \\
+\bnabla \cdot \pars{\bnabla C - \alpha \bV C} &=& 0, \\
+\bnabla \cdot \bV &=& 0, \\
+\bLaplacian \bV - \bnabla P + \Laplacian \varPhi \bnabla \varPhi &=& \bzero.
+\end{eqnarray*}
+
+For $\zeta(\theta) = \cV - \varPhi(1, \theta)$ and 
+$\cV = -\log \gamma$, the boundary conditions at $r = 1$ are given by
+\begin{eqnarray*}
+\varPhi + \log C &=& \cV + \log \gamma = 0, \\
+\deriv{}{r}\pars{\varPhi - \log C} &=& \frac{J_-}{C} = 0, \\
+\bV = \zeta \cdot \bnabla_\mathcal{S} \varPhi 
++ 2\log\pars{1-\tanh^2\frac{\zeta}{4}} \cdot \bnabla_\mathcal{S} \log C
+&=& 4\log\pars{\frac{1 + e^\frac{\zeta}{2}}{2}} \bnabla_S \varPhi.
+\end{eqnarray*}
+
+The boundary conditions for $r \rightarrow \infty$ are given by
+\begin{eqnarray*}
+\bnabla \varPhi &=& -\beta \ui, \\
+C &=& 1, \\
+\bV &=& -\cU \ui,
+\end{eqnarray*}
+and the total force acting on the particle is zero: $\bF = \bzero$.
+
+The nonlinear system can be written as: 
+\begin{eqnarray*}
+\cO(\bx;\beta) &=& \bzero.
+\end{eqnarray*}
+
+The solution to the nonlinear system can be expanded in a Taylor series in $\beta$.
+\begin{eqnarray*}
+\bx = \bx(\beta) &\approx& \sum_n \bx_n \beta^n.
+\end{eqnarray*}
+
+All the variables are expanded around $\beta = 0$:
+\begin{eqnarray*}
+\varPhi &=& \beta \varPhi_1 + \beta^2 \varPhi_2 + \beta^3 \varPhi_3 + \ldots, \\
+C &=& 1 + \beta C_1 + \beta^2 C_2 + \beta^3 C_3 + \ldots, \\
+\Psi &=& \beta \Psi_1 + \beta^2 \Psi_2 + \beta^3 \Psi_3 + \ldots ,
+\end{eqnarray*}
+where the velocity $\bV$ and pressure $P$ are computed from the streamfunction $\Psi$:
+\begin{eqnarray*}
+\bV &=& \bnabla \times \pars{\frac{\Psi}{r \sin\theta} \bphihat} 
+= \frac{1}{r^2 \sin\theta} \deriv{\Psi}{\theta} \brhat 
+- \frac{1}{r \sin\theta} \deriv{\Psi}{r} \bthetahat.
+\end{eqnarray*}
+
+The nonlinear equations and the boundary conditions are expanded around $\beta = 0$
+and arranged by powers of $\beta$:
+\begin{eqnarray*}
+\bzero = \cO(\bx) = \sum_k \cO_k(\bx_0, \ldots \bx_k) \beta^k
+\end{eqnarray*}
+This can be rewritten as a system of equations:
+\begin{eqnarray*}
+\brc{rcl}{
+\bzero &=& \cO_0(\bx_0), \\
+\bzero &=& \cO_1(\bx_0, \bx_1), \\
+\bzero &=& \cO_2(\bx_0, \bx_1, \bx_2), \\
+& \vdots & \\
+\bzero &=& \cO_k(\bx_0, \bx_1, \bx_2, \ldots \bx_k).
+}
+\end{eqnarray*}
+Thus, the $O(\beta^k)$ term $\bx_k$ can be found recursively by solving 
+$\cO_k(\bx_0, \bx_1, \ldots, \bx_k) = \bzero$,
+given the previous solutions for $\bx_0, \ldots, \bx_{k-1}$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Linear Solution $(k=1)$} \label{app:linear}
+
+For $\beta = 0$ (no electric field is applied), the steady-state solution is $\cU = 0$:
+\begin{eqnarray*}
+\varPhi_0(r,\theta) &=& 0, \\
+C_0(r,\theta) &=& 1, \\
+\bV_0(r,\theta) &=& \bzero, \\
+P_0(r,\theta) &=& 0.
+\end{eqnarray*}
+
+Assuming $\beta \ll 1$, the linearized equations and boundary conditions are 
+(as developed in \cite{yariv2010migration}):
+\begin{eqnarray*}
+\Laplacian \varPhi_1 &=& 0, \\
+\Laplacian C_1 &=& 0, \\
+\bLaplacian \bV_1 - \bnabla P_1 &=& \bzero.
+\end{eqnarray*}
+
+The first-order terms are given by
+\begin{eqnarray*}
+\varPhi &=& \beta \pars{\frac{1}{4r^2} - r}\cos\theta, \\
+C &=& 1 + \beta \frac{3}{4r^2} \cos\theta, \\
+\Psi &=& \beta \cU_1 \pars{\frac{1}{r} - r^2} \frac{\sin^2\theta}{2}, \\
+\bV &=& -\beta \cU_1 \brcs{\pars{1 - \frac{1}{r^3}}\cos\theta \cdot \brhat - 
+                               \pars{1 + \frac{1}{2r^3}} \sin\theta \cdot \bthetahat}, \\
+P &=& 0, \\
+\bF &=& \bzero.
+\end{eqnarray*}
+
+The slip velocity satisfies
+\begin{eqnarray*}
+\beta \cU_1 \frac{3}{2} \sin\theta =
+V_\theta &=& 4 \log \pars{\frac{1 + e ^ \frac{\zeta}{2}}{2}} \deriv{\varPhi}{\theta} 
+=
+ 3 \beta \log \pars{\frac{1 + e ^ \frac{\zeta}{2}}{2}} \sin\theta, \\
+\cU_1 &=& 2 \log \pars{\frac{1 + e ^ \frac{\zeta}{2}}{2}} 
+       =  2 \log \pars{\frac{1 + \gamma ^ {-\frac{1}{2}}}{2}}.
+\end{eqnarray*}
+because $\varPhi_1 = -C_1 = -\frac{3}{4} \cos\theta$ on $r=1$
+and $\zeta_0 = -\log\gamma$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Nonlinear Solution ($k > 1$)} \label{app:cubic}
+Note that, due to symmetry considerations, $\cU(\beta)$ is an anti-symmetric function:
+\begin{eqnarray*}
+\cU(-\beta) &=& -\cU(\beta).
+\end{eqnarray*}
+Therefore, $\cU_2 = 0$ and the next velocity term is the cubic one:
+\begin{eqnarray*}
+\cU(\beta) &\approx& \beta \cU_1 + \beta^3 \cU_3 + O(\beta^5).
+\end{eqnarray*}
+
+In order to find the cubic terms, the quadratic terms must be computed first.
+
+The quadratic terms $\bx_2$ are computed by solving a linear PDE system 
+with a right-hand side determined by the linear terms $\bx_1$:
+\begin{eqnarray*}
+\varPhi_2 &=& \frac{\left(\frac{\cU_1\, \alpha}{32} - \frac{1}{16}\right)\, \left(3\, {\cos^2\theta} - 1\right)}{r^3} - \frac{3}{32\, r^4} - \frac{3\, {\sin^2\theta}\, \left(4\, r^3 - 1\right)}{32\, r^4} - \frac{3\, \cU_1\, \alpha - 6}{32\, r},
+\\
+C_2 &=& \frac{\left(\frac{5\, \cU_1\, \alpha}{32} + \frac{1}{16}\right)\, \left(3\, {\cos^2\theta} - 1\right)}{r^3} - \frac{3\, \cU_1\, \alpha - 6}{32\, r} + \frac{3\, \cU_1\, \alpha\, \left(2\, r^3\, {\sin^2\theta} + {\sin^2\theta} - 1\right)}{16\, r^4},
+\\
+\Psi_2 &=& \pars{\frac{9}{16(\sqrt{\gamma}+1)} - \frac{3}{16} \cU_1 (\cU_1 \alpha + 1)}
+ \left(\frac{1}{r^2} - 1\right) \sin^2\theta \cos\theta,  \\
+\bF_2 &=& \bzero, \\ \cU_2 &=& 0.
+\end{eqnarray*}
+Note that the quadratic term does not contribute to the total force and steady-state 
+velocity terms, but it does change the fluid flow, 
+the electric potential and the ionic concentration.
+
+The cubic terms $\bx_3$ are computed by solving a linear PDE system 
+with a right-hand side determined by the linear terms $\bx_1$ and the quadratic terms $\bx_2$:
+\begin{eqnarray*}
+\varPhi_3 &=& \cos\theta \left(\frac{15 \cU_1\alpha}{64} + \frac{3}{32}\right) - \frac{3 \cU_1\alpha {\cos}^3\theta}{32} - \frac{\cos\theta \left( - 183 {\cU_1}^2\alpha^2 + 839 \cU_1\alpha + 470\right)}{2560 r^2} \\ 
+&&+ \frac{3 \cos\theta \left(5 \cU_1\alpha - 6 {\cos^2\theta} - 4 \cU_1\alpha {\cos^2\theta} + 4\right)}{64 r^3} + \frac{\left(2 \cU_1\alpha - 1\right) \left(\cos\theta - 3 {\cos}^3\theta\right)}{64 r^5} 
+\\ 
+&&- \frac{\left(3 \cos\theta - 5 {\cos}^3\theta\right) \left( - \frac{19 {\cU_1}^2\alpha^2}{5120} + \frac{97 \cU_1\alpha}{5120} + \frac{3 \cU_2\alpha}{320} + \frac{21}{1280}\right)}{r^4} + \frac{{\cos}^3\theta \left(\frac{15 \cU_1\alpha}{64} + \frac{3}{32}\right)}{r^2} \\ 
+&&+ \frac{{\cos}^3\theta \left(\frac{\cU_1\alpha}{64} + \frac{3}{64}\right)}{r^6},
+\\
+C_3 &=&
+\frac{3 {{\cU_1}}^2\alpha^2 {\cos^3\theta}}{32} + \frac{\cos\theta \left(797 {{\cU_1}}^2\alpha^2 + 419 {\cU_1}\alpha - 512 {\cU_2}\alpha + 174\right)}{2560 r^2} \\
+&&- \frac{\left(3 \cos\theta - 5 {\cos^3\theta}\right) \left(\frac{59 {{\cU_1}}^2\alpha^2}{5120} + \frac{103 {\cU_1}\alpha}{5120} + \frac{69 {\cU_2}\alpha}{320} + \frac{3}{1280}\right)}{r^4} \\
+&&- \frac{3\alpha \cos\theta \left( - 8\alpha {{\cU_1}}^2 {\cos^2\theta} + 7\alpha {{\cU_1}}^2 + 2 {\cU_1} + 32 {\cU_2} {\cos^2\theta} - 32 {\cU_2}\right)}{128 r^3} - \frac{3 {\cU_1}\alpha \cos\theta \left(5 {\cU_1}\alpha + 2\right)}{64} \\
+&&+ \frac{\alpha \left(\cos\theta - 3 {\cos^3\theta}\right) \left(5\alpha {{\cU_1}}^2 + 2 {\cU_1} + 16 {\cU_2}\right)}{128 r^5} + \frac{{{\cU_1}}^2\alpha^2 {\cos^3\theta}}{32 r^6} - \frac{3 {\cU_1}\alpha {\cos^3\theta} \left(5 {\cU_1}\alpha + 2\right)}{64 r^2},
+\\
+\Psi_3 &=&
+r^2 {\sin^2\theta} \left(\frac{{\cW_2}}{15} - \frac{{\cW_1}}{3} + \frac{209}{3360}\right) 
+ - \frac{{\sin^2\theta} \left(\frac{5 {\cW_2}}{3} - \frac{{\cW_1}}{3} + \frac{35}{264}\right)}{r}
+\\ && + \frac{{\sin^4\theta} \left(2 {\cW_2} + \frac{761}{5632}\right)}{r} - \frac{{\sin^2\theta} \left(1848 r^6 {\sin^2\theta} - 2079 r^3 {\sin^2\theta} + 924 r^3 - 7 {\sin^2\theta} + 10\right)}{19712 r^5} 
+\\ && + \frac{\left(\frac{2 {\cW_2}}{5} + \frac{829}{28160}\right) \left(4 {\sin^2\theta} - 5 {\sin\theta}^4\right)}{r^3} + \frac{{\sin^2\theta} \left(\frac{{\cU_1}\alpha}{16} - \frac{1}{8}\right) \left(2 r^3 - 3 r^2 + 1\right)}{4 r},
+\\
+\cW_1 &=& \frac{69}{512 \left(\sqrt{\gamma} + 1\right)} - \frac{1407\alpha^2 {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^3}{1280} - \frac{123 \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{1280} - \frac{27}{512 {\left(\sqrt{\gamma} + 1\right)}^2} \\ && -
+\frac{1899\alpha {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^2}{2560} - \frac{\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) \left(\frac{81}{16 \left(\sqrt{\gamma} + 1\right)} - \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) \left(\frac{27\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{4} + \frac{27}{8}\right)\right)}{320} \\ && + 
+\frac{21\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{128 \left(\sqrt{\gamma} + 1\right)},
+\\
+\cW_2 &=& \frac{9 \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{256} + \frac{21\alpha^2 {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^3}{64} - \frac{27}{512 \left(\sqrt{\gamma} + 1\right)} - \frac{27}{512 {\left(\sqrt{\gamma} + 1\right)}^2}
+ + \frac{15\alpha {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^2}{64} 
+\\ && 
+- \frac{297\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{1024 \left(\sqrt{\gamma} + 1\right)}.
+\end{eqnarray*}
+
+The cubic solution satisfies the $\lim_{r\rightarrow\infty}C_3 = 0$ boundary condition, 
+when $\alpha\cU_1 = 0$.
+
+The steady-state velocity can be expanded using odd powers of $\beta$:
+\begin{eqnarray*}
+\cU(\beta, \gamma) &=& \cU_1(\gamma) \beta + \cU_3(\gamma) \beta^3.
+\end{eqnarray*}
+
+The linear and the cubic velocity terms (for $\alpha = 0$) are then
+\begin{eqnarray*}
+\cU_1(\gamma) &=& 2 \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}, \\
+\cU_3(\gamma) &=& \frac{31}{320(\sqrt\gamma + 1)} - \frac{9}{320(\sqrt\gamma + 1)^2} + \frac{1}{1680} - \frac{11}{160} \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}.
+\end{eqnarray*}
+
+Note that, for $\gamma = 1$, the linear term vanishes and the velocity leading term is $O(\beta^3)$:
+\begin{eqnarray*}
+\cU(\beta) = \frac{1129}{26880}\beta^3.
+\end{eqnarray*}
+
+Note that a $\cU = 0$ solution may exist for $\beta_c \ne 0$ and $\alpha = 0$, 
+if it satisfies:
+\begin{eqnarray*}
+\beta_c^2 = -\frac{\cU_1(\gamma)}{\cU_3(\gamma)}.
+\end{eqnarray*}
+For $\gamma = 1 + \eps$, where $0 < \eps \ll 1$:
+\begin{eqnarray*}
+\beta_c \approx \sqrt{-\frac{\cU_1'(1) \eps}{\cU_3(1)}} = 
+ \sqrt{\frac{13440 \eps}{1129}} \approx 3.45 \sqrt{\eps}.
+\end{eqnarray*}
+However, for $\gamma \gg 1$, we have:
+\begin{eqnarray*}
+\beta_c =  \pars{\frac{11}{320} + \frac{1}{1680 \log 4}}^{-\frac{1}{2}} \approx 5.36.
+\end{eqnarray*}
+
+The cubic term becomes dominant for small $\beta$ when $\gamma \approx 1$.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Numerical Results and Discussion} \label{sec:results}
 The numerical solver is applied to the nonlinear problem of the migration ion-exchanger
@@ -901,7 +1113,7 @@ The resulting $\cU(\beta)$ is plotted on a log-log scale, so that the asymptotic
 of the solution may be examined for a wide range of $\beta$ values.
 
 In order to validate the numerical solver, an asymptotic analysis of the nonlinear system
-is performed as described in \ref{app:asymp}. The numerical results are compared 
+is performed as described in \ref{sec:asymp}. The numerical results are compared 
 to the asymptotic solutions, and good correspondence is achieved.
 
 \subsection{Linear Regime}
@@ -925,10 +1137,7 @@ dominates the linear one, even for weak electric fields
 This phenomenon is confirmed both by the numerical
 results and by asymptotic expansion of the nonlinear system (for $\alpha=0$).
 The switch from the linear regime to the cubic regime occurs at a critical electric
-field value
-\begin{eqnarray*}
-\beta_c = O(\sqrt{|\gamma - 1|}).
-\end{eqnarray*}
+field value $\beta_c = O(\sqrt{|\gamma - 1|})$.
 
 The numerical results, as well as the analytical ones, are given in Figure
 \ref{fig:Cubic1} (for $\gamma > 1$) and in Figure \ref{fig:Cubic2} (for $\gamma < 1$).
@@ -1024,216 +1233,6 @@ nonlinear system.
     \label{fig:Vortex}
     \end{center}
 \end{figure}
-
-\begin{appendix}
-\section{Asymptotic Analysis} \label{app:asymp}
-The nonlinear system is defined by the following PDEs:
-\label{PDEs}
-\begin{eqnarray*}
-\bnabla \cdot \pars{C \bnabla \varPhi} &=& 0, \\
-\bnabla \cdot \pars{\bnabla C - \alpha \bV C} &=& 0, \\
-\bnabla \cdot \bV &=& 0, \\
-\bLaplacian \bV - \bnabla P + \Laplacian \varPhi \bnabla \varPhi &=& \bzero.
-\end{eqnarray*}
-
-For $\zeta(\theta) = \cV - \varPhi(1, \theta)$ and 
-$\cV = -\log \gamma$, the boundary conditions at $r = 1$ are given by
-\begin{eqnarray*}
-\varPhi + \log C &=& \cV + \log \gamma = 0, \\
-\deriv{}{r}\pars{\varPhi - \log C} &=& \frac{J_-}{C} = 0, \\
-\bV = \zeta \cdot \bnabla_\mathcal{S} \varPhi 
-+ 2\log\pars{1-\tanh^2\frac{\zeta}{4}} \cdot \bnabla_\mathcal{S} \log C
-&=& 4\log\pars{\frac{1 + e^\frac{\zeta}{2}}{2}} \bnabla_S \varPhi.
-\end{eqnarray*}
-
-The boundary conditions for $r \rightarrow \infty$ are given by
-\begin{eqnarray*}
-\bnabla \varPhi &=& -\beta \ui, \\
-C &=& 1, \\
-\bV &=& -\cU \ui,
-\end{eqnarray*}
-and the total force acting on the particle is zero: $\bF = \bzero$.
-
-The nonlinear system can be written as: 
-\begin{eqnarray*}
-\cO(\bx;\beta) &=& \bzero.
-\end{eqnarray*}
-
-The solution to the nonlinear system can be expanded in a Taylor series in $\beta$.
-\begin{eqnarray*}
-\bx = \bx(\beta) &\approx& \sum_n \bx_n \beta^n.
-\end{eqnarray*}
-
-All the variables are expanded around $\beta = 0$:
-\begin{eqnarray*}
-\varPhi &=& \beta \varPhi_1 + \beta^2 \varPhi_2 + \beta^3 \varPhi_3 + \ldots, \\
-C &=& 1 + \beta C_1 + \beta^2 C_2 + \beta^3 C_3 + \ldots, \\
-\Psi &=& \beta \Psi_1 + \beta^2 \Psi_2 + \beta^3 \Psi_3 + \ldots ,
-\end{eqnarray*}
-where the velocity $\bV$ and pressure $P$ are computed from the streamfunction $\Psi$:
-\begin{eqnarray*}
-\bV &=& \bnabla \times \pars{\frac{\Psi}{r \sin\theta} \bphihat} 
-= \frac{1}{r^2 \sin\theta} \deriv{\Psi}{\theta} \brhat 
-- \frac{1}{r \sin\theta} \deriv{\Psi}{r} \bthetahat.
-\end{eqnarray*}
-
-The nonlinear equations and the boundary conditions are expanded around $\beta = 0$
-and arranged by powers of $\beta$:
-\begin{eqnarray*}
-\bzero = \cO(\bx) = \sum_k \cO_k(\bx_0, \ldots \bx_k) \beta^k
-\end{eqnarray*}
-This can be rewritten as a system of equations:
-\begin{eqnarray*}
-\brc{rcl}{
-\bzero &=& \cO_0(\bx_0), \\
-\bzero &=& \cO_1(\bx_0, \bx_1), \\
-\bzero &=& \cO_2(\bx_0, \bx_1, \bx_2), \\
-& \vdots & \\
-\bzero &=& \cO_k(\bx_0, \bx_1, \bx_2, \ldots \bx_k).
-}
-\end{eqnarray*}
-Thus, the $O(\beta^k)$ term $\bx_k$ can be found recursively by solving 
-$\cO_k(\bx_0, \bx_1, \ldots, \bx_k) = \bzero$,
-given the previous solutions for $\bx_0, \ldots, \bx_{k-1}$.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Linear Solution $(k=1)$} \label{app:linear}
-
-For $\beta = 0$ (no electric field is applied), the steady-state solution is $\cU = 0$:
-\begin{eqnarray*}
-\varPhi_0(r,\theta) &=& 0, \\
-C_0(r,\theta) &=& 1, \\
-\bV_0(r,\theta) &=& \bzero, \\
-P_0(r,\theta) &=& 0.
-\end{eqnarray*}
-
-Assuming $\beta \ll 1$, the linearized equations and boundary conditions are 
-(as developed in \cite{yariv2010migration}):
-\begin{eqnarray*}
-\Laplacian \varPhi_1 &=& 0, \\
-\Laplacian C_1 &=& 0, \\
-\bLaplacian \bV_1 - \bnabla P_1 &=& \bzero.
-\end{eqnarray*}
-
-The first-order terms are given by
-\begin{eqnarray*}
-\varPhi &=& \beta \pars{\frac{1}{4r^2} - r}\cos\theta, \\
-C &=& 1 + \beta \frac{3}{4r^2} \cos\theta, \\
-\Psi &=& \beta \cU_1 \pars{\frac{1}{r} - r^2} \frac{\sin^2\theta}{2}, \\
-\bV &=& -\beta \cU_1 \brcs{\pars{1 - \frac{1}{r^3}}\cos\theta \cdot \brhat - 
-                               \pars{1 + \frac{1}{2r^3}} \sin\theta \cdot \bthetahat}, \\
-P &=& 0, \\
-\bF &=& \bzero.
-\end{eqnarray*}
-
-The slip velocity satisfies
-\begin{eqnarray*}
-\beta \cU_1 \frac{3}{2} \sin\theta =
-V_\theta &=& 4 \log \pars{\frac{1 + e ^ \frac{\zeta}{2}}{2}} \deriv{\varPhi}{\theta} 
-=
- 3 \beta \log \pars{\frac{1 + e ^ \frac{\zeta}{2}}{2}} \sin\theta, \\
-\cU_1 &=& 2 \log \pars{\frac{1 + e ^ \frac{\zeta}{2}}{2}} 
-       =  2 \log \pars{\frac{1 + \gamma ^ {-\frac{1}{2}}}{2}}.
-\end{eqnarray*}
-because $\varPhi_1 = -C_1 = -\frac{3}{4} \cos\theta$ on $r=1$
-and $\zeta_0 = -\log\gamma$.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Nonlinear Solution ($k > 1$)} \label{app:cubic}
-Note that, due to symmetry considerations, $\cU(\beta)$ is an anti-symmetric function:
-\begin{eqnarray*}
-\cU(-\beta) &=& -\cU(\beta).
-\end{eqnarray*}
-Therefore, $\cU_2 = 0$ and the next velocity term is the cubic one:
-\begin{eqnarray*}
-\cU(\beta) &\approx& \beta \cU_1 + \beta^3 \cU_3 + O(\beta^5).
-\end{eqnarray*}
-
-In order to find the cubic terms, the quadratic terms must be computed first.
-
-The quadratic terms $\bx_2$ are computed by solving a linear PDE system 
-with a right-hand side determined by the linear terms $\bx_1$:
-\begin{eqnarray*}
-\varPhi_2 &=& \frac{\left(\frac{\cU_1\, \alpha}{32} - \frac{1}{16}\right)\, \left(3\, {\cos^2\theta} - 1\right)}{r^3} - \frac{3}{32\, r^4} - \frac{3\, {\sin^2\theta}\, \left(4\, r^3 - 1\right)}{32\, r^4} - \frac{3\, \cU_1\, \alpha - 6}{32\, r},
-\\
-C_2 &=& \frac{\left(\frac{5\, \cU_1\, \alpha}{32} + \frac{1}{16}\right)\, \left(3\, {\cos^2\theta} - 1\right)}{r^3} - \frac{3\, \cU_1\, \alpha - 6}{32\, r} + \frac{3\, \cU_1\, \alpha\, \left(2\, r^3\, {\sin^2\theta} + {\sin^2\theta} - 1\right)}{16\, r^4},
-\\
-\Psi_2 &=& \pars{\frac{9}{16(\sqrt{\gamma}+1)} - \frac{3}{16} \cU_1 (\cU_1 \alpha + 1)}
- \left(\frac{1}{r^2} - 1\right) \sin^2\theta \cos\theta,  \\
-\bF_2 &=& \bzero, \\ \cU_2 &=& 0.
-\end{eqnarray*}
-Note that the quadratic term does not contribute to the total force and steady-state 
-velocity terms, but it does change the fluid flow, 
-the electric potential and the ionic concentration.
-
-The cubic terms $\bx_3$ are computed by solving a linear PDE system 
-with a right-hand side determined by the linear terms $\bx_1$ and the quadratic terms $\bx_2$:
-\begin{eqnarray*}
-\varPhi_3 &=& \cos\theta \left(\frac{15 \cU_1\alpha}{64} + \frac{3}{32}\right) - \frac{3 \cU_1\alpha {\cos}^3\theta}{32} - \frac{\cos\theta \left( - 183 {\cU_1}^2\alpha^2 + 839 \cU_1\alpha + 470\right)}{2560 r^2} \\ 
-&&+ \frac{3 \cos\theta \left(5 \cU_1\alpha - 6 {\cos^2\theta} - 4 \cU_1\alpha {\cos^2\theta} + 4\right)}{64 r^3} + \frac{\left(2 \cU_1\alpha - 1\right) \left(\cos\theta - 3 {\cos}^3\theta\right)}{64 r^5} 
-\\ 
-&&- \frac{\left(3 \cos\theta - 5 {\cos}^3\theta\right) \left( - \frac{19 {\cU_1}^2\alpha^2}{5120} + \frac{97 \cU_1\alpha}{5120} + \frac{3 \cU_2\alpha}{320} + \frac{21}{1280}\right)}{r^4} + \frac{{\cos}^3\theta \left(\frac{15 \cU_1\alpha}{64} + \frac{3}{32}\right)}{r^2} \\ 
-&&+ \frac{{\cos}^3\theta \left(\frac{\cU_1\alpha}{64} + \frac{3}{64}\right)}{r^6},
-\\
-C_3 &=&
-\frac{3 {{\cU_1}}^2\alpha^2 {\cos^3\theta}}{32} + \frac{\cos\theta \left(797 {{\cU_1}}^2\alpha^2 + 419 {\cU_1}\alpha - 512 {\cU_2}\alpha + 174\right)}{2560 r^2} \\
-&&- \frac{\left(3 \cos\theta - 5 {\cos^3\theta}\right) \left(\frac{59 {{\cU_1}}^2\alpha^2}{5120} + \frac{103 {\cU_1}\alpha}{5120} + \frac{69 {\cU_2}\alpha}{320} + \frac{3}{1280}\right)}{r^4} \\
-&&- \frac{3\alpha \cos\theta \left( - 8\alpha {{\cU_1}}^2 {\cos^2\theta} + 7\alpha {{\cU_1}}^2 + 2 {\cU_1} + 32 {\cU_2} {\cos^2\theta} - 32 {\cU_2}\right)}{128 r^3} - \frac{3 {\cU_1}\alpha \cos\theta \left(5 {\cU_1}\alpha + 2\right)}{64} \\
-&&+ \frac{\alpha \left(\cos\theta - 3 {\cos^3\theta}\right) \left(5\alpha {{\cU_1}}^2 + 2 {\cU_1} + 16 {\cU_2}\right)}{128 r^5} + \frac{{{\cU_1}}^2\alpha^2 {\cos^3\theta}}{32 r^6} - \frac{3 {\cU_1}\alpha {\cos^3\theta} \left(5 {\cU_1}\alpha + 2\right)}{64 r^2},
-\\
-\Psi_3 &=&
-r^2 {\sin^2\theta} \left(\frac{{\cW_2}}{15} - \frac{{\cW_1}}{3} + \frac{209}{3360}\right) 
- - \frac{{\sin^2\theta} \left(\frac{5 {\cW_2}}{3} - \frac{{\cW_1}}{3} + \frac{35}{264}\right)}{r}
-\\ && + \frac{{\sin^4\theta} \left(2 {\cW_2} + \frac{761}{5632}\right)}{r} - \frac{{\sin^2\theta} \left(1848 r^6 {\sin^2\theta} - 2079 r^3 {\sin^2\theta} + 924 r^3 - 7 {\sin^2\theta} + 10\right)}{19712 r^5} 
-\\ && + \frac{\left(\frac{2 {\cW_2}}{5} + \frac{829}{28160}\right) \left(4 {\sin^2\theta} - 5 {\sin\theta}^4\right)}{r^3} + \frac{{\sin^2\theta} \left(\frac{{\cU_1}\alpha}{16} - \frac{1}{8}\right) \left(2 r^3 - 3 r^2 + 1\right)}{4 r},
-\\
-\cW_1 &=& \frac{69}{512 \left(\sqrt{\gamma} + 1\right)} - \frac{1407\alpha^2 {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^3}{1280} - \frac{123 \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{1280} - \frac{27}{512 {\left(\sqrt{\gamma} + 1\right)}^2} \\ && -
-\frac{1899\alpha {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^2}{2560} - \frac{\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) \left(\frac{81}{16 \left(\sqrt{\gamma} + 1\right)} - \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) \left(\frac{27\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{4} + \frac{27}{8}\right)\right)}{320} \\ && + 
-\frac{21\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{128 \left(\sqrt{\gamma} + 1\right)},
-\\
-\cW_2 &=& \frac{9 \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{256} + \frac{21\alpha^2 {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^3}{64} - \frac{27}{512 \left(\sqrt{\gamma} + 1\right)} - \frac{27}{512 {\left(\sqrt{\gamma} + 1\right)}^2}
- + \frac{15\alpha {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^2}{64} 
-\\ && 
-- \frac{297\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{1024 \left(\sqrt{\gamma} + 1\right)}.
-\end{eqnarray*}
-
-The cubic solution satisfies the $\lim_{r\rightarrow\infty}C_3 = 0$ boundary condition, 
-when $\alpha\cU_1 = 0$.
-
-The steady-state velocity can be expanded using odd powers of $\beta$:
-\begin{eqnarray*}
-\cU(\beta, \gamma) &=& \cU_1(\gamma) \beta + \cU_3(\gamma) \beta^3.
-\end{eqnarray*}
-
-The linear and the cubic velocity terms (for $\alpha = 0$) are then
-\begin{eqnarray*}
-\cU_1(\gamma) &=& 2 \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}, \\
-\cU_3(\gamma) &=& \frac{31}{320(\sqrt\gamma + 1)} - \frac{9}{320(\sqrt\gamma + 1)^2} + \frac{1}{1680} - \frac{11}{160} \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}.
-\end{eqnarray*}
-
-Note that, for $\gamma = 1$, the linear term vanishes and the velocity leading term is $O(\beta^3)$:
-\begin{eqnarray*}
-\cU(\beta) = \frac{1129}{26880}\beta^3.
-\end{eqnarray*}
-
-Note that a $\cU = 0$ solution may exist for $\beta_c \ne 0$ and $\alpha = 0$, 
-if it satisfies:
-\begin{eqnarray*}
-\beta_c^2 = -\frac{\cU_1(\gamma)}{\cU_3(\gamma)}.
-\end{eqnarray*}
-For $\gamma = 1 + \eps$, where $0 < \eps \ll 1$:
-\begin{eqnarray*}
-\beta_c \approx \sqrt{-\frac{\cU_1'(1) \eps}{\cU_3(1)}} = 
- \sqrt{\frac{13440 \eps}{1129}} \approx 3.45 \sqrt{\eps}.
-\end{eqnarray*}
-However, for $\gamma \gg 1$, we have:
-\begin{eqnarray*}
-\beta_c =  \pars{\frac{11}{320} + \frac{1}{1680 \log 4}}^{-\frac{1}{2}} \approx 5.36.
-\end{eqnarray*}
-
-The cubic term becomes dominant for small $\beta$ when $\gamma \approx 1$.
-
-\end{appendix}
 
 \bibliographystyle{elsarticle-num}
 \bibliography{main}
