@@ -8,7 +8,7 @@ methods
         self = self@Operator(grid);
         if isa(val, 'float')
             if numel(val) == 1
-                val = repmat(val, grid.sz);
+                val = repmat(val, grid.size);
             end
             self.val = val;
         else % function handle evaluated point-wise

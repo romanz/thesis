@@ -5,7 +5,7 @@ methods
         dir = (1:2) == dim;
         assert(any(dir));
 
-        J = true(op.grid.sz);
+        J = true(op.grid.size);
         J1 = shift(J, dir); % forward mask
         J0 = shift(J1, -dir); % backward mask
         J = [find(J0(:)) find(J1(:))]; % column indices

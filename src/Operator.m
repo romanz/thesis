@@ -20,16 +20,16 @@ methods
         op = Product(op1, op2);
     end
     function op = log(op)
-        op = Func(op.grid, op, 'log(x)');
+        op = Func(op, 'log(x)');
     end
     function op = exp(op)
-        op = Func(op.grid, op, 'exp(x)');
+        op = Func(op, 'exp(x)');
     end
     function op = sinh(op)
-        op = Func(op.grid, op, 'sinh(x)');
+        op = Func(op, 'sinh(x)');
     end
     function op = cosh(op)
-        op = Func(op.grid, op, 'cosh(x)');
+        op = Func(op, 'cosh(x)');
     end
 end
 end

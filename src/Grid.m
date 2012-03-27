@@ -3,7 +3,8 @@ classdef Grid < handle
 properties
     r, t;
     R, T;
-    size;
+    size;    
+    numel;
 end
 
 methods
@@ -11,7 +12,8 @@ methods
         self.r = radius(:);
         self.t = theta(:);
         [self.R, self.T] = ndgrid(self.r, self.t);
-        self.size = [numel(self.r), numel(self.t)];
+        self.size = [numel(self.r), numel(self.t)]; %#ok<CPROP,PROP>
+        self.numel = prod(self.size);
     end
     
     function res = eq(g1, g2)

@@ -9,7 +9,10 @@ methods
     function self = Linear(grid, op, L)
         self = self@Operator(grid);
         self.op = op;
-        if isempty(L)
+        if (nargin < 3)
+            L = 1;
+        end
+        if isequal(L, 1)
             L = speye(grid.numel); % Default copy operator
         end
         assert(size(L, 1) == grid.numel);
