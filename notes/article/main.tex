@@ -1,6 +1,6 @@
 \documentclass[final]{elsarticle}
 
-\usepackage{setspace}\doublespacing
+%\usepackage{setspace}\doublespacing
 
 \usepackage{graphicx}
 \usepackage{tikz}
@@ -131,10 +131,17 @@ Haifa 32000, Israel}
 Haifa 32000, Israel}
 
 \begin{abstract}
+A numerical solver for the simulation of ion-exchanging particles migration in an
+electrolyte solution is presented. The electrokinetic transport process is
+described by a nonlinear partial differential equation system, 
+as well as nonlinear boundary conditions.
+The nonlinear system is discretized and solved iteratively using Newton's method.
+An asymptotic analytical solution is derived for the validation of the solver. 
+The numerical results are compared to the asymptotic solutions, and good correspondence is achieved.
 \end{abstract}
 
 \begin{keyword}
-numerical, solver, electrokinetics, nonlinear
+CFD \sep electrokinetics \sep asymptotics
 \end{keyword}
 
 \end{frontmatter}
@@ -144,7 +151,7 @@ numerical, solver, electrokinetics, nonlinear
 \section{Introduction} \label{sec:intro}
 
 Electrokinetic theory describes the dynamics of charged particles
-in ionic fluids \cite{kirby2010book}.
+in ionic fluids \cite{masliyah2005book,kirby2010book}.
 When a particle acquires surface charge, a layer
 of ions of opposite charge is attracted to the surface via    
 electric forces, creating a double-layer structure around the
@@ -190,12 +197,14 @@ axisymmetric setting \cite{yariv2010migration} but it is hard to extend this
 analytic solution to more general systems. Once the electric field
 becomes stronger, significant nonlinear phenomena are expected.
 This interesting regime has not yet been explored.
+
 Recently, it has been conceived that such type of dynamics
 can be very useful in transporting and manipulating micro-
 and nanoscale objects in many nanotechnology applications,
 such as the self-assembly of superstructures, roving sensors, 
 drug-delivery systems and useful nanomachinery 
 \cite{howse2007self,paxton2004catalytic,pumera2010electrochemically}.
+
 However, since the model for these electrokinetic
 phenomena has no closed-form analytic solution, a numerical
 solver for this system is of importance.
@@ -208,6 +217,18 @@ in far more general regimes than are currently well-understood,
 and also to possibly lead to further analytical developments, based on new scaling behavior
 discovered numerically. We may also target interesting physical
 phenomena that have been observed experimentally.
+One such phenomenon is nonlinear electrokinetic vortex flow (as shown in Figure \ref{fig:Granule}), 
+which can useful for microfluidic mixing applications \cite{wang2004mix, ben2002vortex},
+
+\begin{figure}[htbp]
+    \begin{center}
+        \includegraphics[width=0.4\textwidth]
+            {figs/vortex.eps}
+        \caption{A micro-vortex electrokinetic flow around a 1 mm spherical ion-exchanger granule. }
+        \label{fig:Granule}
+    \end{center}
+\end{figure}
+
 
 The paper is structured as follows: the governing equations of the electrokinetic model
 are derived in Section \ref{sec:equations}. The algorithm for the discretization and 
@@ -1031,20 +1052,23 @@ with a right-hand side determined by the linear terms $\bx_1$ and the quadratic 
 \varPhi_3 &=& \cos\theta \left(\frac{15 \cU_1\alpha}{64} + \frac{3}{32}\right) - \frac{3 \cU_1\alpha {\cos}^3\theta}{32} - \frac{\cos\theta \left( - 183 {\cU_1}^2\alpha^2 + 839 \cU_1\alpha + 470\right)}{2560 r^2} \\ 
 &&+ \frac{3 \cos\theta \left(5 \cU_1\alpha - 6 {\cos^2\theta} - 4 \cU_1\alpha {\cos^2\theta} + 4\right)}{64 r^3} + \frac{\left(2 \cU_1\alpha - 1\right) \left(\cos\theta - 3 {\cos}^3\theta\right)}{64 r^5} 
 \\ 
-&&- \frac{\left(3 \cos\theta - 5 {\cos}^3\theta\right) \left( - \frac{19 {\cU_1}^2\alpha^2}{5120} + \frac{97 \cU_1\alpha}{5120} + \frac{3 \cU_2\alpha}{320} + \frac{21}{1280}\right)}{r^4} + \frac{{\cos}^3\theta \left(\frac{15 \cU_1\alpha}{64} + \frac{3}{32}\right)}{r^2} \\ 
-&&+ \frac{{\cos}^3\theta \left(\frac{\cU_1\alpha}{64} + \frac{3}{64}\right)}{r^6},
+&&- \frac{\left(3 \cos\theta - 5 {\cos}^3\theta\right)}{r^4} 
+\left( - \frac{19 {\cU_1}^2\alpha^2}{5120} + \frac{97 \cU_1\alpha}{5120} + 
+\frac{3 \cU_2\alpha}{320} + \frac{21}{1280}\right) \\
+&& + \frac{{\cos}^3\theta}{r^2} \left(\frac{15 \cU_1\alpha}{64} + \frac{3}{32}\right)  
++ \frac{{\cos}^3\theta}{r^6} \left(\frac{\cU_1\alpha}{64} + \frac{3}{64}\right),
 \\
 C_3 &=&
 \frac{3 {{\cU_1}}^2\alpha^2 {\cos^3\theta}}{32} + \frac{\cos\theta \left(797 {{\cU_1}}^2\alpha^2 + 419 {\cU_1}\alpha - 512 {\cU_2}\alpha + 174\right)}{2560 r^2} \\
-&&- \frac{\left(3 \cos\theta - 5 {\cos^3\theta}\right) \left(\frac{59 {{\cU_1}}^2\alpha^2}{5120} + \frac{103 {\cU_1}\alpha}{5120} + \frac{69 {\cU_2}\alpha}{320} + \frac{3}{1280}\right)}{r^4} \\
+&&- \left(\frac{59 {{\cU_1}}^2\alpha^2}{5120} + \frac{103 {\cU_1}\alpha}{5120} + \frac{69 {\cU_2}\alpha}{320} + \frac{3}{1280}\right)\frac{\left(3 \cos\theta - 5 {\cos^3\theta}\right)}{r^4} \\
 &&- \frac{3\alpha \cos\theta \left( - 8\alpha {{\cU_1}}^2 {\cos^2\theta} + 7\alpha {{\cU_1}}^2 + 2 {\cU_1} + 32 {\cU_2} {\cos^2\theta} - 32 {\cU_2}\right)}{128 r^3} - \frac{3 {\cU_1}\alpha \cos\theta \left(5 {\cU_1}\alpha + 2\right)}{64} \\
 &&+ \frac{\alpha \left(\cos\theta - 3 {\cos^3\theta}\right) \left(5\alpha {{\cU_1}}^2 + 2 {\cU_1} + 16 {\cU_2}\right)}{128 r^5} + \frac{{{\cU_1}}^2\alpha^2 {\cos^3\theta}}{32 r^6} - \frac{3 {\cU_1}\alpha {\cos^3\theta} \left(5 {\cU_1}\alpha + 2\right)}{64 r^2},
 \\
 \Psi_3 &=&
 r^2 {\sin^2\theta} \left(\frac{{\cW_2}}{15} - \frac{{\cW_1}}{3} + \frac{209}{3360}\right) 
- - \frac{{\sin^2\theta} \left(\frac{5 {\cW_2}}{3} - \frac{{\cW_1}}{3} + \frac{35}{264}\right)}{r}
+ - \frac{{\sin^2\theta}}{r} \left(\frac{5 {\cW_2}}{3} - \frac{{\cW_1}}{3} + \frac{35}{264}\right)
 \\ && + \frac{{\sin^4\theta} \left(2 {\cW_2} + \frac{761}{5632}\right)}{r} - \frac{{\sin^2\theta} \left(1848 r^6 {\sin^2\theta} - 2079 r^3 {\sin^2\theta} + 924 r^3 - 7 {\sin^2\theta} + 10\right)}{19712 r^5} 
-\\ && + \frac{\left(\frac{2 {\cW_2}}{5} + \frac{829}{28160}\right) \left(4 {\sin^2\theta} - 5 {\sin\theta}^4\right)}{r^3} + \frac{{\sin^2\theta} \left(\frac{{\cU_1}\alpha}{16} - \frac{1}{8}\right) \left(2 r^3 - 3 r^2 + 1\right)}{4 r},
+\\ && + \frac{\left(\frac{2 {\cW_2}}{5} + \frac{829}{28160}\right) \left(4 {\sin^2\theta} - 5 {\sin^4\theta}\right)}{r^3} + \frac{{\sin^2\theta} \left(\frac{{\cU_1}\alpha}{16} - \frac{1}{8}\right) \left(2 r^3 - 3 r^2 + 1\right)}{4 r},
 \\
 \cW_1 &=& \frac{69}{512 \left(\sqrt{\gamma} + 1\right)} - \frac{1407\alpha^2 {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^3}{1280} - \frac{123 \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{1280} - \frac{27}{512 {\left(\sqrt{\gamma} + 1\right)}^2} \\ && -
 \frac{1899\alpha {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^2}{2560} - \frac{\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) \left(\frac{81}{16 \left(\sqrt{\gamma} + 1\right)} - \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) \left(\frac{27\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{4} + \frac{27}{8}\right)\right)}{320} \\ && + 
@@ -1161,9 +1185,8 @@ The numerical results exhibit a good correspondence to the asymptotic linear mod
 shown above.
 
 Moreover, two interesting phenomena (cubic regime and downstream vortex) were predicted
-using the numerical results, and later verified using asymptotic expansion of the
+using the numerical results, and were verified using asymptotic expansion of the
 nonlinear system.
-
 
 \begin{figure}[htbp]
     \begin{center}
