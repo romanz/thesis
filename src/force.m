@@ -32,7 +32,9 @@ function [sol] = force(sol, betas, Vinf, varargin)
 
         sol.beta = betas(min(k, numel(betas))); % Continuation
         sol = sol.newton_step(sol);
-        assert( all(sol.C(:) > 0), 'C < 0 detected!' );
+        if (~all(sol.C(:) > 0))
+            error('C < 0 detected!');
+        end
         
         res = norm(sol.res, inf); % Residual norm
         logger('    force', 'beta = %e, residual = %e', sol.beta, res)
