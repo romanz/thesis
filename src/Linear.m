@@ -9,7 +9,7 @@ methods
     function self = Linear(grid, op, L)
         self = self@Operator(grid);
         self.op = op;
-        if (nargin < 3)
+        if (nargin < 3 || isempty(L))
             L = 1;
         end
         if isequal(L, 1)

@@ -11,7 +11,7 @@ methods
         op = Sum(op1, op2);
     end
     function op = minus(op1, op2)
-        op = Sum(op1, -op2);
+        op = Minus(op1, op2);
     end
     function op = uminus(op)
         op = Product(-1, op);
