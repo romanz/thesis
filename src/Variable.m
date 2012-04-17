@@ -17,6 +17,10 @@ methods
     function G = grad(self) 
         G = speye(numel(self.value));
     end
+    
+    function update(self, delta)
+        self.value = self.value + delta;
+    end
 end
 
 end

@@ -2,52 +2,57 @@ function [] = main
     % variables with boundary conditions
     [grid] = grids(logspace(0, 3, 50), linspace(0, pi, 20));
     
-    % interior grid (ghost points removed)
+    % initial solution value
     init.Phi = zeros(grid.Phi.size);
     init.C = ones(grid.C.size);
     init.Vr = zeros(grid.Vr.size);
     init.Vt = zeros(grid.Vt.size);
     init.P = zeros(grid.P.size);
-    
     sol = Solution(grid, init);
+    
     sol.alpha = 0;
     sol.beta = 0.1;
     sol.gamma = 1.5;
     sol.Vinf = 0.1;
     
-    iters = 6;
     [bnd, I] = boundary_conditions(sol);
+    [eqn] = equations(sol);
+    
     P = select(~I)';
     Q = select(I)';
-    [eqn] = equations(sol);
-    [~, J] = find(sol.P.L); % Pressure indices
-    for k = 1:iters
+    for k = 1:10
         for i = 1:5
             r = bnd.res();
-            norm(r)
-            if norm(r, inf) < 1e-14, break; end
+            fprintf('|r| = %e\n', norm(r))
             G = bnd.grad();
-            H = G*P;
-            dx = linsolve(H, r);
-            sol.x.value = sol.x.value - P*dx;
+            dx = linsolve(G*P, r);
+            sol.var.update(-P*dx);
         end
         G = bnd.grad();
-        H = G*P; % select boundary
-        G = linsolve(H, G);
-        H = G(:, I);
+        G = linsolve(G*P, G);
+        H = G(:, I); % interior
+        % Hx + y = 0
         
         r = eqn.res();
         norm(r, inf)
         G = eqn.grad();
-        G1 = G(:, I);
-        G2 = G(:, ~I);
-        G = G1 - G2 * H;
-        dx = linsolve(G, r);
-        sol.x.value = sol.x.value - Q*dx;
-        sol.x.value(J) = sol.x.value(J) - mean(sol.x.value(J));
+        Gi = G(:, I); % interior variables
+        Gb = G(:, ~I); % boundary variables
+        % Gi x + Gb y = -r
+        % H  x +    y =  0
+        G = Gi - Gb * H;
+        
+        n = numel(r)-1;
+        T = sparse(1:n, 1:n, 1, n, n+1);
+        dx = T'*linsolve(T*G*T', T*r);
+        sol.var.update(-Q*dx);
     end
 end
 
+function [bnd] = update_boundary(bnd)
+end
+
+% Solve linear system Ax = B
 function x = linsolve(A, B)
     sz = size(A);
     assert(sz(1) == sz(2));
@@ -128,10 +133,13 @@ function I = interior(op, n)
     I = I(:);
 end
 
+% Apply symmetry boundary conditions (for 2nd dimension).
+% n = 1, Dirichlet: f = 0.
+% n = 2, Neumann: df/dt = 0.
 function eq = Symm(op, n)
     dim = 2;
     
-    bnd = Boundary(op, +dim, n);
+    bnd = Boundary(op, +dim, n); % theta = pi
     if n == 1
         eq1 = bnd;
     else
@@ -139,7 +147,7 @@ function eq = Symm(op, n)
         eq1 = Deriv(g, bnd, dim);
     end
 
-    bnd = Boundary(op, -dim, n);    
+    bnd = Boundary(op, -dim, n); % theta = 0
     if n == 1
         eq2 = bnd;
     else
@@ -150,6 +158,7 @@ function eq = Symm(op, n)
     eq = Join(eq1, eq2);
 end
 
+% Charge flux divergence
 function flux = charge(sol)
     DPhi_Dr = Crop(Deriv(sol.Vr.grid, sol.Phi, 1), [0 1]);
     DPhi_Dt = Crop(Deriv(sol.Vt.grid, sol.Phi, 2), [1 0]);
@@ -162,6 +171,7 @@ function flux = charge(sol)
     flux = fluxR + fluxT;
 end
 
+% Salt flux divergence
 function flux = salt(sol)
     DC_Dr = Crop(Deriv(sol.Vr.grid, sol.C, 1), [0 1]);
     DC_Dt = Crop(Deriv(sol.Vt.grid, sol.C, 2), [1 0]);
@@ -173,6 +183,7 @@ function flux = salt(sol)
     flux = fluxR + fluxT;
 end
 
+% Mass flux divergence
 function flux = mass(sol)
     Dm_Dr = Crop(sol.Vr, [0 1]);
     Dm_Dt = Crop(sol.Vt, [1 0]);
@@ -182,6 +193,7 @@ function flux = mass(sol)
     flux = fluxR + fluxT;
 end
 
+% Momentum flux divergence
 function [forceR, forceT] = momentum(sol)
     Er = Crop(Deriv(sol.Vr.grid, sol.Phi, 1), [0 1]);
     Et = Crop(Deriv(sol.Vt.grid, sol.Phi, 2), [1 0]) * '1/r';
@@ -190,30 +202,34 @@ function [forceR, forceT] = momentum(sol)
     Q = Deriv(gi, 'r^2' * Er, 1) * '1/r^2' + ...
         Deriv(gi, 'sin(t)' * Et, 2) * '1/(r * sin(t))';
 
-    gr = Grid(sol.Vr.grid.r(2:end-1), sol.Vr.grid.t(2:end-1));
+    gr = sol.Vr.grid.crop(1, 1);
     gt = Grid(sol.Vr.grid.r(2:end-1), sol.Vt.grid.t);
     
     forceR = Deriv(gr, - sol.P + Deriv(gi, Crop(sol.Vr, [0 1]) * 'r^2', 1) * '1/r^2', 1) ...
         + Deriv(gr, (Deriv(gt, Crop(sol.Vr, [1 0]), 2) - 2*Interp(gt, sol.Vt)) * 'sin(t)', 2) * ('1/(r^2 * sin(t))');
+    forceR = forceR + Selector(gr, Er) * Interp(gr, Q);
     
-    gt = Grid(sol.Vt.grid.r(2:end-1), sol.Vt.grid.t(2:end-1));
+    gt = sol.Vt.grid.crop(1, 1);
     gr = Grid(sol.Vr.grid.r, sol.Vt.grid.t(2:end-1));
     
     forceT = Deriv(gt, sol.P, 2) * '-1/r' ...
         + '1/r^2' * Deriv(gt, 'r^2'*Deriv(gr, Crop(sol.Vt, [0 1]), 1), 1) ...
         + '1/r^2' * Deriv(gt, '1/sin(t)' * Deriv(gi, Crop(sol.Vt, [1 0]) * 'sin(t)', 2) + 2*Interp(gi, sol.Vr), 2);
+    forceT = forceT + Selector(gt, Et) * Interp(gt, Q);
 end
 
+% Electrokinetical system
 function [eqn] = equations(sol)    
     [forceR, forceT] = momentum(sol);
-    eqn = Join(charge(sol), salt(sol), mass(sol), forceR, forceT);
+    eqn = Join(charge(sol), salt(sol), forceR, forceT, mass(sol));
 end
 
+% Create the solution vector
 function sol = Solution(grid, init)
     sol.grid = grid;    
     c = struct2cell(init);
-    sol.x = Variable(c{:});
-    sol.numel = numel(sol.x.value);
+    sol.var = Variable(c{:});
+    sol.numel = numel(sol.var.value);
     offset = 0;
     F = fieldnames(init);
     for k = 1:numel(F)
@@ -222,7 +238,7 @@ function sol = Solution(grid, init)
         m = g.numel; % dimension of variable        
         L = sparse(1:m, offset + (1:m), 1, ...
                      m, sol.numel); % Restrictor
-        op = Linear(g, sol.x, L); % Linear operator
+        op = Linear(g, sol.var, L); % Linear operator
         sol.(name) = op;
         offset = offset + g.numel;
     end    

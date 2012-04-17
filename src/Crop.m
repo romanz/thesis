@@ -3,5 +3,5 @@ function op = Crop(op, d)
     r = g.r(1+d(1):end-d(1));
     t = g.t(1+d(2):end-d(2));
     g = Grid(r, t);
-    op = Interp(g, op);
+    op = Selector(g, op);
 end
