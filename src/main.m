@@ -31,14 +31,12 @@ function [] = main
 end
 
 function iter = update_interior(var, I, bnd, eqn)
-    Pb = select(~I)';
     Pi = select(I)';
     n = nnz(I)-1;
     T = sparse(1:n, 1:n, 1, n, n+1);
     function [r] = iter_interior()
         G = bnd.grad();
-        G = linsolve(G*Pb, G(:, I));
-        H = ; % interior
+        H = linsolve(G(:, ~I), G(:, I));
         % Hx + y = 0
         
         r = eqn.res();
