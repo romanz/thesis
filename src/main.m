@@ -1,13 +1,14 @@
-function [] = main
+function res = main(init)
     % variables with boundary conditions
-    [grid] = grids(logspace(0, 3, 50), linspace(0, pi, 20));
-    
     % initial solution value
-    init.Phi = zeros(grid.Phi.size);
-    init.C = ones(grid.C.size);
-    init.Vr = zeros(grid.Vr.size);
-    init.Vt = zeros(grid.Vt.size);
-    init.P = zeros(grid.P.size);
+    grid = grids(logspace(0, 5, 300), linspace(0, pi, 80));
+    if nargin < 1
+        init.Phi = zeros(grid.Phi.size);
+        init.C = ones(grid.C.size);
+        init.Vr = zeros(grid.Vr.size);
+        init.Vt = zeros(grid.Vt.size);
+        init.P = zeros(grid.P.size);
+    end
     sol = Solution(grid, init);
     
     sol.alpha = 0;
@@ -20,23 +21,26 @@ function [] = main
     
     iter.boundary = update_boundary(sol.var, I, sol.bnd);
     iter.interior = update_interior(sol.var, I, sol.bnd, sol.eqn);
-    for k = 1:10
-        for j = 1:5, 
-            r = iter.boundary(); 
-            fprintf('%e\n', norm(r))
+    for k = 1:4
+        for j = 1:3, 
+            [r, dx] = iter.boundary(); 
+            fprintf('%e -> %e\n', norm(r), norm(dx))
         end
-        r = iter.interior();
-        norm(r)
+        [r, dx] = iter.interior();
+        fprintf('>>> %e -> %e\n\n', norm(r), norm(dx))
     end
+    res = stfun(sol, fieldnames(init), @(v) regrid(v));
 end
 
 function iter = update_interior(var, I, bnd, eqn)
     Pi = select(I)';
     n = nnz(I)-1;
     T = sparse(1:n, 1:n, 1, n, n+1);
-    function [r] = iter_interior()
+    function [r, dx] = iter_interior()
         G = bnd.grad();
-        H = linsolve(G(:, ~I), G(:, I));
+        A = G(:, ~I);
+        B = G(:, I);
+        H = linsolve(A, B);
         % Hx + y = 0
         
         r = eqn.res();
@@ -48,7 +52,10 @@ function iter = update_interior(var, I, bnd, eqn)
         % H  x +    y =  0
         G = Gi - Gb * H;
         
-        dx = T'*linsolve(T*G*T', T*r);
+        A = T*G*T';
+        b = T*r;
+        dx = linsolve(A, b);
+        dx = T'*dx;
         var.update(-Pi*dx);
     end
     iter = @iter_interior;
@@ -57,7 +64,7 @@ end
 function iter = update_boundary(var, I, bnd)
     Pb = select(~I)';
     
-    function [r] = iter_boundary()
+    function [r, dx] = iter_boundary()
         r = bnd.res();
         G = bnd.grad();
         dx = linsolve(G*Pb, r);
@@ -75,6 +82,26 @@ function x = linsolve(A, B)
     x = A \ B;
 end
 
+% Create the solution vector
+function sol = Solution(grid, init)
+    c = struct2cell(init);
+    sol.var = Variable(c{:});
+    sol.numel = numel(sol.var.value);
+    offset = 0;
+    F = fieldnames(init);
+    for k = 1:numel(F)
+        name = F{k};
+        g = grid.(name); % grid for variable
+        m = g.numel; % dimension of variable        
+        L = sparse(1:m, offset + (1:m), 1, ...
+                     m, sol.numel); % Restrictor
+        op = Linear(g, sol.var, L); % Linear operator
+        sol.(name) = op;
+        offset = offset + g.numel;
+    end    
+end
+
+% Create problem grids.
 function [g] = grids(r, t)
     r = r(:);
     t = t(:);
@@ -90,6 +117,10 @@ function [g] = grids(r, t)
     g.P = Grid(rc(2:end-1), tc(2:end-1));
     g.r = r;
     g.t = t;
+    
+    dr = diff(r(1:2));
+    dt = diff(t(1:2));
+    fprintf('dr:dt = %.4f:%.4f\n', dr, (mean(r(1:2) * dt)))
 end
 
 function [bnd] = Boundary(op, dim, n)
@@ -237,24 +268,4 @@ end
 function [eqn] = system_equations(sol)    
     [forceR, forceT] = momentum(sol);
     eqn = Join(charge(sol), salt(sol), forceR, forceT, mass(sol));
-end
-
-% Create the solution vector
-function sol = Solution(grid, init)
-    sol.grid = grid;    
-    c = struct2cell(init);
-    sol.var = Variable(c{:});
-    sol.numel = numel(sol.var.value);
-    offset = 0;
-    F = fieldnames(init);
-    for k = 1:numel(F)
-        name = F{k};
-        g = grid.(name); % grid for variable
-        m = g.numel; % dimension of variable        
-        L = sparse(1:m, offset + (1:m), 1, ...
-                     m, sol.numel); % Restrictor
-        op = Linear(g, sol.var, L); % Linear operator
-        sol.(name) = op;
-        offset = offset + g.numel;
-    end    
 end
