@@ -15,41 +15,58 @@ function [] = main
     sol.gamma = 1.5;
     sol.Vinf = 0.1;
     
-    [bnd, I] = boundary_conditions(sol);
-    [eqn] = equations(sol);
+    [sol.bnd, I] = boundary_conditions(sol);
+    sol.eqn = system_equations(sol);
     
-    P = select(~I)';
-    Q = select(I)';
+    iter.boundary = update_boundary(sol.var, I, sol.bnd);
+    iter.interior = update_interior(sol.var, I, sol.bnd, sol.eqn);
     for k = 1:10
-        for i = 1:5
-            r = bnd.res();
-            fprintf('|r| = %e\n', norm(r))
-            G = bnd.grad();
-            dx = linsolve(G*P, r);
-            sol.var.update(-P*dx);
+        for j = 1:5, 
+            r = iter.boundary(); 
+            fprintf('%e\n', norm(r))
         end
+        r = iter.interior();
+        norm(r)
+    end
+end
+
+function iter = update_interior(var, I, bnd, eqn)
+    Pb = select(~I)';
+    Pi = select(I)';
+    n = nnz(I)-1;
+    T = sparse(1:n, 1:n, 1, n, n+1);
+    function [r] = iter_interior()
         G = bnd.grad();
-        G = linsolve(G*P, G);
-        H = G(:, I); % interior
+        G = linsolve(G*Pb, G(:, I));
+        H = ; % interior
         % Hx + y = 0
         
         r = eqn.res();
-        norm(r, inf)
         G = eqn.grad();
+        
         Gi = G(:, I); % interior variables
         Gb = G(:, ~I); % boundary variables
         % Gi x + Gb y = -r
         % H  x +    y =  0
         G = Gi - Gb * H;
         
-        n = numel(r)-1;
-        T = sparse(1:n, 1:n, 1, n, n+1);
         dx = T'*linsolve(T*G*T', T*r);
-        sol.var.update(-Q*dx);
+        var.update(-Pi*dx);
     end
+    iter = @iter_interior;
 end
 
-function [bnd] = update_boundary(bnd)
+function iter = update_boundary(var, I, bnd)
+    Pb = select(~I)';
+    
+    function [r] = iter_boundary()
+        r = bnd.res();
+        G = bnd.grad();
+        dx = linsolve(G*Pb, r);
+        var.update(-Pb*dx);
+    end
+
+    iter = @iter_boundary;
 end
 
 % Solve linear system Ax = B
@@ -218,8 +235,8 @@ function [forceR, forceT] = momentum(sol)
     forceT = forceT + Selector(gt, Et) * Interp(gt, Q);
 end
 
-% Electrokinetical system
-function [eqn] = equations(sol)    
+% Electrokinetical system PDEs
+function [eqn] = system_equations(sol)    
     [forceR, forceT] = momentum(sol);
     eqn = Join(charge(sol), salt(sol), forceR, forceT, mass(sol));
 end

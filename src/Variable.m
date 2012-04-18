@@ -19,6 +19,7 @@ methods
     end
     
     function update(self, delta)
+        assert(numel(self.value) == numel(delta))
         self.value = self.value + delta;
     end
 end
