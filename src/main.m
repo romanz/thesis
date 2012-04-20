@@ -1,7 +1,7 @@
 function res = main(init)
     % variables with boundary conditions
     % initial solution value
-    grid = grids(logspace(0, 5, 300), linspace(0, pi, 80));
+    grid = grids(logspace(0, 5, 100), linspace(0, pi, 30));
     if nargin < 1
         init.Phi = zeros(grid.Phi.size);
         init.C = ones(grid.C.size);
@@ -16,23 +16,39 @@ function res = main(init)
     sol.gamma = 1.5;
     sol.Vinf = 0.1;
     
-    [sol.bnd, I] = boundary_conditions(sol);
+    [sol.bnd, sol.I] = boundary_conditions(sol);
     sol.eqn = system_equations(sol);
     
-    iter.boundary = update_boundary(sol.var, I, sol.bnd);
-    iter.interior = update_interior(sol.var, I, sol.bnd, sol.eqn);
-    for k = 1:4
-        for j = 1:3, 
-            [r, dx] = iter.boundary(); 
-            fprintf('%e -> %e\n', norm(r), norm(dx))
-        end
-        [r, dx] = iter.interior();
-        fprintf('>>> %e -> %e\n\n', norm(r), norm(dx))
+    iter = update(sol);
+    for k = 1:10
+        [r, dx] = iter();
+        fprintf('>>> %e -> %e\n', norm(r), norm(dx))
     end
     res = stfun(sol, fieldnames(init), @(v) regrid(v));
 end
 
-function iter = update_interior(var, I, bnd, eqn)
+function result = update(sol)
+    var = sol.var;
+    op = Join(sol.bnd, sol.eqn);
+    n = var.grid.numel-1;
+    T = sparse(1:n, 1:n, 1, n, n+1);
+    function [r, dx] = iter()
+        G = op.grad();
+        r = op.res();
+        A = T*G*T';
+        b = T*r;
+        dx = linsolve(A, b);
+        dx = T'*dx;
+        var.update(-dx);
+    end
+    result = @iter;
+end
+
+function iter = update_interior(sol)
+    var = sol.var;
+    I = sol.I;
+    bnd = sol.bnd;
+    eqn = sol.eqn;
     Pi = select(I)';
     n = nnz(I)-1;
     T = sparse(1:n, 1:n, 1, n, n+1);
@@ -61,7 +77,10 @@ function iter = update_interior(var, I, bnd, eqn)
     iter = @iter_interior;
 end
 
-function iter = update_boundary(var, I, bnd)
+function iter = update_boundary(sol)
+    var = sol.var;
+    I = sol.I;
+    bnd = sol.bnd;
     Pb = select(~I)';
     
     function [r, dx] = iter_boundary()
