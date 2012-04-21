@@ -11,10 +11,10 @@ function res = main(init)
     end
     sol = Solution(grid, init);
     
-    sol.alpha = 0;
-    sol.beta = 0.1;
+    sol.alpha = 0.5;
+    sol.beta = 0.01;
     sol.gamma = 1.5;
-    sol.Vinf = 0.1;
+    sol.Vinf = 0.01;
     
     [sol.bnd, sol.I] = boundary_conditions(sol);
     sol.eqn = system_equations(sol);
@@ -254,7 +254,8 @@ function eq = Symm(op, n)
     eq = Join(eq1, eq2);
 end
 
-% Charge flux divergence
+% Charge flux divergence:
+%   div(C grad(Phi)) = 0.
 function flux = charge(sol)
     DPhi_Dr = Crop(Deriv(sol.Vr.grid, sol.Phi, 1), [0 1]);
     DPhi_Dt = Crop(Deriv(sol.Vt.grid, sol.Phi, 2), [1 0]);
