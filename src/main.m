@@ -25,11 +25,33 @@ function res = main(init)
         fprintf('>>> %e -> %e\n', norm(r), norm(dx))
     end
     res = stfun(sol, fieldnames(init), @(v) regrid(v));
+    save main
+end
+
+function n = count(op)
+    n = 1;
+    if isa(op, 'Join')
+        for k = 1:numel(op.ops)
+            n = n + count(op.ops{k});
+        end
+        return
+    end
+    if isa(op, 'Binary')
+        n = n + count(op.op1);
+        n = n + count(op.op2);
+    end
+    if isa(op, 'Linear') || isa(op, 'Func')
+        n = n + count(op.op);
+    end
 end
 
 function result = update(sol)
     var = sol.var;
     op = Join(sol.bnd, sol.eqn);
+    n1 = count(op);
+    op = optimize(op);
+    n2 = count(op);
+    fprintf('Optimize: %d > %d\n', n1, n2);
     n = var.grid.numel-1;
     T = sparse(1:n, 1:n, 1, n, n+1);
     function [r, dx] = iter()
