@@ -175,6 +175,15 @@ function [bnd] = Boundary(op, dim, n)
     bnd = Selector(g, op); % get boundary
 end
 
+% Ls(f) = Dt(sint * Dt(f))/(r^2 sint)
+function res = surface_laplacian(op, r)
+    g = Grid(r, op.grid.t);
+    f = Interp(g, op);
+    g1 = Grid(g.r, conv(g.t, [1 1]/2, 'valid'));
+    dfdt_sint = Deriv(g1, f, 2) * 'sin(t)';
+    res = Deriv(g.crop(0, 1), dfdt_sint, 2) * '1/(r^2 * sin(t))';
+end
+
 function [op, I] = boundary_conditions(sol)
 
     phi1 = Boundary(sol.Phi, -1, 2);
