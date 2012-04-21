@@ -269,14 +269,24 @@ end
 
 % Salt flux divergence
 function flux = salt(sol)
-    DC_Dr = Crop(Deriv(sol.Vr.grid, sol.C, 1), [0 1]);
-    DC_Dt = Crop(Deriv(sol.Vt.grid, sol.C, 2), [1 0]);
-    % XXX Add advection!
+    % Diffusion    
+    DC_Dr = Deriv(sol.Vr.grid, sol.C, 1);
+    DC_Dt = Deriv(sol.Vt.grid, sol.C, 2);
+    
+    % Advection (with upwind discretization)
+    Cr = Upwind(sol.C, sol.Vr);
+    Ct = Upwind(sol.C, sol.Vt);
+    
+    % Salt fluxes
+    Fr = - DC_Dr         + sol.alpha * Cr * sol.Vr;    
+    Ft = - DC_Dt * '1/r' + sol.alpha * Ct * sol.Vt;
+    
+    % Divergence
     g = sol.C.grid;
     g = Grid(g.r(2:end-1), g.t(2:end-1));
-    fluxR = Deriv(g, 'r^2' * DC_Dr, 1) * '1/r^2';
-    fluxT = Deriv(g, 'sin(t)' * DC_Dt, 2) * '1/(r^2 * sin(t))';
-    flux = fluxR + fluxT;
+    fluxR = Deriv(g, 'r^2'    * Crop(Fr, [0 1]), 1) * '1/r^2';
+    fluxT = Deriv(g, 'sin(t)' * Crop(Ft, [1 0]), 2) * '1/(r * sin(t))';
+    flux = fluxR + fluxT; % Diffusion
 end
 
 % Mass flux divergence
