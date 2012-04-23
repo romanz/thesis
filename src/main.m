@@ -11,26 +11,24 @@ function res = main(init)
     end
     sol = Solution(grid, init);
     
-    sol.alpha = 0;
+    sol.alpha = 0.0;
     sol.beta = 0.2;
     sol.gamma = 0.5;
     sol.Vinf = 0.1;
     
-    [sol.bnd, sol.I] = boundary_conditions(sol);
-    sol.eqn = system_equations(sol);
-    
-    iter_int = update_interior(sol);
-    iter_bnd = update_boundary(sol);
+    [sol, iter] = update(sol);
     for k = 1:10
         for j = 1:3
-            [r, dx] = iter_bnd();
+            [r, dx] = iter.bnd();
         fprintf('\t%e -> %e\n', norm(r), norm(dx))
         end
-        [r, dx] = iter_int();
+        [r, dx] = iter.int();
         fprintf('>>> %e -> %e\n', norm(r), norm(dx))
         
-        % Update after first iteration.
-        sol.alpha = 0.5;
+        if k == 1
+            sol.alpha = 0.5;
+            [sol, iter] = update(sol);
+        end
     end
     res = stfun(sol, fieldnames(init), @(v) regrid(v));
     save main
@@ -52,28 +50,15 @@ function n = count(op)
         n = n + count(op.op);
     end
 end
-%{
-function result = update(sol)
-    var = sol.var;
-    op = Join(sol.bnd, sol.eqn);
-    n1 = count(op);
-    op = optimize(op);
-    n2 = count(op);
-    fprintf('Optimize: %d > %d\n', n1, n2);
-    n = var.grid.numel-1;
-    T = sparse(1:n, 1:n, 1, n, n+1);
-    function [r, dx] = iter()
-        G = op.grad();
-        r = op.res();
-        A = T*G*T';
-        b = T*r;
-        dx = linsolve(A, b);
-        dx = T'*dx;
-        var.update(-dx);
-    end
-    result = @iter;
+
+function [sol, iter] = update(sol)
+    [sol.bnd, sol.I] = boundary_conditions(sol);
+    sol.eqn = system_equations(sol);
+    
+    iter.int = update_interior(sol);
+    iter.bnd = update_boundary(sol);
 end
-%}
+
 function iter = update_interior(sol)
     var = sol.var;
     I = sol.I;
