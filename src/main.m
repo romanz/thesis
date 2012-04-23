@@ -201,10 +201,8 @@ function [op, I] = boundary_conditions(sol)
     bnd{1} = Interp(g1, phi1 + logc1); % Phi, C @ R=1
     bnd{2} = Deriv(g1, phi1 - logc1, 1); % Phi, C @ R=1
     
-    g2 = Grid(sol.Vr.grid.r(end), sol.Vr.grid.t(2:end-1));
-    phi2 = Boundary(sol.Phi, 1, 2);    
-    field = @(r, t) -sol.beta*cos(t);
-    bnd{3} = Deriv(g2, phi2, 1) - field; % Phi, C @ R=inf
+    phi_inf = @(r, t) sol.beta*r*cos(t);
+    bnd{3} = Boundary(sol.Phi, 1, 1) - phi_inf; % Phi, C @ R=inf
     bnd{4} = Boundary(sol.C, 1, 1) - 1; % Phi, C @ R=inf
     
     bnd{5} = Boundary(sol.Vr, 1, 1) - ( @(r,t) -sol.Vinf*cos(t) );
