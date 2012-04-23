@@ -1,7 +1,7 @@
 function res = main(init)
     % variables with boundary conditions
     % initial solution value
-    grid = grids(logspace(0, 5, 100), linspace(0, pi, 30));
+    grid = grids(logspace(0, 5, 200), linspace(0, pi, 50));
     if nargin < 1
         init.Phi = zeros(grid.Phi.size);
         init.C = ones(grid.C.size);
@@ -11,18 +11,26 @@ function res = main(init)
     end
     sol = Solution(grid, init);
     
-    sol.alpha = 0.5;
-    sol.beta = 0.01;
-    sol.gamma = 1.5;
-    sol.Vinf = 0.01;
+    sol.alpha = 0;
+    sol.beta = 0.2;
+    sol.gamma = 0.5;
+    sol.Vinf = 0.1;
     
     [sol.bnd, sol.I] = boundary_conditions(sol);
     sol.eqn = system_equations(sol);
     
-    iter = update(sol);
+    iter_int = update_interior(sol);
+    iter_bnd = update_boundary(sol);
     for k = 1:10
-        [r, dx] = iter();
+        for j = 1:3
+            [r, dx] = iter_bnd();
+        fprintf('\t%e -> %e\n', norm(r), norm(dx))
+        end
+        [r, dx] = iter_int();
         fprintf('>>> %e -> %e\n', norm(r), norm(dx))
+        
+        % Update after first iteration.
+        sol.alpha = 0.5;
     end
     res = stfun(sol, fieldnames(init), @(v) regrid(v));
     save main
@@ -44,7 +52,7 @@ function n = count(op)
         n = n + count(op.op);
     end
 end
-
+%{
 function result = update(sol)
     var = sol.var;
     op = Join(sol.bnd, sol.eqn);
@@ -65,7 +73,7 @@ function result = update(sol)
     end
     result = @iter;
 end
-
+%}
 function iter = update_interior(sol)
     var = sol.var;
     I = sol.I;
