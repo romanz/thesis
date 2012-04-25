@@ -1,7 +1,8 @@
 function res = main(init)
     % variables with boundary conditions
     % initial solution value
-    grid = grids(logspace(0, 5, 100), linspace(0, pi, 30));
+    grid = grids(logspace(0, 6, 200), linspace(0, pi, 45));
+    pause(1)
     if nargin < 1
         init.Phi = zeros(grid.Phi.size);
         init.C = ones(grid.C.size);
@@ -12,10 +13,10 @@ function res = main(init)
     sol = Solution(grid, init);
     
     sol.alpha = 0.0;
-    sol.beta = 0.01;
+    sol.beta = 0.1;
     sol.Du = 1;
     sol.zeta = 10;
-    sol.Vinf = sol.beta * 4.25;
+    sol.Vinf = sol.beta * (sol.Du*log(16) + sol.zeta)/(1 + 2*sol.Du);
     
     [sol, iter] = update(sol);
     for k = 1:5
@@ -182,14 +183,14 @@ function [op, I] = boundary_conditions(sol)
     g = Grid(sol.Vr.grid.r(1), sol.Vr.grid.t);
     g1 = g.crop(0, 1);
     phi1 = Boundary(sol.Phi, -1, 2);
-    logc1 = log(Boundary(sol.C, -1, 2));    
-    bnd{1} = Deriv(g1, phi1 + logc1, 1); 
+    c1 = Boundary(sol.C, -1, 2);
+    bnd{1} = Deriv(g1, phi1 + log(c1), 1); 
 
     phi2 = Interp(g, sol.Phi);
-    logc2 = log(Interp(g, sol.C));
-    bnd{2} = Deriv(g1, phi1, 1) - sol.Du * surface_laplacian(phi2 - logc2, g); 
+    c2 = Interp(g, sol.C);
+    bnd{2} = Deriv(g1, c1, 1) - sol.Du * surface_laplacian(phi2 - log(c2), g); 
     
-    phi_inf = @(r, t) sol.beta*r*cos(t);
+    phi_inf = @(r, t) -sol.beta*r*cos(t);
     bnd{3} = Boundary(sol.Phi, 1, 1) - phi_inf; % Phi, C @ R=inf
     bnd{4} = Boundary(sol.C, 1, 1) - 1; % Phi, C @ R=inf
     
@@ -208,7 +209,7 @@ function [op, I] = boundary_conditions(sol)
     phi1 = Interp(g1, sol.Phi); % Phi at R=1
     logc1 = log(Interp(g1, sol.C)); % log(C) at R=1
     D  = @(f) Deriv(g, f, 2); % Dphi/Dtheta at R=1 on Vt grid.
-    Vs = zeta * D(phi1) + ((4*log(2)) - zeta) * D(logc1); 
+    Vs = zeta * D(phi1) + (log(16) - zeta) * D(logc1); 
     
     bnd{11} = Interp(g, sol.Vt) - Vs; % Vt @ R=1
     bnd{12} = Boundary(sol.Vr, -1, 1); % Vr @ R=1
@@ -325,4 +326,11 @@ end
 function [eqn] = system_equations(sol)    
     [forceR, forceT] = momentum(sol);
     eqn = Join(charge(sol), salt(sol), forceR, forceT, mass(sol));
+end
+
+function [force] = total_force(sol, grid)
+    g = sol.Vr.grid;
+    g = Grid(g.r(1), g.t(:))
+    Fr = Interp
+
 end
