@@ -1,7 +1,7 @@
 function res = main(init)
-    grid = grids(1e7, 300, 60);
+    grid = grids(1e3, 100, 50);
     
-    V = [0.5:0.1:1.5];
+    V = 1;
     F = zeros(size(V));
     for i = 1:numel(V)
         init.Phi = zeros(grid.Phi.size);
@@ -13,7 +13,7 @@ function res = main(init)
         sol = Solution(grid, init);
         sol.alpha = 0.0;
         sol.beta = 0.001;
-        sol.Du = 1;
+        sol.Du = 0;
         sol.zeta = 10;
         sol.Vinf = V(i) * sol.beta * (sol.Du*log(16) + sol.zeta)/(1 + 2*sol.Du);
         force = total_force(sol, grid);
@@ -28,13 +28,13 @@ function res = main(init)
             fprintf('>>> %e -> %e\n', norm(r), norm(dx))
 
             if k == 1
-                sol.alpha = 0.5;
+                sol.alpha = 0;
                 [sol, iter] = update(sol);
             end
         end
         F(i) = force();
     end
-    plot(V, F, '.')
+    F
     res = stfun(sol, fieldnames(init), @(v) regrid(v));
     save main
 end
@@ -336,7 +336,11 @@ end
 function [res] = total_force(sol, grid)
     % Evaluate total force on the particle by numeric quadrature on r=R.
     g = Grid(grid.r(2), grid.t);
-    P = Interp(g, sol.P);
+    
+    P = Interp(Grid(g.r, sol.Phi.grid.t), sol.P); % interpolate on r=R.
+    n = P.grid.numel;
+    P = Linear(P.grid, P, sparse(1:n, [2 2:n-1 n-1], 1, n, n));
+    P = Interp(g, P);
     
     dVr_dr = Deriv(g, Interp(Grid(sol.Vr.grid.r([1 3]), g.t), sol.Vr), 1);
     dVr_dt = Deriv(g, Selector(Grid(g.r, sol.Vr.grid.t),      sol.Vr), 2);
@@ -352,7 +356,6 @@ function [res] = total_force(sol, grid)
     dFt = dVt_dr + (dVr_dt - Vt)*'1/r' + dPhi_dr*dPhi_rdt;
     f = dFr * 'cos(t)' - dFt * 'sin(t)'; % local force
     f = f * 'r*sin(t)'; % axial symmetry
-    f = optimize(f);
     
     function F = force() 
         F = simpson(g.t, f.res());
