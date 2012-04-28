@@ -1,37 +1,40 @@
 function res = main(init)
-    % variables with boundary conditions
-    % initial solution value
-    grid = grids(logspace(0, 6, 200), linspace(0, pi, 45));
-    pause(1)
-    if nargin < 1
+    grid = grids(1e7, 300, 60);
+    
+    V = [0.5:0.1:1.5];
+    F = zeros(size(V));
+    for i = 1:numel(V)
         init.Phi = zeros(grid.Phi.size);
         init.C = ones(grid.C.size);
         init.Vr = zeros(grid.Vr.size);
         init.Vt = zeros(grid.Vt.size);
         init.P = zeros(grid.P.size);
-    end
-    sol = Solution(grid, init);
-    
-    sol.alpha = 0.0;
-    sol.beta = 0.1;
-    sol.Du = 1;
-    sol.zeta = 10;
-    sol.Vinf = sol.beta * (sol.Du*log(16) + sol.zeta)/(1 + 2*sol.Du);
-    
-    [sol, iter] = update(sol);
-    for k = 1:5
-        for j = 1:3
-            [r, dx] = iter.bnd();
-        fprintf('\t%e -> %e\n', norm(r), norm(dx))
-        end
-        [r, dx] = iter.int();
-        fprintf('>>> %e -> %e\n', norm(r), norm(dx))
         
-        if k == 1
-            sol.alpha = 0.5;
-            [sol, iter] = update(sol);
+        sol = Solution(grid, init);
+        sol.alpha = 0.0;
+        sol.beta = 0.001;
+        sol.Du = 1;
+        sol.zeta = 10;
+        sol.Vinf = V(i) * sol.beta * (sol.Du*log(16) + sol.zeta)/(1 + 2*sol.Du);
+        force = total_force(sol, grid);
+
+        [sol, iter] = update(sol);
+        for k = 1:5
+            for j = 1:3
+                [r, dx] = iter.bnd();
+            fprintf('\t%e -> %e\n', norm(r), norm(dx))
+            end
+            [r, dx] = iter.int();
+            fprintf('>>> %e -> %e\n', norm(r), norm(dx))
+
+            if k == 1
+                sol.alpha = 0.5;
+                [sol, iter] = update(sol);
+            end
         end
+        F(i) = force();
     end
+    plot(V, F, '.')
     res = stfun(sol, fieldnames(init), @(v) regrid(v));
     save main
 end
@@ -138,7 +141,9 @@ function sol = Solution(grid, init)
 end
 
 % Create problem grids.
-function [g] = grids(r, t)
+function [g] = grids(Rmax, Nr, Nt)
+    r = logspace(0, log10(Rmax), Nr);
+    t = linspace(0, pi, Nt + ~mod(Nt, 2));
     r = r(:);
     t = t(:);
     rg = [2*r(1) - r(2); r; 2*r(end) - r(end-1)];
@@ -328,9 +333,29 @@ function [eqn] = system_equations(sol)
     eqn = Join(charge(sol), salt(sol), forceR, forceT, mass(sol));
 end
 
-function [force] = total_force(sol, grid)
-    g = sol.Vr.grid;
-    g = Grid(g.r(1), g.t(:))
-    Fr = Interp
-
+function [res] = total_force(sol, grid)
+    % Evaluate total force on the particle by numeric quadrature on r=R.
+    g = Grid(grid.r(2), grid.t);
+    P = Interp(g, sol.P);
+    
+    dVr_dr = Deriv(g, Interp(Grid(sol.Vr.grid.r([1 3]), g.t), sol.Vr), 1);
+    dVr_dt = Deriv(g, Selector(Grid(g.r, sol.Vr.grid.t),      sol.Vr), 2);
+    
+    Vt = Interp(g, sol.Vt);
+    dVt_dr = Deriv(g, Selector(Grid(sol.Vt.grid.r(1:2), g.t), sol.Vt), 1);
+    
+    dPhi_dr = Deriv(g, Interp(Grid(sol.Phi.grid.r(1:2), g.t), sol.Phi), 1);
+    dPhi_dt = Deriv(g, Interp(Grid(g.r, sol.Phi.grid.t), sol.Phi), 2);
+    dPhi_rdt = dPhi_dt * '1/r';
+    
+    dFr = -P + 2*dVr_dr + 0.5*(dPhi_dr*dPhi_dr - dPhi_rdt*dPhi_rdt);
+    dFt = dVt_dr + (dVr_dt - Vt)*'1/r' + dPhi_dr*dPhi_rdt;
+    f = dFr * 'cos(t)' - dFt * 'sin(t)'; % local force
+    f = f * 'r*sin(t)'; % axial symmetry
+    f = optimize(f);
+    
+    function F = force() 
+        F = simpson(g.t, f.res());
+    end
+    res = @force;
 end
