@@ -1,25 +1,25 @@
 function res = main(init)
-    grid = grids(1e3, 100, 50);
+    g = grids(1e4, 200);
     
-    V = 1;
+    V = 0.9:0.025:1.1;
     F = zeros(size(V));
     for i = 1:numel(V)
-        init.Phi = zeros(grid.Phi.size);
-        init.C = ones(grid.C.size);
-        init.Vr = zeros(grid.Vr.size);
-        init.Vt = zeros(grid.Vt.size);
-        init.P = zeros(grid.P.size);
+        init.Phi = zeros(g.Phi.size);
+        init.C = ones(g.C.size);
+        init.Vr = zeros(g.Vr.size);
+        init.Vt = zeros(g.Vt.size);
+        init.P = zeros(g.P.size);
         
-        sol = Solution(grid, init);
+        sol = Solution(g, init);
         sol.alpha = 0.0;
         sol.beta = 0.001;
-        sol.Du = 0;
+        sol.Du = 1;
         sol.zeta = 10;
         sol.Vinf = V(i) * sol.beta * (sol.Du*log(16) + sol.zeta)/(1 + 2*sol.Du);
-        force = total_force(sol, grid);
+        force = total_force(sol, g);
 
         [sol, iter] = update(sol);
-        for k = 1:5
+        for k = 1:8
             for j = 1:3
                 [r, dx] = iter.bnd();
             fprintf('\t%e -> %e\n', norm(r), norm(dx))
@@ -28,15 +28,18 @@ function res = main(init)
             fprintf('>>> %e -> %e\n', norm(r), norm(dx))
 
             if k == 1
-                sol.alpha = 0;
+                sol.alpha = 0.5;
                 [sol, iter] = update(sol);
             end
         end
         F(i) = force();
+        fprintf('-----------------------------------------------\n')
     end
     F
     res = stfun(sol, fieldnames(init), @(v) regrid(v));
     save main
+    plot(V, F, '.-'); 
+    grid on
 end
 
 function n = count(op)
@@ -141,9 +144,13 @@ function sol = Solution(grid, init)
 end
 
 % Create problem grids.
-function [g] = grids(Rmax, Nr, Nt)
+function [g] = grids(Rmax, Nr)
     r = logspace(0, log10(Rmax), Nr);
-    t = linspace(0, pi, Nt + ~mod(Nt, 2));
+    dr = diff(r(1:2));
+    dt = dr;
+    Nt = ceil(pi / dt) + 1;
+    Nt = Nt + ~mod(Nt, 2);
+    t = linspace(0, pi, Nt);
     r = r(:);
     t = t(:);
     rg = [2*r(1) - r(2); r; 2*r(end) - r(end-1)];
@@ -161,6 +168,7 @@ function [g] = grids(Rmax, Nr, Nt)
     
     dr = diff(r(1:2));
     dt = diff(t(1:2));
+    fprintf('Nr:Nt = %d x %d\n', Nr, Nt)
     fprintf('dr:dt = %.4f:%.4f\n', dr, (mean(r(1:2) * dt)))
 end
 
@@ -346,9 +354,9 @@ function [res] = total_force(sol, grid)
     dVr_dt = Deriv(g, Selector(Grid(g.r, sol.Vr.grid.t),      sol.Vr), 2);
     
     Vt = Interp(g, sol.Vt);
-    dVt_dr = Deriv(g, Selector(Grid(sol.Vt.grid.r(1:2), g.t), sol.Vt), 1);
+    dVt_dr = Deriv(g, Selector(Grid(sol.Vt.grid.r(2:3), g.t), sol.Vt), 1);
     
-    dPhi_dr = Deriv(g, Interp(Grid(sol.Phi.grid.r(1:2), g.t), sol.Phi), 1);
+    dPhi_dr = Deriv(g, Interp(Grid(sol.Phi.grid.r(2:3), g.t), sol.Phi), 1);
     dPhi_dt = Deriv(g, Interp(Grid(g.r, sol.Phi.grid.t), sol.Phi), 2);
     dPhi_rdt = dPhi_dt * '1/r';
     
