@@ -3,11 +3,12 @@
 % for i = 1:10
 %   x = iter(func(x))
 
-function [iterator, x0] = secant(x0, x1)
+function [iterator, x] = secant(x)
 
     n = 0;
-    sol.x = [x0, x1];
+    sol.x = x;
     sol.y = [];
+    x = x(1); % initial iteration value
     function next_x = iter(y)
         n = n + 1;
         sol.y(n) = y;

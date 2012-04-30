@@ -1,45 +1,48 @@
 function res = main(init)
     g = grids(1e4, 200);
     
-    V = 0.9:0.025:1.1;
-    F = zeros(size(V));
-    for i = 1:numel(V)
-        init.Phi = zeros(g.Phi.size);
-        init.C = ones(g.C.size);
-        init.Vr = zeros(g.Vr.size);
-        init.Vt = zeros(g.Vt.size);
-        init.P = zeros(g.P.size);
-        
-        sol = Solution(g, init);
-        sol.alpha = 0.0;
-        sol.beta = 0.001;
-        sol.Du = 1;
-        sol.zeta = 10;
-        sol.Vinf = V(i) * sol.beta * (sol.Du*log(16) + sol.zeta)/(1 + 2*sol.Du);
-        force = total_force(sol, g);
+    init.Phi = zeros(g.Phi.size);
+    init.C = ones(g.C.size);
+    init.Vr = zeros(g.Vr.size);
+    init.Vt = zeros(g.Vt.size);
+    init.P = zeros(g.P.size);
 
-        [sol, iter] = update(sol);
-        for k = 1:8
-            for j = 1:3
-                [r, dx] = iter.bnd();
-            fprintf('\t%e -> %e\n', norm(r), norm(dx))
-            end
-            [r, dx] = iter.int();
-            fprintf('>>> %e -> %e\n', norm(r), norm(dx))
+    sol = Solution(g, init);
+    sol.alpha = 0.0;
+    sol.beta = 0.4;
+    sol.Du = 1;
+    sol.zeta = 10;
+    force = total_force(sol, g);
 
-            if k == 1
-                sol.alpha = 0.5;
-                [sol, iter] = update(sol);
-            end
-        end
-        F(i) = force();
-        fprintf('-----------------------------------------------\n')
+    Vinf = sol.beta * (sol.Du*log(16) + sol.zeta)/(1 + 2*sol.Du);
+    [iter, v] = secant(Vinf * [0.9 1.1]);
+    for i = 1:5
+        sol.Vinf = v(i);
+        sol = solver(sol, [4 3]);
+        f(i) = force();
+        v(i+1) = iter(f(i));
     end
-    F
     res = stfun(sol, fieldnames(init), @(v) regrid(v));
     save main
-    plot(V, F, '.-'); 
-    grid on
+end
+
+function sol = solver(sol, iters)
+    [sol, iter] = update(sol); % update equations and iterators
+    for k = 1:iters(1)
+        
+        for j = 1:iters(2)
+            [r, dx] = iter.bnd();
+        fprintf('\t%e -> %e\n', norm(r), norm(dx))
+        end
+        [r, dx] = iter.int();
+        fprintf('>>> %e -> %e\n', norm(r), norm(dx))
+
+        if sol.alpha == 0
+            sol.alpha = 0.5;
+            [sol, iter] = update(sol);
+        end
+    end
+    fprintf('--------------------------------------------------------\n')
 end
 
 function n = count(op)
