@@ -1,28 +1,33 @@
-function solver = secant(f, x)
+% Secant method solver.
+% [iter, x] = secant([x0, x1])
+% for i = 1:10
+%   x = iter(func(x))
 
-    iter = 0;
-    y = [];
-    function [x0, y0] = iterator()
-        iter = iter + 1;
-        if iter > 2
-            I = iter - (1:2);
-            x(iter) = step(x(I), y(I));
+function [iterator, x0] = secant(x0, x1)
+
+    n = 0;
+    sol.x = [x0, x1];
+    sol.y = [];
+    function next_x = iter(y)
+        n = n + 1;
+        sol.y(n) = y;
+        if n >= numel(sol.x)
+            next_x = step(sol.x(n-1:n), sol.y(n-1:n));
+            sol.x(n + 1) = next_x;
+        else
+            next_x = sol.x(n + 1);
         end
-        x0 = x(iter);
-        y0 = f(x0);
-        x(iter) = x0;
-        y(iter) = y0;
     end
-    solver = @iterator;
+    iterator = @iter;
 
 end
 
-function sol = step(x, y)
+function next_x = step(x, y)
     dx = x(2) - x(1);
     dy = y(2) - y(1);
     if dx ~= 0 && dy ~= 0
-        sol = x(1) - y(1) * dx / dy;
+        next_x = x(1) - y(1) * dx / dy;
     else
-        sol = x(2);
+        next_x = x(2);
     end
 end
