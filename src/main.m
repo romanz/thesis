@@ -200,15 +200,23 @@ function [op, I] = boundary_conditions(sol)
     g1 = g.crop(0, 1);
     phi1 = Boundary(sol.Phi, -1, 2);
     c1 = Boundary(sol.C, -1, 2);
-    bnd{1} = Deriv(g1, phi1 + log(c1), 1); 
+    bnd{1} = Deriv(g1, c1, 1) + Interp(g1, c1) * Deriv(g1, phi1, 1); 
 
     phi2 = Interp(g, sol.Phi);
     c2 = Interp(g, sol.C);
     bnd{2} = Deriv(g1, c1, 1) - sol.Du * surface_laplacian(phi2 - log(c2), g); 
     
-    phi_inf = @(r, t) -sol.beta*r*cos(t);
-    bnd{3} = Boundary(sol.Phi, 1, 1) - phi_inf; % Phi, C @ R=inf
-    bnd{4} = Boundary(sol.C, 1, 1) - 1; % Phi, C @ R=inf
+    g = sol.Vr.grid;
+    g = Grid(g.r(end), g.t(2:end-1));
+    E_inf = Const(g, @(r,t) sol.beta*cos(t));
+    phi_inf = @(r,t) -sol.beta*r*cos(t);
+    E = -Deriv(g, Boundary(sol.Phi, 1, 2), 1);
+    phi = Boundary(sol.Phi, 1, 1);
+    C = Interp(g, Boundary(sol.C, 1, 2));
+%     C = Boundary(sol.C, 1, 1);
+
+    bnd{3} = phi - phi_inf; % Phi @ R=inf
+    bnd{4} = C - 1; % C @ R=inf
     
     bnd{5} = Boundary(sol.Vr, 1, 1) - ( @(r,t) -sol.Vinf*cos(t) );
     bnd{6} = Boundary(sol.Vt, 1, 1) - ( @(r,t)  sol.Vinf*sin(t) );
