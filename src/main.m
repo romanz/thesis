@@ -1,5 +1,5 @@
 function res = main(init)
-    g = grids(1e4, 200);
+    g = grids(1e4, 100);
     
     init.Phi = zeros(g.Phi.size);
     init.C = ones(g.C.size);
@@ -9,20 +9,28 @@ function res = main(init)
 
     sol = Solution(g, init);
     sol.alpha = 0.0;
-    sol.beta = 0.4;
     sol.Du = 1;
     sol.zeta = 10;
     force = total_force(sol, g);
 
-    Vinf = sol.beta * (sol.Du*log(16) + sol.zeta)/(1 + 2*sol.Du);
-    [iter, v] = secant(Vinf * [0.9 1.1]);
-    for i = 1:5
-        sol.Vinf = v(i);
-        sol = solver(sol, [4 3]);
-        f(i) = force();
-        v(i+1) = iter(f(i));
+    betas = 10.^(-3:0.25:-0.5);
+    V = [];
+    for k = 1:numel(betas)
+        fprintf('==================================================================\n')
+        sol.beta = betas(k);
+        Vinf = sol.beta * (sol.Du*log(16) + sol.zeta)/(1 + 2*sol.Du);
+        [iter, v] = secant(Vinf * [0.9, 1.1]);
+        for i = 1:5
+            sol.Vinf = v(i);
+            sol = solver(sol, [4 3]);
+            f(i) = force();
+            v(i+1) = iter(f(i));
+            fprintf('------------------------------------------------------------------\n')
+            fprintf('B = %e \t V = %e \t F = %e\n', betas(k), v(i), f(i))
+            fprintf('------------------------------------------------------------------\n')
+        end
+        V(k) = v(end);
     end
-    res = stfun(sol, fieldnames(init), @(v) regrid(v));
     save main
 end
 
@@ -42,7 +50,6 @@ function sol = solver(sol, iters)
             [sol, iter] = update(sol);
         end
     end
-    fprintf('--------------------------------------------------------\n')
 end
 
 function n = count(op)
