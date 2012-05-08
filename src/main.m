@@ -1,5 +1,5 @@
 function res = main(init)
-    g = grids(1e6, 200);
+    g = grids(1e7, 400);
     
     init.Phi = zeros(g.Phi.size);
     init.C = ones(g.C.size);
