@@ -215,15 +215,17 @@ function [op, I] = boundary_conditions(sol)
     
     g = sol.Vr.grid;
     g = Grid(g.r(end), g.t(2:end-1));
-    E_inf = Const(g, @(r,t) sol.beta*cos(t));
+    E_inf = @(r,t) sol.beta*cos(t);
     phi_inf = @(r,t) -sol.beta*r*cos(t);
     E = -Deriv(g, Boundary(sol.Phi, 1, 2), 1);
     phi = Boundary(sol.Phi, 1, 1);
-    C = Interp(g, Boundary(sol.C, 1, 2));
-%     C = Boundary(sol.C, 1, 1);
+%     C = Interp(g, Boundary(sol.C, 1, 2));
+    C = Boundary(sol.C, 1, 1);
 
-    bnd{3} = phi - phi_inf; % Phi @ R=inf
-    bnd{4} = C - 1; % C @ R=inf
+    bnd{3} = Join(...
+        Selector(Grid(phi.grid.r, phi.grid.t(1)), phi - phi_inf), ...
+        Selector(Grid(  E.grid.r,   E.grid.t(2:end)), E - E_inf)); 
+    bnd{4} = C - 1; % R=inf
     
     bnd{5} = Boundary(sol.Vr, 1, 1) - ( @(r,t) -sol.Vinf*cos(t) );
     bnd{6} = Boundary(sol.Vt, 1, 1) - ( @(r,t)  sol.Vinf*sin(t) );
