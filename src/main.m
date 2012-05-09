@@ -1,5 +1,5 @@
 function res = main(init)
-    g = grids(1e7, 400);
+    g = grids(1e7, 300);
     
     init.Phi = zeros(g.Phi.size);
     init.C = ones(g.C.size);
@@ -15,6 +15,7 @@ function res = main(init)
 
     betas = 10.^(-3:0.25:-0.5);
     V = [];
+    tic;
     for k = 1:numel(betas)
         fprintf('==================================================================\n')
         sol.beta = betas(k);
@@ -31,6 +32,7 @@ function res = main(init)
         end
         V(k) = v(end);
     end
+    toc
     save main
 end
 
