@@ -1,4 +1,4 @@
-function res = main(init)
+function main(alpha)
     g = grids(1e7, 300);
     
     init.Phi = zeros(g.Phi.size);
@@ -12,8 +12,12 @@ function res = main(init)
     sol.Du = 1;
     sol.zeta = 10;
     force = total_force(sol, g);
+    
+    if nargin < 1
+        alpha = 0;
+    end
 
-    betas = 10.^(-3:0.25:-0.5);
+    betas = 10.^(-2:0.1:-0.2);
     V = [];
     tic;
     for k = 1:numel(betas)
@@ -23,7 +27,7 @@ function res = main(init)
         [iter, v] = secant(Vinf * [0.9, 1.1]);
         for i = 1:5
             sol.Vinf = v(i);
-            sol = solver(sol, [4 3]);
+            sol = solver(sol, [4 3], alpha);
             f(i) = force();
             v(i+1) = iter(f(i));
             fprintf('------------------------------------------------------------------\n')
@@ -33,10 +37,11 @@ function res = main(init)
         V(k) = v(end);
     end
     toc
-    save main
+    fname = datestr(now, 'YYYYmmddhhMMss');
+    save(fname)
 end
 
-function sol = solver(sol, iters)
+function sol = solver(sol, iters, alpha)
     [sol, iter] = update(sol); % update equations and iterators
     for k = 1:iters(1)
         
@@ -47,8 +52,8 @@ function sol = solver(sol, iters)
         [r, dx] = iter.int();
         fprintf('>>> %e -> %e\n', norm(r), norm(dx))
 
-        if sol.alpha == 0
-            sol.alpha = 0.5;
+        if sol.alpha == 0 && alpha > 0
+            sol.alpha = alpha;
             [sol, iter] = update(sol);
         end
     end
@@ -238,7 +243,7 @@ function [op, I] = boundary_conditions(sol)
     bnd{10} = Symm(sol.Vt, 1);
         
     g = Grid(1, sol.Vt.grid.t(2:end-1));
-    zeta = sol.zeta; % - log(Interp(g, sol.C))
+    zeta = sol.zeta - log(Interp(g, sol.C));
      
     g1 = Grid(1, sol.Phi.grid.t(2:end-1));
     phi1 = Interp(g1, sol.Phi); % Phi at R=1
