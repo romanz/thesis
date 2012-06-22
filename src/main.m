@@ -17,7 +17,7 @@ function main(alpha)
         alpha = 0;
     end
 
-    betas = 10.^(-2:0.1:-0.2);
+    betas = 0.05:0.05:0.6;
     V = [];
     tic;
     for k = 1:numel(betas)
