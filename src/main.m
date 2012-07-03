@@ -1,5 +1,5 @@
-function main(alpha)
-    g = grids(1e7, 300);
+function [sol] = main(alpha)
+    g = grids(1e3, 100);
     
     init.Phi = zeros(g.Phi.size);
     init.C = ones(g.C.size);
@@ -9,7 +9,7 @@ function main(alpha)
 
     sol = Solution(g, init);
     sol.alpha = 0.0;
-    sol.Du = 1;
+    sol.Du = 0;
     sol.zeta = 10;
     force = total_force(sol, g);
     
@@ -17,7 +17,7 @@ function main(alpha)
         alpha = 0;
     end
 
-    betas = 0.05:0.05:0.6;
+    betas = 0.1;
     V = [];
     tic;
     for k = 1:numel(betas)
@@ -27,7 +27,7 @@ function main(alpha)
         [iter, v] = secant(Vinf * [0.9, 1.1]);
         for i = 1:5
             sol.Vinf = v(i);
-            sol = solver(sol, [4 3], alpha);
+            sol = solver(sol, [7 0], alpha);
             f(i) = force();
             v(i+1) = iter(f(i));
             fprintf('------------------------------------------------------------------\n')
@@ -45,12 +45,12 @@ function sol = solver(sol, iters, alpha)
     [sol, iter] = update(sol); % update equations and iterators
     for k = 1:iters(1)
         
-        for j = 1:iters(2)
-            [r, dx] = iter.bnd();
-        fprintf('\t%e -> %e\n', norm(r), norm(dx))
-        end
+%         for j = 1:iters(2)
+%             [r, dx] = iter.bnd();
+%             fprintf('\t%e -> %e\n', norm(r), norm(dx))
+%         end
         [r, dx] = iter.int();
-        fprintf('>>> %e -> %e\n', norm(r), norm(dx))
+        fprintf('>>> %e -> %e\n', norm(r, inf), norm(dx, inf))
 
         if sol.alpha == 0 && alpha > 0
             sol.alpha = alpha;
@@ -89,30 +89,23 @@ function iter = update_interior(sol)
     I = sol.I;
     bnd = sol.bnd;
     eqn = sol.eqn;
-    Pi = select(I)';
-    n = nnz(I)-1;
+    n = numel(var.value)-1;
     T = sparse(1:n, 1:n, 1, n, n+1);
     function [r, dx] = iter_interior()
-        G = bnd.grad();
-        A = G(:, ~I);
-        B = G(:, I);
-        H = linsolve(A, B);
-        % Hx + y = 0
+        Gb = bnd.grad();
+        rb = bnd.res();
         
-        r = eqn.res();
-        G = eqn.grad();
+        Gi = eqn.grad();
+        ri = eqn.res();
         
-        Gi = G(:, I); % interior variables
-        Gb = G(:, ~I); % boundary variables
-        % Gi x + Gb y = -r
-        % H  x +    y =  0
-        G = Gi - Gb * H;
+        G = [Gb; Gi];
+        r = [rb; ri];
         
         A = T*G*T';
         b = T*r;
         dx = linsolve(A, b);
         dx = T'*dx;
-        var.update(-Pi*dx);
+        var.update(-dx);
     end
     iter = @iter_interior;
 end
@@ -214,11 +207,13 @@ function [op, I] = boundary_conditions(sol)
     g1 = g.crop(0, 1);
     phi1 = Boundary(sol.Phi, -1, 2);
     c1 = Boundary(sol.C, -1, 2);
-    bnd{1} = Deriv(g1, c1, 1) + Interp(g1, c1) * Deriv(g1, phi1, 1); 
+    %%% bnd{1} = Deriv(g1, c1, 1) + Interp(g1, c1) * Deriv(g1, phi1, 1); 
+    bnd{1} = Deriv(g1, c1, 1) + Deriv(g1, phi1, 1); 
 
     phi2 = Interp(g, sol.Phi);
     c2 = Interp(g, sol.C);
-    bnd{2} = Deriv(g1, c1, 1) - sol.Du * surface_laplacian(phi2 - log(c2), g); 
+    %%% bnd{2} = Deriv(g1, c1, 1) - sol.Du * surface_laplacian(phi2 - log(c2), g); 
+    bnd{2} = Deriv(g1, c1, 1) - sol.Du * surface_laplacian(phi2 - (c2), g); 
     
     g = sol.Vr.grid;
     g = Grid(g.r(end), g.t(2:end-1));
@@ -243,13 +238,16 @@ function [op, I] = boundary_conditions(sol)
     bnd{10} = Symm(sol.Vt, 1);
         
     g = Grid(1, sol.Vt.grid.t(2:end-1));
-    zeta = sol.zeta - log(Interp(g, sol.C));
+    %%% zeta = sol.zeta - log(Interp(g, sol.C));
+    zeta = sol.zeta; 
      
     g1 = Grid(1, sol.Phi.grid.t(2:end-1));
     phi1 = Interp(g1, sol.Phi); % Phi at R=1
-    logc1 = log(Interp(g1, sol.C)); % log(C) at R=1
+    %%% logc1 = log(Interp(g1, sol.C)); % log(C) at R=1
+    c1 = (Interp(g1, sol.C)); % log(C) at R=1
     D  = @(f) Deriv(g, f, 2); % Dphi/Dtheta at R=1 on Vt grid.
-    Vs = zeta * D(phi1) + (log(16) - zeta) * D(logc1); 
+    %%% Vs = zeta * D(phi1) + (log(16) - zeta) * D(logc1); 
+    Vs = zeta * D(phi1) + (log(16) - zeta) * D(c1); 
     
     bnd{11} = Interp(g, sol.Vt) - Vs; % Vt @ R=1
     bnd{12} = Boundary(sol.Vr, -1, 1); % Vr @ R=1
@@ -296,12 +294,14 @@ end
 function flux = charge(sol)
     DPhi_Dr = Crop(Deriv(sol.Vr.grid, sol.Phi, 1), [0 1]);
     DPhi_Dt = Crop(Deriv(sol.Vt.grid, sol.Phi, 2), [1 0]);
-    Cr = Interp(DPhi_Dr.grid, sol.C);
-    Ct = Interp(DPhi_Dt.grid, sol.C);
+    %%% Cr = Interp(DPhi_Dr.grid, sol.C);
+    %%% Ct = Interp(DPhi_Dt.grid, sol.C);
     g = sol.Phi.grid;
     g = Grid(g.r(2:end-1), g.t(2:end-1));
-    fluxR = Deriv(g, 'r^2' * Cr * DPhi_Dr, 1) * '1/r^2';
-    fluxT = Deriv(g, 'sin(t)' * Ct * DPhi_Dt, 2) * '1/(r^2 * sin(t))';
+    %%% fluxR = Deriv(g, 'r^2' * Cr * DPhi_Dr, 1) * '1/r^2';
+    %%% fluxT = Deriv(g, 'sin(t)' * Ct * DPhi_Dt, 2) * '1/(r^2 * sin(t))';
+    fluxR = Deriv(g, 'r^2' * DPhi_Dr, 1) * '1/r^2';
+    fluxT = Deriv(g, 'sin(t)' * DPhi_Dt, 2) * '1/(r^2 * sin(t))';
     flux = fluxR + fluxT;
 end
 
@@ -351,7 +351,7 @@ function [forceR, forceT] = momentum(sol)
     
     forceR = Deriv(gr, - sol.P + Deriv(gi, Crop(sol.Vr, [0 1]) * 'r^2', 1) * '1/r^2', 1) ...
         + Deriv(gr, (Deriv(gt, Crop(sol.Vr, [1 0]), 2) - 2*Interp(gt, sol.Vt)) * 'sin(t)', 2) * ('1/(r^2 * sin(t))');
-    forceR = forceR + Selector(gr, Er) * Interp(gr, Q);
+    %%% forceR = forceR + Selector(gr, Er) * Interp(gr, Q);
     
     gt = sol.Vt.grid.crop(1, 1);
     gr = Grid(sol.Vr.grid.r, sol.Vt.grid.t(2:end-1));
@@ -359,7 +359,7 @@ function [forceR, forceT] = momentum(sol)
     forceT = Deriv(gt, sol.P, 2) * '-1/r' ...
         + '1/r^2' * Deriv(gt, 'r^2'*Deriv(gr, Crop(sol.Vt, [0 1]), 1), 1) ...
         + '1/r^2' * Deriv(gt, '1/sin(t)' * Deriv(gi, Crop(sol.Vt, [1 0]) * 'sin(t)', 2) + 2*Interp(gi, sol.Vr), 2);
-    forceT = forceT + Selector(gt, Et) * Interp(gt, Q);
+    %%% forceT = forceT + Selector(gt, Et) * Interp(gt, Q);
 end
 
 % Electrokinetical system PDEs
