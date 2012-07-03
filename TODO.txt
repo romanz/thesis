@@ -1,3 +1,6 @@
-- set a=0
-- test signs
-- compare numerics and asymptotics
+* Try to solve both BC and Interior in one Newton step.
+* Test convergence on a small problem
+* Test compatibility.
+* Linearization to test Newton.
+* Apply iterative solver instead of Newton (with PreCond).
+
