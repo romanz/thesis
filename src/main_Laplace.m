@@ -12,8 +12,7 @@ function [sol] = main_Laplace(alpha)
         alpha = 0;
     end
 
-    betas = 0.1;
-    V = [];
+    betas = 1;
     tic;
     for k = 1:numel(betas)
         fprintf('==================================================================\n')
@@ -23,8 +22,9 @@ function [sol] = main_Laplace(alpha)
         end
     end
     toc
-    fname = datestr(now, 'YYYYmmddhhMMss');
-    save(fname)
+    r = sol.Phi.grid.r; t = sol.Phi.grid.t; phi = regrid(sol.Phi);
+    semilogx(convn(r, [1;1]/2, 'valid'), ...
+        diff(phi, 1) ./ repmat(diff(r), [1 size(phi, 2)]), g.r(end), betas(end)*(t(2:end-1)), '.')
 end
 
 function sol = solver(sol, iters, alpha)
@@ -70,7 +70,8 @@ function iter = update_interior(sol)
     var = sol.var;
     bnd = sol.bnd;
     eqn = sol.eqn;
-    T = 1;
+    n = numel(var.value)-1;
+    T = sparse(1:n, 1:n, 1, n, n+1); % T = 1;
     function [r, dx] = iter_interior()
         Gb = bnd.grad();
         rb = bnd.res();
@@ -138,21 +139,17 @@ function [g] = grids(Rmax, Nr)
     r = logspace(0, log10(Rmax), Nr);
     dr = diff(r(1:2));
     dt = dr;
-    Nt = ceil(pi / dt) + 1;
+    Nt = ceil(2 / dt) + 1;
     Nt = Nt + ~mod(Nt, 2);
-    t = linspace(0, pi, Nt);
+    t = linspace(-1, 1, Nt);
     r = r(:);
     t = t(:);
-    rg = [2*r(1) - r(2); r; 2*r(end) - r(end-1)];
+    rg = [r(1)^2 / r(2); r; r(end)^2/r(end-1)];
     tg = [2*t(1) - t(2); t; 2*t(end) - t(end-1)];
     rc = average(rg, [1; 1]/2);
     tc = average(tg, [1; 1]/2);
     
     g.Phi = Grid(rc, tc);
-    g.C = Grid(rc, tc);
-    g.Vr = Grid(r, tc);
-    g.Vt = Grid(rc, t);
-    g.P = Grid(rc(2:end-1), tc(2:end-1));
     g.r = r;
     g.t = t;
     
@@ -173,33 +170,19 @@ function [bnd] = Boundary(op, dim, n)
     bnd = Selector(g, op); % get boundary
 end
 
-% Ls(f) = Dt(sint * Dt(f))/(r^2 sint)
-function res = surface_laplacian(op, g)
-    f = Interp(g, op);
-    g1 = Grid(g.r, conv(g.t, [1 1]/2, 'valid'));
-    dfdt_sint = Deriv(g1, f, 2) * 'sin(t)';
-    res = Deriv(g.crop(0, 1), dfdt_sint, 2) * '1/(r^2 * sin(t))';
-end
-
 function [op, I] = boundary_conditions(sol)
-    grid = sol.grid;
-    g = Grid(grid.Vr.r(1), grid.Vr.t);
-    g1 = g.crop(0, 1);
+    g = sol.grid.Phi;
+    g = Grid(mean(g.r(1:2)), g.t);
+    g = g.crop(0, 1);
     phi1 = Boundary(sol.Phi, -1, 2);
-    
-    bnd{1} = Deriv(g1, phi1, 1); 
+    bnd{1} = -Deriv(g, phi1, 1) - @(r,t) 0*sol.beta*t; 
 
-    g = sol.grid.Vr;
-    g = Grid(g.r(end), g.t(2:end-1));
-    E_inf = @(r,t) sol.beta*cos(t);
-    phi_inf = @(r,t) -sol.beta*r*cos(t);
+    g = sol.grid.Phi;
+    g = Grid(mean(g.r(end-1:end)), g.t);
+    g = g.crop(0, 1);
     E = -Deriv(g, Boundary(sol.Phi, 1, 2), 1);
-    phi = Boundary(sol.Phi, 1, 1);
 
-    bnd{2} = Join(...
-        Selector(Grid(phi.grid.r, phi.grid.t(1)), phi - phi_inf), ...
-        Selector(Grid(  E.grid.r,   E.grid.t(2:end)), E - E_inf)); 
-    
+    bnd{2} = E - @(r,t) sol.beta*t; 
     bnd{3} = Symm(sol.Phi, 2);
     
     op = Join(bnd{:});
@@ -241,107 +224,19 @@ end
 % Charge flux divergence:
 %   div(C grad(Phi)) = 0.
 function flux = charge(sol)
-    DPhi_Dr = Crop(Deriv(sol.grid.Vr, sol.Phi, 1), [0 1]);
-    DPhi_Dt = Crop(Deriv(sol.grid.Vt, sol.Phi, 2), [1 0]);
-    %%% Cr = Interp(DPhi_Dr.grid, sol.C);
-    %%% Ct = Interp(DPhi_Dt.grid, sol.C);
     g = sol.Phi.grid;
+    gr = Grid(sol.grid.r, g.t);
+    gt = Grid(g.r, sol.grid.t);
+    DPhi_Dr = Crop(Deriv(gr, sol.Phi, 1), [0 1]);
+    DPhi_Dt = Crop(Deriv(gt, sol.Phi, 2), [1 0]);
     g = Grid(g.r(2:end-1), g.t(2:end-1));
-    %%% fluxR = Deriv(g, 'r^2' * Cr * DPhi_Dr, 1) * '1/r^2';
-    %%% fluxT = Deriv(g, 'sin(t)' * Ct * DPhi_Dt, 2) * '1/(r^2 * sin(t))';
-    fluxR = Deriv(g, 'r^2' * DPhi_Dr, 1) * '1/r^2';
-    fluxT = Deriv(g, 'sin(t)' * DPhi_Dt, 2) * '1/(r^2 * sin(t))';
+    fluxR = Deriv(g, 'r^2' * DPhi_Dr, 1);
+    fluxT = Deriv(g, '1-t^2' * DPhi_Dt, 2);
     flux = fluxR + fluxT;
 end
 
-% Salt flux divergence
-function flux = salt(sol)
-    % Diffusion    
-    DC_Dr = Deriv(sol.Vr.grid, sol.C, 1);
-    DC_Dt = Deriv(sol.Vt.grid, sol.C, 2);
-    
-    % Advection (with upwind discretization)
-    Cr = Upwind(sol.C, sol.Vr);
-    Ct = Upwind(sol.C, sol.Vt);
-    
-    % Salt fluxes
-    Fr = - DC_Dr         + sol.alpha * Cr * sol.Vr;    
-    Ft = - DC_Dt * '1/r' + sol.alpha * Ct * sol.Vt;
-    
-    % Divergence
-    g = sol.C.grid;
-    g = Grid(g.r(2:end-1), g.t(2:end-1));
-    fluxR = Deriv(g, 'r^2'    * Crop(Fr, [0 1]), 1) * '1/r^2';
-    fluxT = Deriv(g, 'sin(t)' * Crop(Ft, [1 0]), 2) * '1/(r * sin(t))';
-    flux = fluxR + fluxT; % Diffusion
-end
-
-% Mass flux divergence
-function flux = mass(sol)
-    Dm_Dr = Crop(sol.Vr, [0 1]);
-    Dm_Dt = Crop(sol.Vt, [1 0]);
-    g = sol.P.grid;
-    fluxR = Deriv(g, 'r^2' * Dm_Dr, 1) * '1/r^2';
-    fluxT = Deriv(g, 'sin(t)' * Dm_Dt, 2) * '1/(r * sin(t))';
-    flux = fluxR + fluxT;
-end
-
-% Momentum flux divergence
-function [forceR, forceT] = momentum(sol)
-    Er = Crop(Deriv(sol.Vr.grid, sol.Phi, 1), [0 1]);
-    Et = Crop(Deriv(sol.Vt.grid, sol.Phi, 2), [1 0]) * '1/r';
-    gi = sol.P.grid;
-    
-    Q = Deriv(gi, 'r^2' * Er, 1) * '1/r^2' + ...
-        Deriv(gi, 'sin(t)' * Et, 2) * '1/(r * sin(t))';
-
-    gr = sol.Vr.grid.crop(1, 1);
-    gt = Grid(sol.Vr.grid.r(2:end-1), sol.Vt.grid.t);
-    
-    forceR = Deriv(gr, - sol.P + Deriv(gi, Crop(sol.Vr, [0 1]) * 'r^2', 1) * '1/r^2', 1) ...
-        + Deriv(gr, (Deriv(gt, Crop(sol.Vr, [1 0]), 2) - 2*Interp(gt, sol.Vt)) * 'sin(t)', 2) * ('1/(r^2 * sin(t))');
-    %%% forceR = forceR + Selector(gr, Er) * Interp(gr, Q);
-    
-    gt = sol.Vt.grid.crop(1, 1);
-    gr = Grid(sol.Vr.grid.r, sol.Vt.grid.t(2:end-1));
-    
-    forceT = Deriv(gt, sol.P, 2) * '-1/r' ...
-        + '1/r^2' * Deriv(gt, 'r^2'*Deriv(gr, Crop(sol.Vt, [0 1]), 1), 1) ...
-        + '1/r^2' * Deriv(gt, '1/sin(t)' * Deriv(gi, Crop(sol.Vt, [1 0]) * 'sin(t)', 2) + 2*Interp(gi, sol.Vr), 2);
-    %%% forceT = forceT + Selector(gt, Et) * Interp(gt, Q);
-end
 
 % Electrokinetical system PDEs
 function [eqn] = system_equations(sol)    
     eqn = charge(sol);
-end
-
-function [res] = total_force(sol, grid)
-    % Evaluate total force on the particle by numeric quadrature on r=R.
-    g = Grid(grid.r(2), grid.t);
-    
-    P = Interp(Grid(g.r, sol.Phi.grid.t), sol.P); % interpolate on r=R.
-    n = P.grid.numel;
-    P = Linear(P.grid, P, sparse(1:n, [2 2:n-1 n-1], 1, n, n));
-    P = Interp(g, P);
-    
-    dVr_dr = Deriv(g, Interp(Grid(sol.Vr.grid.r([1 3]), g.t), sol.Vr), 1);
-    dVr_dt = Deriv(g, Selector(Grid(g.r, sol.Vr.grid.t),      sol.Vr), 2);
-    
-    Vt = Interp(g, sol.Vt);
-    dVt_dr = Deriv(g, Selector(Grid(sol.Vt.grid.r(2:3), g.t), sol.Vt), 1);
-    
-    dPhi_dr = Deriv(g, Interp(Grid(sol.Phi.grid.r(2:3), g.t), sol.Phi), 1);
-    dPhi_dt = Deriv(g, Interp(Grid(g.r, sol.Phi.grid.t), sol.Phi), 2);
-    dPhi_rdt = dPhi_dt * '1/r';
-    
-    dFr = -P + 2*dVr_dr + 0.5*(dPhi_dr*dPhi_dr - dPhi_rdt*dPhi_rdt);
-    dFt = dVt_dr + (dVr_dt - Vt)*'1/r' + dPhi_dr*dPhi_rdt;
-    f = dFr * 'cos(t)' - dFt * 'sin(t)'; % local force
-    f = f * 'r*sin(t)'; % axial symmetry
-    
-    function F = force() 
-        F = simpson(g.t, f.res());
-    end
-    res = @force;
 end
