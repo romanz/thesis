@@ -30,11 +30,6 @@ end
 function sol = solver(sol, iters, alpha)
     [sol, iter] = update(sol); % update equations and iterators
     for k = 1:iters(1)
-        
-%         for j = 1:iters(2)
-%             [r, dx] = iter.bnd();
-%             fprintf('\t%e -> %e\n', norm(r), norm(dx))
-%         end
         [r, dx] = iter.int();
         fprintf('>>> %e -> %e\n', norm(r, inf), norm(dx, inf))
 
@@ -63,7 +58,6 @@ function [sol, iter] = update(sol)
     sol.eqn = system_equations(sol);
     
     iter.int = update_interior(sol);
-    iter.bnd = update_boundary(sol);
 end
 
 function iter = update_interior(sol)
@@ -89,22 +83,6 @@ function iter = update_interior(sol)
         var.update(-dx);
     end
     iter = @iter_interior;
-end
-
-function iter = update_boundary(sol)
-    var = sol.var;
-    I = sol.I;
-    bnd = sol.bnd;
-    Pb = select(~I)';
-    
-    function [r, dx] = iter_boundary()
-        r = bnd.res();
-        G = bnd.grad();
-        dx = linsolve(G*Pb, r);
-        var.update(-Pb*dx);
-    end
-
-    iter = @iter_boundary;
 end
 
 % Solve linear system Ax = B
