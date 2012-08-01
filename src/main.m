@@ -1,5 +1,4 @@
-function [sol] = main()
-    Rmax = 30.0; Nr = 50;
+function [sol] = main(Rmax, Nr, betas)
     g = grids(Rmax, Nr);
     
     init.Phi = zeros(g.Phi.size);
@@ -12,10 +11,9 @@ function [sol] = main()
     sol.alpha = 0.5;
     sol.Du = 1;
     sol.zeta = 10;
-   force = total_force(sol, g);
+    force = total_force(sol, g);
     
-
-    betas = 0.05;
+    betas = betas(:);
     V = zeros(size(betas));
     tic;
     for k = 1:numel(betas)
@@ -38,7 +36,9 @@ function [sol] = main()
     end
     toc
     fname = datestr(now, 'YYYYmmddhhMMss');
+    fprintf('Saving to %s...', fname);
     save(fname)
+    fprintf('\n');
 end
 
 function sol = solver(sol, iters)
