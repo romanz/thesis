@@ -1,11 +1,18 @@
 classdef Join < handle
 properties
     ops;
+    grid; % pseudo-grid (used only for .numel)
 end
 
 methods
     function self = Join(varargin)
         self.ops = varargin;
+        n = 0;
+        for k = 1:numel(self.ops)
+            op = self.ops{k};
+            n = n + op.grid.numel;
+        end
+        self.grid.numel = n;
     end
     
     function r = res(self)
