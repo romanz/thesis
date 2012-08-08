@@ -1,0 +1,6 @@
+* Use grid of exactly x2 
+* Higher resolution for better results (-> 200x200)
+* R=1, R_inf -> look at all solutions for bad things
+  (for large betas, small betas)
+* Use linear correction for BC at Rinf.
+* Rinf should depend on 1/(alpha*beta)

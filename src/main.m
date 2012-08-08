@@ -33,12 +33,12 @@ function [sol] = main(Rmax, Nr, betas)
             fprintf('------------------------------------------------------------------\n')
         end
         V(k) = v(end);
+        fname = datestr(now, 'YYYYmmddhhMMss');
+        fprintf('Saving to %s...', fname);
+        save(fname)
+        fprintf('\n');
     end
     toc
-    fname = datestr(now, 'YYYYmmddhhMMss');
-    fprintf('Saving to %s...', fname);
-    save(fname)
-    fprintf('\n');
 end
 
 function sol = solver(sol, iters)
