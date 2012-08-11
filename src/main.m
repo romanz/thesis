@@ -1,5 +1,5 @@
-function [sol] = main(Rmax, Nr, betas)
-    g = grids(Rmax, Nr);
+function [sol] = main(Rmax, Nr, Nt, betas)
+    g = grids(Rmax, Nr, Nt);
     
     init.Phi = zeros(g.Phi.size);
     init.C = ones(g.C.size);
@@ -25,7 +25,7 @@ function [sol] = main(Rmax, Nr, betas)
         f = zeros(iters, 1);
         for i = 1:iters
             sol.Vinf = v(i);
-            sol = solver(sol, [7 0]);
+            sol = solver(sol, [3 0]);
             f(i) = force();
             v(i+1) = iter(f(i));
             fprintf('------------------------------------------------------------------\n')
@@ -135,12 +135,14 @@ function sol = Solution(grid, init)
 end
 
 % Create problem grids.
-function [g] = grids(Rmax, Nr)
+function [g] = grids(Rmax, Nr, Nt)
     r = logspace(0, log10(Rmax), Nr);
     dr = diff(r(1:2));
     dt = dr;
-    Nt = ceil(pi / dt) + 1;
-    Nt = Nt + ~mod(Nt, 2);
+    if nargin < 3
+        Nt = ceil(pi / dt) + 1;
+        Nt = Nt + ~mod(Nt, 2);
+    end
     t = linspace(0, pi, Nt);
     r = r(:);
     t = t(:);

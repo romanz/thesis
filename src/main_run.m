@@ -1,8 +1,8 @@
-Nr = [32 64 128];
-Rmax = 30;
-betas = [1.6 2.4 3.2];
-for n=Nr 
+N = 2.^(5:8);
+Rmax = [30,100,300];
+betas = 0.1*2.^(-2:5);
+for n=N 
     for r=Rmax
-        main(r, n, betas)
+        main(r, n+1, n+1, betas)
     end
 end
