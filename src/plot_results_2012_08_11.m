@@ -1,8 +1,8 @@
 clc; 
 
 for r = [30 100 300]
-    p = sprintf('2012_08_11/%d/', r);
-    D = dir([p '*.mat']);
+    p = sprintf('2012_08_15/%d/', r);
+    D = dir([p '*x*.mat']);
 
     if isempty(D)
         fprintf('No MAT files found.\n')
@@ -17,7 +17,7 @@ for r = [30 100 300]
         disp([p f])
     end
 
-    k = 8; % number of betas
+    k = numel(S{1}.betas); % number of betas
     S = reshape(S, k, numel(S)/k);
     % S = S(:, 2:end);
 

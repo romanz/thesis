@@ -1,0 +1,399 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 8.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[     12515,        390]
+NotebookOptionsPosition[     11116,        342]
+NotebookOutlinePosition[     11453,        357]
+CellTagsIndexPosition[     11410,        354]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Library of usefull functions ", "Subsubtitle",
+ CellChangeTimes->{{3.5376689961607*^9, 3.5376690102736883`*^9}, 
+   3.5376693524713287`*^9}],
+
+Cell["\<\
+Note that non-capital are used to avoid confusion with built in vector \
+analysis functions.\
+\>", "Text",
+ CellChangeTimes->{{3.537669320426828*^9, 3.537669342767621*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Axisymmetric (r,\[Mu]) coordinates", "Subsubsection",
+ CellChangeTimes->{{3.537669068809167*^9, 3.537669079199201*^9}, {
+  3.537677313547227*^9, 3.5376773150809593`*^9}}],
+
+Cell["\<\
+r and \[Theta] components of gradient:\
+\>", "Text",
+ CellChangeTimes->{{3.537669148909584*^9, 3.537669187077046*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"gradr", "=", 
+   RowBox[{
+    RowBox[{"D", "[", 
+     RowBox[{"#", ",", "r"}], "]"}], "&"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.537668447309229*^9, 3.537668533392934*^9}, {
+   3.537668588872517*^9, 3.537668591031094*^9}, {3.537668642055439*^9, 
+   3.537668645701439*^9}, {3.537668681644887*^9, 3.537668743970889*^9}, {
+   3.5376690232991037`*^9, 3.5376690329146833`*^9}, {3.537669089418119*^9, 
+   3.537669093064645*^9}, 3.537669136129685*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"gradu", "=", 
+   RowBox[{
+    RowBox[{
+     RowBox[{
+      RowBox[{"-", "1"}], "/", "r"}], "*", 
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{"1", "-", 
+        RowBox[{"\[Mu]", "^", "2"}]}], ")"}], "^", 
+      RowBox[{"(", 
+       RowBox[{"1", "/", "2"}], ")"}]}], "*", 
+     RowBox[{"D", "[", 
+      RowBox[{"#", ",", "\[Mu]"}], "]"}]}], " ", "&"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.537669108831437*^9, 3.53766913826482*^9}, {
+  3.537677318780417*^9, 3.537677324252434*^9}}],
+
+Cell["\<\
+\[Theta] (and only) component of surface gradient (on r=1)\
+\>", "Text",
+ CellChangeTimes->{{3.537669190939561*^9, 3.5376692157792177`*^9}, {
+  3.537669440413085*^9, 3.537669442988426*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"grads", "=", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"-", 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{"1", "-", 
+         RowBox[{"\[Mu]", "^", "2"}]}], ")"}], "^", 
+       RowBox[{"(", 
+        RowBox[{"1", "/", "2"}], ")"}]}]}], "*", 
+     RowBox[{"D", "[", 
+      RowBox[{"#", ",", "\[Mu]"}], "]"}]}], " ", "&"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.5376692207191677`*^9, 3.537669251493228*^9}, {
+  3.537677328492148*^9, 3.5376773317073936`*^9}}],
+
+Cell["Laplacian operator", "Text",
+ CellChangeTimes->{{3.537669262714476*^9, 3.537669267737865*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"laplacian", " ", "=", " ", 
+   RowBox[{
+    RowBox[{
+     RowBox[{
+      RowBox[{"1", "/", 
+       RowBox[{"r", "^", "2"}]}], "*", 
+      RowBox[{"D", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"r", "^", "2"}], "*", 
+         RowBox[{"D", "[", 
+          RowBox[{"#", ",", "r"}], "]"}]}], ",", "r"}], "]"}]}], "+", 
+     RowBox[{
+      RowBox[{"1", "/", 
+       RowBox[{"r", "^", "2"}]}], "*", 
+      RowBox[{"D", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"(", 
+          RowBox[{"1", "-", 
+           RowBox[{"\[Mu]", "^", "2"}]}], ")"}], "*", 
+         RowBox[{"D", "[", 
+          RowBox[{"#", ",", "\[Mu]"}], "]"}]}], ",", "\[Mu]"}], "]"}]}]}], 
+    " ", "&"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.5376692711762466`*^9, 3.537669275179188*^9}, {
+  3.537669364760654*^9, 3.5376694037623367`*^9}, {3.537677336444715*^9, 
+  3.537677341564988*^9}}],
+
+Cell["\<\
+Surface laplacian operator (on r=1)\
+\>", "Text",
+ CellChangeTimes->{{3.537669413712079*^9, 3.537669436500946*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"laplacians", "=", 
+   RowBox[{
+    RowBox[{"D", "[", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{"1", "-", 
+         RowBox[{"\[Mu]", "^", "2"}]}], ")"}], "*", 
+       RowBox[{"D", "[", 
+        RowBox[{"#", ",", "\[Mu]"}], "]"}]}], ",", "\[Mu]"}], "]"}], " ", 
+    "&"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.537669421412663*^9, 3.537669471071126*^9}, {
+  3.537677344891498*^9, 3.53767735153041*^9}}],
+
+Cell["\<\
+Divergence (takes r, \[Theta] component of vector)\
+\>", "Text",
+ CellChangeTimes->{{3.537669476604332*^9, 3.537669498483474*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"divergence", " ", "=", " ", 
+   RowBox[{
+    RowBox[{
+     RowBox[{
+      RowBox[{"1", "/", 
+       RowBox[{"r", "^", "2"}]}], "*", 
+      RowBox[{"D", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"r", "^", "2"}], "*", "#1"}], ",", "r"}], "]"}]}], "-", 
+     RowBox[{
+      RowBox[{"1", "/", "r"}], "*", 
+      RowBox[{"D", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"1", "-", 
+            RowBox[{"\[Mu]", "^", "2"}]}], ")"}], "^", 
+          RowBox[{"(", 
+           RowBox[{"1", "/", "2"}], ")"}]}], "*", "#2"}], ",", "\[Mu]"}], 
+       "]"}]}]}], " ", "&"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.537669535688272*^9, 3.537669577149239*^9}, {
+  3.5376773576278276`*^9, 3.5376773624920073`*^9}, {3.5376792013551893`*^9, 
+  3.5376792043769608`*^9}}],
+
+Cell["\<\
+Surface divergence (take \[Theta] component of vector) (on r=1)\
+\>", "Text",
+ CellChangeTimes->{{3.537669586857218*^9, 3.5376696056483927`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"divergences", "=", 
+   RowBox[{
+    RowBox[{"-", 
+     RowBox[{"D", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{
+         RowBox[{"(", 
+          RowBox[{"1", "-", 
+           RowBox[{"\[Mu]", "^", "2"}]}], ")"}], "^", 
+         RowBox[{"(", 
+          RowBox[{"1", "/", "2"}], ")"}]}], "*", "#"}], ",", "\[Mu]"}], 
+      "]"}]}], " ", "&"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.537669609679138*^9, 3.5376696276108513`*^9}, {
+  3.5376773654112997`*^9, 3.5376773690826*^9}}],
+
+Cell["\<\
+Decomposition of a function f(r,u) as a Legendre polynomials series.  The \
+function below takes 1.  f(r,u), 2. m - the mode number. It returns the \
+coefficient function fm(r)\
+\>", "Text",
+ CellChangeTimes->{{3.537669650128117*^9, 3.537669783859405*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"legE", " ", "=", " ", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"1", "/", "2"}], "*", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"2", "*", "#2"}], "+", "1"}], ")"}], "*", 
+     RowBox[{"Integrate", "[", 
+      RowBox[{
+       RowBox[{"#", "*", 
+        RowBox[{"LegendreP", "[", 
+         RowBox[{"#2", ",", "\[Mu]"}], "]"}]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"\[Mu]", ",", 
+         RowBox[{"-", "1"}], ",", "1"}], "}"}]}], "]"}]}], " ", "&"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.5376697900798388`*^9, 3.537669890612109*^9}, {
+  3.537677372227909*^9, 3.537677376307349*^9}, {3.5376791644739523`*^9, 
+  3.537679167313219*^9}, {3.537679210640853*^9, 3.53767921908816*^9}}],
+
+Cell["\<\
+Integrate over r=1 surface, integrand function of \[Mu]:\
+\>", "Text",
+ CellChangeTimes->{{3.537709450596019*^9, 3.537709476051075*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ints", " ", "=", " ", 
+   RowBox[{
+    RowBox[{"2", "*", "Pi", "*", 
+     RowBox[{"Integrate", "[", 
+      RowBox[{"#", ",", 
+       RowBox[{"{", 
+        RowBox[{"\[Mu]", ",", 
+         RowBox[{"-", "1"}], ",", "1"}], "}"}]}], "]"}]}], " ", "&"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.5377094818374987`*^9, 3.537709525521944*^9}, {
+  3.5377096620073643`*^9, 3.5377096626393433`*^9}}],
+
+Cell["\<\
+Integrate over volume external to r=1 sphere, input is a function of r and \
+\[Mu]:\
+\>", "Text",
+ CellChangeTimes->{{3.5377094818374987`*^9, 3.537709606501883*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"intv", " ", "=", " ", 
+   RowBox[{
+    RowBox[{"2", "*", "Pi", "*", 
+     RowBox[{"Integrate", "[", 
+      RowBox[{
+       RowBox[{"Integrate", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"r", "^", "2"}], "*", "#"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"r", ",", "1", ",", "Infinity"}], "}"}]}], "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"\[Mu]", ",", 
+         RowBox[{"-", "1"}], ",", "1"}], "}"}]}], "]"}]}], "&"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.53770960836954*^9, 3.537709686079574*^9}}],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.537668595404767*^9, 3.5376685977263412`*^9}, {
+   3.537668694509591*^9, 3.5376687001562967`*^9}, 3.537669898539366*^9}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"gradu", "[", 
+  RowBox[{
+   RowBox[{"r", "^", "3"}], "+", "\[Mu]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.5376780463915987`*^9, 3.537678070373981*^9}}],
+
+Cell[BoxData[
+ RowBox[{"-", 
+  FractionBox[
+   SqrtBox[
+    RowBox[{"1", "-", 
+     SuperscriptBox["\[Mu]", "2"]}]], "r"]}]], "Output",
+ CellChangeTimes->{{3.53767806301128*^9, 3.5376780708776283`*^9}, 
+   3.53767882446075*^9, 3.537683471520473*^9, 3.537683986865752*^9, 
+   3.537694948400693*^9, 3.537699831675274*^9, 3.5377154073443108`*^9, 
+   3.5377159208689423`*^9, 3.537716342782556*^9, 3.537725904198344*^9, 
+   3.537772390491914*^9, 3.537856455728372*^9, 3.5389862916885147`*^9, 
+   3.538999938006256*^9, 3.5390026829286003`*^9, 3.539912094300935*^9, 
+   3.5399148307490997`*^9, 3.539918805681645*^9, 3.539919310053289*^9, 
+   3.539948094050894*^9, 3.539951794635276*^9, 3.539954826689988*^9, 
+   3.5400003632304363`*^9, 3.540453038863628*^9, 3.540783097694717*^9, 
+   3.540805860627615*^9, 3.540909502948214*^9, 3.544098536818507*^9, 
+   3.553951643958558*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"legE", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"r", "^", "2"}], "*", "\[Mu]"}], ",", "1"}], "]"}]], "Input",
+ CellChangeTimes->{{3.5376686745572453`*^9, 3.537668726019198*^9}, 
+   3.537669903049408*^9, {3.537679089907783*^9, 3.537679108921138*^9}, 
+   3.5376792284882402`*^9}],
+
+Cell[BoxData[
+ SuperscriptBox["r", "2"]], "Output",
+ CellChangeTimes->{
+  3.537679109523243*^9, 3.537679170560581*^9, {3.5376792231910973`*^9, 
+   3.5376792290883017`*^9}, 3.537683471552923*^9, 3.537683986897943*^9, 
+   3.537694949181053*^9, 3.537699831915959*^9, 3.537715407455988*^9, 
+   3.537715921012167*^9, 3.537716342923789*^9, 3.537725904342008*^9, 
+   3.537772390898809*^9, 3.537856456165286*^9, 3.538986292812179*^9, 
+   3.538999938130157*^9, 3.539002683039713*^9, 3.539912094698153*^9, 
+   3.539914830889105*^9, 3.539918805808708*^9, 3.5399193101970882`*^9, 
+   3.539948094264676*^9, 3.539951794773953*^9, 3.539954826829924*^9, 
+   3.5400003637072697`*^9, 3.540453039018433*^9, 3.540783097729229*^9, 
+   3.540805860777783*^9, 3.540909504114286*^9, 3.544098537238957*^9, 
+   3.553951644447857*^9}]
+}, Open  ]],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.5376699049515*^9, 3.537669904964238*^9}}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{740, 601},
+WindowMargins->{{134, Automatic}, {Automatic, 40}},
+FrontEndVersion->"8.0 for Linux x86 (64-bit) (October 10, 2011)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 146, 2, 31, "Subsubtitle"],
+Cell[728, 26, 182, 4, 30, "Text"],
+Cell[CellGroupData[{
+Cell[935, 34, 176, 2, 28, "Subsubsection"],
+Cell[1114, 38, 128, 3, 30, "Text"],
+Cell[1245, 43, 484, 10, 30, "Input"],
+Cell[1732, 55, 523, 16, 30, "Input"],
+Cell[2258, 73, 199, 4, 30, "Text"],
+Cell[2460, 79, 497, 15, 30, "Input"],
+Cell[2960, 96, 100, 1, 30, "Text"],
+Cell[3063, 99, 914, 28, 50, "Input"],
+Cell[3980, 129, 125, 3, 30, "Text"],
+Cell[4108, 134, 463, 14, 30, "Input"],
+Cell[4574, 150, 140, 3, 30, "Text"],
+Cell[4717, 155, 856, 26, 30, "Input"],
+Cell[5576, 183, 155, 3, 30, "Text"],
+Cell[5734, 188, 522, 16, 30, "Input"],
+Cell[6259, 206, 266, 5, 49, "Text"],
+Cell[6528, 213, 730, 20, 30, "Input"],
+Cell[7261, 235, 146, 3, 30, "Text"],
+Cell[7410, 240, 426, 12, 30, "Input"],
+Cell[7839, 254, 175, 4, 30, "Text"],
+Cell[8017, 260, 574, 17, 30, "Input"],
+Cell[8594, 279, 168, 2, 30, "Input"],
+Cell[CellGroupData[{
+Cell[8787, 285, 177, 4, 30, "Input"],
+Cell[8967, 291, 869, 16, 58, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[9873, 312, 301, 7, 30, "Input"],
+Cell[10177, 321, 806, 13, 30, "Output"]
+}, Open  ]],
+Cell[10998, 337, 90, 1, 30, "Input"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)

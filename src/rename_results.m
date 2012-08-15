@@ -1,6 +1,6 @@
 clc; 
 clear;
-p = '1/';
+p = '2012_08_15/';
 D = dir([p '*.mat']);
 
 if isempty(D)
@@ -11,9 +11,12 @@ end
 for k = 1:numel(D)
     d = D(k);
     f = d.name;
-    S = load([p, f]);
-    disp(f)
-    t = sprintf('%dx%d_Rmax=%.0f_beta=%.3f.mat', ...
-        S.Nr-1, S.Nt-1, S.Rmax, S.sol.beta);
-    save([p t], '-struct', 'S');
+    src = [p f];
+    S = load(src);
+    t = sprintf('%dx%d_Rmax=%.0f_beta=%.3f_alpha=%.1f_Du=%.1f_zeta=%.1f.mat', ...
+        S.Nr-1, S.Nt-1, S.Rmax, S.sol.beta, S.sol.alpha, S.sol.Du, S.sol.zeta);
+    dst = [p t];
+    cmd = sprintf('mv -v %s %s', src, dst);
+    system(cmd);
+    % save(, '-struct', 'S');
 end

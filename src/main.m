@@ -33,7 +33,7 @@ function [sol] = main(Rmax, Nr, Nt, betas)
             fprintf('------------------------------------------------------------------\n')
         end
         V(k) = v(end);
-        fname = datestr(now, 'YYYYmmddhhMMss');
+        fname = datestr(now, 'YYYY_mm_dd__hh_MM_ss');
         fprintf('Saving to %s...', fname);
         save(fname)
         fprintf('\n');
