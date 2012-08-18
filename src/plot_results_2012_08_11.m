@@ -13,7 +13,7 @@ for r = [30 100 300]
     for k = 1:numel(D)
         d = D(k);
         f = d.name;
-        S{k} = load([p, f]);
+        S{k} = load([p, f], 'betas', 'k', 'v', 'Nr');
         disp([p f])
     end
 
@@ -21,7 +21,7 @@ for r = [30 100 300]
     S = reshape(S, k, numel(S)/k);
     % S = S(:, 2:end);
 
-    betas = cellfun(@(s) s.sol.beta, S);
+    betas = cellfun(@(s) s.betas(s.k), S);
     [~, I] = sort(betas(:, 1), 1);
 
     N = cellfun(@(s) s.Nr-1, S);
@@ -34,8 +34,8 @@ for r = [30 100 300]
     Vr1 = Vn(:, 3:4) * [-1/3; 4/3];
     Vr2 = Vr1 + (Vr1 - Vr0)/15;
 
-    U1 = 4.25752957407993;
-    U3 = 0.966869;
+    U1 = 3.69314718055995;
+    U3 = 0.304452832842969;
 
     b = betas(:, 1);
 

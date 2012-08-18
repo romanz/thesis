@@ -8,9 +8,9 @@ function [sol] = main(Rmax, Nr, Nt, betas)
     init.P = zeros(g.P.size);
     
     sol = Solution(g, init);
-    sol.alpha = 0.5;
-    sol.Du = 1;
-    sol.zeta = 10;
+    sol.alpha = 0.3;
+    sol.Du = 0.5;
+    sol.zeta = 6;
     force = total_force(sol, g);
     
     betas = betas(:);
@@ -23,9 +23,10 @@ function [sol] = main(Rmax, Nr, Nt, betas)
         [iter, v] = secant(Vinf * [0.9, 1.1]);
         iters = 5;
         f = zeros(iters, 1);
+        sol.res = {};
         for i = 1:iters
             sol.Vinf = v(i);
-            sol = solver(sol, [3 0]);
+            [sol, sol.res{i}] = solver(sol, 3);
             f(i) = force();
             v(i+1) = iter(f(i));
             fprintf('------------------------------------------------------------------\n')
@@ -41,11 +42,13 @@ function [sol] = main(Rmax, Nr, Nt, betas)
     toc
 end
 
-function sol = solver(sol, iters)
+function [sol, res] = solver(sol, iters)
     [sol, iter] = update(sol); % update equations and iterators
+    res = zeros(iters, 1);
     for k = 1:iters
         [r, dx] = iter();
         fprintf('>>> %e -> %e\n', norm(r, inf), norm(dx, inf))
+        res(k) = norm(r, inf);
     end
 end
 
