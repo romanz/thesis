@@ -1,6 +1,6 @@
 clc; 
 clear;
-p = '2012_08_15/';
+p = 'alpha=0.5_Du=1_zeta=10_large_betas/';
 D = dir([p '*.mat']);
 
 if isempty(D)

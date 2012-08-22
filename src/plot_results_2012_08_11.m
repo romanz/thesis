@@ -1,7 +1,7 @@
 clc; 
 
-for r = [30 100 300]
-    p = sprintf('2012_08_15/%d/', r);
+for r = [10 30 100 300]
+    p = sprintf('large_beta/%d/', r);
     D = dir([p '*x*.mat']);
 
     if isempty(D)
@@ -30,24 +30,26 @@ for r = [30 100 300]
     V = cellfun(@(s) s.v(end), S);
 
     Vn = V(I, J);
-    Vr0 = Vn(:, 2:3) * [-1/3; 4/3];
-    Vr1 = Vn(:, 3:4) * [-1/3; 4/3];
+    Vr0 = Vn(:, 1:2) * [-1/3; 4/3];
+    Vr1 = Vn(:, 2:3) * [-1/3; 4/3];
     Vr2 = Vr1 + (Vr1 - Vr0)/15;
 
-    U1 = 3.69314718055995;
-    U3 = 0.304452832842969;
+    U1 = 4.25752957407993;
+    U3 = 0.966869;
 
     b = betas(:, 1);
 
     V1 = U1*b;
     V3 = U3*b.^3;
 
-    figure(1); loglog(b, Vr1-V1, 'o-', b, V3, 's-')
-    legend('Numerical - Linear', 'Analytical cubic correction', ...
+    figure(1); plot(b, [Vn(:, :)], 'o-', b, [V1+V3], 's-')
+    legend('Numerica', 'Analytical', ...
         'Location', 'SouthEast')
     grid on
     xlabel('\beta');
     ylabel('steady-state velocity: deviation from linear')
+    xlim([0 6])
+    ylim([0 25])
     title('Numerical results for cubic correction')
     print('-depsc2', [p 'graph.eps'])
     S = [];

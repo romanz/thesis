@@ -8,9 +8,9 @@ function [sol] = main(Rmax, Nr, Nt, betas)
     init.P = zeros(g.P.size);
     
     sol = Solution(g, init);
-    sol.alpha = 0.3;
-    sol.Du = 0.5;
-    sol.zeta = 6;
+    sol.alpha = 0.5;
+    sol.Du = 1;
+    sol.zeta = 10;
     force = total_force(sol, g);
     
     betas = betas(:);
