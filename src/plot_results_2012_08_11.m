@@ -1,7 +1,7 @@
 clc; 
 
 for r = [10 30 100 300]
-    p = sprintf('large_beta/%d/', r);
+    p = sprintf('for_irad/alpha=0.5_Du=1_zeta=10_large_betas/%d/', r);
     D = dir([p '*x*.mat']);
 
     if isempty(D)
@@ -42,8 +42,8 @@ for r = [10 30 100 300]
     V1 = U1*b;
     V3 = U3*b.^3;
 
-    figure(1); plot(b, [Vn(:, :)], 'o-', b, [V1+V3], 's-')
-    legend('Numerica', 'Analytical', ...
+    figure(1); plot(b, [Vn(:, end)], 'o-', b, [V1+V3], 's-', b, [V1], '-')
+    legend('Numerical', 'Analytical', 'Linear', ...
         'Location', 'SouthEast')
     grid on
     xlabel('\beta');
