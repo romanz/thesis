@@ -33,8 +33,8 @@ In general, they have no analytic solution. Moreover,
 any numerical solver must handle the scale disparity caused by the
 Debye layer width being much smaller than the particle's size. A
 closed-form linear asymptotic solution has been developed for
-spherical ion-exchanging particles and weak electric field in an
-axisymmetric setting \cite{yariv2010migration} but it is hard to extend this
+spherical particles and weak electric field in an
+axisymmetric setting \cite{yariv2010migration, schnitzer2012surface} but it is hard to extend this
 analytic solution to more general systems. Once the electric field
 becomes stronger, significant nonlinear phenomena are expected.
 This interesting regime has not yet been explored.
@@ -56,7 +56,7 @@ solver has to be developed for analysing such system.
 
 \subsubsection{Dimensionless Notation}
 
-Spatial coordinates $\br$ are normalized by $a^*$ (the characteristic size of the ion-exchanger).
+Spatial coordinates $\br$ are normalized by $a^*$ (the characteristic size of the particle).
 
 Positive and negative ionic concentrations are denoted by $c_+$ and $c_-$ respectively, and
 are normalized by ambient ionic concentration $c^*$. The ionic valences are $\pm z$.
@@ -105,14 +105,14 @@ where $\alpha$ is the dimensionless Peclet number.
 
 The dimensional Poisson equation is:
 \begin{eqnarray}
-(c^*_+ - c^*_-) z F^* &=& -\eps^* \Laplacian \varphi^*,
+(c^*_+ - c^*_-) z e^* &=& -\eps^* \Laplacian \varphi^*,
 \end{eqnarray}
 and after nondimensionalization, is:
 \begin{eqnarray}
-c_+ - c_- &=& -\frac{\eps^* \varphi^*}{z F^* c^* (a^*)^2} \Laplacian \varphi = 
--\delta^2 \Laplacian \varphi,
+c_+ - c_- &=& -\frac{\eps^* \varphi^*}{z e^* c^* (a^*)^2} \Laplacian \varphi = 
+-2\delta^2 \Laplacian \varphi,
 \\
-\delta^2 &=& \frac{\eps^* \varphi^*}{c^* F^* z (a^*)^2} = 
+\delta^2 &=& \frac{\eps^* \varphi^*}{2c^* e^* z (a^*)^2} = 
 \pars{\frac{\delta^*}{a^*}}^2.
 \end{eqnarray}
 
@@ -157,12 +157,12 @@ Momentum conservation (force balance):
 \end{eqnarray}
 Free charge density is given by the Poisson equation:
 \begin{eqnarray}
-\delta^2 \Laplacian \varphi &=& -2q.
+\delta^2 \Laplacian \varphi &=& -q.
 \end{eqnarray}
 
 \subsubsection{Boundary conditions}
 An constant electric field $\bE$ is applied to the system, such that $|\bE| = \beta$.
-The ion-exchanger will acquire a non-zero steady-state velocity $\cU$, which is
+The particle will acquire a non-zero steady-state velocity $\cU$, which is
 a function of the applied field, and is not known a priori.
 
 Far away from the particle, we have uniform applied electrostatic field, uniform flow 
@@ -173,25 +173,21 @@ and ambient ionic concentrations:
 c_\pm &\rightarrow& 1.
 \end{eqnarray}
 
-We consider a spherical ion-exchanger. 
+We consider a spherical particle. 
 At its surface $\mathcal{S}$ (defined at $r=1$ with normal $\bn = \brhat$), 
-we have zero slip, anion impermeability, cation selectivity (with fast Butler-Volmer kinetics)
-and high conductance of the particle (yielding uniform electric potential):
+we have zero slip and ion impermeability.
 \begin{eqnarray}
 \bv & = & \bzero, \\
-\bn \cdot \bj_- & = & 0, \\
-\bn \cdot \bj_+ & = & k (1 - c_+/\gamma) \Rightarrow c_+ \rightarrow \gamma, \\
-\varphi & = & \cV.
+\bn \cdot \bj_\pm & = & 0.
 \end{eqnarray}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Separation of scales}
+\subsection{Bulk-scale equations}
 When $\delta \ll 1$, 
 most of the fluid remains electroneutral ($q \approx 0$, thus $c_+ \approx c_-$), 
 except a thin boundary layer of width $O(\delta)$, 
 also known as the ``Debye layer'', surrounding the ion exchanger. 
 
-\subsubsection  {Bulk-scale equations}
 The Nernst-Planck equations above for the fluid bulk (outside
 the boundary layer), using bulk variables, read:
 \begin{eqnarray}
@@ -221,7 +217,12 @@ The macroscale Stokes flow equations have the same form as the microscale equati
 \Laplacian \bV - \bnabla P + \bnabla \varPhi \Laplacian \varPhi &=& 0.
 \end{eqnarray}
 
-\subsubsection{Debye-scale effective boundary conditions}
+\subsection{Debye-scale effective boundary conditions}
+The effective boundary conditions depend on the specific physical and chemical properties 
+of the particle. We consider the following scenarios:
+
+\subsubsection{Inert particle}
+
 We define the scaled coordinate $\rho$ (normal to ion-exchanger surface), where $\delta \ll 1$:
 \begin{eqnarray}
   \rho &=& \frac{r-1}{\delta}. 
@@ -260,6 +261,25 @@ This relation can be rewritten as a Boltzmann distribution of ionic concentratio
 c_\pm &=& C \exp\left[\pm(\varPhi - \varphi)\right].
 \end{eqnarray}
 
+Due to ion impermeability and radial flux continuity:
+\begin{eqnarray}
+  \br \cdot \bj_\pm = -\deriv{c_\pm}{r} \mp c_\pm \deriv{\varPhi}{r} &=& 0, \\
+-\deriv{C}{r} \mp C \deriv{\varPhi}{r} &=& 0, \\
+\deriv{C}{r} = \deriv{\varPhi}{r} &=& 0.
+\end{eqnarray}
+
+Using the derivation in Appendix \ref{append:slip} and the fact that $V_r = 0$ 
+on the boundary, the slip condition can be written using the surface
+gradient operator:
+\begin{eqnarray}
+\bV &=& 
+\zeta \cdot \bnabla_\mathcal{S} \varPhi 
++ 2\log\pars{1-\tanh^2\frac{\zeta}{4}} \cdot \bnabla_\mathcal{S} \log C, \\
+\bnabla_\mathcal{S} &=& \pars{\tI - \bn\bn} \bnabla.
+\end{eqnarray}
+
+\subsubsection{Ion-exchanger}
+
 Due to cation selectivity, $c_+|_{\rho=0} = \gamma$.
 \begin{eqnarray}
   c_+ = \gamma &=& C \exp(\varPhi - \cV), \\
@@ -283,15 +303,12 @@ Due to anion impermeability and radial flux continuity:
 \deriv{}{r}\pars{\varPhi - \log C} &=& 0.
 \end{eqnarray}
 
-Using the derivation in Appendix \ref{append:slip} and the fact that $V_r = 0$ 
-on the boundary, the slip condition can be written using the surface
-gradient operator:
+\subsubsection{Highly charged particle}
 \begin{eqnarray}
-\bV &=& 
-\zeta \cdot \bnabla_\mathcal{S} \varPhi 
-+ 2\log\pars{1-\tanh^2\frac{\zeta}{4}} \cdot \bnabla_\mathcal{S} \log C, \\
-\bnabla_\mathcal{S} &=& \pars{\tI - \bn\bn} \bnabla.
+ \deriv{C}{r} + C \deriv{\varPhi}{r} &=& 0, \\
+ \deriv{C}{r} - \mbox{Du} \Laplacian_s (\varPhi - \log C) &=& 0.
 \end{eqnarray}
+
 
 \subsection{Steady state}
 The stress tensor is composed of Newtonian and Maxwel stresses:
