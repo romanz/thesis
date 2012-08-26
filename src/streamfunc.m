@@ -1,25 +1,28 @@
 function sol = streamfunc(sol)
 
 grid = sol.grid;
-grid.Psi = init_grid(grid.radius, grid.theta);
+grid.Psi = init_grid(grid.r, grid.t);
 % d(r^2 sint Vr)/dr + d(r sint Vt)/dt = 0
 
-% d(Vx)/dx + d(Vy)/dy = 0
-% Vx = r^2 sint Vx = dPsi/dy
-% Vy = r sint Vy = - dPsi/dx
+% d(Vr)/dx + d(Vt)/dy = 0
+% Vr = r^2 sint Vr = dPsi/dy
+% Vt = r sint Vt = - dPsi/dx
 
-Vx = sol.Vx .* sin(grid.Vx.Y) .* grid.Vx.X.^2;
-Vx = Vx(:, 2:end-1);
-Vy = sol.Vy .* sin(grid.Vy.Y) .* grid.Vy.X;
-Vy = Vy(2:end-1, :);
-V = [Vx(:); Vy(:)];
+Vr = regrid(sol.Vr);
+Vt = regrid(sol.Vt);
 
-div = [grad(grid.Vx.X(:, 2:end-1), 1) grad(grid.Vy.Y(2:end-1, :), 2)] * V;
+Vr = Vr .* sin(grid.Vr.T) .* grid.Vr.R.^2;
+Vr = Vr(:, 2:end-1);
+Vt = Vt .* sin(grid.Vt.T) .* grid.Vt.R;
+Vt = Vt(2:end-1, :);
+V = [Vr(:); Vt(:)];
+
+div = [grad(grid.Vr.R(:, 2:end-1), 1) grad(grid.Vt.T(2:end-1, :), 2)] * V;
 assert(norm(div) / norm(V) < 1e-10);
 
-G1 = +grad(grid.Psi.Y, 2);
-G2 = -grad(grid.Psi.X, 1);
-G = [G1; G2]; % [d/dy; -d/dx] * Psi = V = [Vx; Vy]
+G1 = +grad(grid.Psi.T, 2);
+G2 = -grad(grid.Psi.R, 1);
+G = [G1; G2]; % [d/dy; -d/dx] * Psi = V = [Vr; Vt]
 
 I = grid.Psi.I | shift(grid.Psi.I, [1 0]); % I = 0 iff Psi = 0
 Q = expand(I); % G*(Q*Psi) = V
@@ -28,7 +31,7 @@ Psi = Q * ((G*Q) \ V);
 assert(norm(G * Psi - V) / norm(V) < 1e-10);
 Psi = reshape(Psi, grid.Psi.sz);
 
-w = (grid.Psi.X .* sin(grid.Psi.Y));
+w = (grid.Psi.R .* sin(grid.Psi.T));
 Psi(I) = Psi(I) ./ w(I);
 
 sol.Psi = Psi;
