@@ -1,7 +1,7 @@
 clc; 
 
 for r = [10 30 100 300]
-    p = sprintf('for_irad/alpha=0.5_Du=1_zeta=10_large_betas/%d/', r);
+    p = sprintf('better_R_res/%d/', r);
     D = dir([p '*x*.mat']);
 
     if isempty(D)
@@ -42,9 +42,9 @@ for r = [10 30 100 300]
     V1 = U1*b;
     V3 = U3*b.^3;
 
-    figure(1); plot(b, [Vn(:, end)], 'o-', b, [V1+V3], 's-', b, [V1], '-')
-    legend('Numerical', 'Analytical', 'Linear', ...
-        'Location', 'SouthEast')
+    figure(1); plot(b, [Vn(:, :)], 'o-', b, [V1+V3], 's-', b, [V1], '-')
+%     legend('Numerical', 'Analytical', 'Linear', ...
+%         'Location', 'SouthEast')
     grid on
     xlabel('\beta');
     ylabel('steady-state velocity: deviation from linear')
@@ -52,7 +52,6 @@ for r = [10 30 100 300]
     ylim([0 25])
     title('Numerical results for cubic correction')
     print('-depsc2', [p 'graph.eps'])
-    S = [];
     save([p 'data.mat'])
 end
 

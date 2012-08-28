@@ -1,6 +1,6 @@
 clc; 
 clear;
-p = 'alpha=0.5_Du=1_zeta=10_large_betas/';
+p = 'better_R_res/';
 D = dir([p '*.mat']);
 
 if isempty(D)
@@ -17,6 +17,7 @@ for k = 1:numel(D)
         S.Nr-1, S.Nt-1, S.Rmax, S.sol.beta, S.sol.alpha, S.sol.Du, S.sol.zeta);
     dst = [p t];
     cmd = sprintf('mv -v %s %s', src, dst);
+    % disp(cmd)
     system(cmd);
     % save(, '-struct', 'S');
 end
