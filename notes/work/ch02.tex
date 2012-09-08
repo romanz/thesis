@@ -257,33 +257,17 @@ will typically converge in very few steps.
 
 \subsubsection{Operator Representation}
 System variable $\bx$ is defined as the concatenation $[\,\varPhi, C, V_r, V_\theta, P\,]$,
-taking only values in the interior of the problem domain grid.
+taking values in the interior of the problem domain grid and on the ``ghost'' points.
 Thus, each problem variable can be computed by applying an appropriate projection operator on $\bx$:
 \begin{eqnarray}
 X &=& \cP_X(\bx) \mbox{ for } X \in \left\{\varPhi, C, V_r, V_\theta, P\right\}.
 \end{eqnarray}
 
-The extended variables $\tilde X$ (including ``ghost'' point values) 
-are computed by applying the following nonlinear operators:
-\begin{eqnarray}
-\tilde{\varPhi} &=& \cB_\varPhi(\varPhi, C; \beta), \\
-\tilde{C} &=& \cB_C(C, \varPhi), \\
-\tilde{V_r} &=& \cB_{V_r}(V_r; \cU), \\
-\tilde{V_\theta} &=& \cB_{V_\theta}(V_\theta, C, \varPhi; \cU, \gamma), \\
-\tilde{P} &=& P.
-\end{eqnarray}
-The extended system variable can be written as $\tilde{\bx} = \cB(\bx)$, 
-where $\cB$ is the ``ghost'' point extension operator (derived using boundary conditions)
-so the concatenated equations of the system (as described above) can be written 
-as a non-linear operator $\cE(\tilde\bx) = \bzero$ acting on the extended system variable 
-$\tilde{\bx}$, where $\cE$ is the conservation equations operator 
-(derived by concatenation of the system equations).
-
-The problem can be cast as the following non-linear system:
-\begin{eqnarray}
-\bzero = \cE (\tilde{\bx}) = \cE (\cB (\bx)) = \cO(\bx),
-\end{eqnarray}
- where $\cO = \cE \circ \cB$.
+The concatenated equations of the system (as described above) can be written 
+as a non-linear operator $\cO(\bx) = \bzero$ acting on the system variable 
+$\bx$, where $\cO$ is the concatenation of system equations operator 
+(derived by concatenation of the system equations) together with
+boundary conditions equations operators.
 
 \subsubsection{Steady-state}
 Assume that $\cU \ui$ is the velocity of the ion exchanger 

@@ -41,10 +41,8 @@ This interesting regime has not yet been explored.
 
 Recently, it has been conceived that such type of dynamics
 can be very useful in transporting and manipulating micro-
-and nanoscale objects for many nanotechnology applications,
-such as the self-assembly of superstructures, roving sensors, 
-drug-delivery systems and useful nanomachinery 
-\cite{howse2007self,paxton2004catalytic,pumera2010electrochemically}.
+and nanoscale objects for many nanotechnology applications
+\cite{howse2007self,paxton2004catalytic,pumera2010electrochemically, nischang2007, leinweber2004}.
 However, since the analytic model for these electrokinetic
 phenomena has no closed-form analytic solution, a numerical
 solver has to be developed for analysing such system.
@@ -115,6 +113,19 @@ c_+ - c_- &=& -\frac{\eps^* \varphi^*}{z e^* c^* (a^*)^2} \Laplacian \varphi =
 \delta^2 &=& \frac{\eps^* \varphi^*}{2c^* e^* z (a^*)^2} = 
 \pars{\frac{\delta^*}{a^*}}^2.
 \end{eqnarray}
+
+The dimensional boundary condition for $\mathbf{D}^* = \eps^*\mathbf{E}^*$ for a charged surface
+with surface charge density $\sigma^*$ is
+\begin{eqnarray}
+\bn \cdot \pars{\eps^*\mathbf{E}^* - \eps^*_s\mathbf{E}^*_s} &=& \sigma^*,
+\end{eqnarray}
+and after nondimensionalization by 
+normalizing the surface charge using $\sigma^* = \eps^* \varphi^* / a^* \delta$
+and $\gamma = \eps^*_s / \eps^*$, yields:
+\begin{eqnarray}
+-\deriv{\varphi}{n} + \gamma \deriv{\varphi_s}{n} &=& \delta^{-1} \sigma.
+\end{eqnarray}
+
 
 The force is denoted by $\bF$ normalized by $\mu^* v^* a^* = \eps^* (\varphi^*)^2$.
 The stress tensor is denoted by $\tT$ and normalized by $p^* = \mu^* v^* / a^*$.
@@ -278,6 +289,18 @@ gradient operator:
 \bnabla_\mathcal{S} &=& \pars{\tI - \bn\bn} \bnabla.
 \end{eqnarray}
 
+\subsubsection{Highly charged particle}
+Following the derivation at \cite{schnitzer2012surface}, the boundary conditions at a spherical 
+particle with high surface charge, $\sigma = \delta^{-1} \text{Bi}$ 
+(where $\text{Bi} = O(1)$ is the Bikerman number):
+\begin{eqnarray}
+ \deriv{C}{r} + C \deriv{\varPhi}{r} &=& 0, \\
+ \deriv{C}{r} - \mbox{Du} \Laplacian_s (\varPhi - \log C) &=& 0, \\
+ \bV &=& 4 \log 2 \bnabla_\mathcal{S} + \zeta \bnabla_\mathcal{S} \pars{\varPhi -\log C}, \\
+ \zeta &=& \bar{\zeta} - \log C , \\
+ \bar\zeta &=& 2 \log \sigma.
+\end{eqnarray}
+
 \subsubsection{Ion-exchanger}
 
 Due to cation selectivity, $c_+|_{\rho=0} = \gamma$.
@@ -291,7 +314,7 @@ the voltage drop between the particle surface and the end of
 the boundary layer, denoted $\zeta = \cV - \varPhi$. 
 
 Without loss of generality, 
-we assume that $\cV = -\log\gamma$, thus $\zeta = -\log\gamma-\varPhi$:
+we assume that $\cV = -\log\gamma$, thus $\zeta = -\log\gamma-\varPhi = \log (C/\gamma)$:
 \begin{eqnarray}
 \varPhi + \log C &=& 0.
 \end{eqnarray}
@@ -303,12 +326,12 @@ Due to anion impermeability and radial flux continuity:
 \deriv{}{r}\pars{\varPhi - \log C} &=& 0.
 \end{eqnarray}
 
-\subsubsection{Highly charged particle}
+The slip velocity derivation is the same as for the inert particle:
 \begin{eqnarray}
- \deriv{C}{r} + C \deriv{\varPhi}{r} &=& 0, \\
- \deriv{C}{r} - \mbox{Du} \Laplacian_s (\varPhi - \log C) &=& 0.
+\bV &=& 
+\zeta \cdot \bnabla_\mathcal{S} \varPhi 
++ 2\log\pars{1-\tanh^2\frac{\zeta}{4}} \cdot \bnabla_\mathcal{S} \log C. \\
 \end{eqnarray}
-
 
 \subsection{Steady state}
 The stress tensor is composed of Newtonian and Maxwel stresses:
