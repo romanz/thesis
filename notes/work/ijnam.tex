@@ -132,7 +132,7 @@
 \begin{document}
 %%%%%%%%%%%%%%%%
 
-\title{Numerical and analytical solution of nonlinear electro-kinetic phenomena}
+\title{Asymptotic and Numerical Solution for Electro-Kinetic Flow Around an Ion-Selective Particle}
 
 % author and address
 \author{Roman Zeyde \and Irad Yavneh}
@@ -143,9 +143,6 @@
 \author{Ory Schnitzer \and Ehud Yariv}
 \address{Department of Mathematics, Technion -- Israel Institute of Technology, Haifa 32000, Israel}
 \email{oschnitt@gmail.com \and udi@math.technion.ac.il}
-
-% dedication
-\dedicatory{This paper is dedicated to our authors}
 
 % communicated
 \commby{Hilbert}
@@ -158,7 +155,7 @@
 
 \subjclass[2000]{35R35, 49J40, 60G40}
 
-\abstract{A numerical solver for the simulation of ion-exchanging particles migration in an
+\abstract{A numerical solver for the simulation of an electrokinetic migration of particles in an
 electrolyte solution is presented. The electrokinetic transport process is
 described by a nonlinear partial differential equation system, 
 as well as nonlinear boundary conditions.
@@ -181,7 +178,7 @@ particle (see Figure \ref{fig:EDL}). This structure, called
 ``Debye layer'', electrically screens the surface charge, thus
 creating a potential difference between the particle and the outer
 layer of the fluid bulk.
-In cases where the layer width is much smaller than the particle's
+In cases where the layer width is much smaller than the particle
 size, an analytical asymptotic solution for the Debye layer
 dynamics can be found \cite{yariv2010asymptotic}.
 \begin{figure}[htbp]
@@ -194,7 +191,8 @@ dynamics can be found \cite{yariv2010asymptotic}.
         it attracts negative (red) ions from the fluid making the
         Debye layer negatively charged (as opposed to the rest of
         the fluid bulk, which is electrically neutral).
-        The zeta potential is defined as the voltage drop across (2).}
+        The zeta potential is defined as the voltage drop across 
+        the Debye layer (2).}
         \label{fig:EDL}
     \end{center}
 \end{figure}
@@ -210,23 +208,19 @@ The partial differential equations that describe the system dynamics
 under an external electric field, are coupled and nonlinear, and
 in general they have no analytic solution. 
 Moreover, any numerical solver must handle the scale disparity caused by the
-Debye layer width being much smaller than the particle's size. 
-
+Debye layer width being much smaller than the particle size. 
 A closed-form linear asymptotic solution has been developed for
-spherical ion-exchanging particles and weak electric field in an
+spherical particles and weak electric field in an
 axisymmetric setting \cite{yariv2010migration} but it is hard to extend this
 analytic solution to more general systems. Once the electric field
 becomes stronger, significant nonlinear phenomena are expected.
 This interesting regime has not yet been explored.
-
 Recently, it has been conceived that such type of dynamics
 can be very useful in transporting and manipulating micro-
 and nanoscale objects in many nanotechnology applications,
-such as the self-assembly of superstructures, roving sensors, 
-drug-delivery systems and useful nanomachinery 
-\cite{howse2007self,paxton2004catalytic,pumera2010electrochemically}.
-
-However, since the model for these electrokinetic
+nano-fluidic devices, packed bed separation, desalination processes and various 
+electrophoresis applications \cite{howse2007self,paxton2004catalytic,pumera2010electrochemically,nischang2007,leinweber2004}.
+Because the model for these electrokinetic
 phenomena has no closed-form analytic solution, a numerical
 solver for this system is of importance.
 
@@ -239,14 +233,14 @@ and also to possibly lead to further analytical developments, based on new scali
 discovered numerically. We may also target interesting physical
 phenomena that have been observed experimentally.
 One such phenomenon is nonlinear electrokinetic vortex flow, 
-which can useful for microfluidic mixing applications \cite{wang2004mix, ben2002vortex},
+which is useful for microfluidic mixing applications \cite{wang2004mix, ben2002vortex},
 
 The paper is structured as follows: the governing equations of the electrokinetic model
 are derived in Section \ref{sec:equations}. The algorithm for the discretization and 
 the solution of the system is described in Section \ref{sec:algorithm}.
 The analytical asymptotic solution for the non-linear system is derived 
 and presented in Section \ref{sec:asymp}.
-The numerical results and their comparison to the analytical asymptotic solution 
+The numerical results and their comparison to an analytical asymptotic solution 
 are presented and discussed in Section \ref{sec:results}. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -256,10 +250,8 @@ are presented and discussed in Section \ref{sec:results}.
 
 Spatial coordinates $\br$ are normalized by $a^*$ 
 (the characteristic size of the ion-exchanging particle).
-
 Positive and negative ionic concentrations are denoted by $c_+$ and $c_-$, respectively, and
 are normalized by the ambient ionic concentration $c^*$. The ionic valences are $\pm z$.
-
 The dimensional ionic fluxes, $\bj_\pm$, are given by the Nernst-Plank equation 
 (using the Einstein relation for the electric mobility, $\mu_q^* = D^* / k_B^* T^*$):
 \begin{eqnarray}
@@ -294,14 +286,14 @@ is the dimensionless Peclet number.
 
 The dimensional Poisson equation can be written as:
 \begin{eqnarray}
-(c^*_+ - c^*_-) z F^* &=& -\eps^* \Laplacian \varphi^*,
+(c^*_+ - c^*_-) z e^* &=& -\eps^* \Laplacian \varphi^*,
 \end{eqnarray}
 and after nondimensionalization, is given by:
 \begin{eqnarray}
-c_+ - c_- &=& -\frac{\eps^* \varphi^*}{z F^* c^* (a^*)^2} \Laplacian \varphi = 
+c_+ - c_- &=& -\frac{\eps^* \varphi^*}{z e^* c^* (a^*)^2} \Laplacian \varphi = 
 -\delta^2 \Laplacian \varphi,
 \\
-\delta^2 &=& \frac{\eps^* \varphi^*}{c^* F^* z (a^*)^2} = 
+\delta^2 &=& \frac{\eps^* \varphi^*}{c^* e^* z (a^*)^2} = 
 \pars{\frac{\delta^*}{a^*}}^2.
 \end{eqnarray}
 
@@ -309,7 +301,8 @@ The force on the particle is denoted by $\bF$ normalized by $\mu^* v^* a^* = \ep
 The stress tensor is denoted by $\tT$ and normalized by $p^* = \mu^* v^* / a^*$.
 The electric field is denoted by $\bE$ and normalized by $E^* = \varphi^* / a^*$.
 
-\subsection{Micro-scale phenomena}
+\subsection{Governing Equations}
+The electro-kinetic flow is described by the following nondimensional equations:
 
 \subsubsection{Nernst-Planck Equations}
 The ionic fluxes are given by ion diffusion, electrostatic forces and ion advection by the fluid:
@@ -323,18 +316,17 @@ Due to conservation of ions, the fluxes are divergence-free:
 \end{eqnarray}
 These equation may be re-written by using the following transformations:
 \begin{eqnarray}
-  c &=& \frac{c_+ + c_-}{2},\\
-  q &=& \frac{c_+ - c_-}{2}.
+  c = \frac{c_+ + c_-}{2} &,& q = \frac{c_+ - c_-}{2}.
 \end{eqnarray}
 Thus, salt and charge fluxes are defined by:
 \begin{eqnarray}
-  \bj &=& \frac{\bj_+ + \bj_-}{2} = -\bnabla c - q \bnabla \varphi + \alpha \bv c, \\
-  \bi &=& \frac{\bj_+ - \bj_-}{2} = -\bnabla q - c \bnabla \varphi + \alpha \bv q,
+  \bj = \frac{\bj_+ + \bj_-}{2} = -\bnabla c - q \bnabla \varphi + \alpha \bv c &,& 
+  \bi = \frac{\bj_+ - \bj_-}{2} = -\bnabla q - c \bnabla \varphi + \alpha \bv q,
 \end{eqnarray}
 and are divergence-free as well:
 \begin{eqnarray}
-\bnabla \cdot \bj &=& 0, \\
-\bnabla \cdot \bi &=& 0. 
+\bnabla \cdot \bj = 0 &,& 
+\bnabla \cdot \bi = 0. 
 \end{eqnarray}
 
 \subsubsection{Incompressible Stokes Flow with Electrostatic Force}
@@ -353,32 +345,34 @@ Finally, free charge density is governed by the Poisson equation:
 
 \subsubsection{Boundary conditions}
 We follow the physical setting described in \cite{yariv2010migration}.
-We assume that a constant constant electric field of magnitude $\beta$,
+We assume that a constant constant electric field of nondimensional magnitude $\beta$,
 is applied to the system, in direction denoted by the unit vector $\ui$.
 As a result, the ion-exchanger will equilibrate in 
 a non-zero steady-state velocity $\cU \ui$, which is
 a function of the applied field, and is not known a priori.
 
-An ion-exchanger fixed reference frame is used.
+We employ the reference frame of the ion exchanger.
 Far away from the particle, we have a uniform applied electrostatic field, uniform flow,
 and ambient ionic concentrations:
 \begin{eqnarray}
--\bv &\rightarrow& \cU \ui, \\
--\bnabla \varphi &\rightarrow& \beta\ui, \\
-c_\pm &\rightarrow& 1.
+\bv \rightarrow -\cU \ui, &
+\bnabla \varphi \rightarrow -\beta\ui, &
+ c_\pm \rightarrow 1.
 \end{eqnarray}
 
-We consider a spherical ion-exchanger. 
-At its surface $\mathcal{S}$ (defined at $r=1$ with normal $\bn = \brhat$), 
+We consider a spherical particle.
+The chemical properties of the particle's surface $\mathcal{S}$ (defined at $r=1$ with normal $\bn = \brhat$), determine the boundary conditions on $\mathcal{S}$.
 we assume high conductance of the particle (yielding a uniform electric potential),
 zero slip, anion impermeability, cation selectivity 
 (with fast Butler-Volmer\cite{bard2000book} kinetics
 $\bn \cdot \bj_+ = k (1 - c_+/\gamma)$, where $k \rightarrow \infty$):
 \begin{eqnarray}
-\varphi & = & \cV, \\
-\bv & = & \bzero, \\
-\bn \cdot \bj_- & = & 0, \\
-c_+ &=& \gamma, \\
+\begin{array}{cccc}
+\varphi = \cV, &
+\bv = \bzero, &
+\bn \cdot \bj_- = 0, &
+c_+ = \gamma,
+\end{array}
 \end{eqnarray}
 where $\gamma$ is the ratio between the cationic concentration on the surface and the cationic
 concentration in the fluid bulk.
@@ -394,26 +388,21 @@ known as the ``Debye layer'', surrounding the ion exchanger.
 The Nernst-Planck equations above for the fluid bulk (outside
 the boundary layer), using bulk variables denoted by uppercase letters, read:
 \begin{eqnarray}
-  Q & = & 0, \\
-  C & = & C_+ = C_-, \\
-\bJ &=& -\bnabla C + \alpha \bV C, \\
-\bI &=& -C \bnabla \varPhi.
-\end{eqnarray}
+\begin{array}{cccc}
+  Q = 0, &
+  C = C_+ = C_-, &
+\bJ = -\bnabla C + \alpha \bV C, &
+\bI = -C \bnabla \varPhi.
+\end{array}\end{eqnarray}
 Because the flow is incompressible ($\bnabla \cdot V = 0$), 
-ion conservation results in the following equations:
-
-\begin{enumerate}
-\item Salt conservation in macroscale equation:
-\begin{eqnarray} \label{eq:salt}
-\bnabla \cdot \bJ = \Laplacian C - \alpha \bV \cdot \bnabla C = 0. 
+ion conservation results in the following 
+salt and charge conservation equations:
+\begin{eqnarray} 
+\label{eq:salt}
+\bnabla \cdot \bJ = \Laplacian C - \alpha \bV \cdot \bnabla C &=& 0, \\
+\label{eq:charge}
+\bnabla \cdot \bI = \bnabla \cdot \pars{ C \bnabla \varPhi } &=& 0.
 \end{eqnarray}
-
-\item Charge conservation in macroscale equations:
-\begin{eqnarray} \label{eq:charge}
-\bnabla \cdot \bI = \bnabla \cdot \pars{ C \bnabla \varPhi } = 0.
-\end{eqnarray}
-
-\end{enumerate}
 
 The macroscale Stokes flow equations have the same form as the microscale equations:
 \begin{eqnarray}  \label{eq:stokes}
@@ -423,7 +412,7 @@ The macroscale Stokes flow equations have the same form as the microscale equati
 
 \subsubsection{Bulk-scale effective boundary conditions}
 By integrating the microscale equations across the Debye layer
-(see the full derivation in \cite{yariv2010asymptotic}), 
+(see full derivation in \cite{yariv2010asymptotic}), 
 the effective boundary conditions at the ion-exchanger surface are:
 \begin{eqnarray}
 0 &=& \varPhi + \log C, \\
@@ -442,14 +431,10 @@ The stress tensor is composed of Newtonian and Maxwel stresses:
 + \bnabla \varPhi \bnabla \varPhi - \frac{1}{2} (\bnabla \varPhi \cdot \bnabla \varPhi) \tI, \\
 \bnabla \cdot \tT &=& \bzero.
 \end{eqnarray}
-The total force acting on the particle is computed by the following surface integral:
+In steady state (constant particle drift velocity $\cU$), the total force acting on the particle 
+(computed by the following surface integral) must vanish:
 \begin{eqnarray}
-\bF &=& \oint_\mathcal{S} \tT \cdot \bnhat dA.
-\end{eqnarray}
-In steady state (constant particle drift velocity $\cU$), 
-the total force must be zero: 
-\begin{eqnarray}
-\bF = \bzero.
+\bF = \oint_\mathcal{S} \tT \cdot \bnhat dA = \bzero.
 \end{eqnarray}
 
 The total force $\bF(\beta, \cU)$ is a function of the applied electric field $\beta$ and
@@ -463,20 +448,18 @@ The numerical solver first requires constructing a discrete
 approximation for the nonlinear PDE system,
 for a given electric field $\beta$ and a velocity $\cU$. 
 The resulting nonlinear discrete system is
-solved numerically using Newton's Method, so the total force on the particle can be computed
-numerically. Variation of $\cU$ is used to find the steady-state velocity, 
-which corresponds to zero total force.
-
-
-The steady-state velocity is thus the solution to the nonlinear scalar equation
+solved numerically using Newton's Method, so the total force on the
+particle can be computed. 
+We seek the steady-state velocity $\cU$, 
+which corresponds to zero total force,
 \begin{eqnarray}
 F(\beta, \cU) = 0,
 \end{eqnarray}
-which we solver by standard secant method.
+which we solve by the standard secant method.
 
 \subsection{Discretization}
 \subsubsection{Spherical Coordinates}
-Since the system is axisymmetric, the operators are written in 
+Because the system is axisymmetric, we employ
 spherical coordinates $(r,\theta,\phi)$.
 The scalar gradient and the divergence can be written as:
 \begin{eqnarray}
@@ -505,25 +488,23 @@ The vector Laplacian can be written as:
 \frac{2}{r^2}\deriv{F_r}{\theta}\right) \bthetahat.
 \end{eqnarray}
 
-It is important to note that due to the choice of spherical coordinate system,
+Note that in the spherical coordinate system,
 the vector Laplacian operator cannot be computed in a decoupled manner as in the Cartesian system,
 since the unit vectors $\brhat, \bthetahat, \bphihat$ are functions of the coordinates
 in a curvilinear coordinate system.
 
 \subsubsection{Computational Grid}
-In order to discretize the differential operators, 
-a regular grid of size $n_r \times n_\theta$ is defined, with:
+A regular grid of size $n_r \times n_\theta$ is defined, with:
 \begin{eqnarray}
-(r_i,\theta_j) &\in& [1, \infty) \times [0,\pi], \\ 
-r_i &=& (1+\Delta_r)^i, \\
-\theta_j &=& \Delta_\theta \cdot j,
+(r_i,\theta_j) \in [1, \infty) \times [0,\pi], & 
+r_i = (1+\Delta_r)^i, &
+ \theta_j = \Delta_\theta \cdot j,
 \end{eqnarray}
 where a logarithmic grid spacing has been chosen for $r$ and a uniform grid for $\theta$.
 Note that $r_0 = 1$ and $R_{max} = (1+\Delta_r)^{n_r}$ should be much 
 larger than $r_0$. Thus:
 \begin{eqnarray}
-\Delta_r &=& \pars{R_{max}} ^ \frac{1}{n_r} - 1, \\
-\Delta_\theta &=& \frac{\pi}{n_\theta}.
+\Delta_r = \pars{R_{max}} ^ \frac{1}{n_r} - 1 ,& \Delta_\theta = \frac{\pi}{n_\theta}.
 \end{eqnarray}
 
 This grid induces a disjoint subdivision of the domain 
@@ -533,36 +514,33 @@ $\Omega = [1, R_{max}] \times [0,\pi]$ into cells:
 \end{eqnarray}
 A specific cell $\Omega_{ij}$ and its center $(\bar{r}_i, \bar{\theta}_j)$ are defined by:
 \begin{eqnarray}
-\Omega_{ij} &=& [r_{i-1}, r_{i}] \times [\theta_{j-1}, \theta_{j}], \\
-\bar{r}_i &=& \frac{r_{i-1} + r_{i}}{2}, \\
-\bar{\theta}_j &=& \frac{\theta_{j-1} + \theta_{j}}{2}.
+\Omega_{ij} = [r_{i-1}, r_{i}] \times [\theta_{j-1}, \theta_{j}], &
+\bar{r}_i = (r_{i-1} + r_{i})/2, &
+\bar{\theta}_j = (\theta_{j-1} + \theta_{j})/2.
 \end{eqnarray}
 
-Each variable is discretized with respect of its cell as follows:
-\begin{itemize}
-\item $\varPhi$, $C$ and $P$ are represented by their value at the center of each cell, 
+Each discrete variable is located with respect of its cell as follows:
+$\varPhi$, $C$ and $P$ are represented by their value at the center of each cell, 
 using an all-centered grid:
 \begin{eqnarray}
-\varPhi^h_{[i,j]} &=& \varPhi(\bar{r}_i, \bar{\theta}_j), \\
-C^h_{[i,j]} &=& C(\bar{r}_i, \bar{\theta}_j), \\
-P^h_{[i,j]} &=& P(\bar{r}_i, \bar{\theta}_j).
+\varPhi^h_{[i,j]} = \varPhi(\bar{r}_i, \bar{\theta}_j), &
+C^h_{[i,j]} = C(\bar{r}_i, \bar{\theta}_j), &
+P^h_{[i,j]} = P(\bar{r}_i, \bar{\theta}_j).
 \end{eqnarray}
-\item $\bV$ is represented by its values at cell boundaries, using a staggered grid:
+$\bV$ is represented by its values at cell boundaries, using a staggered grid:
 \begin{eqnarray}
-V_r^h{}_{[i,j]} &=& V_r(r_i, \bar{\theta}_j), \\
-V_\theta^h{}_{[i,j]} &=& V_\theta(\bar{r}_i, {\theta}_j).
+V_r^h{}_{[i,j]} = V_r(r_i, \bar{\theta}_j), &
+V_\theta^h{}_{[i,j]} = V_\theta(\bar{r}_i, {\theta}_j).
 \end{eqnarray}
-\end{itemize}
 
 \subsubsection{Operator Discretization}
 A finite-volume method with linear interpolation is used for flux discretization. 
-%$\boldsymbol{f}^h$ 
 
 Define the following discrete central difference operators:
 \begin{eqnarray}
-\cD_r(f^h){}_{\left[i+\half,j\right]} &=& \frac{f^h_{\left[i+1,j\right]} - f^h_{\left[i,j\right]}}
-                       {r_{\left[i+1,j\right]} - r_{\left[i,j\right]}}, \\
-\cD_\theta(f^h){}_{\left[i,j+\half\right]} &=& \frac{f^h_{\left[i,j+1\right]} - f^h_{\left[i,j\right]}}
+\cD_r(f^h){}_{\left[i+\half,j\right]} = \frac{f^h_{\left[i+1,j\right]} - f^h_{\left[i,j\right]}}
+                       {r_{\left[i+1,j\right]} - r_{\left[i,j\right]}}, &
+\cD_\theta(f^h){}_{\left[i,j+\half\right]} = \frac{f^h_{\left[i,j+1\right]} - f^h_{\left[i,j\right]}}
 					   {\theta_{\left[i,j+1\right]} - \theta_{\left[i,j\right]}}.
 \end{eqnarray}
 
@@ -586,7 +564,7 @@ f^h_{\left[i,j\right]},
   f^h_{\left[i,j\right]}.
 \end{eqnarray}
 
-The total flux of a cell is equal to zero ($\bnabla \cdot \boldsymbol{f} = 0$):
+If the total flux of a cell is equal to zero ($\bnabla \cdot \boldsymbol{f} = 0$), then we have
 \begin{eqnarray}
 \frac{1}{r^2} \cD_r\pars{f^h_r r^2} + 
 \frac{1}{r \sin\theta} \cD_\theta\pars{f^h_\theta \sin\theta} =
@@ -596,24 +574,25 @@ The total flux of a cell is equal to zero ($\bnabla \cdot \boldsymbol{f} = 0$):
 
 Ion flux ($\bI = - C \bnabla \varPhi$) is discretized on grid cell boundaries:
 \begin{eqnarray}
-I^h_r &=& -\cI_r(C^h) \cdot \cD_r(\varPhi^h), \\
-I^h_\theta &=& -\cI_\theta(C^h) \cdot \frac{\cD_\theta(\varPhi^h)}{r}.
+I^h_r = -\cI_r(C^h) \cdot \cD_r(\varPhi^h), &
+I^h_\theta = -\cI_\theta(C^h) \cdot \frac{\cD_\theta(\varPhi^h)}{r}.
 \end{eqnarray}
 
 Salt flux ($\bJ = -\bnabla C + \alpha \bV C$) is discretized on grid cell boundaries 
 (using upwind scheme $\mathcal{U}$ for numerical stability at large cell Peclet number):
 \begin{eqnarray}
-J^h_r &=& -\cD_r(C^h) + \alpha V^h_r \cdot \mathcal{U}^{\bV^h}_r (C^h), \\
-J^h_\theta &=& -\frac{\cD_\theta(C^h)}{r} + \alpha V^h_\theta \cdot \mathcal{U}^{\bV^h}_\theta (C^h), \\
- \mathcal{U}^{\bV^h}_r(C^h)[i,j] &=& C^h\left[i-\frac{\sign(V^h_r)}{2}, j\right], \\
- \mathcal{U}^{\bV^h}_\theta(C^h)[i,j] &=& C^h\left[i, j-\frac{\sign(V^h_\theta)}{2}\right]. 
+J^h_r = -\cD_r(C^h) + \alpha V^h_r \cdot \mathcal{U}^{\bV^h}_r (C^h), &
+J^h_\theta = -\frac{\cD_\theta(C^h)}{r} + \alpha V^h_\theta \cdot \mathcal{U}^{\bV^h}_\theta (C^h), 
+\\
+ \mathcal{U}^{\bV^h}_r(C^h)[i,j] = C^h\left[i-\frac{\sign(V^h_r)}{2}, j\right], &
+ \mathcal{U}^{\bV^h}_\theta(C^h)[i,j] = C^h\left[i, j-\frac{\sign(V^h_\theta)}{2}\right]. 
 \end{eqnarray}
 
 Mass flux $\bV$ is discretized on grid cells boundaries, 
-using the velocity staggered grid.
+using the staggered velocity grid.
 
 Force components ($\bF = -\bnabla P + \bLaplacian \bV + \bnabla \varPhi \Laplacian \varPhi$) 
-are discretized on the velocity staggered grid, where
+are discretized on the staggered velocity grid, where
 linear interpolation is used for the Coulomb force and for vector Laplacian components.
 \begin{eqnarray}
 F^h_r &=& -\cD_r(P^h) 
@@ -689,12 +668,13 @@ V_\theta^h{}_{[i, n_\theta+1]} = 0.
 
 Far away from the ion-exchange boundary ($r\rightarrow\infty$) we have:
 \begin{eqnarray}
+\begin{array}{cccc}
 \frac{\varPhi^h_{[n_r + 1, j]} - \varPhi^h_{[n_r, j]}}{\bar{r}_{n_r + 1} - \bar{r}_{n_r}} 
- & = & -\beta \cos\bar{\theta}_j, \\
-C^h_{[n_r + 1, j]} & = & 1 \\
-V_r^h{}_{[n_r + 1, j]} & = & -\cU \cos\bar{\theta}_j, \\
-V_\theta^h{}_{[n_r + 1, j]} & = & \cU \sin\theta_j.
-\end{eqnarray}
+= -\beta \cos\bar{\theta}_j, &
+C^h_{[n_r + 1, j]} = 1 &
+V_r^h{}_{[n_r + 1, j]} = -\cU \cos\bar{\theta}_j, &
+V_\theta^h{}_{[n_r + 1, j]} = \cU \sin\theta_j.
+\end{array}\end{eqnarray}
 
 Because the grid is finite, the choice 
 $r_{n_r} = R_{max}$ must be taken large enough so as to have a negligible effect
@@ -707,13 +687,7 @@ An operator $\cO$ is defined by its input vector $\bx$ and its output
 $\by = \cO(\bx)$.
 
 In order to solve the equation $\cO(\bx) = \bzero$, Newton's method can 
-be applied, given an initial solution $\bx_0$:
-\begin{eqnarray}
-\bzero = \cO(\bx_n + \Delta \bx_n) &\approx& \cO(\bx_n) + \bnabla \cO(\bx_n)\cdot\Delta\bx_n, \\
-\Rightarrow \bnabla \cO(\bx_n) \cdot \Delta \bx_n &=& -\cO(\bx_n), \\
-\bx_{n+1} &=& \bx_{n} + \Delta \bx_n. 
-\end{eqnarray}
-
+be applied, given an initial solution $\bx_0$.
 Each step requires the computation of the residual vector, $\br = \cO(\bx)$, and
 the gradient matrix of the operator, $\bG = \bnabla \cO(\bx)$, 
 given the current solution $\bx = \bx_n$.
@@ -739,11 +713,13 @@ X &=& \cP_X(\bx) \mbox{ for } X \in \left\{\varPhi, C, V_r, V_\theta, P\right\}.
 The extended variables $\tilde X$ (including ``ghost'' point values) 
 are computed by applying the following nonlinear operators:
 \begin{eqnarray}
-\tilde{\varPhi} &=& \cB_\varPhi(\varPhi, C; \beta), \\
-\tilde{C} &=& \cB_C(C, \varPhi), \\
-\tilde{V_r} &=& \cB_{V_r}(V_r; \cU), \\
-\tilde{V_\theta} &=& \cB_{V_\theta}(V_\theta, C, \varPhi; \cU, \gamma), \\
-\tilde{P} &=& P.
+\begin{array}{ccccc}
+\tilde{\varPhi} = \cB_\varPhi(\varPhi, C; \beta), &
+\tilde{C} = \cB_C(C, \varPhi), &
+\tilde{V_r} = \cB_{V_r}(V_r; \cU), &
+\tilde{V_\theta} = \cB_{V_\theta}(V_\theta, C, \varPhi; \cU, \gamma), &
+\tilde{P} = P.
+\end{array}
 \end{eqnarray}
 The extended system variable can be written as $\tilde{\bx} = \cB(\bx)$, 
 where $\cB$ is the ``ghost'' point extension operator (derived using boundary conditions)
@@ -758,7 +734,7 @@ The problem can be cast as the following nonlinear system (where $\cO = \cE \cir
 \end{eqnarray}
 
 \subsubsection{Steady-state}
-Let $\beta$ be a specific field magnitude
+Let $\beta$ be a given nondimensional electric field.
 Assume that $\cU \ui$ is the drift velocity of the ion exchanger 
 (given that the fluid is at rest far away from the particle).
 After the convergence of the solver, $\cO(\bx_\infty) \rightarrow \bzero$, 
@@ -778,8 +754,7 @@ f_\imath = \ui \cdot \tT \cdot \brhat &=& \pars{-P + 2\cD_r(V_r) +
 \frac{1}{2}\pars{\cD_r(\varPhi)}^2 - \frac{1}{2r^2}\pars{\cD_\theta(\varPhi)}^2}\cos\theta 
 \\  
 && -\pars{\cD_r(V_\theta) - \frac{V_\theta}{r}
-+ \frac{1}{r}\cD_r(\varPhi) \cD_{\theta}(\varPhi)}\sin\theta, \\
- \mathcal{S} &=& \{\br : \|\br\|_2 = 1\}.
++ \frac{1}{r}\cD_r(\varPhi) \cD_{\theta}(\varPhi)}\sin\theta.
 \end{eqnarray}
 
 The integral for $F_\imath$ is approximated by 1D numerical quadrature
@@ -798,17 +773,12 @@ to compute the steady-state solution for any given $\beta$.
 For $\beta \ll 1$, the linear terms are the dominant ones, 
 so the solution is approximately linear in $\beta$ 
 (as derived in \cite{yariv2010migration}), and the solver convergence is fast.
-
 However, this is no longer true for $\beta \sim O(1)$, since the nonlinear terms become dominant
 and the iterative solver may not converge at all if we start with an arbitrary initial guess.
 In order to find a solution for such $\beta$, continuation method is used:
 the solver is applied to a sequence of $\{\beta_i\}_{i=0}^n$ such that $\beta_0 = 0$,
 $\beta_n = \beta$ and the solution $\bx_i$ for $\beta_i$ is used as the solver initializer
 for the problem of $\beta_{i+1}$.
-
-Given that $|\beta_{i+1} - \beta_i| < \eps$ for small enough $\eps$, 
-the next solution $\bx_{i+1}$ is close to the previous one $\bx_i$,
-so the iterative solver converges well.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Solver Implementation}
@@ -831,7 +801,7 @@ can be applied automatically.
 Each such operator may have other operators as its inputs, so the residual
 and the gradient are computed recursively, using the chain rule (applied to operators).
 
-\paragraph{Linear operator}
+\paragraph{\textit{Linear operator}}
 If $\cO$ is linear, it can be represented by a matrix $L$, such that:
 \begin{eqnarray}
 \cO(\bx) &=& L \bx, \\
@@ -844,7 +814,7 @@ an appropriate sparse matrix $L$, having $O(\dim \bx)$ non-zeroes).
 This way, the computation of the residual is very fast, taking $O(\dim \bx)$ time,
 and the gradient is computed only once.
 
-\paragraph{Pointwise scalar function}
+\paragraph{\textit{Pointwise scalar function}}
 Let $f: \R \rightarrow \R$ be a differentiable 1D function, whose derivative is
 denoted by $f': \R \rightarrow \R$. The operator $\cF$ can be defined to
 represent pointwise application of $f$:
@@ -854,7 +824,7 @@ represent pointwise application of $f$:
 \end{eqnarray}
 $f$ is defined and differentiated automatically using the MATLAB symbolic toolbox.
 
-\paragraph{Constant value}
+\paragraph{\textit{Constant value}}
 A constant operator $\mathcal{C}$ is defined by constant vector $\bc$ 
 (that does not depend on $\bx$):
 \begin{eqnarray}
@@ -862,7 +832,7 @@ A constant operator $\mathcal{C}$ is defined by constant vector $\bc$
 \bnabla\mathcal{C} &=& \bzero.
 \end{eqnarray}
 
-\paragraph{Binary operators}
+\paragraph{\textit{Binary operators}}
 Let $\cO_1$ and $\cO_2$ be two operators, so their pointwise addition, subtraction,
 and multiplication, are defined as follows:
 \begin{eqnarray}
@@ -873,7 +843,7 @@ and multiplication, are defined as follows:
                                   + \diag(\cO_1(\bx)) \bnabla\cO_2(\bx).
 \end{eqnarray}
 
-\paragraph{N-ary operators}
+\paragraph{\textit{N-ary operators}}
 Given $N$ operators $\{\cO_i\}_{i=1}^N$, their concatenation $\cO$ is defined as:
 \begin{eqnarray}
 \cO(\bx) &=& [\cO_1(\bx); \ldots; \cO_N(\bx)], \\
@@ -896,25 +866,16 @@ until convergence ($\|\Delta \bx\| < \eps$):
 After the iterative Newton solver converges ($\bx_n \rightarrow \bx_\infty$), 
 the ``ghost'' point values are computed via $\cB(\bx_\infty)$,
 followed by a computation of the total force $\bF$ acting on the ion-exchanger.
-
-$F_\imath = \bF \cdot \ui$ is computed by using the mid-point quadrature rule:
+$F_\imath = \bF \cdot \ui$ is computed by using the mid-point quadrature rule
 \begin{eqnarray}
-F_\imath &=& \sum_{i=1}^{n_\theta} f(\bar\theta_i) \cdot 
-              2 \pi \sin\bar\theta_i \cdot \Delta\theta_i
+F_\imath = \sum_{i=1}^{n_\theta} f(\bar\theta_i) \cdot 
+              2 \pi \sin\bar\theta_i \cdot \Delta\theta_i.
 \end{eqnarray}
 
-\subsubsection{Steady state drift velocity}
 In steady state, the total force acting on the particle $F_\imath$ must vanish.
-This constraint yields an equation, whose solution is the steady-state velocity $\cU$:
-\begin{eqnarray}
-F_\imath(\cU) &=& 0
-\end{eqnarray}
-This equation can be solved using a 1D root finding algorithm, e.g., the secant method:
-\begin{eqnarray}
-\cU_{n+1} = \frac{F_\imath(\cU_{n})\cU_{n-1} - F_\imath(\cU_{n-1})\cU_{n}}
-{F_\imath(\cU_{n}) - F_\imath(\cU_{n-1})} \rightarrow \cU
-\end{eqnarray}
-The result $\cU$ is the 
+This constraint yields an equation $F_\imath(\cU) = 0$, 
+whose solution is the steady-state velocity $\cU$.
+This equation can be solved using a 1D root finding algorithm (e.g., the secant method). The result $\cU$ is the 
 steady state particle drift velocity for the electric field $\beta$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -922,27 +883,30 @@ steady state particle drift velocity for the electric field $\beta$.
 The nonlinear system is defined by the following PDEs:
 \label{PDEs}
 \begin{eqnarray}
-\bnabla \cdot \pars{C \bnabla \varPhi} &=& 0, \\
-\bnabla \cdot \pars{\bnabla C - \alpha \bV C} &=& 0, \\
-\bnabla \cdot \bV &=& 0, \\
-\bLaplacian \bV - \bnabla P + \Laplacian \varPhi \bnabla \varPhi &=& \bzero.
-\end{eqnarray}
+\begin{array}{cccc}
+\bnabla \cdot \pars{C \bnabla \varPhi} = 0, &
+\bnabla \cdot \pars{\bnabla C - \alpha \bV C} = 0, &
+\bnabla \cdot \bV = 0, &
+\bLaplacian \bV - \bnabla P + \Laplacian \varPhi \bnabla \varPhi = \bzero.
+\end{array}\end{eqnarray}
 
 For $\zeta(\theta) = \cV - \varPhi(1, \theta)$ and 
 $\cV = -\log \gamma$, the boundary conditions at $r = 1$ are given by
 \begin{eqnarray}
+\begin{array}{rcl}
 \varPhi + \log C &=& \cV + \log \gamma = 0, \\
 \deriv{}{r}\pars{\varPhi - \log C} &=& \frac{J_-}{C} = 0, \\
 \bV = \zeta \cdot \bnabla_\mathcal{S} \varPhi 
 + 2\log\pars{1-\tanh^2\frac{\zeta}{4}} \cdot \bnabla_\mathcal{S} \log C
 &=& 4\log\pars{\frac{1 + e^\frac{\zeta}{2}}{2}} \bnabla_S \varPhi.
+\end{array}
 \end{eqnarray}
 
 The boundary conditions for $r \rightarrow \infty$ are given by
 \begin{eqnarray}
-\bnabla \varPhi &=& -\beta \ui, \\
-C &=& 1, \\
-\bV &=& -\cU \ui,
+\bnabla \varPhi = -\beta \ui, &
+C = 1, &
+\bV = -\cU \ui,
 \end{eqnarray}
 and the total force acting on the particle is zero: $\bF = \bzero$.
 
@@ -951,16 +915,16 @@ The nonlinear system can be written as:
 \cO(\bx;\beta) &=& \bzero.
 \end{eqnarray}
 
-The solution to the nonlinear system can be expanded in a Taylor series in $\beta$.
+For small $\beta$, the solution to the nonlinear system can be expanded in a Taylor series in $\beta$.
 \begin{eqnarray}
 \bx = \bx(\beta) &\approx& \sum_n \bx_n \beta^n.
 \end{eqnarray}
 
 All the variables are expanded around $\beta = 0$:
 \begin{eqnarray}
-\varPhi &=& \beta \varPhi_1 + \beta^2 \varPhi_2 + \beta^3 \varPhi_3 + \ldots, \\
-C &=& 1 + \beta C_1 + \beta^2 C_2 + \beta^3 C_3 + \ldots, \\
-\Psi &=& \beta \Psi_1 + \beta^2 \Psi_2 + \beta^3 \Psi_3 + \ldots ,
+\varPhi = \sum_i \beta^i \varPhi_i, &
+C = 1 + \sum_i \beta^i C_i, &
+\Psi = \sum_i \beta^i \Psi_i,
 \end{eqnarray}
 where the velocity $\bV$ and pressure $P$ are computed from the streamfunction $\Psi$:
 \begin{eqnarray}
@@ -969,21 +933,12 @@ where the velocity $\bV$ and pressure $P$ are computed from the streamfunction $
 - \frac{1}{r \sin\theta} \deriv{\Psi}{r} \bthetahat.
 \end{eqnarray}
 
-The nonlinear equations and the boundary conditions are expanded around $\beta = 0$
-and arranged by powers of $\beta$:
+The nonlinear equations and the boundary conditions 
+are expanded around $\beta = 0$:
 \begin{eqnarray}
-\bzero = \cO(\bx) = \sum_k \cO_k(\bx_0, \ldots \bx_k) \beta^k
+\bzero = \cO(\bx) = \sum_i \cO_i(\bx_0, \ldots \bx_i) \beta^i
 \end{eqnarray}
-This can be rewritten as a system of equations:
-\begin{eqnarray}
-\brc{rcl}{
-\bzero &=& \cO_0(\bx_0), \\
-\bzero &=& \cO_1(\bx_0, \bx_1), \\
-\bzero &=& \cO_2(\bx_0, \bx_1, \bx_2), \\
-& \vdots & \\
-\bzero &=& \cO_k(\bx_0, \bx_1, \bx_2, \ldots \bx_k).
-}
-\end{eqnarray}
+
 Thus, the $O(\beta^k)$ term $\bx_k$ can be found recursively by solving 
 $\cO_k(\bx_0, \bx_1, \ldots, \bx_k) = \bzero$,
 given the previous solutions for $\bx_0, \ldots, \bx_{k-1}$.
