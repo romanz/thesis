@@ -1,14 +1,14 @@
 function main_run
 
-    N = 2.^(5:8);
-    Rmax = 30;
-    betas = 0.1*2.^([-2:0.5:5, 5.25, 5.5, 5.75, 6]);
-    A = 1.5;
+    N = 2.^(8);
+    Rmax = 100;
+    betas = 10.^[-2:0.25:0];
+    A = 1;
     for a=A
         for n=N 
             for r=Rmax
                 g = grids(r, n+1, n+1, a);
-                main([], g, betas);
+                main_ionex([], g, betas);
             end
         end
     end

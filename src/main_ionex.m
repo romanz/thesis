@@ -1,4 +1,4 @@
-function [sol] = main(init, g, betas)
+function [sol] = main_ionex(init, g, betas)
     if isempty(init)
         init.Phi = zeros(g.Phi.size);
         init.C = ones(g.C.size);
@@ -8,9 +8,8 @@ function [sol] = main(init, g, betas)
     end
     
     sol = Solution(g, init);
-    sol.alpha = 0.3;
-    sol.Du = 0.5;
-    sol.zeta = 6;
+    sol.alpha = 0.0;
+    sol.gamma = 1.01;
     force = total_force(sol, g);
     
     betas = betas(:);
@@ -19,7 +18,7 @@ function [sol] = main(init, g, betas)
     for k = 1:numel(betas)
         fprintf('==================================================================\n')
         sol.beta = betas(k);
-        Vinf = sol.beta * (sol.Du*log(16) + sol.zeta)/(1 + 2*sol.Du);
+        Vinf = sol.beta * 2*log((1+1/sqrt(sol.gamma))/2);
         [iter, v] = secant(Vinf * [0.9, 1.1]);
         iters = 5;
         f = zeros(iters, 1);
@@ -85,8 +84,8 @@ function iter = update_solver(sol)
     eqn = sol.eqn;
     
     n = var.grid.numel;
-    J1 = [sol.Phi.grid.numel, n];
-    J2 = [bnd.grid.numel+eqn.ops{1}.grid.numel, n];
+    J1 = [n];
+    J2 = [n];
     P = speye(n); P(:, J1) = [];
     R = speye(n); R(J2, :) = [];
     
@@ -164,11 +163,13 @@ function [op] = boundary_conditions(sol)
     g1 = g.crop(0, 1);
     phi1 = Boundary(sol.Phi, -1, 2);
     c1 = Boundary(sol.C, -1, 2);    
-    bnd{end+1} = Deriv(g1, c1, 1) + Interp(g1, c1) * Deriv(g1, phi1, 1); 
+    log_c1 = log(c1);
+    
+    bnd{end+1} = Interp(g1, phi1 + log_c1); 
 
     phi2 = Interp(g, sol.Phi);
     c2 = Interp(g, sol.C);
-    bnd{end+1} = Deriv(g1, c1, 1) - sol.Du * surface_laplacian(phi2 - log(c2), g); 
+    bnd{end+1} = Deriv(g1, phi1 - log_c1, 1); 
     
     g = sol.grid.Vr;
     g = Grid(g.r(end), g.t(2:end-1));
@@ -188,13 +189,13 @@ function [op] = boundary_conditions(sol)
     bnd{end+1} = Symm(sol.Vt, 1);
         
     g = Grid(1, sol.grid.Vt.t(2:end-1));
-    zeta = sol.zeta - log(Interp(g, sol.C));
+    zeta = log(Interp(g, sol.C)) - log(sol.gamma);
      
     g1 = Grid(1, sol.grid.Phi.t(2:end-1));
     phi1 = Interp(g1, sol.Phi); % Phi at R=1
     logc1 = log(Interp(g1, sol.C)); % log(C) at R=1
     D  = @(f) Deriv(g, f, 2); % Dphi/Dtheta at R=1 on Vt grid.
-    Vs = zeta * D(phi1) + (log(16) - zeta) * D(logc1); 
+    Vs = 4*log(0.5*(1+exp(zeta*0.5))) * D(phi1); 
     
     bnd{end+1} = Interp(g, sol.Vt) - Vs; % Vt @ R=1
     bnd{end+1} = Boundary(sol.Vr, -1, 1); % Vr @ R=1

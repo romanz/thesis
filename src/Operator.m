@@ -31,5 +31,8 @@ methods
     function op = cosh(op)
         op = Func(op, 'cosh(x)');
     end
+    function op = tanh(op)
+        op = Func(op, 'tanh(x)');
+    end
 end
 end

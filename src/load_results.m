@@ -1,4 +1,4 @@
-function S = load_results(s)
+function load_results(s)
 
 p = sprintf('%s/', s);
 D = dir([p '*x*.mat']);
