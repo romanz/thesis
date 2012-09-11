@@ -839,22 +839,15 @@ until convergence ($\|\boldsymbol{r_n}\| < \eps$):
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Asymptotic Analysis} \label{sec:asymp}
 In order to validate the numerical results, an asymptotic analysis is applied 
-to the nonlinear systems of ion-exchanger migration (\cite{yariv2010migration,zeyde2012report})
-and highly charged particle electrophoresis (\cite{schnitzer2012surface, schnitzer2012cubic})
+to the nonlinear systems of ion-exchanger migration (\cite{yariv2010migration, zeyde2012report})
+and highly charged particle electrophoresis (\cite{schnitzer2012surface, schnitzer2012cubic}).
 
+The derivation works as follows.
 The nonlinear system is written as $\cO(\bx;\beta) = \bzero$.
 For small $\beta$, the solution to the nonlinear system can be expanded in a Taylor series in $\beta$:
 \begin{eqnarray*}
 \bx = \bx(\beta) &\approx& \sum_n \bx_n \beta^n.
 \end{eqnarray*}
-Thus, the system variables are expanded around $\beta = 0$
-(where the velocity $\bV$ and pressure $P$ are computed from the streamfunction $\Psi$):
-\begin{eqnarray*}
-\varPhi = \sum_i \beta^i \varPhi_i, &
-C = 1 + \sum_i \beta^i C_i, &
-\Psi = \sum_i \beta^i \Psi_i,
-\end{eqnarray*}
-
 The nonlinear equations and the boundary conditions 
 are expanded around $\beta = 0$:
 \begin{eqnarray*}
@@ -876,15 +869,14 @@ C_0(r,\theta) = 1, &
 P_0(r,\theta) = 0.
 \end{array}\end{eqnarray*}
 
-Assuming $\beta \ll 1$, the linearized equations and boundary conditions are 
-(\cite{yariv2010migration}):
+Assuming $\beta \ll 1$, the linearized equations and boundary conditions are:
 \begin{eqnarray*}
 \Laplacian \varPhi_1 = 0, &
 \Laplacian C_1 = 0, &
 \bLaplacian \bV_1 - \bnabla P_1 = \bzero.
 \end{eqnarray*}
 
-The first-order terms are given by
+The first-order terms are given by (see \cite{yariv2010migration} for full derivation):
 \begin{eqnarray*}
 \begin{array}{ccccc}
 \varPhi = \beta \pars{\frac{1}{4r^2} - r}\cos\theta, &
@@ -902,25 +894,20 @@ Therefore, $\cU_2 = 0$ and the next velocity term is the cubic one:
 \begin{eqnarray*}
 \cU(\beta) &\approx& \beta \cU_1 + \beta^3 \cU_3 + O(\beta^5).
 \end{eqnarray*}
-
 In order to find the cubic terms, the quadratic terms must be computed first.
 The quadratic terms $\bx_2$ are computed by solving a linear PDE system 
 with a right-hand side determined by the linear terms $\bx_1$.
 Note that the quadratic term does not contribute to the total force and steady-state 
 velocity terms, but it does change the fluid flow, 
 the electric potential and the ionic concentration.
-
 The cubic terms $\bx_3$ are computed by solving a linear PDE system 
 with a right-hand side determined by the linear terms $\bx_1$ and the quadratic terms $\bx_2$.
 The cubic solution satisfies the $\lim_{r\rightarrow\infty}C_3 = 0$ boundary condition, 
 when $\alpha\cU_1 = 0$.
 
-The steady-state velocity can be expanded using odd powers of $\beta$:
-\begin{eqnarray*}
-\cU(\beta, \gamma) &=& \cU_1(\gamma) \beta + \cU_3(\gamma) \beta^3.
-\end{eqnarray*}
-
-The linear and the cubic velocity terms (for $\alpha = 0$) are then
+In the case of ion-exchanger migration, the linear \cite{yariv2010migration}
+and the cubic \cite{zeyde2012report} velocity terms (for $\alpha = 0$)
+ are:
 \begin{eqnarray*}
 \cU_1(\gamma) &=& 2 \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}, \\
 \cU_3(\gamma) &=& \frac{31}{320(\sqrt\gamma + 1)} - \frac{9}{320(\sqrt\gamma + 1)^2} + \frac{1}{1680} - \frac{11}{160} \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}.
