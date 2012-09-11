@@ -391,13 +391,12 @@ the particle surface.
 \subsubsection  {Bulk-scale equations}
 The Nernst-Planck equations above \eqref{eq:fluxes} for the fluid bulk (outside
 the boundary layer), using bulk variables denoted by uppercase letters, read:
-\begin{eqnarray*}
-\begin{array}{cccc} \label{eq:bulk_flux}
+\begin{eqnarray} \begin{array}{cccc} \label{eq:bulk_flux}
   Q = 0, &
   C = C_+ = C_-, &
 \bJ = -\bnabla C + \alpha \bV C, &
 \bI = -C \bnabla \varPhi.
-\end{array}\end{eqnarray*}
+\end{array}\end{eqnarray}
 Because the flow is incompressible ($\bnabla \cdot V = 0$), 
 ion conservation results in the following 
 salt and charge conservation equations -- the salt and charge fluxes above 
@@ -583,22 +582,17 @@ If the total flux of a cell is equal to zero ($\bnabla \cdot \boldsymbol{f} = 0$
 \end{eqnarray*}
 
 \subsection{System Equations} \label{sec:disc_equations}
-
-Ion flux ($\bI = - C \bnabla \varPhi$) is discretized on grid cell boundaries:
-\begin{eqnarray*}
-I^h_r = -\cI_r(C^h) \cdot \cD_r(\varPhi^h), &
-I^h_\theta = -\cI_\theta(C^h) \cdot \frac{\cD_\theta(\varPhi^h)}{r}.
-\end{eqnarray*}
-
-Salt flux ($\bJ = -\bnabla C + \alpha \bV C$) is discretized on grid cell boundaries 
+Charge and salt fluxes \eqref{eq:bulk_flux} are discretized on grid cell boundaries 
 (using upwind scheme $\mathcal{U}$ for numerical stability at large cell Peclet number):
-\begin{eqnarray*}
+\begin{eqnarray} \nonumber
+I^h_r = -\cI_r(C^h) \cdot \cD_r(\varPhi^h), &
+I^h_\theta = -\cI_\theta(C^h) \cdot \frac{\cD_\theta(\varPhi^h)}{r}, \\
 J^h_r = -\cD_r(C^h) + \alpha V^h_r \cdot \mathcal{U}^{\bV^h}_r (C^h), &
 J^h_\theta = -\frac{\cD_\theta(C^h)}{r} + \alpha V^h_\theta \cdot \mathcal{U}^{\bV^h}_\theta (C^h), 
-\\
+\\ \nonumber
  \mathcal{U}^{\bV^h}_r(C^h)[i,j] = C^h\left[i-\frac{\sign(V^h_r)}{2}, j\right], &
  \mathcal{U}^{\bV^h}_\theta(C^h)[i,j] = C^h\left[i, j-\frac{\sign(V^h_\theta)}{2}\right]. 
-\end{eqnarray*}
+\end{eqnarray}
 
 Mass flux $\bV$ is discretized on grid cells boundaries, 
 using the staggered velocity grid.
@@ -606,7 +600,8 @@ using the staggered velocity grid.
 Force components ($\bF = -\bnabla P + \bLaplacian \bV + \bnabla \varPhi \Laplacian \varPhi$) 
 are discretized on the staggered velocity grid, where
 linear interpolation is used for the Coulomb force and for vector Laplacian components.
-\begin{eqnarray*}
+\begin{eqnarray}
+\nonumber
 F^h_r &=& -\cD_r(P^h) 
           + \cL(V^h_r) - \frac{2}{r^2} V^h_r 
 		  - \frac{2}{r^2 \sin\theta} \cI_r(\cD_\theta (V^h_\theta \sin\theta))
@@ -615,9 +610,10 @@ F^h_\theta &=& -\frac{\cD_\theta(P^h)}{r}
 		  + \cL(V^h_\theta) - \frac{F^h_\theta}{r^2 \sin^2\theta} 
 		  + \frac{2}{r^2} \cI_\theta(\cD_\theta(F^h_r))
 		  + \frac{\cD_\theta(\varPhi^h)}{r} \cdot \cI_\theta(\cL(\varPhi^h)), \\
+\nonumber
 \cL(f^h) &=& \frac{1}{r^2}\cD_r\pars{\cD_r(f^h) r^2} + 
 \frac{1}{r^2 \sin\theta} \cD_\theta\pars{\cD_\theta(f^h) \cdot \sin\theta}.
-\end{eqnarray*}
+\end{eqnarray}
 
 
 \subsection{Boundary Conditions} \label{sec:disc_boundary}
@@ -701,10 +697,7 @@ will typically converge in very few steps.
 
 \subsubsection{Operator Representation}
 System variable $\bx$ is defined as the concatenation $\bx = [\,\varPhi, C, V_r, V_\theta, P\,]$.
-Thus, each problem variable can be computed by applying an appropriate projection operator on $\bx$:
-\begin{eqnarray*}
-X &=& \cP_X(\bx) \text{ for } X \in \left\{\varPhi, C, V_r, V_\theta, P\right\}.
-\end{eqnarray*}
+Thus, each problem variable can be computed by applying an appropriate projection operator on $\bx$.
 The system can be written as a nonlinear operator $\cO(\bx) = \bzero$ 
 acting on the system variable ${\bx}$, 
 where $\cO$ is the system equations operator, 
@@ -845,59 +838,16 @@ until convergence ($\|\boldsymbol{r_n}\| < \eps$):
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Asymptotic Analysis} \label{sec:asymp}
-The nonlinear system is defined by the following PDEs:
-\label{PDEs}
-\begin{eqnarray*}
-\begin{array}{cccc}
-\bnabla \cdot \pars{C \bnabla \varPhi} = 0, &
-\bnabla \cdot \pars{\bnabla C - \alpha \bV C} = 0, &
-\bnabla \cdot \bV = 0, &
-\bLaplacian \bV - \bnabla P + \Laplacian \varPhi \bnabla \varPhi = \bzero.
-\end{array}\end{eqnarray*}
+In order to validate the numerical results, an asymptotic analysis is applied 
+to the nonlinear systems of ion-exchanger migration (\cite{yariv2010migration, zeyde2012report})
+and highly charged particle electrophoresis (\cite{schnitzer2012surface, schnitzer2012cubic}).
 
-For $\zeta(\theta) = \cV - \varPhi(1, \theta)$ and 
-$\cV = -\log \gamma$, the boundary conditions at $r = 1$ are given by
-\begin{eqnarray*}
-\begin{array}{rcl}
-\varPhi + \log C &=& \cV + \log \gamma = 0, \\
-\deriv{}{r}\pars{\varPhi - \log C} &=& \frac{J_-}{C} = 0, \\
-\bV = \zeta \cdot \bnabla_\mathcal{S} \varPhi 
-+ 2\log\pars{1-\tanh^2\frac{\zeta}{4}} \cdot \bnabla_\mathcal{S} \log C
-&=& 4\log\pars{\frac{1 + e^\frac{\zeta}{2}}{2}} \bnabla_S \varPhi.
-\end{array}
-\end{eqnarray*}
-
-The boundary conditions for $r \rightarrow \infty$ are given by
-\begin{eqnarray*}
-\bnabla \varPhi = -\beta \ui, &
-C = 1, &
-\bV = -\cU \ui,
-\end{eqnarray*}
-and the total force acting on the particle is zero: $\bF = \bzero$.
-
-The nonlinear system can be written as: 
-\begin{eqnarray*}
-\cO(\bx;\beta) &=& \bzero.
-\end{eqnarray*}
-
-For small $\beta$, the solution to the nonlinear system can be expanded in a Taylor series in $\beta$.
+The derivation works as follows.
+The nonlinear system is written as $\cO(\bx;\beta) = \bzero$.
+For small $\beta$, the solution to the nonlinear system can be expanded in a Taylor series in $\beta$:
 \begin{eqnarray*}
 \bx = \bx(\beta) &\approx& \sum_n \bx_n \beta^n.
 \end{eqnarray*}
-
-All the variables are expanded around $\beta = 0$:
-\begin{eqnarray*}
-\varPhi = \sum_i \beta^i \varPhi_i, &
-C = 1 + \sum_i \beta^i C_i, &
-\Psi = \sum_i \beta^i \Psi_i,
-\end{eqnarray*}
-where the velocity $\bV$ and pressure $P$ are computed from the streamfunction $\Psi$:
-\begin{eqnarray*}
-\bV &=& \bnabla \times \pars{\frac{\Psi}{r \sin\theta} \bphihat} 
-= \frac{1}{r^2 \sin\theta} \deriv{\Psi}{\theta} \brhat 
-- \frac{1}{r \sin\theta} \deriv{\Psi}{r} \bthetahat.
-\end{eqnarray*}
-
 The nonlinear equations and the boundary conditions 
 are expanded around $\beta = 0$:
 \begin{eqnarray*}
@@ -919,15 +869,14 @@ C_0(r,\theta) = 1, &
 P_0(r,\theta) = 0.
 \end{array}\end{eqnarray*}
 
-Assuming $\beta \ll 1$, the linearized equations and boundary conditions are 
-(\cite{yariv2010migration}):
+Assuming $\beta \ll 1$, the linearized equations and boundary conditions are:
 \begin{eqnarray*}
 \Laplacian \varPhi_1 = 0, &
 \Laplacian C_1 = 0, &
 \bLaplacian \bV_1 - \bnabla P_1 = \bzero.
 \end{eqnarray*}
 
-The first-order terms are given by
+The first-order terms are given by (see \cite{yariv2010migration} for full derivation):
 \begin{eqnarray*}
 \begin{array}{ccccc}
 \varPhi = \beta \pars{\frac{1}{4r^2} - r}\cos\theta, &
@@ -945,25 +894,20 @@ Therefore, $\cU_2 = 0$ and the next velocity term is the cubic one:
 \begin{eqnarray*}
 \cU(\beta) &\approx& \beta \cU_1 + \beta^3 \cU_3 + O(\beta^5).
 \end{eqnarray*}
-
 In order to find the cubic terms, the quadratic terms must be computed first.
 The quadratic terms $\bx_2$ are computed by solving a linear PDE system 
 with a right-hand side determined by the linear terms $\bx_1$.
 Note that the quadratic term does not contribute to the total force and steady-state 
 velocity terms, but it does change the fluid flow, 
 the electric potential and the ionic concentration.
-
 The cubic terms $\bx_3$ are computed by solving a linear PDE system 
 with a right-hand side determined by the linear terms $\bx_1$ and the quadratic terms $\bx_2$.
 The cubic solution satisfies the $\lim_{r\rightarrow\infty}C_3 = 0$ boundary condition, 
 when $\alpha\cU_1 = 0$.
 
-The steady-state velocity can be expanded using odd powers of $\beta$:
-\begin{eqnarray*}
-\cU(\beta, \gamma) &=& \cU_1(\gamma) \beta + \cU_3(\gamma) \beta^3.
-\end{eqnarray*}
-
-The linear and the cubic velocity terms (for $\alpha = 0$) are then
+In the case of ion-exchanger migration, the linear \cite{yariv2010migration}
+and the cubic \cite{zeyde2012report} velocity terms (for $\alpha = 0$)
+ are:
 \begin{eqnarray*}
 \cU_1(\gamma) &=& 2 \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}, \\
 \cU_3(\gamma) &=& \frac{31}{320(\sqrt\gamma + 1)} - \frac{9}{320(\sqrt\gamma + 1)^2} + \frac{1}{1680} - \frac{11}{160} \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}.
