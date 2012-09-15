@@ -9,7 +9,7 @@ function [sol] = main_ionex(init, g, betas)
     
     sol = Solution(g, init);
     sol.alpha = 0.0;
-    sol.gamma = 1.01;
+    sol.gamma = 1.0;
     force = total_force(sol, g);
     
     betas = betas(:);

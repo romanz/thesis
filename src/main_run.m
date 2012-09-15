@@ -1,6 +1,6 @@
 function main_run
 
-    N = 2.^(8);
+    N = 2.^(5:8);
     Rmax = 100;
     betas = 10.^[-2:0.25:0];
     A = 1;
