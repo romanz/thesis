@@ -20,13 +20,13 @@ function plot_stream_for_paper(name)
         axis equal;
         axis([-1 1 -.5 .5]*10)        
         hold off;
-        txt = sprintf('Analytical: \\alpha = %.1f, \\beta = %.2f, \\gamma = %.4f', a, b, g);
+        txt = sprintf('Analytical: \\beta = %.2f', b);
         title(txt, 'FontSize', 16, 'FontWeight', 'bold');
         set(gca, 'XTick', [], 'YTick', [])
-        n = sprintf('Stream/A%_4f_%.4f.eps', k, g, b);
+        n = sprintf('Stream/A_%.4f_%.4f.eps', g, b);
         print('-deps2', n)
 
-        %fprintf('\\includegraphics[width=0.45\\textwidth]{figs/%s}\n', n)
+        fprintf('\\includegraphics[width=0.45\\textwidth]{figs/%s}\n', n)
 
         figure(2); clf; hold on        
         psi = [];
@@ -35,13 +35,13 @@ function plot_stream_for_paper(name)
         axis equal;
         axis([-1 1 -.5 .5]*10)        
         hold off;
-        txt = sprintf('Numerical: \\alpha = %.1f, \\beta = %.2f, \\gamma = %.4f', a, b, g);
+        txt = sprintf('Numerical: \\beta = %.2f', b);
         title(txt, 'FontSize', 16, 'FontWeight', 'bold');
         set(gca, 'XTick', [], 'YTick', [])
-        n = sprintf('Stream/N%_4f_%.4f.eps', k, g, b);
+        n = sprintf('Stream/N_%.4f_%.4f.eps', g, b);
         print('-deps2', n)
         
-        %fprintf('\\includegraphics[width=0.45\\textwidth]{figs/%s}\n', n)
+        fprintf('\\includegraphics[width=0.45\\textwidth]{figs/%s}\n', n)
     end
 
 end
