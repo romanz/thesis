@@ -157,8 +157,9 @@ A numerical solver for the simulation of electrokinetic
 migration of particles in an electrolyte solution 
 due to the application of an external electric field is presented.
 The electrokinetic transport process is
-described by a system of partial differential equations (PDE), 
-as well as nonlinear effective boundary conditions, which are derived from
+described by a system of partial differential equations (PDE).
+A boundary layer forms around the particle, whose scale disparity
+is used to derive nonlinear effective boundary conditions using 
 the specific chemical properties of the particle.
 The nonlinear system is discretized and an iterative Newton solver is constructed
 automatically from the discrete equations.
@@ -1035,11 +1036,11 @@ a numerical solver should be able to handle large grids to achieve good numeric 
 
 \begin{figure}[htbp]
     \begin{center}
-    \includegraphics[width=0.4\textwidth]{figs/Electrophoresis/numerical_vs_analytical_alpha=0.3_Du=0.5_zeta=6.0_Rmax=100.eps}
-    \includegraphics[width=0.4\textwidth]{figs/Electrophoresis/departure_from_linear_alpha=0.3_Du=0.5_zeta=6.0_Rmax=100.eps}
+    \includegraphics[width=0.4\textwidth]{figs/Electrophoresis/numerical_vs_analytical_alpha=0.5_Du=1.0_zeta=10.0_Rmax=100.eps}
+    \includegraphics[width=0.4\textwidth]{figs/Electrophoresis/departure_from_linear_alpha=0.5_Du=1.0_zeta=10.0_Rmax=100.eps}
         \caption{Steady-state velocity $\cU$ as a function of the 
         electric field magnitude $\beta$, for highly-charged surface particle
-        electrophoresis (with $\alpha = 0.3, \text{Du} = 0.5, \bar\zeta = 6$).
+        electrophoresis (with $\alpha = 0.5, \text{Du} = 1, \bar\zeta = 10$).
         The analytic solution velocity is represented by solid lines, 
         and the numerical results are represented by markers.
         The left figure shows the full numerical solution 
