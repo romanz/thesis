@@ -1,15 +1,15 @@
 function plot_results_for_paper(p)
 
-a = [0.0 0.3 0.5];
-Du = [0.5 0.5 1];
-z = [6 6 10];
+a = [0.0 0.2 0.3 0.4 0.5];
+Du = [0.5 0.5 0.5 0.5 1];
+z = [6 6 6 6 10];
 R = [30 100 300];
-U1 = [3.69314718055995, 3.69314718055995, 4.25752957407993];
-U3 = [0.0263988658183029, 0.304452832842969, 0.966868914065528];
+U1 = [3.69314718055995, 3.69314718055995, 3.69314718055995, 3.69314718055995, 4.25752957407993];
+U3 = [0.0263988658183029, 0.196596577997397, 0.304452832842969, 0.427480686859225, 0.966868914065528];
 
 close all;
 
-for k = 1:3
+for k = 1:5
     for j = 2
         f = sprintf('alpha=%.1f_Du=%.1f_zeta=%.1f_Rmax=%.0f', a(k), Du(k), z(k), R(j));
         s = load(fullfile(p, [f '.mat']));
@@ -23,7 +23,7 @@ for k = 1:3
         plot(s.b, e,          'o', 'MarkerSize', 8, 'Color', 'k');
         set(gca, 'XScale', 'log', 'YScale', 'log');
         t = sprintf('\\alpha = %.1f, Du = %.1f, \\zeta = %.1f', a(k), Du(k), z(k));
-%         title(t, 'FontSize', 24)
+        title(t, 'FontSize', 24)
         set(gca, 'FontSize', 16)
         xlabel('Electric field magnitude (\beta)', 'FontSize', 20)
         ylabel('Departure from linear analytic solution', 'FontSize', 20)
@@ -39,7 +39,7 @@ for k = 1:3
         plot(s.b, u,                      'o', 'MarkerSize', 8, 'Color', 'k');
         set(gca, 'XScale', 'log', 'YScale', 'log');
         t = sprintf('\\alpha = %.1f, Du = %.1f, \\zeta = %.1f', a(k), Du(k), z(k));
-%         title(t, 'FontSize', 24)
+        title(t, 'FontSize', 24)
         set(gca, 'FontSize', 16)
         xlabel('Electric field magnitude (\beta)', 'FontSize', 20)
         ylabel('Steady-state velocity', 'FontSize', 20)

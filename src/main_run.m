@@ -1,14 +1,15 @@
 function main_run
 
-    N = 2.^(5:8);
+    N = 2.^(6:8);
     Rmax = 100;
-    betas = 10.^[-2:0.25:0];
+    betas = 0.1 * 2.^[-2:0.5:5];
     A = 1;
     for a=A
         for n=N 
             for r=Rmax
                 g = grids(r, n+1, n+1, a);
-                main_ionex([], g, betas);
+                main_ephor([], g, betas, struct('alpha', 0.2, 'Du', 0.5, 'zeta', 6));
+                main_ephor([], g, betas, struct('alpha', 0.4, 'Du', 0.5, 'zeta', 6));
             end
         end
     end

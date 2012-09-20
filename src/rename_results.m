@@ -14,8 +14,8 @@ for k = 1:numel(D)
     Nr = numel(S.g.r)-1;
     Nt = numel(S.g.t)-1;
     Rmax = max(S.g.r);
-    t = sprintf('%dx%d_Rmax=%.0f_beta=%.3f_alpha=%.1f_gamma=%.5f.mat', ...
-        Nr, Nt, Rmax, S.sol.beta, S.sol.alpha, S.sol.gamma);
+    t = sprintf('%dx%d_Rmax=%.0f_beta=%.3f_alpha=%.1f_Du=%.1f_zeta=%.1f.mat', ...
+        Nr, Nt, Rmax, S.sol.beta, S.sol.alpha, S.sol.Du, S.sol.zeta);
     dst = fullfile(p, t);
     cmd = sprintf('mv -v %s %s', src, dst);
     % disp(cmd)

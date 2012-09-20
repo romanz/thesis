@@ -153,19 +153,24 @@
 % \subjclass[2000]{35R35, 49J40, 60G40}
 
 \abstract{
-A numerical solver for the simulation of electrokinetic 
+A numerical framework for the simulation of electrokinetic 
 migration of particles in an electrolyte solution 
 due to the application of an external electric field is presented.
 The electrokinetic transport process is
-described by a system of partial differential equations (PDE).
-A boundary layer forms around the particle, whose scale disparity
-is used to derive nonlinear effective boundary conditions using 
-the specific chemical properties of the particle.
-The nonlinear system is discretized and an iterative Newton solver is constructed
-automatically from the discrete equations.
-An asymptotic analytical solution is derived for the validation of the solver. 
-The numerical results are obtained and are compared to the asymptotic solutions, 
-and good correspondence is achieved.}
+described by a system of nonlinear partial differential equations (PDE).
+A thin boundary layer forms around the particle due to strong electrostatic forces. The resulting
+scale disparity of the boundary layer
+is used to derive nonlinear effective boundary conditions for the
+numerical solver
+using the specific chemical properties of the particle.
+The nonlinear system is discretized and an iterative Newton solver is
+constructed automatically from the discrete equations and boundary 
+conditions.
+An asymptotic analytical solution is 
+derived for the validation of the solver. 
+The numerical results are obtained for an ion-exchangers and 
+surface charged inert particles. The numerical results 
+are compared to the asymptotic solutions, and good correspondence is achieved.}
 
 \keywords{CFD, electrokinetics, asymptotics}
 
@@ -692,8 +697,8 @@ given an initial solution $\bx_0$.
 Each step requires the computation of the residual vector, $\br = \cO(\bx)$, and
 the gradient matrix of the operator, $\bG = \bnabla \cO(\bx)$, 
 given the current solution $\bx$.
-Then, a sparse linear system needs to be solved to yield the update for the 
-increment $\Delta \bx = -\bG^{-1} \br$.
+Then, a sparse linear system $\bG \Delta \bx = \br$
+needs to be solved to yield the update $\Delta \bx$.
 When the method converges, $\bx_n \rightarrow \bx_\infty$, 
 the asymptotic convergence is in general quadratic:
 \begin{equation}
@@ -834,6 +839,26 @@ Given $N$ operators $\{\cO_i\}_{i=1}^N$, their concatenation $\cO$ is defined as
 (\bnabla\cO)(\bx) = [(\bnabla\cO_1)(\bx); \ldots; (\bnabla\cO_N)(\bx)].
 \end{array}\end{equation}
 
+\subsubsection{Singularity Handling} \label{sec:singular}
+The electric potential $\varPhi$ (in electrophoresis case) and the pressure $P$ (in both cases) 
+are defined up to an additive constant, since the system equations and the boundary conditions
+contain only their derivatives.
+In order to overcome the singularity of the linear system 
+$\bG \Delta\bx = -\br$, we set the variable at 
+a specific grid point to be $0$.
+In order to have square system, we should remove one conservation equation at this grid point too.
+In case of the pressure $P$, we remove one mass conservation equation,
+$\bnabla \cdot \bV = 0$, at this grid point. 
+In case of the electric potential, we remove the charge conservation
+equation, $\bnabla \cdot \pars{C \bnabla \varPhi} = 0$, at this grid point.
+For $\br = \cO(\bx)$ and $\bG = \bnabla \cO(\bx)$, the new square linear system read:
+\begin{equation}
+\mathbb{R} \bG \mathbb{P} \cdot \delta\bx = -\mathbb{R} \br
+\end{equation}
+where $\mathbb{P}$ matrix is used to remove the columns
+and $\mathbb{R}$ matrix is used to remove the rows of $\bG$,
+whre the update step is $\Delta \bx = \mathbb{P} \cdot \delta \bx$.
+
 \subsubsection{Iterative Newton solver}
 Given an initial solution $\bx_0$ and prescribed values for $\beta$ and $\cU$, 
 we apply the following algorithm 
@@ -842,8 +867,8 @@ until convergence ($\|\boldsymbol{r_n}\| < \eps$):
 \item Update the system operator: $\verb|op| = \verb|System|(\bx_{n})$
 \item Compute the gradient: $\boldsymbol{G}_n = \verb|op.grad()|$
 \item Compute the right-hand side: $\boldsymbol{r}_n = \verb|op.res()|$
-\item Solve sparse linear system: $\boldsymbol{G}_n \Delta \bx_n = -\boldsymbol{r}_n$
-\item Update solution: $\bx_{n+1} = \bx_{n} + \Delta \bx_{n}$
+\item Solve sparse linear system: $\mathbb{R}\boldsymbol{G}_n \mathbb{P} \Delta \bx_n = -\mathbb{R}\boldsymbol{r}_n$
+\item Update solution: $\bx_{n+1} = \bx_{n} + \mathbb{P}\Delta \bx_{n}$
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -957,13 +982,17 @@ and the electrophoresis of highly charged surface inert particle
 \cite{schnitzer2012surface}. 
 The solver is applied to a series of values of the electric field $\beta$, ranging 
 from $\beta \ll 1$ to $\beta \sim O(1)$.
-For each $\beta$ value, the steady-state velocity $\cU(\beta)$ is computed. 
+For each $\beta$ value, 
+Newton solver is initialized with the linear solution and is iterated $K$ times.
+Secant method iteration is applied $M$ times to find the steady-state velocity 
+by finding $\cU$ such that $F_\imath(\cU, \beta) = 0$, thus computing 
+the steady-state velocity $\cU(\beta)$. 
 The resulting $\cU(\beta)$ is plotted on a log-log scale, so that the asymptotic behaviour
 of the solution may be examined for a wide range of $\beta$ values.
-
+ 
 In order to validate the numerical solver, we employ 
 the results of the asymptotic analysis of the nonlinear 
-system \cite{zeyde2012report, schnitzer2012cubic}. 
+system \cite{schnitzer2012cubic, zeyde2012report}. 
 The numerical results are compared 
 to the asymptotic solutions, and good correspondence is achieved.
 
@@ -977,6 +1006,10 @@ The switch from the linear regime to the cubic regime occurs at a critical elect
 field value $\beta_c = O(\sqrt{|\gamma - 1|})$.
 The numerical results $\cU^h$, 
 as well as the analytical ones \eqref{eq:cubic}, are given in Figure \ref{fig:IonExCubic}.
+The numerical solver uses $N_r \times N_\theta = (400 \times 50)$, 
+$R_{\max} = 10^7$,
+$K = 3$, $M = 5$ and $\beta = 10^{t}$ for $t = -2:0.1:0.5$.
+
 
 The linear solution for $\gamma \approx 1$, 
 yields a sign change of the zeta potential $\zeta = \log (C/\gamma)$, when
@@ -1003,19 +1036,28 @@ we employ Richardson extrapolation to $\cU^h$ and $\cU^{2h}$:
 \end{equation}
 The results of the extrapolation and $\hat\cU$ the analytical results 
 are given at Figure \ref{fig:Electrophoresis}.
+The numerical solver uses $N_r \times N_\theta = (128 \times 128)$ and $(256 \times 256)$
+for Richardson extrapolation, $R_{\max} = 10^2$,
+$K = 3$, $M = 5$ and $\beta = 0.1 \cdot 2^{t}$ for $t = -2:0.5:5$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 \section{Discussion} \label{sec:discussion}
-A numerical solver for nonlinear electrokinetic transport system is described.
+A numerical framework for solver construction for 
+nonlinear electrokinetic transport system is described.
+The framework is applied to two electrokinetic problems: the migration of ion-exchangers
+and surface-charged inert particle electrophoresis.
 The numerical results exhibit a good correspondence to the asymptotic linear model as
 shown above.
 Moreover, two interesting phenomena (cubic regime and downstream vortex) were predicted
 using the numerical results, and were verified using asymptotic expansion of the
 nonlinear system.
+
 Future work may include replacing the full Newton step by an iterative linear solver, so 
 finer grids could be used.
 Since it is expected that a boundary layer should form around the particle for $\beta \gg 1$,
 a numerical solver should be able to handle large grids to achieve good numeric accuracy.
+In addition, the framework may be used for automatic Newton solver construction for 
+other similar nonlinear PDE systems.
 
 \begin{figure}[htbp]
     \begin{center}
@@ -1028,9 +1070,31 @@ a numerical solver should be able to handle large grids to achieve good numeric 
         and the numerical results are represented by markers 
         (circles for $\cU > 0$, squares for $\cU < 0$). Note that linear and
         cubic regimes match well the numerical results, including the critical $\beta$ 
-        behaviour \eqref{eq:crit_beta}.
+        behaviour \eqref{eq:crit_beta}. 
         }
 	    \label{fig:IonExCubic}
+    \end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+    \begin{center}
+	\includegraphics[width=0.45\textwidth]{figs/Cubic/Stream/N_0.9000_0.1000.eps}
+	\includegraphics[width=0.45\textwidth]{figs/Cubic/Stream/A_0.9000_0.1000.eps}
+	\includegraphics[width=0.45\textwidth]{figs/Cubic/Stream/N_0.9000_0.3981.eps}
+	\includegraphics[width=0.45\textwidth]{figs/Cubic/Stream/A_0.9000_0.3981.eps}
+	\includegraphics[width=0.45\textwidth]{figs/Cubic/Stream/N_0.9000_1.0000.eps}
+	\includegraphics[width=0.45\textwidth]{figs/Cubic/Stream/A_0.9000_1.0000.eps}
+        \caption{Streamlines of the flow for various electric field $\beta$ values: 
+        numerical results (left) and analytical approximation (right) for 
+        $\gamma = 0.99$.  The steady-state velocity $\cU$ is positive, so the
+        ion-exchanger drifts to the right. 
+        Note that there is good correspondence between the numerical
+        results and the analytical solution for $\beta < 1$, validating
+        the vortex formation. For $\beta \ge 1$, the cubic analytical
+        solution does not match the numerical results, probably due
+        to further nonlinear terms in the solution.
+        }
+    \label{fig:Vortex}
     \end{center}
 \end{figure}
 
@@ -1050,23 +1114,6 @@ a numerical solver should be able to handle large grids to achieve good numeric 
         When $\beta$ is large, the analytical cubic solution loses its validity 
         because higher-order terms become significant.}
 	    \label{fig:Electrophoresis}
-    \end{center}
-\end{figure}
-
-\begin{figure}[htbp]
-    \begin{center}
-	\includegraphics[width=0.45\textwidth]{figs/Cubic/Stream/N_0.9000_0.1000.eps}
-	\includegraphics[width=0.45\textwidth]{figs/Cubic/Stream/A_0.9000_0.1000.eps}
-	\includegraphics[width=0.45\textwidth]{figs/Cubic/Stream/N_0.9000_0.3981.eps}
-	\includegraphics[width=0.45\textwidth]{figs/Cubic/Stream/A_0.9000_0.3981.eps}
-	\includegraphics[width=0.45\textwidth]{figs/Cubic/Stream/N_0.9000_1.0000.eps}
-	\includegraphics[width=0.45\textwidth]{figs/Cubic/Stream/A_0.9000_1.0000.eps}
-        \caption{Streamlines of the flow for various electric field $\beta$ values: 
-        numerical results (left) and analytical approximation (right) for 
-        $\gamma = 0.99$.  The steady-state velocity $\cU$ is positive, so the
-        ion-exchanger drifts to the right. 
-        }
-    \label{fig:Vortex}
     \end{center}
 \end{figure}
 

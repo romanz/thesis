@@ -1,4 +1,4 @@
-function [sol] = main(init, g, betas)
+function [sol] = main_ephor(init, g, betas, conf)
     if isempty(init)
         init.Phi = zeros(g.Phi.size);
         init.C = ones(g.C.size);
@@ -8,16 +8,16 @@ function [sol] = main(init, g, betas)
     end
     
     sol = Solution(g, init);
-    sol.alpha = 0.3;
-    sol.Du = 0.5;
-    sol.zeta = 6;
+    sol.alpha = conf.alpha;
+    sol.Du = conf.Du;
+    sol.zeta = conf.zeta;
     force = total_force(sol, g);
     
     betas = betas(:);
     V = zeros(size(betas));
     tic;
     for k = 1:numel(betas)
-        fprintf('==================================================================\n')
+        fprintf('======================= Electrophoresis ===============================\n')
         sol.beta = betas(k);
         Vinf = sol.beta * (sol.Du*log(16) + sol.zeta)/(1 + 2*sol.Du);
         [iter, v] = secant(Vinf * [0.9, 1.1]);
