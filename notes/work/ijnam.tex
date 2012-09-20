@@ -168,11 +168,11 @@ constructed automatically from the discrete equations and boundary
 conditions.
 An asymptotic analytical solution is 
 derived for the validation of the solver. 
-The numerical results are obtained for an ion-exchangers and 
-surface charged inert particles. The numerical results 
+Numerical results are obtained for an ion-exchanger and 
+for a surface charged inert particle. The numerical results 
 are compared to the asymptotic solutions, and good correspondence is achieved.}
 
-\keywords{CFD, electrokinetics, asymptotics}
+\keywords{CFD, electrokinetics, asymptotics, ion-exchanger, electrophoresis}
 
 \maketitle
 
@@ -248,7 +248,7 @@ which is useful for microfluidic mixing applications \cite{wang2004mix, ben2002v
 The paper is structured as follows: the governing equations of the electrokinetic model
 are derived in Section \ref{sec:equations}. The algorithm for the discretization and 
 the solution of the system is described in Section \ref{sec:algorithm}.
-An analytical asymptotic solution for the non-linear system is derived 
+An analytical asymptotic solution for the nonlinear system is derived 
 and presented in Section \ref{sec:asymp}.
 Numerical results and their comparison to an analytical asymptotic solution 
 are presented Section \ref{sec:results} and discussed in Section \ref{sec:discussion}. 
@@ -284,7 +284,7 @@ The velocity $\bv$ is normalized by $v^* = {\eps^* (\varphi^*)^2}/{a^* \mu^*}$,
 and the pressure $p$ is normalized by $p^* = {\mu^* v^*}/{a^*} = {\eps^* (\varphi^*)^2}/{(a^*)^2}$.
 The fluxes $\bj^*_\pm$ are normalized by $j^* = {D^* c^*}/{a^*}$.
 
-The dimensional Poisson equation can be written as:
+The dimensional Poisson equation can be written as
 \begin{equation}
 (c^*_+ - c^*_-) z e^* = -\eps^* \Laplacian \varphi^*,
 \end{equation}
@@ -313,7 +313,7 @@ The electric field is denoted by $\bE$ and normalized by $E^* = \varphi^* / a^*$
 The surface charge is denoted by $\sigma$ and normalized by $\sigma^* = \eps^* \varphi^* / \delta^*$.
 
 The ionic fluxes are given by ion diffusion, electrostatic forces and ion advection by the fluid
-in \eqref{eq:nernst}. Due to conservation of ions' concentrations, the fluxes are divergence-free:
+in \eqref{eq:nernst}. Due to conservation of ion concentrations, the fluxes are divergence-free:
 \begin{equation*}
 \bnabla \cdot \bj_\pm = 0.
 \end{equation*}
@@ -387,10 +387,10 @@ particle and the fluid.
 \subsection{Separation of scales}
 When $\delta \ll 1$, 
 the fluid remains electroneutral ($q \approx 0$, thus $c_+ \approx c_-$), 
-except a thin boundary layer of width $O(\delta)$ 
+except inside a thin boundary layer of width $O(\delta)$ 
 surrounding the particle (the ``Debye layer'').
 This boundary layer makes it very hard to construct 
-a direct numerical solver for the full electro-kinetic problem.
+a direct numerical solver for the full electrokinetic problem.
 However, we exploit the scale disparity at the Debye layer, 
 which allows the PDE system to be rewritten in the ``inner'' region 
 as an ODE system using the asymptotic limit of $\delta \rightarrow 0$.
@@ -713,8 +713,8 @@ Thus, each problem variable can be computed by applying an appropriate projectio
 The system can be written as a nonlinear operator $\cO(\bx) = \bzero$ 
 acting on the system variable ${\bx}$, 
 where $\cO$ is the system equations operator, 
-derived by concatenation of the system equations (described at Subsection \ref{sec:disc_equations})
-and the boundary conditions operators (described at Subsection \ref{sec:disc_boundary}).
+derived by concatenation of the system equations (described in Subsection \ref{sec:disc_equations})
+and the boundary conditions operators (described in Subsection \ref{sec:disc_boundary}).
 This way, the same numerical solver handles both the nonlinear system equation and nonlinear
 boundary conditions.
 
@@ -763,7 +763,7 @@ to compute the steady-state solution for any given $\beta$.
 For $\beta \ll 1$, the linear terms are the dominant ones, 
 so the solution is approximately linear in $\beta$ 
 (as derived in \cite{yariv2010migration}), and the solver convergence is fast.
-However, this is no longer true for $\beta \sim O(1)$, because the nonlinear terms become dominant
+However, this is no longer true for $\beta \gtrsim 1$, because the nonlinear terms become dominant
 and the iterative solver may not converge at all if we start with an arbitrary initial guess.
 In order to find a solution for such $\beta$, a continuation method is used:
 the solver is applied to a sequence of $\{\beta_i\}_{i=0}^n$ such that $\beta_0 = 0$,
@@ -798,9 +798,9 @@ If $\cO$ is linear, it can be represented by a matrix $L$, such that:
 Note that finite difference $\cD$, interpolation $\cI$ and 
 upwind selection $\mathcal{U}$ operators
 can be implemented as linear sparse operators, by constructing 
-an appropriate sparse matrix $L$, having $O(\dim \bx)$ non-zeroes).
+an appropriate sparse matrix $L$, having $O(\dim \bx)$ non-zeroes.
 This way, the computation of the residual is very fast, taking $O(\dim \bx)$ time,
-and the gradient is computed only once.
+and the gradient does not depend on $\bx$.
 
 \paragraph{\textit{Pointwise scalar function}}
 Let $f: \R \rightarrow \R$ be a differentiable 1D function, whose derivative is
@@ -846,18 +846,18 @@ contain only their derivatives.
 In order to overcome the singularity of the linear system 
 $\bG \Delta\bx = -\br$, we set the variable at 
 a specific grid point to be $0$.
-In order to have square system, we should remove one conservation equation at this grid point too.
-In case of the pressure $P$, we remove one mass conservation equation,
+In order to retain square system, we should remove one conservation equation at this grid point too.
+In the case of pressure $P$, we remove one mass conservation equation,
 $\bnabla \cdot \bV = 0$, at this grid point. 
-In case of the electric potential, we remove the charge conservation
+In the case of electric potential, we remove the charge conservation
 equation, $\bnabla \cdot \pars{C \bnabla \varPhi} = 0$, at this grid point.
-For $\br = \cO(\bx)$ and $\bG = \bnabla \cO(\bx)$, the new square linear system read:
+For $\br = \cO(\bx)$ and $\bG = \bnabla \cO(\bx)$, the new square linear system reads:
 \begin{equation}
-\mathbb{R} \bG \mathbb{P} \cdot \delta\bx = -\mathbb{R} \br
+\mathbb{R} \bG \mathbb{P} \cdot \delta\bx = -\mathbb{R} \br,
 \end{equation}
 where $\mathbb{P}$ matrix is used to remove the columns
 and $\mathbb{R}$ matrix is used to remove the rows of $\bG$,
-whre the update step is $\Delta \bx = \mathbb{P} \cdot \delta \bx$.
+where the update step is $\Delta \bx = \mathbb{P} \cdot \delta \bx$.
 
 \subsubsection{Iterative Newton solver}
 Given an initial solution $\bx_0$ and prescribed values for $\beta$ and $\cU$, 
@@ -876,7 +876,7 @@ until convergence ($\|\boldsymbol{r_n}\| < \eps$):
 In order to validate the numerical results, an asymptotic analysis is applied 
 to the nonlinear systems of ion-exchanger migration 
 and highly charged particle electrophoresis.
-We present here the asymptotic analysis for the ion-exchanger case \cite{yariv2010migration}
+We present here the asymptotic analysis for the ion-exchanger case \cite{yariv2010migration},
 and the asymptotic analysis for the electrophoresis case \cite{schnitzer2012surface}
 appears in \cite{schnitzer2012cubic}.
 
@@ -889,9 +889,9 @@ For small $\beta$, the solution to the nonlinear system can be expanded in a Tay
 \end{equation}
 The nonlinear terms
 are expanded around $\beta = 0$:
-\begin{eqnarray*}
-\bzero = \cO(\bx) = \sum_i \cO_i(\bx_0, \ldots \bx_i) \beta^i
-\end{eqnarray*}
+\begin{equation}
+\bzero = \cO(\bx) = \sum_i \cO_i(\bx_0, \ldots \bx_i) \beta^i.
+\end{equation}
 
 Thus, the $O(\beta^k)$ term $\bx_k$ can be found recursively by solving 
 $\cO_k(\bx_0, \bx_1, \ldots, \bx_k) = \bzero$,
@@ -902,19 +902,19 @@ given the previous solutions for $\bx_0, \ldots, \bx_{k-1}$.
 \subsection{First-Order (linear in $\beta$) Solution} \label{app:linear}
 
 For $\beta = 0$ (no electric field is applied), the steady-state solution is $\cU = 0$:
-\begin{eqnarray*}\begin{array}{cccc}
+\begin{equation}\begin{array}{cccc}
 \varPhi_0(r,\theta) = 0, &
 C_0(r,\theta) = 1, &
 \bV_0(r,\theta) = \bzero, &
 P_0(r,\theta) = 0.
-\end{array}\end{eqnarray*}
+\end{array}\end{equation}
 
 Assuming $\beta \ll 1$, the linearized equations and boundary conditions are:
-\begin{eqnarray*}
+\begin{equation} \begin{array}{ccc}
 \Laplacian \varPhi_1 = 0, &
 \Laplacian C_1 = 0, &
 \bLaplacian \bV_1 - \bnabla P_1 = \bzero.
-\end{eqnarray*}
+\end{array}\end{equation}
 
 The first-order terms are given by (see \cite{yariv2010migration} for full derivation):
 \begin{equation} \begin{array}{ccccc}
@@ -926,7 +926,7 @@ P = 0, &
 \end{array} \end{equation}
 and the linear velocity term is:
 \begin{equation} \label{eq:linear_velocity}
-\cU_1(\gamma) = 2 \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}
+\cU_1(\gamma) = 2 \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}.
 \end{equation}
 For $\gamma > 1$, the Debye layer has a positive space charge, 
 corresponding to a negative particle charge -- 
@@ -981,9 +981,8 @@ driven by an electric field \cite{yariv2010migration}
 and the electrophoresis of highly charged surface inert particle 
 \cite{schnitzer2012surface}. 
 The solver is applied to a series of values of the electric field $\beta$, ranging 
-from $\beta \ll 1$ to $\beta \sim O(1)$.
-For each $\beta$ value, 
-Newton solver is initialized with the linear solution and is iterated $K$ times.
+from $\beta \ll 1$ to $\beta \sim 1$.
+For each $\beta$ value, the Newton solver is initialized with the linear solution and is iterated $K$ times.
 Secant method iteration is applied $M$ times to find the steady-state velocity 
 by finding $\cU$ such that $F_\imath(\cU, \beta) = 0$, thus computing 
 the steady-state velocity $\cU(\beta)$. 
@@ -1002,8 +1001,8 @@ When $\gamma \approx 1$, the cubic regime, where $\cU = O(\beta^3)$,
 dominates the linear one, even for weak electric fields. 
 This phenomenon is confirmed both by the numerical
 results and by asymptotic expansion of the nonlinear system (for $\alpha=0$).
-The switch from the linear regime to the cubic regime occurs at a critical electric
-field value $\beta_c = O(\sqrt{|\gamma - 1|})$.
+The switch from the linear regime to the cubic regime occurs at 
+an electric field value of $\beta = O(\sqrt{|\gamma - 1|})$.
 The numerical results $\cU^h$, 
 as well as the analytical ones \eqref{eq:cubic}, are given in Figure \ref{fig:IonExCubic}.
 The numerical solver uses $N_r \times N_\theta = (400 \times 50)$, 
@@ -1036,13 +1035,14 @@ we employ Richardson extrapolation to $\cU^h$ and $\cU^{2h}$:
 \end{equation}
 The results of the extrapolation and $\hat\cU$ the analytical results 
 are given at Figure \ref{fig:Electrophoresis}.
-The numerical solver uses $N_r \times N_\theta = (128 \times 128)$ and $(256 \times 256)$
-for Richardson extrapolation, $R_{\max} = 10^2$,
+The numerical solver uses $R_{\max} = 10^2$,
 $K = 3$, $M = 5$ and $\beta = 0.1 \cdot 2^{t}$ for $t = -2:0.5:5$.
+The solver is applied to 2 grids of $N_r \times N_\theta = (128 \times 128)$ as the coarse grid,
+and $N_r \times N_\theta = (256 \times 256)$ as the fine grid, in order to use Richardson extrapolation for $\hat\cU$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 \section{Discussion} \label{sec:discussion}
-A numerical framework for solver construction for 
+A numerical framework for solver construction for a
 nonlinear electrokinetic transport system is described.
 The framework is applied to two electrokinetic problems: the migration of ion-exchangers
 and surface-charged inert particle electrophoresis.
@@ -1052,8 +1052,8 @@ Moreover, two interesting phenomena (cubic regime and downstream vortex) were pr
 using the numerical results, and were verified using asymptotic expansion of the
 nonlinear system.
 
-Future work may include replacing the full Newton step by an iterative linear solver, so 
-finer grids could be used.
+Future work may include replacing the full Newton step by an iterative linear solver, allowing
+finer grids to be used.
 Since it is expected that a boundary layer should form around the particle for $\beta \gg 1$,
 a numerical solver should be able to handle large grids to achieve good numeric accuracy.
 In addition, the framework may be used for automatic Newton solver construction for 
@@ -1088,11 +1088,11 @@ other similar nonlinear PDE systems.
         numerical results (left) and analytical approximation (right) for 
         $\gamma = 0.99$.  The steady-state velocity $\cU$ is positive, so the
         ion-exchanger drifts to the right. 
-        Note that there is good correspondence between the numerical
+        Note that there is a good correspondence between the numerical
         results and the analytical solution for $\beta < 1$, validating
         the vortex formation. For $\beta \ge 1$, the cubic analytical
-        solution does not match the numerical results, probably due
-        to further nonlinear terms in the solution.
+        solution does not match the numerical results, due
+        to the influence of higher order nonlinear terms in the  solution.
         }
     \label{fig:Vortex}
     \end{center}
