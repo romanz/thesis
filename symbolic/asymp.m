@@ -152,3 +152,31 @@ function assert_zero(e, msg)
 end
 
 % inline(vectorize(char
+function V = curl(psi)
+    syms r t
+    V = [diff(psi, t) / (r^2 * sin(t)); ...
+        -diff(psi, r) / (r * sin(t))];
+    V = simple(V);
+end
+
+function [L] = vector_laplacian(F)
+    syms r t
+    L = [scalar_laplacian(F(1)) ...
+         - 2 * F(1) / (r^2) - 2 * diff(sin(t) * F(2), t) / (r^2 * sin(t)); ...
+         scalar_laplacian(F(2)) ...
+         - F(2) / (r * sin(t))^2 + 2 * diff(F(1), t) / r^2];
+end
+
+function L = scalar_laplacian(f)
+    L = simplify(divergence(grad(f)));
+end
+
+function F = grad(f)
+    syms r t
+    F = [diff(f, r); diff(f, t) / r];
+end
+
+function d = divergence(F)
+    syms r t
+    d = diff(r^2 * F(1), r) / (r^2) + diff(sin(t) * F(2), t) / (r*sin(t));
+end
