@@ -132,6 +132,16 @@ Electrokinetic Flow Around an Ion-Exchange Spherical Particle}
 
 \maketitle
 
+\begin{abstract}
+An asymptotic nonlinear solution of electrokinetic 
+migration of ion-exchange particles in an electrolyte solution 
+due to the application of an external electric field is presented.
+The electrokinetic transport process is
+described by a system of nonlinear partial differential equations (PDE).
+An asymptotic analytical solution is 
+derived and validated. 
+\end{abstract}
+
 \section{Introduction} \label{sec:intro}
 
 Electrokinetic theory describes the dynamics of charged particles
@@ -325,6 +335,10 @@ r^2 {\sin^2\theta} \left(\frac{{\cW_2}}{15} - \frac{{\cW_1}}{3} + \frac{209}{336
 
 The cubic solution satisfies the ${r\rightarrow\infty}$ boundary conditions, 
 when $\alpha\cU_1 = 0$.
+
+\section{Validation}
+The derivation above is validated using MATLAB symbolic toolbox by the code 
+at \verb|symbolic/asymp.m| \cite{source}.
 
 \bibliographystyle{unsrt}
 \bibliography{ijnam}
