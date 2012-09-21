@@ -896,7 +896,8 @@ are expanded around $\beta = 0$:
 Thus, the $O(\beta^k)$ term $\bx_k$ can be found recursively by solving 
 $\cO_k(\bx_0, \bx_1, \ldots, \bx_k) = \bzero$,
 given the previous solutions for $\bx_0, \ldots, \bx_{k-1}$.
-
+The derivation is validated using MATLAB symbolic toolbox by the code 
+at \verb|symbolic/asymp.m| \cite{source}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{First-Order (linear in $\beta$) Solution} \label{app:linear}
@@ -916,7 +917,7 @@ Assuming $\beta \ll 1$, the linearized equations and boundary conditions are:
 \bLaplacian \bV_1 - \bnabla P_1 = \bzero.
 \end{array}\end{equation}
 
-The first-order terms are given by (see \cite{yariv2010migration} for full derivation):
+The first-order terms $\bx_1$ are given by (see \cite{yariv2010migration} for full derivation):
 \begin{equation} \begin{array}{ccccc}
 \varPhi = \beta \pars{\frac{1}{4r^2} - r}\cos\theta, &
 C = 1 + \beta \frac{3}{4r^2} \cos\theta, &
@@ -934,6 +935,26 @@ yielding negative drift velocity, $\cU < 0$.
 For $\gamma < 1$, we have $\cU > 0$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Second-Order (quadratic in $\beta$) Solution} \label{app:quadratic}
+The quadratic terms $\bx_2$ are computed by solving a linear PDE system 
+with a right-hand side determined by the linear terms $\bx_1$:
+\begin{equation}
+\varPhi_2 = \pars{\frac{\cU_1\, \alpha}{32} - \frac{1}{16}}
+\frac{3\, {\cos^2\theta} - 1}{r^3} - \frac{3 + 3\, {\sin^2\theta}\, \left(4\, r^3 - 1\right)}{32\, r^4} - \frac{3\, \cU_1\, \alpha - 6}{32\, r},
+\end{equation}
+\begin{equation}
+C_2 = \left(\frac{5\, \cU_1\, \alpha}{32} + \frac{1}{16}\right)
+\frac{3\, {\cos^2\theta} - 1}{r^3} - \frac{3\, \cU_1\, \alpha - 6}{32\, r} + \frac{3\, \cU_1\, \alpha\, \left(2\, r^3\, {\sin^2\theta} + {\sin^2\theta} - 1\right)}{16\, r^4},
+\end{equation}
+\begin{equation}
+\Psi_2 = \pars{\frac{9}{16(\sqrt{\gamma}+1)} - \frac{3}{16} \cU_1 (\cU_1 \alpha + 1)}
+ \left(\frac{1}{r^2} - 1\right) \sin^2\theta \cos\theta.
+\end{equation}
+Note that the quadratic term does not contribute to the total force and staedy-state 
+velocity terms, but it does change the fluid flow, 
+the electric potential and the ionic concentration.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Third-Order (cubic in $\beta$) Solution} \label{app:cubic}
 Note that, due to symmetry considerations, $\cU(\beta)$ is an anti-symmetric function.
 Therefore, $\cU_2 = 0$ and the next velocity term is the cubic one:
@@ -948,6 +969,56 @@ velocity terms, but it does change the fluid flow,
 the electric potential and the ionic concentration.
 The cubic terms $\bx_3$ are computed by solving a linear PDE system 
 with a right-hand side determined by the linear terms $\bx_1$ and the quadratic terms $\bx_2$.
+
+\begin{align}
+\varPhi_3 &= \frac{15\cU_1\alpha + 6 }{64}\cos\theta  - \frac{3 \cU_1\alpha}{32} {\cos}^3\theta
+ + \frac{183 {\cU_1}^2\alpha^2 - 839 \cU_1\alpha - 470}{2560 r^2} \cos\theta 
+\\ \nonumber &
++ \frac{3 \cos\theta \left(5 \cU_1\alpha - 6 {\cos^2\theta} - 4 \cU_1\alpha {\cos^2\theta} + 4\right)}{64 r^3} + \frac{\left(2 \cU_1\alpha - 1\right) \left(\cos\theta - 3 {\cos}^3\theta\right)}{64 r^5} 
++ {{\cos}^3\theta \left(\frac{15 \cU_1\alpha}{64} + \frac{3}{32}\right)}{r^{-2}} 
+\\ \nonumber &
+- \left(3 \cos\theta - 5 {\cos}^3\theta\right) \left( - \frac{19 {\cU_1}^2\alpha^2}{5120} + \frac{97 \cU_1\alpha}{5120} + \frac{3 \cU_2\alpha}{320} + \frac{21}{1280}\right){r^{-4}} 
+% \\ \nonumber &
++ {{\cos}^3\theta \left(\frac{\cU_1\alpha}{64} + \frac{3}{64}\right)}{r^{-6}},
+\end{align}
+\begin{align}
+C_3 &=
+\frac{3 {{\cU_1}}^2\alpha^2 {\cos^3\theta}}{32} + \frac{\cos\theta \left(797 {{\cU_1}}^2\alpha^2 + 419 {\cU_1}\alpha - 512 {\cU_2}\alpha + 174\right)}{2560 r^2} 
+- \frac{3 {\cU_1}\alpha \cos\theta \left(5 {\cU_1}\alpha + 2\right)}{64} 
+\\ \nonumber &
+- {\left(3 \cos\theta - 5 {\cos^3\theta}\right) \left(\frac{59 {{\cU_1}}^2\alpha^2}{5120} + \frac{103 {\cU_1}\alpha}{5120} + \frac{69 {\cU_2}\alpha}{320} + \frac{3}{1280}\right)}{r^{-4}} 
++ \frac{\alpha \left(\cos\theta - 3 {\cos^3\theta}\right) \left(5\alpha {{\cU_1}}^2 + 2 {\cU_1} + 16 {\cU_2}\right)}{128 r^5} 
+\\ \nonumber &
+- \frac{3\alpha \cos\theta \left( - 8\alpha {{\cU_1}}^2 {\cos^2\theta} + 7\alpha {{\cU_1}}^2 + 2 {\cU_1} + 32 {\cU_2} {\cos^2\theta} - 32 {\cU_2}\right)}{128 r^3} 
+%\\ \nonumber &
++ \frac{{{\cU_1}}^2\alpha^2 {\cos^3\theta}}{32 r^6} - \frac{3 {\cU_1}\alpha {\cos^3\theta} \left(5 {\cU_1}\alpha + 2\right)}{64 r^2},
+\end{align}
+\begin{align}
+\Psi_3 &=
+r^2 {\sin^2\theta} \left(\frac{{\cW_2}}{15} - \frac{{\cW_1}}{3} + \frac{209}{3360}\right) 
+ - {{\sin^2\theta} \left(\frac{5 {\cW_2}}{3} - \frac{{\cW_1}}{3} + \frac{35}{264}\right)}{r^{-1}}
++ \frac{{\sin^4\theta} \left(2 {\cW_2} + \frac{761}{5632}\right)}{r} 
+\\ \nonumber & 
+- \frac{{\sin^2\theta} \left(1848 r^6 {\sin^2\theta} - 2079 r^3 {\sin^2\theta} + 924 r^3 - 7 {\sin^2\theta} + 10\right)}{19712 r^5} 
+%\\ \nonumber & 
+\frac{4 {\sin^2\theta} - 5 {\sin^4\theta}}{r^3} + \left(\frac{{\cU_1}\alpha}{16} - \frac{1}{8}\right) \frac{2 r^3 - 3 r^2 + 1}{4 r} {\sin^2\theta},
+\end{align}
+\begin{align}
+\cW_1 &= \frac{69}{512 \left(\sqrt{\gamma} + 1\right)} - \frac{1407\alpha^2 {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^3}{1280} - \frac{123 \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{1280} - \frac{27}{512 {\left(\sqrt{\gamma} + 1\right)}^2} 
+-\frac{1899\alpha {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^2}{2560} 
+\\ \nonumber & 
+- \frac{\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) \left(\frac{81}{16 \left(\sqrt{\gamma} + 1\right)} - \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) \left(\frac{27\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{4} + \frac{27}{8}\right)\right)}{320} 
++ \frac{21\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{128 \left(\sqrt{\gamma} + 1\right)},
+\end{align}
+\begin{align}
+\cW_2 &= \frac{9 \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{256} 
++ \frac{21\alpha^2 {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^3 + 
+15\alpha {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^2}{64} 
+- \frac{27}{512 {\left(\sqrt{\gamma} + 1\right)}^2}
+%\\ \nonumber &
+- \frac{297\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) + 54}{1024 \left(\sqrt{\gamma} + 1\right)}.
+\end{align}
+
 The cubic solution satisfies the ${r\rightarrow\infty}$ boundary conditions, 
 when $\alpha\cU_1 = 0$.
 
