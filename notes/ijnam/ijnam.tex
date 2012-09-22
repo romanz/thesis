@@ -839,7 +839,7 @@ Given $N$ operators $\{\cO_i\}_{i=1}^N$, their concatenation $\cO$ is defined as
 (\bnabla\cO)(\bx) = [(\bnabla\cO_1)(\bx); \ldots; (\bnabla\cO_N)(\bx)].
 \end{array}\end{equation}
 
-\subsubsection{Singularity Handling} \label{sec:singular}
+\subsubsection{Handling the Singularity} \label{sec:singular}
 The electric potential $\varPhi$ (in electrophoresis case) and the pressure $P$ (in both cases) 
 are defined up to an additive constant, since the system equations and the boundary conditions
 contain only their derivatives.
@@ -910,20 +910,19 @@ C_0(r,\theta) = 1, &
 P_0(r,\theta) = 0.
 \end{array}\end{equation}
 
-Assuming $\beta \ll 1$, the linearized equations and boundary conditions are:
+Assuming $\beta \ll 1$, the linearized equations and boundary conditions are
 \begin{equation} \begin{array}{ccc}
 \Laplacian \varPhi_1 = 0, &
 \Laplacian C_1 = 0, &
 \bLaplacian \bV_1 - \bnabla P_1 = \bzero.
 \end{array}\end{equation}
 
-The first-order terms $\bx_1$ are given by (see \cite{yariv2010migration} for full derivation):
-\begin{equation} \begin{array}{ccccc}
-\varPhi = \beta \pars{\frac{1}{4r^2} - r}\cos\theta, &
-C = 1 + \beta \frac{3}{4r^2} \cos\theta, &
-\Psi = \beta \cU_1 \pars{\frac{1}{r} - r^2} \frac{\sin^2\theta}{2}, &
-P = 0, &
-\bF = \bzero,
+The first-order terms $\bx_1$ are given by (see \cite{yariv2010migration} for full derivation)
+\begin{equation} \begin{array}{cccc}
+\varPhi_1 = \pars{\frac{1}{4r^2} - r}\cos\theta, &
+C_1 = \frac{3}{4r^2} \cos\theta, &
+\Psi_1 = \cU_1 \pars{\frac{1}{r} - r^2} \frac{\sin^2\theta}{2}, &
+P_1 = 0,
 \end{array} \end{equation}
 and the linear velocity term is:
 \begin{equation} \label{eq:linear_velocity}
@@ -937,7 +936,7 @@ For $\gamma < 1$, we have $\cU > 0$.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Second-Order (quadratic in $\beta$) Solution} \label{app:quadratic}
 The quadratic terms $\bx_2$ are computed by solving a linear PDE system 
-with a right-hand side determined by the linear terms $\bx_1$:
+with a right-hand side determined by the linear terms $\bx_1$, yielding
 \begin{equation}
 \varPhi_2 = \pars{\frac{\cU_1\, \alpha}{32} - \frac{1}{16}}
 \frac{3\, {\cos^2\theta} - 1}{r^3} - \frac{3 + 3\, {\sin^2\theta}\, \left(4\, r^3 - 1\right)}{32\, r^4} - \frac{3\, \cU_1\, \alpha - 6}{32\, r},
@@ -950,7 +949,7 @@ C_2 = \left(\frac{5\, \cU_1\, \alpha}{32} + \frac{1}{16}\right)
 \Psi_2 = \pars{\frac{9}{16(\sqrt{\gamma}+1)} - \frac{3}{16} \cU_1 (\cU_1 \alpha + 1)}
  \left(\frac{1}{r^2} - 1\right) \sin^2\theta \cos\theta.
 \end{equation}
-Note that the quadratic term does not contribute to the total force and staedy-state 
+Note that the quadratic term does not contribute to the total force and steady-state 
 velocity terms, but it does change the fluid flow, 
 the electric potential and the ionic concentration.
 
@@ -961,12 +960,7 @@ Therefore, $\cU_2 = 0$ and the next velocity term is the cubic one:
 \begin{equation} \label{eq:cubic}
 \cU(\beta) \approx \beta \cU_1 + \beta^3 \cU_3 + O(\beta^5).
 \end{equation}
-In order to find the cubic terms, the quadratic terms must be computed first.
-The quadratic terms $\bx_2$ are computed by solving a linear PDE system 
-with a right-hand side determined by the linear terms $\bx_1$.
-Note that the quadratic term does not contribute to the total force and steady-state 
-velocity terms, but it does change the fluid flow, 
-the electric potential and the ionic concentration.
+
 The cubic terms $\bx_3$ are computed by solving a linear PDE system 
 with a right-hand side determined by the linear terms $\bx_1$ and the quadratic terms $\bx_2$.
 
@@ -997,7 +991,7 @@ C_3 &=
 \Psi_3 &=
 r^2 {\sin^2\theta} \left(\frac{{\cW_2}}{15} - \frac{{\cW_1}}{3} + \frac{209}{3360}\right) 
  - {{\sin^2\theta} \left(\frac{5 {\cW_2}}{3} - \frac{{\cW_1}}{3} + \frac{35}{264}\right)}{r^{-1}}
-+ \frac{{\sin^4\theta} \left(2 {\cW_2} + \frac{761}{5632}\right)}{r} 
+ + {{\sin^4\theta} \left(2 {\cW_2} + \frac{761}{5632}\right)}{r^{-1}} 
 \\ \nonumber & 
 - \frac{{\sin^2\theta} \left(1848 r^6 {\sin^2\theta} - 2079 r^3 {\sin^2\theta} + 924 r^3 - 7 {\sin^2\theta} + 10\right)}{19712 r^5} 
 %\\ \nonumber & 
