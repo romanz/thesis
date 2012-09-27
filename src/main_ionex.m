@@ -1,4 +1,8 @@
-function [sol] = main_ionex(init, g, betas)
+function [sol] = main_ionex()
+    init = [];
+    g = grids(1e7, 400+1, 50+1, 1);
+    betas = 1.0;
+    
     if isempty(init)
         init.Phi = zeros(g.Phi.size);
         init.C = ones(g.C.size);
@@ -9,7 +13,7 @@ function [sol] = main_ionex(init, g, betas)
     
     sol = Solution(g, init);
     sol.alpha = 0.0;
-    sol.gamma = 1.0;
+    sol.gamma = 0.1;
     force = total_force(sol, g);
     
     betas = betas(:);
@@ -18,14 +22,14 @@ function [sol] = main_ionex(init, g, betas)
     for k = 1:numel(betas)
         fprintf('==================================================================\n')
         sol.beta = betas(k);
-        Vinf = sol.beta * 2*log((1+1/sqrt(sol.gamma))/2);
+        Vinf = sol.beta * 2*log(0.5*(1+1/sqrt(sol.gamma)));
         [iter, v] = secant(Vinf * [0.9, 1.1]);
         iters = 5;
         f = zeros(iters, 1);
         sol.res = {};
         for i = 1:iters
             sol.Vinf = v(i);
-            [sol, sol.res{i}] = solver(sol, 3);
+            [sol, sol.res{i}] = solver(sol, 10);
             f(i) = force();
             v(i+1) = iter(f(i));
             fprintf('------------------------------------------------------------------\n')
@@ -195,7 +199,7 @@ function [op] = boundary_conditions(sol)
     phi1 = Interp(g1, sol.Phi); % Phi at R=1
     logc1 = log(Interp(g1, sol.C)); % log(C) at R=1
     D  = @(f) Deriv(g, f, 2); % Dphi/Dtheta at R=1 on Vt grid.
-    Vs = 4*log(0.5*(1+exp(zeta*0.5))) * D(phi1); 
+    Vs = zeta * D(phi1) - 4*log(cosh(zeta*0.25)) * D(logc1); 
     
     bnd{end+1} = Interp(g, sol.Vt) - Vs; % Vt @ R=1
     bnd{end+1} = Boundary(sol.Vr, -1, 1); % Vr @ R=1

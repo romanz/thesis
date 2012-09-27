@@ -1,7 +1,7 @@
 function load_results(s)
 
 p = sprintf('%s/', s);
-D = dir([p '*x*.mat']);
+D = dir([p '*.mat']);
 
 if isempty(D)
     fprintf('No MAT files found.\n')
@@ -31,5 +31,5 @@ end
 Vn = cellfun(@(r) r.v, R);
 b = b(:);
 n = n(:);
-Vr = Vn(:, end-1:end) * [-1; 4]/3;
+Vr = []; % Vn(:, end-1:end) * [-1; 4]/3;
 save([p 'data.mat'], 'Vn', 'b', 'n', 'Vr')
