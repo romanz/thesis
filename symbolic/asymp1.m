@@ -1,46 +1,37 @@
-function asymp
+function asymp1
 
     syms pi b r t a g U1 U2 U3 real
-    syms U3a U3b real
-
     a = 0;
     order = 3;
         
     bnd = @(f) subs(f, r, 1);
-    cond = @(phi, c) bnd([phi + log(c); c*diff(phi, r) - diff(c, r)]);
+    cond = @(phi, c) bnd([phi - log(c); diff(phi + log(c), r)]);
 
     %% O(beta) : Homogeneous equations
     % Boundary conditions (by spherical harmonics)
-    phi1 = (1/4 * r^(-2) - r) * cos(t);
-    c1 = 3/4 * r^(-2) * cos(t);
+    phi1 = 1 - (1/2) * r^(-1);
+    c1 = (1/2) * r^(-1);
     
     %% O(beta^2) : Homogeneous equations
-    % Non-homogeneous solution (Phi & C)
-    phi2 = (3/32*r^-4  - 3/8*r^-1)*sin(t)^2 - 3/32*r^-4;
     % Boundary conditions (by spherical harmonics)
-    phi2 = phi2 + 3*(1/16)/r + (-1/16)*(3*cos(t)^2 - 1)/r^3;
-    c2 = 3*(1/16)/r + (1/16)*(3*cos(t)^2 - 1)/r^3;
+    a1 = 1/16; a3 = 3/16;
+%     syms a1 a2 a3 a4 real
+    phi2 = a1/r;% + a2*(3*cos(t)^2 - 1)/r^3;
+    c2 = a3/r;% + a4*(3*cos(t)^2 - 1)/r^3;
 
     %% O(beta^3)
-    % Non-homogeneous solution (Phi & C)
-    phi3 = (6)/64*cos(t) ...
-         + (6)/64*cos(t)^3/r^2 ...
-         + ((12)/64*cos(t) - (27)/96*cos(t)^3)/r^3 ...
-         + ((-1)/64*cos(t) + (3)/64*cos(t)^3)/r^5 ...
-         + (27)/576*cos(t)^3/r^6;
     % Boundary conditions (by spherical harmonics)
-    phi3 = phi3 + ...
-        (- 47/256) * cos(t)/r^2 + ...
-        (21/1280) * (5*cos(t)^3 - 3*cos(t))/r^4;
-    c3 = (87/1280) * cos(t)/r^2 + ...
-         (3/1280) * (5*cos(t)^3 - 3*cos(t))/r^4;
+    a1 = 1/192; a3 = 11/192; 
+%     syms a1 a2 a3 a4 real
+    phi3 = a1/r; % * cos(t)/r^2 + a2 * (5*cos(t)^3 - 3*cos(t))/r^4;
+    c3 = a3/r; % * cos(t)/r^2 + a4 * (5*cos(t)^3 - 3*cos(t))/r^4;
     
     %% Variables
     phi = b * phi1 + b^2 * phi2 + b^3 * phi3;
     c = 1 + b * c1 + b^2 * c2 + b^3 * c3;
     
     %% Equations
-    eq1 = divergence(c * grad(phi));
+    eq1 = divergence(grad(phi));
     assert_zero( series(eq1, b, 0, order), 'ion flux' )
     
     eq2 = scalar_laplacian(c);
@@ -49,7 +40,7 @@ function asymp
     eq4 = series( cond(phi, c), b, 0, order );
     assert_zero(eq4, 'coupled boundary condition on R=1 for C and Phi' )
     
-    assert_zero(limit(grad(phi), r, inf) - b*[-cos(t);sin(t)], 'boundary R=Inf for Phi' )
+    assert_zero(limit(phi, r, inf) - b, 'boundary R=Inf for Phi' )
     
     if a == 0
         assert_zero(limit(c, r, inf) - 1, 'boundary R=Inf for C' ) 
