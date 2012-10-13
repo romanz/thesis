@@ -120,7 +120,7 @@
 
 \maketitle
 
-\abstract{
+\begin{abstract}
 A numerical framework for the simulation of electrokinetic 
 migration of particles in an electrolyte solution 
 due to the application of an external electric field is presented.
@@ -138,7 +138,12 @@ An asymptotic analytical solution is
 derived for the validation of the solver. 
 Numerical results are obtained for an ion-exchanger and 
 for a surface charged inert particle. The numerical results 
-are compared to the asymptotic solutions, and good correspondence is achieved.}
+are compared to the asymptotic solutions, and good correspondence is achieved.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
 
 \section{Introduction} \label{sec:intro}
 
@@ -392,7 +397,7 @@ The macroscale Stokes flow equations have the same form as before \eqref{eq:stok
 \subsection{Bulk-scale effective boundary conditions}
 By integrating the equations across the Debye layer,
 the effective boundary conditions at the particle surface are:
-\subsubsection{Ion-exchanger} See \cite{yariv2010migration} for full derivation:
+\subsubsection{Ion-exchanger} See Appendix \ref{append:slip} for full derivation:
 \begin{equation}
 \begin{array}{ccc}
 \label{eq:ionex_bnd}
@@ -451,41 +456,42 @@ which we solve by the standard secant method.
 Because the system is axisymmetric, we employ
 spherical coordinates $(r,\theta,\phi)$.
 The scalar gradient and the divergence can be written as:
-\begin{eqnarray}
+\begin{align}
 \bnabla f = \deriv{f}{r}\brhat + \frac{1}{r}\deriv{f}{\theta}\bthetahat, &
 \bnabla \cdot \bF = \frac{1}{r^2}\deriv{}{r}\pars{F_r r^2 } + 
                \frac{1}{r \sin\theta}\deriv{}{\theta}\pars{F_\theta \sin\theta}.
-\end{eqnarray}
+\end{align}
 The scalar Laplacian can be written as:
-\begin{eqnarray}
+\begin{align}
 \Laplacian f = \bnabla \cdot (\bnabla f) = 
  \frac{1}{r^2}\deriv{}{r}\pars{r^2 \deriv{f}{r}} + 
  \frac{1}{r^2 \sin\theta}\deriv{}{\theta}\pars{\sin\theta \deriv{f}{\theta}}.
-\end{eqnarray}
+\end{align}
 The vector gradient and vector Laplacian can be written as:
-\begin{eqnarray}
-\bnabla \bF &=& \deriv{F_r}{r} \brhat \brhat + \deriv{F_\theta}{r} \brhat \bthetahat + 
+\begin{align}
+\bnabla \bF &= \deriv{F_r}{r} \brhat \brhat + \deriv{F_\theta}{r} \brhat \bthetahat + 
 \frac{1}{r}\pars{\deriv{F_r}{\theta} - F_\theta} \bthetahat \brhat + 
 \frac{1}{r}\pars{\deriv{F_\theta}{\theta} + F_r} \bthetahat \bthetahat, \\
-\bLaplacian \bF &=& 
+\bLaplacian \bF &= 
 \left(\Laplacian F_r - \frac{2F_r}{r^2} - 
 \frac{2}{r^2 \sin\theta} \deriv{\left(F_\theta \sin\theta \right)}{\theta}\right)\brhat
 + \left(\Laplacian F_\theta - \frac{F_\theta}{r^2 \sin^2\theta} + 
 \frac{2}{r^2}\deriv{F_r}{\theta}\right) \bthetahat.
-\end{eqnarray}
+\end{align}
 
 Note that in the spherical coordinate system,
 the vector Laplacian operator cannot be computed in a decoupled manner as in the Cartesian system,
 since the unit vectors $\brhat, \bthetahat, \bphihat$ are functions of the coordinates
-in a curvilinear coordinate system.
+in a curvilinear coordinate system. 
+See Appendix \ref{append:spherical} for the full derivation of the identities above.
 
 \subsection{Computational Grid}
 A regular grid of size $n_r \times n_\theta$ is defined, with:
-\begin{eqnarray} \label{eq:grid}
+\begin{align} \label{eq:grid}
 (r_i,\theta_j) \in [1, \infty) \times [0,\pi], & 
 r_i = (1+\Delta_r)^i, &
  \theta_j = \Delta_\theta \cdot j,
-\end{eqnarray}
+\end{align}
 where a logarithmic grid spacing has been chosen for $r$ and a uniform grid for $\theta$.
 Note that $r_0 = 1$ and $R_{max} = (1+\Delta_r)^{n_r}$, where
 $\Delta_r = \pars{R_{max}} ^ {1/n_r} - 1$ and $\Delta_\theta = {\pi/n_\theta}$.
@@ -495,11 +501,11 @@ on the solution.
 This grid induces a disjoint subdivision of the domain 
 $\Omega = [1, R_{max}] \times [0,\pi] = \bigcup_{ij}\Omega_{ij}$ into cells.
 A specific cell $\Omega_{ij}$ and its center $(\bar{r}_i, \bar{\theta}_j)$ are defined by \eqref{eq:grid}:
-\begin{eqnarray}
+\begin{align}
 \Omega_{ij} = [r_{i-1}, r_{i}] \times [\theta_{j-1}, \theta_{j}], &
 \bar{r}_i = (r_{i-1} + r_{i})/2, &
 \bar{\theta}_j = (\theta_{j-1} + \theta_{j})/2.
-\end{eqnarray}
+\end{align}
 
 Each discrete variable is located with respect of its cell as follows:
 $\varPhi$, $C$ and $P$ are represented by their value at the center of each cell, 
@@ -518,17 +524,17 @@ V_\theta^h{}_{[i,j]} = V_\theta(\bar{r}_i, {\theta}_j).
 \subsection{Operator Discretization} 
 A finite-volume method with linear interpolation is used for flux discretization. 
 Define the following discrete central difference operators:
-\begin{eqnarray} \label{eq:disc_diff}
+\begin{align} \label{eq:disc_diff}
 \cD_r(f^h){}_{\left[i+\half,j\right]} = \frac{f^h_{\left[i+1,j\right]} - f^h_{\left[i,j\right]}}
                        {r_{\left[i+1,j\right]} - r_{\left[i,j\right]}}, &
 \cD_\theta(f^h){}_{\left[i,j+\half\right]} = \frac{f^h_{\left[i,j+1\right]} - f^h_{\left[i,j\right]}}
 					   {\theta_{\left[i,j+1\right]} - \theta_{\left[i,j\right]}}.
-\end{eqnarray}
+\end{align}
 
 Define the following linear interpolation operators:
-\begin{eqnarray} \label{eq:disc_interp}
+\begin{align} \label{eq:disc_interp}
 \begin{array}{rcl}
-\cI_r(f^h)_{\left[i+\half,j\right]} &=& 
+\cI_r(f^h)_{\left[i+\half,j\right]} &= 
 \frac{r_{\left[i+\half,j\right]} - r_{\left[i,j\right]}}
 {r_{\left[i+1,j\right]} - r_{\left[i,j\right]}} 
 f^h_{\left[i+1,j\right]} 
@@ -537,7 +543,7 @@ f^h_{\left[i+1,j\right]}
 {r_{\left[i+1,j\right]} - r_{\left[i,j\right]}}
 f^h_{\left[i,j\right]},
 \\
-\cI_\theta(f^h)_{\left[i,j+\half\right]} &=& 
+\cI_\theta(f^h)_{\left[i,j+\half\right]} &= 
 \frac{r_{\left[i,j+\half\right]} - r_{\left[i,j\right]}}
 {r_{\left[i,j+1\right]} - r_{\left[i,j\right]}}
   f^h_{\left[i,j+1\right]} + 
@@ -545,22 +551,22 @@ f^h_{\left[i,j\right]},
 {r_{\left[i,j+1\right]} - r_{\left[i,j\right]}}
   f^h_{\left[i,j\right]}.
 \end{array}
-\end{eqnarray}
+\end{align}
 
 If the total flux of a cell is equal to zero ($\bnabla \cdot \boldsymbol{f} = 0$), 
 then using \eqref{eq:disc_diff}, we have
-\begin{eqnarray}
+\begin{align}
 \frac{1}{r^2} \cD_r\pars{f^h_r r^2} + 
 \frac{1}{r \sin\theta} \cD_\theta\pars{f^h_\theta \sin\theta} =
 \frac{\cD_r\pars{f^h_r \cdot r^2 \sin\theta} + 
 \cD_\theta\pars{f^h_\theta \cdot r \sin\theta}}{r^2 \sin\theta} = 0. 
-\end{eqnarray}
+\end{align}
 
 \subsection{System Equations} \label{sec:disc_equations}
 Charge and salt fluxes \eqref{eq:bulk_flux} are discretized on grid cell boundaries 
 (using an upwind scheme $\mathcal{U}$ for numerical stability at large cell Peclet number)  
 using \eqref{eq:disc_diff} and \eqref{eq:disc_interp}:
-\begin{eqnarray} \nonumber
+\begin{align} \nonumber
 I^h_r = -\cI_r(C^h) \cdot \cD_r(\varPhi^h), &
 I^h_\theta = -\cI_\theta(C^h) \cdot \frac{\cD_\theta(\varPhi^h)}{r}, \\
 J^h_r = -\cD_r(C^h) + \alpha V^h_r \cdot \mathcal{U}^{\bV^h}_r (C^h), &
@@ -568,7 +574,7 @@ J^h_\theta = -\frac{\cD_\theta(C^h)}{r} + \alpha V^h_\theta \cdot \mathcal{U}^{\
 \\ \nonumber
  \mathcal{U}^{\bV^h}_r(C^h)[i,j] = C^h\left[i-\frac{\sign(V^h_r)}{2}, j\right], &
  \mathcal{U}^{\bV^h}_\theta(C^h)[i,j] = C^h\left[i, j-\frac{\sign(V^h_\theta)}{2}\right]. 
-\end{eqnarray}
+\end{align}
 
 Mass flux $\bV$ is discretized on grid cells boundaries, 
 using the staggered velocity grid.
@@ -576,20 +582,20 @@ using the staggered velocity grid.
 Force components ($\bF = -\bnabla P + \bLaplacian \bV + \bnabla \varPhi \Laplacian \varPhi$) 
 are discretized on the staggered velocity grid, where
 linear interpolation is used for the Coulomb force and for vector Laplacian components.
-\begin{eqnarray}
+\begin{align}
 \nonumber
-F^h_r &=& -\cD_r(P^h) 
+F^h_r &= -\cD_r(P^h) 
           + \cL(V^h_r) - \frac{2}{r^2} V^h_r 
 		  - \frac{2}{r^2 \sin\theta} \cI_r(\cD_\theta (V^h_\theta \sin\theta))
           + \cD_r(\varPhi^h) \cdot \cI_r(\cL(\varPhi^h)), \\
-F^h_\theta &=& -\frac{\cD_\theta(P^h)}{r} 
+F^h_\theta &= -\frac{\cD_\theta(P^h)}{r} 
 		  + \cL(V^h_\theta) - \frac{F^h_\theta}{r^2 \sin^2\theta} 
 		  + \frac{2}{r^2} \cI_\theta(\cD_\theta(F^h_r))
 		  + \frac{\cD_\theta(\varPhi^h)}{r} \cdot \cI_\theta(\cL(\varPhi^h)), \\
 \nonumber
-\cL(f^h) &=& \frac{1}{r^2}\cD_r\pars{\cD_r(f^h) r^2} + 
+\cL(f^h) &= \frac{1}{r^2}\cD_r\pars{\cD_r(f^h) r^2} + 
 \frac{1}{r^2 \sin\theta} \cD_\theta\pars{\cD_\theta(f^h) \cdot \sin\theta}.
-\end{eqnarray}
+\end{align}
 
 
 \subsection{Boundary Conditions} \label{sec:disc_boundary}
@@ -629,12 +635,12 @@ depend on the chemical properties of particle surface.
 are implemented by:
 \begin{equation}
 \begin{array}{rcl}
-0 &=& \cI_r(\varPhi^h + \log C^h), \\
-0 &=& \cD_r(\varPhi^h - \log C^h), \\
-V^h_r &=& 0, \\
-V^h_\theta &=& 4\log\pars{\frac{1}{2}\pars{1 + \exp\left\{\cI_\theta(\zeta^h)/2\right\}}} \cdot 
+0 &= \cI_r(\varPhi^h + \log C^h), \\
+0 &= \cD_r(\varPhi^h - \log C^h), \\
+V^h_r &= 0, \\
+V^h_\theta &= 4\log\pars{\frac{1}{2}\pars{1 + \exp\left\{\cI_\theta(\zeta^h)/2\right\}}} \cdot 
 			\cD_\theta(\zeta^h), \\
-  \zeta^h &=& - \log \gamma - \cI_r(\varPhi^h).
+  \zeta^h &= - \log \gamma - \cI_r(\varPhi^h).
 \end{array}
 \end{equation}
 
@@ -642,13 +648,13 @@ V^h_\theta &=& 4\log\pars{\frac{1}{2}\pars{1 + \exp\left\{\cI_\theta(\zeta^h)/2\
 are implemented by:
 \begin{equation}
 \begin{array}{rcl}
-0 &=& \cD_r(C^h) - \text{Du} \cdot 
+0 &= \cD_r(C^h) - \text{Du} \cdot 
 \pars{\cD_\theta \pars{\sin\theta \cdot \cD_\theta \cI_r\pars{\varPhi^h - \log C}}}/{\sin\theta}, \\
-0 &=& \cD_r(C^h) + \cI_r(C^h) \cD_r(\varPhi^h), \\
-V^h_r &=& 0, \\
-V^h_\theta &=& \cI_\theta(\zeta^h) \cdot \cD_\theta(\cI_r \varPhi^h - \log \cI_r C^h) + 
+0 &= \cD_r(C^h) + \cI_r(C^h) \cD_r(\varPhi^h), \\
+V^h_r &= 0, \\
+V^h_\theta &= \cI_\theta(\zeta^h) \cdot \cD_\theta(\cI_r \varPhi^h - \log \cI_r C^h) + 
 4 \log 2 \cdot \cD_\theta(\log \cI_r C^h), \\
-  \zeta^h &=& \bar{\zeta} - \log \cI_r C.
+  \zeta^h &= \bar{\zeta} - \log \cI_r C.
 \end{array}
 \end{equation}
 
@@ -693,17 +699,17 @@ can be computed by integrating $\tT \cdot \bn$ over the particle surface.
 
 Due to symmetry considerations, the total force $\bF$ is 
 aligned with $\ui$ and it vanishes iff $\ui \cdot \bF = 0$.
-\begin{eqnarray} \nonumber
-F_\imath = \ui \cdot \bF &=& 
+\begin{align} \nonumber
+F_\imath = \ui \cdot \bF &= 
 \oint_\mathcal{S} \pars{\ui \cdot \tT \cdot \bnhat} dA = 
 \int_0^\pi f_\imath(\theta) 2\pi \sin\theta d\theta ,
 \\  
-f_\imath = \ui \cdot \tT \cdot \brhat &=& \pars{-P + 2\cD_r(V_r) + 
+f_\imath = \ui \cdot \tT \cdot \brhat &= \pars{-P + 2\cD_r(V_r) + 
 \frac{1}{2}\pars{\cD_r(\varPhi)}^2 - \frac{1}{2r^2}\pars{\cD_\theta(\varPhi)}^2}\cos\theta 
 \\  \nonumber
 && -\pars{\cD_r(V_\theta) - \frac{V_\theta}{r}
 + \frac{1}{r}\cD_r(\varPhi) \cD_{\theta}(\varPhi)}\sin\theta.
-\end{eqnarray}
+\end{align}
 
 The integral above is approximated by 1D numerical quadrature
 (using the mid-point rule)
@@ -1153,202 +1159,250 @@ for the helpful discussions and valuable advice.
 \appendix
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Slip Condition} \label{append:slip}
+\section{Ion-exchanger effective boundary conditions } \label{append:slip}
+
+\subsection{Debye layer scaling}
+
+We define the scaled coordinate $\rho$ (normal to ion-exchanger surface), where $\delta \ll 1$:
+\begin{align}
+  \rho = \frac{r-1}{\delta}. 
+\end{align}
+Thus, the electric potential and the ionic concentrations are $O(1)$ at the Debye layer ($r \approx 1$):
+\begin{align}
+  \varphi(\rho,\theta) &\sim \varphi, \\
+  c_\pm(\rho,\theta) &\sim c_\pm, \\
+  c(\rho,\theta) &\sim c, \\
+  q(\rho,\theta) &\sim q.
+\end{align}
+
+The radial fluxes at the Debye layer are $O(\delta^{-1})$, due to coordinate rescaling:
+\begin{align}
+  j_\pm(\rho, \theta) &\sim \delta^{-1} j_\pm.
+\end{align}
+
+The pressure is $O(\delta^{-2})$, due to momentum balance equations:
+\begin{align}
+  p(\rho, \theta) &\sim \delta^{-2} p.
+\end{align}
+
+The tangential velocity component is $O(1)$ and the radial component is $O(\delta)$.
+
+\subsection{Ion Fluxes}
+
+In order to match bulk $O(1)$ outer radial ionic flux, 
+the $O(\delta^{-1})$ term of the inner ionic radial flux, $j_\pm(\rho, \theta)$ must vanish:
+\begin{align}
+ \nonumber
+  -\deriv{c_\pm}{\rho} \mp c_\pm \deriv{\varphi}{\rho} &= 0, \\
+  \pars{\varPhi - \varphi} \pm\pars{\log C_\pm - \log c_\pm} &= 0, \\
+ \nonumber
+  \varPhi - \varphi \pm \log \frac{C_\pm}{c_\pm} &= 0.
+\end{align}
+This relation can be rewritten as a Boltzmann distribution of $c_\pm$,
+where $\lim_{\rho\rightarrow\infty} c_\pm = C$,
+\begin{equation}
+c_\pm = C \exp\left[\pm(\varPhi - \varphi)\right].
+\end{equation}
 
 \subsection{Electric Potential}
-The leading-order electric potential in the Debye layer:
-\begin{eqnarray}  
+The leading-order Laplace equation in the Debye layer reads
+\begin{align}  
 \deriv{^2 \varphi}{\rho^2} = -q = -\frac{c_+ - c_-}{2} = 
--C\frac{\exp\left[+(\varPhi - \varphi)\right] - \exp\left[-(\varPhi - \varphi)\right]}{2} = 
-C \sinh(\varphi - \varPhi).
-\end{eqnarray}
+-\frac{C}{2} \pars{\exp\left[+(\varPhi - \varphi)\right] - \exp\left[-(\varPhi - \varphi)\right]} = C \sinh(\varphi - \varPhi).
+\end{align}
 Denote $\psi = \varphi - \varPhi$, so that $\psi(0) = \cV - \varPhi = \zeta$ and 
 $\psi(\rho\rightarrow\infty) = 0$:
-\begin{eqnarray}  
-\deriv{^2 \psi}{\rho^2} &=& C \sinh(\psi) = 2 C \sinh{\frac{\psi}{2}}\cosh{\frac{\psi}{2}} ,
+\begin{align}
+\nonumber
+\deriv{^2 \psi}{\rho^2} &= C \sinh(\psi) = 2 C \sinh{\frac{\psi}{2}}\cosh{\frac{\psi}{2}} ,
 \\
-2\deriv{\psi}{\rho} \deriv{^2 \psi}{\rho^2} &=& 
+2\deriv{\psi}{\rho} \deriv{^2 \psi}{\rho^2} &= 
 4 C \sinh{\frac{\psi}{2}}\cosh{\frac{\psi}{2}} \deriv{\psi}{\rho} ,
-\\
-\deriv{}{\rho} \pars{\deriv{\psi}{\rho}}^2 &=& 
+\\ \nonumber
+\deriv{}{\rho} \pars{\deriv{\psi}{\rho}}^2 &= 
 \deriv{}{\rho} \pars{2 \sqrt{C} \sinh{\frac{\psi}{2}}}^2 .
-\end{eqnarray}
+\end{align}  
 
 Integrating with respect to boundary condtions yields:
-\begin{eqnarray}  
-\deriv{\psi}{\rho} &=& -2\sqrt{C}\sinh\frac{\psi}{2}, \\  
-\pars{4\sinh\frac{\psi}{4}\cosh\frac{\psi}{4}}^{-1}\deriv{\psi}{\rho} &=& -\sqrt{C}, \\  
-\frac{\pars{\tanh\frac{\psi}{4}}^{-1}}{4\cosh^2\frac{\psi}{4}}
-\deriv{\psi}{\rho} &=& -\sqrt{C}, \\  
-\deriv{}{\rho}\pars{\log\tanh\frac{\psi}{4}} &=& \deriv{}{\rho}\pars{-\rho \sqrt{C}} .
-\end{eqnarray}
+\begin{align}  
+\nonumber
+\deriv{\psi}{\rho} = -2\sqrt{C}\sinh\frac{\psi}{2} &= 
+-4\sinh\frac{\psi}{4}\cosh\frac{\psi}{4} \sqrt{C} = 
+-4\tanh\frac{\psi}{4}\cosh^2\frac{\psi}{4} \sqrt{C}, \\  
+\frac{1/{\tanh\frac{\psi}{4}}}{4\cosh^2\frac{\psi}{4}}
+\deriv{\psi}{\rho}
+&= -\sqrt{C}, \\  
+\nonumber
+\deriv{}{\rho}\pars{\log\tanh\frac{\psi}{4}} &= \deriv{}{\rho}\pars{-\rho \sqrt{C}} .
+\end{align}
 
 Integrating with respect to boundary condtions yields:
-\begin{eqnarray}
-\log\tanh\frac{\psi}{4} - \log\tanh\frac{\zeta}{4} &=& -\rho \sqrt{C}, \\
-\psi = \varphi - \varPhi &=& 
-4 \tanh^{-1}\pars{\tanh{\frac{\zeta}{4}} \cdot \exp\pars{-\rho \sqrt{C}}}.
-\end{eqnarray}
+\begin{align}
+\log\tanh\frac{\psi}{4} - \log\tanh\frac{\zeta}{4} &= -\rho \sqrt{C}, \\
+\psi = \varphi - \varPhi &= 
+4 \tanh^{-1}\pars{\tanh{\frac{\zeta}{4}} \cdot e^{-\rho \sqrt{C}}}.
+\end{align}
 
 \subsection{Radial Momentum}
 Leading-order $O(\delta^{-3})$ radial momentum balance in the Debye layer yields:
-\begin{eqnarray} 
-- \deriv{p}{\rho} + \deriv{\varphi}{\rho} \deriv{^2\varphi}{\rho^2} &=& 0.
-\end{eqnarray}
+\begin{align} 
+- \deriv{p}{\rho} + \deriv{\varphi}{\rho} \deriv{^2\varphi}{\rho^2} &= 0.
+\end{align}
 One integration yields:
-\begin{eqnarray} 
-p &=& \frac{1}{2}\pars{\deriv{\varphi}{\rho}}^2 = \frac{1}{2}\pars{\deriv{\psi}{\rho}}^2.
-\end{eqnarray}
+\begin{align} 
+p &= \frac{1}{2}\pars{\deriv{\varphi}{\rho}}^2 = \frac{1}{2}\pars{\deriv{\psi}{\rho}}^2.
+\end{align}
 
 \subsection{Tangential Momentum}
 Leading-order $O(\delta^{-2})$ tangential momentum balance in the Debye layer yields:
-\begin{eqnarray} 
-0 &=& \deriv{^2 v_\theta}{\rho^2} - \deriv{p}{\theta} 
+\begin{align} 
+\nonumber
+0 &= \deriv{^2 v_\theta}{\rho^2} - \deriv{p}{\theta} 
  + \deriv{\varphi}{\theta} \deriv{^2\varphi}{\rho^2} ,
-\\
-\deriv{^2 v_\theta}{\rho^2} &=& \frac{1}{2}\deriv{}{\theta}\pars{\deriv{\psi}{\rho}}^2
+\\ \nonumber
+\deriv{^2 v_\theta}{\rho^2} &= \frac{1}{2}\deriv{}{\theta}\pars{\deriv{\psi}{\rho}}^2
 - \deriv{(\psi + \varPhi)}{\theta} \deriv{^2\psi}{\rho^2}  
-\\
- &=& \deriv{}{\theta}\pars{2C \sinh^2\frac{\psi}{2}}
+ = \deriv{}{\theta}\pars{2C \sinh^2\frac{\psi}{2}}
 - \deriv{\psi}{\theta} C \sinh\psi
 - \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
 \\
- &=& \deriv{}{\theta}\pars{C \pars{\cosh\psi - 1}}
+ &= \deriv{}{\theta}\pars{C \pars{\cosh\psi - 1}}
 - C \sinh\psi \deriv{\psi}{\theta}
 - \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
-\\
- &=& \deriv{C}{\theta} \pars{\cosh\psi - 1}
+\\ \nonumber
+ &= \deriv{C}{\theta} \pars{\cosh\psi - 1}
 - \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
  = \deriv{C}{\theta} \pars{2 \sinh^2 \frac{\psi}{2}}
 - \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
-\\
- &=& -\deriv{C}{\theta} \frac{2}{\sqrt{C}} \pars{\half \sinh \frac{\psi}{2} \deriv{\psi}{\rho}}
+\\ \nonumber
+ &= -\deriv{C}{\theta} \frac{2}{\sqrt{C}} \pars{\half \sinh \frac{\psi}{2} \deriv{\psi}{\rho}}
 - \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  
  = -\deriv{C}{\theta} \frac{2}{\sqrt{C}} \deriv{}{\rho}\pars{\cosh \frac{\psi}{2}}
 - \deriv{\varPhi}{\theta} \deriv{^2\psi}{\rho^2}  .
-\end{eqnarray}
+\end{align}
 By integrating from specific $\rho$ to $\rho \rightarrow \infty$ (where $\psi = 0$):
-\begin{eqnarray}
-\deriv{v_\theta}{\rho} &=& -\deriv{C}{\theta} \frac{2}{\sqrt{C}} 
+\begin{align}
+\deriv{v_\theta}{\rho} &= -\deriv{C}{\theta} \frac{2}{\sqrt{C}} 
 \pars{\cosh \frac{\psi}{2} - 1} - \deriv{\varPhi}{\theta} \deriv{\psi}{\rho}   
 = -\deriv{C}{\theta} \frac{4}{\sqrt{C}} \sinh^2 \frac{\psi}{4} 
   - \deriv{\varPhi}{\theta} \deriv{\psi}{\rho}   .
-\end{eqnarray}
+\end{align}
 Note that:
-\begin{eqnarray}
-\deriv{\psi}{\rho} &=& -2\sqrt{C}\sinh\frac{\psi}{2} = 
+\begin{align}
+\deriv{\psi}{\rho} &= -2\sqrt{C}\sinh\frac{\psi}{2} = 
                        -4\sqrt{C}\sinh\frac{\psi}{4}\cosh\frac{\psi}{4},
 \\
--4\sinh\frac{\psi}{4} &=& \frac{1}{\sqrt{C} \cosh\frac{\psi}{4}} \deriv{\psi}{\rho}.
-\end{eqnarray}
+-4\sinh\frac{\psi}{4} &= \frac{1 / \cosh\frac{\psi}{4}}{\sqrt{C}} \deriv{\psi}{\rho}.
+\end{align}
 Thus:
-\begin{eqnarray}
-\deriv{v_\theta}{\rho} &=& 
+\begin{align}
+\deriv{v_\theta}{\rho} &= 
   \pars{\deriv{C}{\theta} \frac{1}{C}} \cdot
   \pars{\frac{\sinh\frac{\psi}{4}}{\cosh\frac{\psi}{4}} \deriv{\psi}{\rho}}
   - \deriv{\varPhi}{\theta} \deriv{\psi}{\rho}
 =  4\deriv{}{\rho} \pars{\log\cosh\frac{\psi}{4}} \deriv{}{\theta} \log C
   - \deriv{\psi}{\rho} \deriv{\varPhi}{\theta},
 \\
-\deriv{v_\theta}{\rho} &=& 
+\deriv{v_\theta}{\rho} &= 
 \deriv{}{\rho} \pars{ 4\log\cosh\frac{\psi}{4} \deriv{}{\theta} \log C
   - \psi \deriv{\varPhi}{\theta} }.
-\end{eqnarray}
+\end{align}
 
 By integrating from $\rho = 0$ to $\rho \rightarrow \infty$, 
 we have Dukhin-Derjaguin slip formula for tangential velocity component $V_\theta$ 
 (where the radial component is $V_r = 0$) for $\zeta = \cV - \varPhi$:
-\begin{eqnarray} 
+\begin{align} 
 V_\theta = \zeta \cdot \deriv{\varPhi}{\theta} -
       4\log\cosh \frac{\zeta}{4} \cdot \deriv{}{\theta} \log C 
 = \zeta \cdot \deriv{\varPhi}{\theta} + 
       2\log\pars{1 - \tanh^2 \frac{\zeta}{4}} \cdot \deriv{}{\theta} \log C .
-\end{eqnarray}
+\end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Spherical Coordinates} \label{append:spherical}
+\section{Differential operators in spherical coordinates} \label{append:spherical}
 
 The following spherical coordinate system is used:
-\begin{eqnarray}
-x &=& r \sin \theta \cos \phi \\
-y &=& r \sin \theta \sin \phi \\
-z &=& r \cos \theta
-\end{eqnarray}
+\begin{align}
+\nonumber
+x &= r \sin \theta \cos \phi \\
+y &= r \sin \theta \sin \phi \\
+\nonumber
+z &= r \cos \theta
+\end{align}
 
 Assume full symmetry around $z$ axis -- there is no dependence on $\phi$:
-\begin{eqnarray}
-\bnabla f &=& \frac{\partial f}{\partial r} \mathbf{\hat{r}} +
+\begin{align}
+\bnabla f &= \frac{\partial f}{\partial r} \mathbf{\hat{r}} +
 \frac{1}{r} \frac{\partial f}{\partial \theta} \mathbf{\hat{\theta}} +
 \frac{1}{r \sin\theta} \frac{\partial f}{\partial \phi} \mathbf{\hat{\phi}}
 \\
-\bnabla \mathbf{\cdot} \mathbf{F} &=& 
+\bnabla \mathbf{\cdot} \mathbf{F} &= 
 \frac{1}{r^2}\frac{\partial}{\partial r} \left( r^2 \cdot F_r\right)
   + \frac{1}{r \sin\theta} \frac{\partial}{\partial \theta} \left( \sin\theta \cdot F_\theta\right)
   + \frac{1}{r \sin\theta} \frac{\partial F_\phi}{\partial \phi}
-\end{eqnarray}
+\end{align}
 
 \subsection{Scalar Operators}
 Scalar Laplacian derivation:
-\begin{eqnarray}
+\begin{align}
 \Laplacian f = \bnabla \mathbf{\cdot} \bnabla f = \frac{1}{r^2}\frac{\partial}{\partial r}
 \left( r^2 \frac{\partial f}{\partial r} \right) +
 \frac{1}{r^2 \sin\theta} \frac{\partial}{\partial \theta} \left( \sin\theta \cdot \frac{\partial f}{\partial \theta}\right)
 + \frac{1}{r^2 \sin^2\theta} \frac{\partial^2 f}{\partial \phi^2}
-\end{eqnarray}
+\end{align}
 In conservative form:
-\begin{eqnarray}
+\begin{align}
 r^2 \sin\theta \cdot \bLaplacian f = \frac{\partial}{\partial r} \left( r^2 \sin \theta \frac{\partial f}{\partial r} \right) +
 \frac{\partial}{\partial \theta} \left( \sin\theta \cdot \frac{\partial f}{\partial \theta}\right) +
 \frac{\partial}{\partial \phi} \left( \frac{1}{\sin\theta} \cdot \frac{\partial f}{\partial \phi}\right)
-\end{eqnarray}
+\end{align}
 
 The unit vectors in spherical coordinate system are:
-\begin{eqnarray}
- \br &=& \mat{c}{r\sin\theta \cos\phi \\ r\sin\theta \sin\phi \\ r\cos\theta} \\
- \brhat &=& \deriv{\br}{r}
- = \mat{c}{\sin\theta \cos\phi \\ \sin\theta \sin\phi \\ \cos\theta} \\
- \bthetahat &=& \frac{1}{r} \deriv{\br}{\theta}
- = \mat{c}{\cos\theta \cos\phi \\ \cos\theta \sin\phi \\ -\sin\theta} \\
- \bphihat &=& \frac{1}{r \sin \theta} \deriv{\br}{\phi}
+\begin{align}
+ \brhat &= \deriv{\br}{r}
+ = \mat{c}{\sin\theta \cos\phi \\ \sin\theta \sin\phi \\ \cos\theta} ,&
+ \bthetahat &= \frac{1}{r} \deriv{\br}{\theta}
+ = \mat{c}{\cos\theta \cos\phi \\ \cos\theta \sin\phi \\ -\sin\theta} ,&
+ \bphihat &= \frac{1}{r \sin \theta} \deriv{\br}{\phi}
  = \mat{c}{-\sin\phi \\ \cos\phi \\ 0}
-\end{eqnarray}
+\end{align}
 Note that:
-\begin{eqnarray}
-  \deriv{\brhat}{r} = \deriv{\bthetahat}{r} = \deriv{\bphihat}{r} = \mathbf{0} \\
-  \deriv{\brhat}{\theta} = \bthetahat \\
-  \deriv{\bthetahat}{\theta} = -\brhat \\
-  \deriv{\bphihat}{\theta} = \mathbf{0} \\
-  \deriv{\brhat}{\phi} = \sin \theta \cdot \bphihat \\
-  \deriv{\bthetahat}{\phi} = \cos \theta \cdot \bphihat \\
-  \deriv{\bphihat}{\phi} = -\sin \theta \cdot \brhat -\cos \theta \cdot \bthetahat
-\end{eqnarray}
+\begin{align}
+  \deriv{\brhat}{r} = \mathbf{0} , \nonumber
+  \deriv{\bthetahat}{r} = \mathbf{0} , 
+  \deriv{\bphihat}{r} = \mathbf{0}, \\
+  \deriv{\brhat}{\theta} = \bthetahat , 
+  \deriv{\bthetahat}{\theta} = -\brhat , 
+  \deriv{\bphihat}{\theta} = \mathbf{0}, \\
+  \deriv{\brhat}{\phi} = \sin \theta \cdot \bphihat , \nonumber
+  \deriv{\bthetahat}{\phi} = \cos \theta \cdot \bphihat , 
+  \deriv{\bphihat}{\phi} = -\sin \theta \cdot \brhat -\cos \theta \cdot \bthetahat.
+\end{align}
 
 \subsection{Vector Operators}
 Vector gradient operator can be written by:
-\begin{eqnarray}
-\bnabla\bV &=& \left\{ \brhat \deriv{}{r} +
+\begin{align} \nonumber
+\bnabla\bV &= \left\{ \brhat \deriv{}{r} +
 \bthetahat \frac{1}{r} \deriv{}{\theta} +
 \bphihat \frac{1}{r \sin\theta} \deriv{}{\phi} \right\}
-\bV
-\\
-\bnabla\bV &=& \left\{ \brhat \deriv{}{r} +
+\bV = \left\{ \brhat \deriv{}{r} +
 \bthetahat \frac{1}{r} \deriv{}{\theta} +
 \bphihat \frac{1}{r \sin\theta} \deriv{}{\phi} \right\}
 \left( V_r \brhat + V_\theta \bthetahat + V_\phi \bphihat \right)
-\\
-\deriv{\bV}{r} &=&
+\\ \nonumber
+\deriv{\bV}{r} &=
 \deriv{V_r}{r}\brhat + \deriv{V_\theta}{r}\bthetahat + \deriv{V_\phi}{r}\bphihat
-\\
-\deriv{\bV}{\theta} &=&
+\\ 
+\deriv{\bV}{\theta} &=
 \deriv{V_r}{\theta}\brhat + \deriv{V_\theta}{\theta}\bthetahat + \deriv{V_\phi}{\theta}\bphihat
 + V_r\bthetahat - V_\theta\brhat
-\\
-\deriv{\bV}{\phi} &=&
+\\ \nonumber
+\deriv{\bV}{\phi} &=
 \deriv{V_r}{\phi}\brhat + \deriv{V_\theta}{\phi}\bthetahat + \deriv{V_\phi}{\phi}\bphihat
 + V_r \sin\theta\bphihat + V_\theta \cos\theta\bphihat -
 V_\phi \left(\brhat \sin\theta + \bthetahat \cos\theta \right)
-\\
-\bnabla\bV &=&
+\\ \nonumber
+\bnabla\bV &=
 \mat{ccc}{1&0&0 \\ 0&\frac{1}{r}&0 \\ 0&0&\frac{1}{r \sin\theta}}
 \mat{ccc}{
 \deriv{V_r}{r} & \deriv{V_\theta}{r} & \deriv{V_\phi}{r} \\
@@ -1359,150 +1413,149 @@ V_\phi \left(\brhat \sin\theta + \bthetahat \cos\theta \right)
 \deriv{V_\theta}{\phi} - V_\phi \cos\theta  &
 \deriv{V_\phi}{\phi} + V_r \sin\theta + V_\theta \cos\theta
 }
-\end{eqnarray}
+\end{align}
 Vector Laplacian components can be written as:
-\begin{eqnarray}
-\Laplacian \bV = \bnabla \cdot \bnabla \bV &=& \frac{1}{r^2}\deriv{}{r}\left(r^2 \deriv{\bV}{r}\right) +
+\begin{align}
+\Laplacian \bV = \bnabla \cdot \bnabla \bV &= \frac{1}{r^2}\deriv{}{r}\left(r^2 \deriv{\bV}{r}\right) +
 \frac{1}{r^2\sin\theta}\deriv{}{\theta}\left(\sin\theta\deriv{\bV}{\theta}\right)+
 \frac{1}{r^2 \sin^2\theta}\deriv{}{\phi}\left(\deriv{\bV}{\phi}\right)
-\end{eqnarray}
+\end{align}
 $\brhat$ component:
-\begin{eqnarray}
-\Laplacian (V_r\brhat) &=&
+\begin{align}
+\Laplacian (V_r\brhat) &= \nonumber
 \frac{1}{r^2}\deriv{}{r}\left(r^2 \deriv{V_r}{r}\right)\brhat
-\\ &+&
+\\ &+ \nonumber
 \frac{1}{r^2\sin\theta}\deriv{}{\theta}\left(
 \sin\theta\left(\deriv{V_r}{\theta}\brhat + V_r\bthetahat \right)\right)
-\\ &+&
+\\ &+ \nonumber
 \frac{1}{r^2 \sin^2\theta}\deriv{}{\phi}\left(
 \deriv{V_r}{\phi}\brhat + V_r \sin\theta\bphihat
 \right) \\
-\Laplacian (V_r\brhat) &=&
+\Laplacian (V_r\brhat) &= 
 \left(
 \frac{2}{r}\deriv{V_r}{r}+\deriv{^2V_r}{r^2}\right)\brhat
-\\ &+&
+\\ &+ \nonumber
 \frac{1}{r^2\sin\theta}\left(
 \cos\theta\left(\deriv{V_r}{\theta}\brhat + V_r\bthetahat \right) +
 \sin\theta\left(\deriv{^2V_r}{\theta^2}\brhat + \deriv{V_r}{\theta}\bthetahat + \deriv{V_r}{\theta}\bthetahat - V_r\brhat\right)
 \right)
-\\ &+&
+\\ &+ \nonumber
 \frac{1}{r^2 \sin^2\theta}\left(
 \deriv{^2V_r}{\phi^2}\brhat + \deriv{V_r}{\phi} \sin\theta\bphihat +
 \deriv{V_r}{\phi}\bphihat\sin\theta - V_r \sin\theta
 \left(\brhat \sin\theta + \bthetahat \cos\theta \right)
 \right)
-\\
-\Laplacian (V_r\brhat) &=&
+\\ \nonumber
+\Laplacian (V_r\brhat) &=
 \left(
 \frac{2}{r}\deriv{V_r}{r}+\deriv{^2V_r}{r^2}-\frac{2V_r}{r^2}
 + \frac{1}{r^2}\deriv{^2V_r}{\theta^2}
 + \frac{\cot\theta}{r^2} \deriv{V_r}{\theta}
 + \frac{1}{r^2 \sin^2\theta} \deriv{^2V_r}{\phi^2}
 \right)\brhat
-\\ &+& \frac{2}{r^2} \deriv{V_r}{\theta} \bthetahat + \frac{2}{r^2 \sin\theta}\deriv{V_r}{\phi} \bphihat
-\end{eqnarray}
+\\ &+ \frac{2}{r^2} \deriv{V_r}{\theta} \bthetahat + \frac{2}{r^2 \sin\theta}\deriv{V_r}{\phi} \bphihat
+\nonumber
+\end{align}
 $\bthetahat$ component:
-\begin{eqnarray}
-\Laplacian (V_\theta\bthetahat) &=&
+\begin{align}
+\Laplacian (V_\theta\bthetahat) &= \nonumber
 \frac{1}{r^2}\deriv{}{r}\left(r^2 \deriv{V_\theta}{r}\right)\bthetahat
-\\ &+&
+\\ &+ \nonumber
 \frac{1}{r^2\sin\theta}\deriv{}{\theta}\left(
 \sin\theta\left(\deriv{V_\theta}{\theta}\bthetahat - V_\theta\brhat \right)\right)
-\\ &+&
+\\ &+ \nonumber
 \frac{1}{r^2 \sin^2\theta}\deriv{}{\phi}\left(
 \deriv{V_\theta}{\phi}\bthetahat + V_\theta \cos\theta\bphihat
 \right)
-\\
-\Laplacian (V_\theta\bthetahat) &=&
+\\ 
+\Laplacian (V_\theta\bthetahat) &=
 \left(\frac{2}{r}\deriv{V_\theta}{r} + \deriv{^2V_\theta}{r^2}\right)\bthetahat
-\\ &+&
+\\ &+ \nonumber
 \frac{1}{r^2\sin\theta}\left(
 \cos\theta\left(\deriv{V_\theta}{\theta}\bthetahat - V_\theta\brhat \right) +
 \sin\theta\left(\deriv{^2V_\theta}{\theta^2}\bthetahat - \deriv{V_\theta}{\theta}\brhat
 -\deriv{V_\theta}{\theta}\brhat - V_\theta\bthetahat\right)
 \right)
-\\ &+&
+\\ &+ \nonumber
 \frac{1}{r^2 \sin^2\theta}\left(
 \deriv{^2V_\theta}{\phi^2}\bthetahat + \deriv{V_\theta}{\phi} \cos\theta\bphihat +
 \deriv{V_\theta}{\phi}\cos\theta\bphihat
 - V_\theta \cos\theta \left(\brhat \sin\theta + \bthetahat \cos\theta \right)
 \right)
-\\
-\Laplacian (V_\theta\bthetahat) &=&
+\\ \nonumber
+\Laplacian (V_\theta\bthetahat) &=
 \left(-\frac{2\cot\theta}{r^2}V_\theta - 2\deriv{V_\theta}{\theta}\right)\brhat +
 \left(\frac{2}{r}\deriv{V_\theta}{r} + \deriv{^2V_\theta}{r^2} +
 \frac{\cot\theta}{r^2} \deriv{V_\theta}{\theta} +
 \frac{1}{r^2}\deriv{^2V_\theta}{\theta^2}\right)\bthetahat
-\\
-\\ &+&
+\\ &+ \nonumber
 \frac{1}{r^2 \sin^2\theta}\left(
 \deriv{^2V_\theta}{\phi^2} - V_\theta \right)\bthetahat
 + \frac{2 \cot\theta}{r^2 \sin\theta} \deriv{V_\theta}{\phi} \bphihat
-\end{eqnarray}
+\end{align}
 $\bphihat$ component:
-\begin{eqnarray}
-\Laplacian (V_\phi\bphihat) &=&
+\begin{align} \nonumber
+\Laplacian (V_\phi\bphihat) &= \nonumber
 \frac{1}{r^2}\deriv{}{r}\left(r^2 \deriv{V_\phi}{r}\right)\bphihat +
 \frac{1}{r^2\sin\theta}\deriv{}{\theta}\left(
 \sin\theta \deriv{V_\phi}{\theta}\bphihat \right)
-\\ &+&
+\\ &+ \nonumber
 \frac{1}{r^2 \sin^2\theta}\deriv{}{\phi}\left(
 \deriv{V_\phi}{\phi}\bphihat
 - V_\phi \left(\brhat \sin\theta + \bthetahat \cos\theta\right)
 \right)
-\\
-\Laplacian (V_\phi\bphihat) &=&
+\\ 
+\Laplacian (V_\phi\bphihat) &=
 \frac{1}{r^2}\deriv{}{r}\left(r^2 \deriv{V_\phi}{r}\right)\bphihat +
 \frac{1}{r^2\sin\theta}\deriv{}{\theta}\left(
 \sin\theta \deriv{V_\phi}{\theta}\bphihat \right)
-\\ &+&
+\\ &+ \nonumber
 \frac{1}{r^2 \sin^2\theta}\deriv{}{\phi}\left(
 \deriv{V_\phi}{\phi}\bphihat
 - V_\phi \left(\brhat \sin\theta + \bthetahat \cos\theta\right)
 \right)
-\\
-\Laplacian (V_\phi\bphihat) &=&
+\\ \nonumber
+\Laplacian (V_\phi\bphihat) &=
 \left(\frac{2}{r} \deriv{V_\phi}{r} + \deriv{^2V_\phi}{r^2}\right)\bphihat
 +
 \frac{1}{r^2\sin\theta}\left(
 \cos\theta \deriv{V_\phi}{\theta} +
 \sin\theta \deriv{^2V_\phi}{\theta^2}
 \right)\bphihat
-\\ &+&
+\\ &+ \nonumber
 \frac{1}{r^2 \sin^2\theta}\left(
 \deriv{^2V_\phi}{\phi^2}\bphihat
 - 2 \deriv{V_\phi}{\phi} \left(\brhat \sin\theta + \bthetahat \cos\theta\right)
 - V_\phi \bphihat
 \right)
-\end{eqnarray}
+\end{align}
 In summary:
-\begin{eqnarray}
-\Laplacian \bV &=& \left(\Laplacian V_r - \frac{2V_r}{r^2}\right)\brhat
+\begin{align} \nonumber
+\Laplacian \bV &= \left(\Laplacian V_r - \frac{2V_r}{r^2}\right)\brhat
 + \frac{2}{r^2}\deriv{V_r}{\theta} \bthetahat + \frac{2}{r^2 \sin\theta}\deriv{V_r}{\phi} \bphihat \\
-&-&
+&-
 \frac{2}{r^2 \sin\theta} \deriv{\left(V_\theta \sin\theta \right)}{\theta}\brhat
 + \left(\Laplacian V_\theta - \frac{V_\theta}{r^2 \sin^2\theta}\right) \bthetahat
 + \frac{2 \cot\theta}{r^2 \sin\theta} \deriv{V_\theta}{\phi} \bphihat \\
-&-&
+&- \nonumber
 \frac{2}{r^2 \sin\theta}\deriv{V_\phi}{\phi}\brhat -
 \frac{2 \cot\theta}{r^2 \sin\theta}\deriv{V_\phi}{\phi}\bthetahat
 + \left(\Laplacian V_\phi - \frac{V_\phi}{r^2 \sin^2\theta}\right)\bphihat
-\end{eqnarray}
+\end{align}
 
 Since $V_\phi = 0$ and $\deriv{}{\phi}(\cdot) = 0$, we get:
-\begin{eqnarray}
-\Laplacian \bV &=& \left(\Laplacian V_r - \frac{2V_r}{r^2} - \frac{2}{r^2 \sin\theta} \deriv{\left(V_\theta \sin\theta \right)}{\theta}\right)\brhat
-\\
-&+&
+\begin{align} \nonumber
+\Laplacian \bV &= \left(\Laplacian V_r - \frac{2V_r}{r^2} - \frac{2}{r^2 \sin\theta} \deriv{\left(V_\theta \sin\theta \right)}{\theta}\right)\brhat
++
 \left(\Laplacian V_\theta - \frac{V_\theta}{r^2 \sin^2\theta} + \frac{2}{r^2}\deriv{V_r}{\theta}\right) \bthetahat
 \\
-\Laplacian \bV &=& \left(
+\Laplacian \bV &= \left(
 \frac{1}{r^2}\deriv{}{r}\left( r^2 \deriv{V_r}{r} \right) + \frac{1}{r^2 \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot \deriv{V_r}{\theta}\right)
- - \frac{2V_r}{r^2} - \frac{2}{r^2 \sin\theta} \deriv{\left(V_\theta \sin\theta \right)}{\theta}\right)\brhat \\
-&+& \left(
+ - \frac{2V_r}{r^2} - \frac{2}{r^2 \sin\theta} \deriv{\left(V_\theta \sin\theta \right)}{\theta}\right)\brhat \\ \nonumber
+&+ \left(
 \frac{1}{r^2}\deriv{}{r}\left( r^2 \deriv{V_\theta}{r} \right) + \frac{1}{r^2 \sin\theta} \deriv{}{\theta} \left( \sin\theta \cdot \deriv{V_\theta}{\theta}\right)
  - \frac{V_\theta}{r^2 \sin^2\theta} + \frac{2}{r^2}\deriv{V_r}{\theta}\right) \bthetahat
-\end{eqnarray}
+\end{align}
 
 \bibliographystyle{unsrt}
 \bibliography{ijnam}
