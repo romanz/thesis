@@ -1,7 +1,7 @@
 function [sol] = main_ionex()
     init = [];
-    g = grids(1e7, 400+1, 50+1, 1);
-    betas = 1.0;
+    g = grids(1e4, 200+1, 80+1, 1);
+    betas = 0.01 * (1:10);
     
     if isempty(init)
         init.Phi = zeros(g.Phi.size);
@@ -13,7 +13,7 @@ function [sol] = main_ionex()
     
     sol = Solution(g, init);
     sol.alpha = 0.0;
-    sol.gamma = 0.1;
+    sol.gamma = 0.99;
     force = total_force(sol, g);
     
     betas = betas(:);
@@ -24,12 +24,12 @@ function [sol] = main_ionex()
         sol.beta = betas(k);
         Vinf = sol.beta * 2*log(0.5*(1+1/sqrt(sol.gamma)));
         [iter, v] = secant(Vinf * [0.9, 1.1]);
-        iters = 5;
+        iters = 6;
         f = zeros(iters, 1);
         sol.res = {};
         for i = 1:iters
             sol.Vinf = v(i);
-            [sol, sol.res{i}] = solver(sol, 10);
+            [sol, sol.res{i}] = solver(sol, 6);
             f(i) = force();
             v(i+1) = iter(f(i));
             fprintf('------------------------------------------------------------------\n')
@@ -170,9 +170,6 @@ function [op] = boundary_conditions(sol)
     log_c1 = log(c1);
     
     bnd{end+1} = Interp(g1, phi1 + log_c1); 
-
-    phi2 = Interp(g, sol.Phi);
-    c2 = Interp(g, sol.C);
     bnd{end+1} = Deriv(g1, phi1 - log_c1, 1); 
     
     g = sol.grid.Vr;
@@ -242,8 +239,8 @@ function flux = charge(sol)
     Ct = Interp(DPhi_Dt.grid, sol.C);
     g = sol.grid.Phi;
     g = Grid(g.r(2:end-1), g.t(2:end-1));
-    fluxR = Deriv(g, 'r^2' * Cr * DPhi_Dr, 1) * '1/r^2';
-    fluxT = Deriv(g, 'sin(t)' * Ct * DPhi_Dt, 2) * '1/(r^2 * sin(t))';
+    fluxR = Deriv(g, 'r^2' * DPhi_Dr, 1) * '1/r^2';
+    fluxT = Deriv(g, 'sin(t)' * DPhi_Dt, 2) * '1/(r^2 * sin(t))';
     flux = fluxR + fluxT;
 end
 
@@ -258,8 +255,8 @@ function flux = salt(sol)
     Ct = Upwind(sol.C, sol.Vt);
     
     % Salt fluxes
-    Fr = - DC_Dr         + sol.alpha * Cr * sol.Vr;    
-    Ft = - DC_Dt * '1/r' + sol.alpha * Ct * sol.Vt;
+    Fr = - DC_Dr        ;    
+    Ft = - DC_Dt * '1/r';
     
     % Divergence
     g = sol.grid.C;
@@ -293,7 +290,7 @@ function [forceR, forceT] = momentum(sol)
     
     forceR = Deriv(gr, - sol.P + Deriv(gi, Crop(sol.Vr, [0 1]) * 'r^2', 1) * '1/r^2', 1) ...
         + Deriv(gr, (Deriv(gt, Crop(sol.Vr, [1 0]), 2) - 2*Interp(gt, sol.Vt)) * 'sin(t)', 2) * ('1/(r^2 * sin(t))');
-    forceR = forceR + Selector(gr, Er) * Interp(gr, Q);
+%     forceR = forceR + Selector(gr, Er) * Interp(gr, Q);
     
     gt = sol.grid.Vt.crop(1, 1);
     gr = Grid(sol.grid.Vr.r, sol.grid.Vt.t(2:end-1));
@@ -301,7 +298,7 @@ function [forceR, forceT] = momentum(sol)
     forceT = Deriv(gt, sol.P, 2) * '-1/r' ...
         + '1/r^2' * Deriv(gt, 'r^2'*Deriv(gr, Crop(sol.Vt, [0 1]), 1), 1) ...
         + '1/r^2' * Deriv(gt, '1/sin(t)' * Deriv(gi, Crop(sol.Vt, [1 0]) * 'sin(t)', 2) + 2*Interp(gi, sol.Vr), 2);
-    forceT = forceT + Selector(gt, Et) * Interp(gt, Q);
+%     forceT = forceT + Selector(gt, Et) * Interp(gt, Q);
 end
 
 % Electrokinetical system PDEs
@@ -329,8 +326,8 @@ function [res] = total_force(sol, grid)
     dPhi_dt = Deriv(g, Interp(Grid(g.r, sol.grid.Phi.t), sol.Phi), 2);
     dPhi_rdt = dPhi_dt * '1/r';
     
-    dFr = -P + 2*dVr_dr + 0.5*(dPhi_dr*dPhi_dr - dPhi_rdt*dPhi_rdt);
-    dFt = dVt_dr + (dVr_dt - Vt)*'1/r' + dPhi_dr*dPhi_rdt;
+    dFr = -P + 2*dVr_dr;
+    dFt = dVt_dr + (dVr_dt - Vt)*'1/r';
     f = dFr * 'cos(t)' - dFt * 'sin(t)'; % local force
     f = f * 'r*sin(t)'; % axial symmetry
     
