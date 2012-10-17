@@ -13,7 +13,7 @@ function [sol] = main_ionex()
     
     sol = Solution(g, init);
     sol.alpha = 0.0;
-    sol.gamma = 0.99;
+    sol.gamma = 0.9;
     force = total_force(sol, g);
     
     betas = betas(:);
@@ -239,8 +239,8 @@ function flux = charge(sol)
     Ct = Interp(DPhi_Dt.grid, sol.C);
     g = sol.grid.Phi;
     g = Grid(g.r(2:end-1), g.t(2:end-1));
-    fluxR = Deriv(g, 'r^2' * DPhi_Dr, 1) * '1/r^2';
-    fluxT = Deriv(g, 'sin(t)' * DPhi_Dt, 2) * '1/(r^2 * sin(t))';
+    fluxR = Deriv(g, 'r^2' * Cr * DPhi_Dr, 1) * '1/r^2';
+    fluxT = Deriv(g, 'sin(t)' * Ct * DPhi_Dt, 2) * '1/(r^2 * sin(t))';
     flux = fluxR + fluxT;
 end
 
@@ -249,10 +249,6 @@ function flux = salt(sol)
     % Diffusion    
     DC_Dr = Deriv(sol.grid.Vr, sol.C, 1);
     DC_Dt = Deriv(sol.grid.Vt, sol.C, 2);
-    
-    % Advection (with upwind discretization)
-    Cr = Upwind(sol.C, sol.Vr);
-    Ct = Upwind(sol.C, sol.Vt);
     
     % Salt fluxes
     Fr = - DC_Dr        ;    
@@ -290,7 +286,7 @@ function [forceR, forceT] = momentum(sol)
     
     forceR = Deriv(gr, - sol.P + Deriv(gi, Crop(sol.Vr, [0 1]) * 'r^2', 1) * '1/r^2', 1) ...
         + Deriv(gr, (Deriv(gt, Crop(sol.Vr, [1 0]), 2) - 2*Interp(gt, sol.Vt)) * 'sin(t)', 2) * ('1/(r^2 * sin(t))');
-%     forceR = forceR + Selector(gr, Er) * Interp(gr, Q);
+    forceR = forceR + Selector(gr, Er) * Interp(gr, Q);
     
     gt = sol.grid.Vt.crop(1, 1);
     gr = Grid(sol.grid.Vr.r, sol.grid.Vt.t(2:end-1));
@@ -298,7 +294,7 @@ function [forceR, forceT] = momentum(sol)
     forceT = Deriv(gt, sol.P, 2) * '-1/r' ...
         + '1/r^2' * Deriv(gt, 'r^2'*Deriv(gr, Crop(sol.Vt, [0 1]), 1), 1) ...
         + '1/r^2' * Deriv(gt, '1/sin(t)' * Deriv(gi, Crop(sol.Vt, [1 0]) * 'sin(t)', 2) + 2*Interp(gi, sol.Vr), 2);
-%     forceT = forceT + Selector(gt, Et) * Interp(gt, Q);
+    forceT = forceT + Selector(gt, Et) * Interp(gt, Q);
 end
 
 % Electrokinetical system PDEs
@@ -328,6 +324,9 @@ function [res] = total_force(sol, grid)
     
     dFr = -P + 2*dVr_dr;
     dFt = dVt_dr + (dVr_dt - Vt)*'1/r';
+    dFr = dFr + 0.5*(dPhi_dr*dPhi_dr - dPhi_rdt*dPhi_rdt);
+    dFt = dFt + dPhi_dr*dPhi_rdt;
+
     f = dFr * 'cos(t)' - dFt * 'sin(t)'; % local force
     f = f * 'r*sin(t)'; % axial symmetry
     
