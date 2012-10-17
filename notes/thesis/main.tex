@@ -322,8 +322,8 @@ We consider a spherical particle.
 The chemical properties of the particle's surface $\mathcal{S}$ (defined at $r=1$ 
 with normal $\bn = \brhat$), determine the boundary conditions on $\mathcal{S}$.
 We consider the following scenarios:
-\subsubsection{Ion-exchanger \cite{yariv2010migration}}
-We assume high conductance of the particle (yielding a uniform electric potential),
+\subsubsection{Ion-exchanger}
+Following \cite{yariv2010migration}, we assume high conductance of the particle (yielding a uniform electric potential),
 zero slip, anion impermeability, cation selectivity 
 (with fast Butler-Volmer\cite{bard2000book} kinetics
 $\bn \cdot \bj_+ = k (1 - c_+/\gamma)$, where $k \rightarrow \infty$):
@@ -339,8 +339,8 @@ where $\gamma$ is the ratio between the cationic concentration on the surface an
 concentration in the fluid bulk and $\cV$ is an unknown constant electric potential at
 the ion-exchanger surface. 
 
-\subsubsection{Inert particle \cite{schnitzer2012surface}}
-We assume constant surface charge
+\subsubsection{Inert particle}
+Following \cite{schnitzer2012surface}, we assume constant surface charge
 zero slip and ion impermeability:
 \begin{equation}
 \begin{array}{cccc}
@@ -507,7 +507,8 @@ A specific cell $\Omega_{ij}$ and its center $(\bar{r}_i, \bar{\theta}_j)$ are d
 \bar{\theta}_j = (\theta_{j-1} + \theta_{j})/2.
 \end{align}
 
-Each discrete variable is located with respect of its cell as follows:
+Each discrete variable is located with respect of its cell 
+as shown at Figure \ref{fig:grids}.
 $\varPhi$, $C$ and $P$ are represented by their value at the center of each cell, 
 using an all-centered grid, whereas $\bV$ is represented by its values at cell 
 boundaries, using a staggered grid:
@@ -520,6 +521,14 @@ V_r^h{}_{[i,j]} = V_r(r_i, \bar{\theta}_j), &
 V_\theta^h{}_{[i,j]} = V_\theta(\bar{r}_i, {\theta}_j).
 \end{array}
 \end{equation}
+
+\begin{figure}[htbp]
+    \begin{center}
+	\includegraphics[width=1\textwidth]{figs/grids.eps}
+        \caption{Computational Grid.}
+    \label{fig:grids}
+    \end{center}
+\end{figure}
 
 \subsection{Operator Discretization} 
 A finite-volume method with linear interpolation is used for flux discretization. 
