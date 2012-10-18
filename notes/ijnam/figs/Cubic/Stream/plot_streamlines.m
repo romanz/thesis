@@ -10,7 +10,7 @@ Z = s.Psi(I, :);
 X = R.*cos(T);
 Y = R.*sin(T);
 c = s.beta*0.05;
-c = linspace(-c, c, 15);
+c = linspace(-c, c, 40);
 
 fmt = '-deps2';
 
@@ -25,8 +25,8 @@ print(fmt, sprintf('A%d', k))
 
 function show(X, Y, Z, c, r_, b, fmt)
 hold on;
-colormap(ones(2, 3) * 0.5)
-contour([X X], [Y -Y], [Z -Z], c);
+contour(X, Y, Z, c);
+contour(X, -Y, Z, c);
 xlim([-1 1]*r_/2)
 ylim([-.1 .1]*r_/4)
 axis equal
