@@ -10,7 +10,7 @@ Z = s.Psi(I, :);
 X = R.*cos(T);
 Y = R.*sin(T);
 c = s.beta*0.05;
-c = linspace(-c, c, 15);
+c = linspace(-c, c, 25);
 
 fmt = '-deps2';
 
@@ -26,6 +26,8 @@ print(fmt, sprintf('A%d', k))
 function show(X, Y, Z, c, r_, b, fmt)
 hold on;
 colormap(ones(2, 3) * 0.5)
+% plot([-r_ r_], [0 0], '-', 'Color', [1 1 1]*0.5)
+Z = Z - eps;
 contour([X X], [Y -Y], [Z -Z], c);
 xlim([-1 1]*r_/2)
 ylim([-.1 .1]*r_/4)
