@@ -160,17 +160,19 @@ The electrokinetic transport process is
 described by a system of nonlinear partial differential equations (PDE).
 A thin boundary layer forms around the particle due to strong electrostatic forces. The resulting
 scale disparity of the boundary layer
-is used to derive nonlinear effective boundary conditions for the
-numerical solver
-using the specific chemical properties of the particle.
+has been used to derive nonlinear effective boundary conditions 
+using the specific chemical properties of the particle,
+for an ion-exchanger particle at \cite{yariv2010migration}
+and for a surface charged inert particle at \cite{schnitzer2012surface}.
 The nonlinear system is discretized and an iterative Newton solver is
-constructed automatically from the discrete equations and boundary 
-conditions.
-An asymptotic analytical solution is 
-derived for the validation of the solver. 
+constructed automatically from the discrete equations and the 
+nonlinear effective boundary conditions.
 Numerical results are obtained for an ion-exchanger and 
-for a surface charged inert particle. The numerical results 
-are compared to the asymptotic solutions, and good correspondence is achieved.}
+for a surface charged inert particle. 
+An asymptotic analytical solution is 
+used for the validation of the solver. 
+The numerical results are compared to the asymptotic solutions, 
+and good correspondence is achieved.}
 
 \keywords{CFD, electrokinetics, asymptotics, ion-exchanger, electrophoresis}
 
@@ -218,38 +220,48 @@ under an external electric field, are coupled and nonlinear, and
 in general they have no analytic solution. 
 Moreover, any numerical solver must handle the scale disparity caused by the
 Debye layer width being much smaller than the particle size. 
-A closed-form linear asymptotic solution has been developed for
-spherical particles and weak electric field in an
-axisymmetric setting \cite{yariv2010migration} but it is hard to extend this
-analytic solution to more general systems. Once the electric field
-becomes stronger, significant nonlinear phenomena emerge.
+An effective boundary condition outside the Debye layer
+has been developed for spherical particles, yielding a macroscale 
+model at \cite{yariv2010migration, schnitzer2012surface}.
+The model is solved for weak electric field in an axisymmetric setting 
+but it is hard to extend this analytic solution to more general systems.
+Once the electric field becomes stronger, 
+significant nonlinear phenomena emerge.
 This interesting regime has not yet been explored extensively.
 Recently, it has been conceived that such type of dynamics
 can be very useful in transporting and manipulating micro-
 and nanoscale objects in many nanotechnology applications,
-nano-fluidic devices, packed bed separation, desalination processes and various 
-electrophoresis applications \cite{howse2007self,paxton2004catalytic,pumera2010electrochemically,nischang2007,leinweber2004}.
-Because the model for these electrokinetic
+nano-fluidic devices, packed bed separation, desalination processes 
+and various electrophoresis applications \cite{howse2007self,paxton2004catalytic,pumera2010electrochemically,nischang2007,leinweber2004}.
+Because the nonlinear macroscale model for these electrokinetic
 phenomena has no closed-form analytic solution, a numerical
 solver for this system is of importance.
 
-The goal of this work is to develop and implement a software toolbox for the generation
-of iterative numerical solvers for nonlinear electrokinetic problems, and to apply it to the study
-of systems that have no closed-form solutions, such as ion-exchanger migration
-\cite{yariv2010migration} and the electrophoresis problem \cite{schnitzer2012surface}.
-This solver can be used to gain insight into the chemical and physical behavior 
-in far more general regimes than are currently well-understood, 
-and also to possibly lead to further analytical developments, based on new scaling behavior
-discovered numerically. We may also target interesting physical
+The goal of this work is to develop and implement a software toolbox 
+for the generation of iterative numerical solvers for nonlinear macroscale 
+electrokinetic problems, and to apply it to the study
+of systems that have no closed-form solutions, 
+such as ion-exchanger migration \cite{yariv2010migration} 
+and the electrophoresis problem \cite{schnitzer2012surface}.
+This solver can be used to gain insight into the chemical 
+and physical behavior in far more general regimes than 
+are currently well-understood, 
+and also to possibly lead to further analytical developments, 
+based on new scaling behavior
+discovered numerically. 
+We may also target interesting physical
 phenomena that have been observed experimentally.
 One such phenomenon is nonlinear electrokinetic vortex flow, 
-which is useful for microfluidic mixing applications \cite{wang2004mix, ben2002vortex},
+which is useful for microfluidic mixing applications 
+\cite{wang2004mix, ben2002vortex}.
 
-The paper is structured as follows: the governing equations of the electrokinetic model
-are derived in Section \ref{sec:equations}. The algorithm for the discretization and 
+The paper is structured as follows: the governing equations of 
+the electrokinetic model are presented in Section \ref{sec:equations}, 
+following the derivation at \cite{yariv2010migration, schnitzer2012surface}. 
+The algorithm for the discretization and 
 the solution of the system is described in Section \ref{sec:algorithm}.
-An analytical asymptotic solution for the nonlinear system is derived 
-and presented in Section \ref{sec:asymp}.
+An analytical asymptotic solution for the ion exchanger nonlinear 
+macroscale model is derived and presented in Section \ref{sec:asymp}.
 Numerical results and their comparison to an analytical asymptotic solution 
 are presented Section \ref{sec:results} and discussed in Section \ref{sec:discussion}. 
 
@@ -353,8 +365,9 @@ We consider a spherical particle.
 The chemical properties of the particle's surface $\mathcal{S}$ (defined at $r=1$ 
 with normal $\bn = \brhat$), determine the boundary conditions on $\mathcal{S}$.
 We consider the following scenarios:
-\subsubsection{Ion-exchanger \cite{yariv2010migration}}
-We assume high conductance of the particle (yielding a uniform electric potential),
+\subsubsection{Ion-exchanger}
+We follow the microscale model presented at \cite{yariv2010migration}
+and assume high conductance of the particle (yielding a uniform electric potential),
 zero slip, anion impermeability, cation selectivity 
 (with fast Butler-Volmer\cite{bard2000book} kinetics
 $\bn \cdot \bj_+ = k (1 - c_+/\gamma)$, where $k \rightarrow \infty$):
@@ -370,8 +383,9 @@ where $\gamma$ is the ratio between the cationic concentration on the surface an
 concentration in the fluid bulk and $\cV$ is an unknown constant electric potential at
 the ion-exchanger surface. 
 
-\subsubsection{Inert particle \cite{schnitzer2012surface}}
-We assume constant surface charge
+\subsubsection{Inert particle}
+We follow the microscale model presented at \cite{schnitzer2012surface}
+and assume constant surface charge
 zero slip and ion impermeability:
 \begin{equation}
 \begin{array}{cccc}
@@ -400,7 +414,8 @@ the particle surface for the ``outer'' bulk region equations.
 
 \subsubsection  {Bulk-scale equations}
 The Nernst-Planck equations above \eqref{eq:fluxes} for the fluid bulk outside
-the boundary layer, using bulk variables denoted by uppercase letters, read:
+the boundary layer \cite{yariv2010asymptotic}, 
+using bulk variables denoted by uppercase letters, read:
 \begin{equation} \begin{array}{cccc} \label{eq:bulk_flux}
   Q = 0, &
   C = C_+ = C_-, &
@@ -428,7 +443,8 @@ The macroscale Stokes flow equations have the same form as before \eqref{eq:stok
 \subsection{Bulk-scale effective boundary conditions}
 By integrating the equations across the Debye layer,
 the effective boundary conditions at the particle surface are:
-\subsubsection{Ion-exchanger} See \cite{yariv2010migration} for full derivation:
+\subsubsection{Ion-exchanger} See \cite{yariv2010migration} for full derivation
+of the nonlinear effective boundary conditions:
 \begin{equation}
 \begin{array}{ccc}
 \label{eq:ionex_bnd}
@@ -442,7 +458,8 @@ where $\zeta = \cV - \varPhi = \log (C / \gamma)$
 is the zeta potential.
 
 \subsubsection{Highly charged inert particle}
-See \cite{schnitzer2012surface} for full derivation:
+See \cite{schnitzer2012surface} for full derivation
+of the nonlinear effective boundary conditions:
 \begin{equation} \label{eq:ephor_bnd}
 \begin{array}{ccc}
 0 = {\deriv{C}{n} - \text{Du} \nabla^2_s \pars{\varPhi - \log C}}, & 
@@ -873,12 +890,12 @@ until convergence ($\|\boldsymbol{r_n}\| < \eps$):
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Asymptotic Analysis} \label{sec:asymp}
-In order to validate the numerical results, an asymptotic analysis is applied 
+In order to validate the numerical results, an asymptotic analysis has been applied 
 to the nonlinear systems of ion-exchanger migration 
 and highly charged particle electrophoresis.
 We present here the asymptotic analysis for the ion-exchanger case \cite{yariv2010migration},
 and the asymptotic analysis for the electrophoresis case \cite{schnitzer2012surface}
-appears in \cite{schnitzer2012cubic}.
+is derived by Schnitzer and Yariv at \cite{schnitzer2012cubic}.
 
 The derivation is performed as follows.
 The nonlinear system (composed of the governing equations and the boundary conditions) 
@@ -1013,8 +1030,9 @@ r^2 {\sin^2\theta} \left(\frac{{\cW_2}}{15} - \frac{{\cW_1}}{3} + \frac{209}{336
 - \frac{297\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) + 54}{1024 \left(\sqrt{\gamma} + 1\right)}.
 \end{align}
 
-The cubic solution satisfies the ${r\rightarrow\infty}$ boundary conditions, 
-when $\alpha\cU_1 = 0$.
+The cubic solution satisfies the boundary conditions only when $\alpha\cU_1 = 0$,
+due to boundary conditions mismatch for $C$ at $r \rightarrow \infty$, when
+the diffusion and the advection terms become of the same order of magnitude.
 
 The cubic correction velocity terms (for $\alpha = 0$)
 turn out to be:
