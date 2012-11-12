@@ -30,3 +30,7 @@
 *.toc
 *.spl
 *.patch
+*.tua
+*.top
+*.lof
+
