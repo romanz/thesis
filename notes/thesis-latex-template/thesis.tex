@@ -169,6 +169,7 @@ $\cU$		& --- & Dimensionless steady-state velocity
 \chapter{Introduction}
 
 \section{The Physical Problem}
+\subsection{Electrokinetic Phenomena}
 Electrokinetic theory describes the dynamics of charged particles
 in ionic fluids \cite{masliyah2005book,kirby2010book}.
 When a particle acquires surface charge, a layer
@@ -218,32 +219,38 @@ but it is hard to extend this analytic solution to more general systems.
 Once the electric field becomes stronger, 
 significant nonlinear phenomena emerge.
 This interesting regime has not yet been explored extensively.
-Recently, it has been conceived that such type of dynamics
-can be very useful in transporting and manipulating micro-
-and nanoscale objects in many nanotechnology applications,
-nano-fluidic devices, packed bed separation, desalination processes 
-and various electrophoresis applications \cite{howse2007self,paxton2004catalytic,pumera2010electrochemically,nischang2007,leinweber2004}.
+
+\subsection{Applications}
+
+Recently, it has been conceived that such type of phenomena
+can be very useful in microfluidics
+devices and methods for controlling and manipulating fluid flows in micro- and nanoscale. 
+Many different components are used in microfluidics such as valves, pumps, sensors, mixers, 
+filters, separators, heaters etc., and are combined into lab-on-a-chip systems.
+
+The manipulation can be achieved by either applying the external field at inlets and outlets, or it can be applied locally in the microchannel by integrated components.
+A typical microchannel is produced with lithographic techniques. Normally the Reynolds
+number is very low (on the order of unity or smaller) which means that viscosity dominates
+and the convective term of the Navier–Stokes equations are insignificant. This means that
+microflows most often are laminar.
+
+In the last decade there has been an increase in microfluidics research, 
+due to the spread of tools for microfluidic systems fabrication, 
+production of cheap and portable devices for fast point-of-care analysis, 
+and fundamental research of physical, chemical and biological processes.
+Various applications are \cite{erickson2004integrated, squires2005microfluidics, hardt2007microfluidic}:
+\begin{enumerate}
+\item DNA and cell analysis \cite{horsman2007forensic, wu2004chemical}.
+\item Separation-based detection \cite{weinberger1993practical}.
+\item Microscale chemical processing \cite{kothare2006dynamics}.
+\item Packed bed separation \cite{leinweber2004, losey2001microfabricated}.
+\item Desalination processes \cite{kim2010direct}.
+\item Drug delivery \cite{santini2000microchips}.
+\end{enumerate}
+
 Because the nonlinear macroscale model for these electrokinetic
 phenomena has no closed-form analytic solution, a numerical
 solver for this system is of importance.
-
-The goal of this work is to develop and implement a software toolbox 
-for the generation of iterative numerical solvers for nonlinear macroscale 
-electrokinetic problems, and to apply it to the study
-of systems that have no closed-form solutions, 
-such as ion-exchanger migration \cite{yariv2010migration} 
-and the electrophoresis problem \cite{schnitzer2012surface}.
-This solver can be used to gain insight into the chemical 
-and physical behavior in far more general regimes than 
-are currently well-understood, 
-and also to possibly lead to further analytical developments, 
-based on new scaling behavior
-discovered numerically. 
-We may also target interesting physical
-phenomena that have been observed experimentally.
-One such phenomenon is nonlinear electrokinetic vortex flow, 
-which is useful for microfluidic mixing applications 
-\cite{wang2004mix, ben2002vortex}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Governing Equations} \label{sec:equations}
@@ -472,6 +479,24 @@ can be solved numerically for $\cU$ to yield the corresponding steady-state velo
 
 \section{Work Outline}
 
+The goal of this work is to develop and implement a software toolbox 
+for the generation of iterative numerical solvers for nonlinear macroscale 
+electrokinetic problems, and to apply it to the study
+of systems that have no closed-form solutions, 
+such as ion-exchanger migration \cite{yariv2010migration} 
+and the electrophoresis problem \cite{schnitzer2012surface}.
+This solver can be used to gain insight into the chemical 
+and physical behavior in far more general regimes than 
+are currently well-understood, 
+and also to possibly lead to further analytical developments, 
+based on new scaling behavior
+discovered numerically. 
+We may also target interesting physical
+phenomena that have been observed experimentally.
+One such phenomenon is nonlinear electrokinetic vortex flow, 
+which is useful for microfluidic mixing applications 
+\cite{wang2004mix, ben2002vortex}.
+
 The work is structured as follows: 
 The numerical scheme for the discretization and 
 the solution of the system is described in Chapter \ref{ch:algorithm}.
@@ -479,10 +504,50 @@ Numerical results and their comparison to the analytical asymptotic solutions
 are presented and discussed in Chapter \ref{ch:results}. 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Numerical Scheme} \label{ch:algorithm}
 
 \section{Numerical Framework}
+
+We start by presenting the numerical framework used for the nonlinear solver construction.
+
+\subsection{Finite Volume Method}
+
+Finite Volume Methods \cite{ferziger1999computational}
+ are based on a discretization of the integral forms of the conservation equations.
+The simulation domain is divided into a set of discrete non-overlapping control volumes.
+Each conservartion equation is discretized over the control volumes,
+such that the integral form of the conservation law is satisfied using an approximation of the fluxes
+over the control volume faces.
+This method ensures that the discretization is conservative in the discrete sense.
+
+\subsection{Ghost Points}
+
+\subsection{Upwind Discretization}
+
+\subsection{Newton's Method}
+Newton's method is used to solve a nonlinear system of equations of the form $\cO(\bx) = \bzero$.
+For small step $\Delta\bx$, we can linearize the operator by
+\begin{align}
+\cO(\bx + \Delta\bx) \approx \cO(\bx) + \bnabla \cO(\bx) \Delta\bx
+\end{align}
+Thus, we use the following iteration, starting from an initial solution $\bx_0$:
+\begin{align}
+\Delta\bx_n &= - \left[\bnabla \cO(\bx_n)\right]^{-1} \cdot \cO(\bx_n) \\
+\bx_{n+1} &= \bx_n + \Delta\bx_n
+\end{align}
+
+Then, a sparse linear system $\boldsymbol{A} \Delta \bx = \boldsymbol{b}$
+needs to be solved to yield the update $\Delta \bx$.
+When the method converges, $\bx_n \rightarrow \bx_\infty$, 
+the asymptotic convergence is in general quadratic:
+\begin{equation}
+\|\bx_{n+1} - \bx_\infty\| \le k \|\bx_{n} - \bx_\infty\|^2.
+\end{equation}
+Thus, when the initial guess is close enough to the solution, the solver
+will typically converge in very few steps.
+
+\subsection{Richardson Extrapolation}
 
 \section{Algorithm Description} \label{sec:algorithm}
 The numerical solver first requires constructing a discrete 
@@ -730,15 +795,6 @@ given an initial solution $\bx_0$.
 Each step requires the computation of the residual vector, $\br = \cO(\bx)$, and
 the gradient matrix of the operator, $\bG = \bnabla \cO(\bx)$, 
 given the current solution $\bx$.
-Then, a sparse linear system $\bG \Delta \bx = \br$
-needs to be solved to yield the update $\Delta \bx$.
-When the method converges, $\bx_n \rightarrow \bx_\infty$, 
-the asymptotic convergence is in general quadratic:
-\begin{equation}
-\|\bx_{n+1} - \bx_\infty\| \le k \|\bx_{n} - \bx_\infty\|^2.
-\end{equation}
-Thus, when the initial guess is close enough to the solution, the solver
-will typically converge in very few steps.
 
 \subsection{Operator Representation}
 System variable $\bx$ is defined as the concatenation $\bx = [\,\varPhi, C, V_r, V_\theta, P\,]$.
@@ -856,21 +912,22 @@ A constant operator $\mathcal{C}$ is defined by constant vector $\bc$
 \subsubsection{Binary operators}
 Let $\cO_1$ and $\cO_2$ be two operators, so their pointwise addition, subtraction,
 and multiplication, are defined as follows:
-\begin{equation}\begin{array}{cc}
-(\cO_1 \pm \cO_2)(\bx) = \cO_1(\bx) \pm \cO_2(\bx), &
-\bnabla (\cO_1 \pm \cO_2)(\bx) = \bnabla\cO_1(\bx) \pm \bnabla\cO_2(\bx),
-\end{array}\end{equation}
-\begin{equation}\begin{array}{cc}
-(\cO_1 \cdot \cO_2)(\bx) = \cO_1(\bx) \cdot \cO_2(\bx), &
-\bnabla (\cO_1 \cdot \cO_2)(\bx) = \diag(\cO_2(\bx)) \bnabla\cO_1(\bx) 
+\begin{align}
+(\cO_1 \pm \cO_2)(\bx) &= \cO_1(\bx) \pm \cO_2(\bx), \\
+\nonumber
+\bnabla (\cO_1 \pm \cO_2)(\bx) &= \bnabla\cO_1(\bx) \pm \bnabla\cO_2(\bx), \\
+(\cO_1 \cdot \cO_2)(\bx) &= \cO_1(\bx) \cdot \cO_2(\bx), \\
+\nonumber
+\bnabla (\cO_1 \cdot \cO_2)(\bx) &= \diag(\cO_2(\bx)) \bnabla\cO_1(\bx) 
                                   + \diag(\cO_1(\bx)) \bnabla\cO_2(\bx).
-\end{array}\end{equation}
+\end{align}
 \subsubsection{N-ary operators}
 Given $N$ operators $\{\cO_i\}_{i=1}^N$, their concatenation $\cO$ is defined as:
-\begin{equation}\begin{array}{cc}
-\cO(\bx) = [\cO_1(\bx); \ldots; \cO_N(\bx)], &
-(\bnabla\cO)(\bx) = [(\bnabla\cO_1)(\bx); \ldots; (\bnabla\cO_N)(\bx)].
-\end{array}\end{equation}
+\begin{align}
+\cO(\bx) &= [\cO_1(\bx); \ldots; \cO_N(\bx)], \\
+\nonumber
+(\bnabla\cO)(\bx) &= [(\bnabla\cO_1)(\bx); \ldots; (\bnabla\cO_N)(\bx)].
+\end{align}
 
 \subsection{Handling the Singularity} \label{sec:singular}
 The electric potential $\varPhi$ (in electrophoresis case) and the pressure $P$ (in both cases) 
@@ -894,8 +951,7 @@ where the update step is $\Delta \bx = \mathbb{P} \cdot \delta \bx$.
 
 \subsection{Iterative Newton solver}
 Given an initial solution $\bx_0$ and prescribed values for $\beta$ and $\cU$, 
-we apply the following algorithm 
-until convergence ($\|\boldsymbol{r_n}\| < \eps$):
+we apply the following algorithm until convergence ($\|\boldsymbol{r_n}\| < \eps$):
 \begin{enumerate}
 \item Update the system operator: $\verb|op| = \verb|System|(\bx_{n})$
 \item Compute the gradient: $\boldsymbol{G}_n = \verb|op.grad()|$
