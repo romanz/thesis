@@ -1,4 +1,3 @@
-% options are:
 % PhD, MSc (choose one)
 % beforeExam (to make the personal thanks invisible)
 \documentclass[MSc,beforeExam]{iitcsthesis}
@@ -17,6 +16,8 @@
 \usepackage{framed}
 \usepackage{url}
 \usepackage{longtable}
+\usepackage[framed,numbered,autolinebreaks,useliterate]{mcode}
+
 
 \floatstyle{ruled}
 \newfloat{program}{thp}{lop}
@@ -133,11 +134,12 @@ transporting and manipulating micro- and nanoscale objects in
 many nanotechnology applications, nano-fluidic devices, packed bed separation, 
 desalination processes and various electrophoresis applications.
 Due to strong electrostatic forces, a thin boundary layer forms near the particle
-surface. This results in scale disparity of the boundary layer, which hinders full numerical solution. 
-We employ nonlinear macroscale effective boundary conditions that are derived
+surface. This results in scale disparity of the boundary layer, which makes a 
+full numerical solution challenging. 
+We employ nonlinear macroscale effective boundary conditions that have been derived
 using the specific chemical properties of the particle
-(for an ion-exchanger particle at \cite{yariv2010migration}
-and for a surface charged inert particle at \cite{schnitzer2012surface}).
+(for an ion-exchanger particle by Yariv in \cite{yariv2010migration}
+and for a surface charged inert particle by Schnitzer and Yariv in \cite{schnitzer2012surface}).
 The resulting macroscale nonlinear partial differential system 
 is discretized and an iterative Newton solver is
 constructed automatically from the discrete equations.
@@ -213,7 +215,7 @@ Moreover, any numerical solver must handle the scale disparity caused by the
 Debye layer width being much smaller than the particle size. 
 An effective boundary condition outside the Debye layer
 has been developed for spherical particles, yielding a macroscale 
-model at \cite{yariv2010migration, schnitzer2012surface}.
+model in \cite{yariv2010migration, schnitzer2012surface}.
 The model is solved for weak electric field in an axisymmetric setting 
 but it is hard to extend this analytic solution to more general systems.
 Once the electric field becomes stronger, 
@@ -231,21 +233,21 @@ filters, separators, heaters etc., and are combined into lab-on-a-chip systems.
 The manipulation can be achieved by either applying the external field at inlets and outlets, or it can be applied locally in the microchannel by integrated components.
 A typical microchannel is produced with lithographic techniques. Normally the Reynolds
 number is very low (on the order of unity or smaller) which means that viscosity dominates
-and the convective term of the Navier–Stokes equations are insignificant. This means that
+and the convective term of the Navier-Stokes equations are insignificant. This also means that
 microflows most often are laminar.
 
 In the last decade there has been an increase in microfluidics research, 
 due to the spread of tools for microfluidic systems fabrication, 
-production of cheap and portable devices for fast point-of-care analysis, 
+production of cheap and portable devices for fast medical analysis, 
 and fundamental research of physical, chemical and biological processes.
-Various applications are \cite{erickson2004integrated, squires2005microfluidics, hardt2007microfluidic}:
+Various applications are \cite{whitesides2006origins, erickson2004integrated, squires2005microfluidics, hardt2007microfluidic}:
 \begin{enumerate}
-\item DNA and cell analysis \cite{horsman2007forensic, wu2004chemical}.
-\item Separation-based detection \cite{weinberger1993practical}.
-\item Microscale chemical processing \cite{kothare2006dynamics}.
-\item Packed bed separation \cite{leinweber2004, losey2001microfabricated}.
+\item DNA separation and sequencing \cite{wainright2003preconcentration}.
+\item Cell analysis and forensic identification \cite{wu2004chemical, weinberger1993practical, horsman2007forensic}.
+\item Integrated microchemical systems \cite{kothare2006dynamics}.
+\item Packed-bed separation \cite{leinweber2004, losey2001microfabricated}.
 \item Desalination processes \cite{kim2010direct}.
-\item Drug delivery \cite{santini2000microchips}.
+\item Drug delivery and pathogen detection \cite{santini2000microchips}.
 \end{enumerate}
 
 Because the nonlinear macroscale model for these electrokinetic
@@ -256,6 +258,7 @@ solver for this system is of importance.
 \section{Governing Equations} \label{sec:equations}
 
 \subsection{Nondimensionalization}
+We follow the derivation presented by Yariv in \cite{yariv2010asymptotic}.
 Spatial coordinates $\br$ are normalized by $a^*$ 
 (the characteristic size of the particle).
 Positive and negative ionic concentrations are denoted by $c_+$ and $c_-$, respectively, and
@@ -392,7 +395,8 @@ except inside a thin boundary layer of width $O(\delta)$
 surrounding the particle (the ``Debye layer'').
 This boundary layer makes it very hard to construct 
 a direct numerical solver for the full electrokinetic problem.
-However, we exploit the scale disparity at the Debye layer, 
+However, the scale disparity at the Debye layer can be exploited
+(as shown by Yariv in \cite{yariv2010asymptotic}), 
 which allows the PDE system to be rewritten in the ``inner'' region 
 as an ODE system using the asymptotic limit of $\delta \rightarrow 0$.
 This system can be integrated and solved analytically,
@@ -477,7 +481,7 @@ the velocity $\cU$.
 For any given electric field $\beta$, the force-free constraint above 
 can be solved numerically for $\cU$ to yield the corresponding steady-state velocity.
 
-\section{Work Outline}
+\section{Objective of this work}
 
 The goal of this work is to develop and implement a software toolbox 
 for the generation of iterative numerical solvers for nonlinear macroscale 
@@ -497,33 +501,42 @@ One such phenomenon is nonlinear electrokinetic vortex flow,
 which is useful for microfluidic mixing applications 
 \cite{wang2004mix, ben2002vortex}.
 
-The work is structured as follows: 
-The numerical scheme for the discretization and 
-the solution of the system is described in Chapter \ref{ch:algorithm}.
-Numerical results and their comparison to the analytical asymptotic solutions 
-are presented and discussed in Chapter \ref{ch:results}. 
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Numerical Scheme} \label{ch:algorithm}
 
 \section{Numerical Framework}
 
-We start by presenting the numerical framework used for the nonlinear solver construction.
+We start by presenting the numerical framework
+that is used for the construction of the nonlinear solver.
 
 \subsection{Finite Volume Method}
 
-Finite Volume Methods \cite{ferziger1999computational}
- are based on a discretization of the integral forms of the conservation equations.
+Finite Volume methods \cite{ferziger2002computational} 
+are used to define a discretization of the conservation equations' integral forms.
 The simulation domain is divided into a set of discrete non-overlapping control volumes.
-Each conservartion equation is discretized over the control volumes,
+Each conservation equation is discretized over the control volumes,
 such that the integral form of the conservation law is satisfied using an approximation of the fluxes
 over the control volume faces.
 This method ensures that the discretization is conservative in the discrete sense.
 
-\subsection{Ghost Points}
+\subsection{Flux Discretization}
 
-\subsection{Upwind Discretization}
+In order to define the fluxes on the boundaries of each control volume, we employ the 
+conservative formulation of the governing equations above. 
+The flux terms are defined using finite differences and linear interpolation of the disrete 
+variables (defined at the centroid of each cell), except for the advection flux which should not be 
+discretized using linear interpolation -- due to a numerical instability 
+for large cell Peclet numbers \cite{strikwerda2004finite}.
+
+\subsection{Ghost Points}
+In order to discretize boundary condtions for $\varPhi$, $C$ and $\bV$, 
+``ghost'' points are employed. 
+The grid is extended to include points outside the domain interior,
+and the variables at the ``ghost'' points are set to satisfy 
+the discretized boundary conditions on the grid boundaries.
+Note that $P$ has no boundary conditions -- so the pressure variable is defined 
+only in the domain interior.
 
 \subsection{Newton's Method}
 Newton's method is used to solve a nonlinear system of equations of the form $\cO(\bx) = \bzero$.
@@ -536,7 +549,6 @@ Thus, we use the following iteration, starting from an initial solution $\bx_0$:
 \Delta\bx_n &= - \left[\bnabla \cO(\bx_n)\right]^{-1} \cdot \cO(\bx_n) \\
 \bx_{n+1} &= \bx_n + \Delta\bx_n
 \end{align}
-
 Then, a sparse linear system $\boldsymbol{A} \Delta \bx = \boldsymbol{b}$
 needs to be solved to yield the update $\Delta \bx$.
 When the method converges, $\bx_n \rightarrow \bx_\infty$, 
@@ -548,6 +560,12 @@ Thus, when the initial guess is close enough to the solution, the solver
 will typically converge in very few steps.
 
 \subsection{Richardson Extrapolation}
+In order to achieve higher numerical accuracy, we employ Richardson extrapolation \cite{sidi2003practical}
+on the resulting steady-state velocity $\cU(h)$, as a scalar function of the grid spacing $h$.
+This method enables us to detect and analyze nonlinear effects for $\beta \ll 1$, where 
+a higher-order discretization is required because otherwise
+the numerical error becomes comparable to the difference between the linear analytical regime 
+and the numerical results.
 
 \section{Algorithm Description} \label{sec:algorithm}
 The numerical solver first requires constructing a discrete 
@@ -561,7 +579,7 @@ which corresponds to zero total force, $F(\beta, \cU) = 0$,
 which we solve by the standard secant method.
 
 \subsection{Spherical Coordinates}
-Because the system is axisymmetric, we employ
+Because the system is axisymmetric and the particle is a sphere, we employ
 spherical coordinates $(r,\theta,\phi)$.
 The scalar gradient and the divergence can be written as:
 \begin{align}
@@ -591,10 +609,9 @@ The vector gradient and vector Laplacian can be written as:
 \Laplacian F_\theta - \frac{F_\theta}{r^2 \sin^2\theta} + 
 \frac{2}{r^2}\deriv{F_r}{\theta}.
 \end{align}
-
 Note that in the spherical coordinate system,
 the vector Laplacian operator cannot be computed in a decoupled manner as in the Cartesian system,
-since the unit vectors $\brhat, \bthetahat, \bphihat$ are functions of the coordinates
+because the unit vectors $\brhat, \bthetahat, \bphihat$ are functions of the coordinates
 in a curvilinear coordinate system.
 See Appendix \ref{append:spherical} for the full derivation of the identities above.
 
@@ -642,7 +659,7 @@ P^h_{[i,j]} &= P(\bar{r}_i, \bar{\theta}_j), \\
     \begin{center}
 	\includegraphics[width=0.8\textwidth]{figs/grids.eps}
         \caption[Computational grid]{The computational grid is defined using
-        spherical coordinates system, due to axisymmetry of the physical problem
+        a spherical coordinate system, due to axisymmetry of the physical problem
         and boundary conditions discretization on the particle surface.}
     \label{fig:grids}
     \end{center}
@@ -702,10 +719,8 @@ J^h_\theta = -\frac{\cD_\theta(C^h)}{r} + \alpha V^h_\theta \cdot \mathcal{U}^{\
 \\ \nonumber
  \mathcal{U}^{\bV^h}_\theta(C^h)[i,j] = C^h\left[i, j-\frac{\sign(V^h_\theta)}{2}\right]. 
 \end{align}
-
 Mass flux $\bV$ is discretized on grid cells boundaries, 
 using the staggered velocity grid.
-
 Force components ($\bF = -\bnabla P + \bLaplacian \bV + \bnabla \varPhi \Laplacian \varPhi$) 
 are discretized on the staggered velocity grid using finite difference
 method, where linear interpolation is used for the Coulomb force and 
@@ -727,13 +742,6 @@ F^h_\theta &= -\frac{\cD_\theta(P^h)}{r}
 
 
 \subsection{Boundary Conditions} \label{sec:disc_boundary}
-In order to discretize boundary condtions for $\varPhi$, $C$ and $\bV$, 
-``ghost'' points are employed. 
-The grid is extended to include points outside the domain interior,
-and the variables at the ``ghost'' points are set to satisfy 
-the discretized boundary conditions, following the analysis below.
-Note that $P$ has no boundary conditions -- so the pressure variable is defined 
-only in the domain interior.
 
 Far away from the particle boundary \eqref{eq:bndcond_inf}, we have:
 \begin{equation}
@@ -743,7 +751,6 @@ Far away from the particle boundary \eqref{eq:bndcond_inf}, we have:
 V_r^h = -\cU \cos\theta, &
 V_\theta^h = \cU \sin\theta.
 \end{array}\end{equation}
-
 For $\theta = 0$ and $\theta = \pi$, the ``ghost'' points are defined by axial 
 symmetry considerations:
 \begin{equation} 
@@ -754,8 +761,6 @@ symmetry considerations:
 V_\theta^h = 0
 \end{array}
 \end{equation}
-
-
 The specific boundary conditions at $r=1$
 depend on the chemical properties of particle surface.
 
@@ -788,8 +793,7 @@ V^h_\theta &=& \cI_\theta(\zeta^h) \cdot \cD_\theta(\cI_r \varPhi^h - \log \cI_r
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Solver Design}
-An operator $\cO$ is defined by its input vector $\bx$ and its output 
-$\by = \cO(\bx)$.
+Let $\cO : \R^N \rightarrow \R^N $ be an nonlinear operator.
 In order to solve the equation $\cO(\bx) = \bzero$, Newton's method is applied, 
 given an initial solution $\bx_0$.
 Each step requires the computation of the residual vector, $\br = \cO(\bx)$, and
@@ -829,7 +833,6 @@ f_\imath = \ui \cdot \tT \cdot \brhat &=& \pars{-P + 2\cD_r(V_r) +
 && -\pars{\cD_r(V_\theta) - \frac{V_\theta}{r}
 + \frac{1}{r}\cD_r(\varPhi) \cD_{\theta}(\varPhi)}\sin\theta.
 \end{eqnarray}
-
 The integral above is approximated by 1D numerical quadrature
 (using the mid-point rule)
 \begin{equation}
@@ -871,7 +874,7 @@ The source code of the solver is provided in \cite{source}.
 The base \verb|Operator| interface is defined by 
 supporting the computation of a residual vector \verb|Operator::res()|
 and a gradient matrix \verb|Operator::grad()|, given an input vector $\bx$.
-This interface is implemented by specific operators classes,
+This interface is implemented by specific operator classes,
 which are used to construct the system operator $\cO$, so that 
 the Newton solver (that requires computing the residual and the gradient) 
 can be applied automatically.
@@ -959,6 +962,345 @@ we apply the following algorithm until convergence ($\|\boldsymbol{r_n}\| < \eps
 \item Solve sparse linear system: $\mathbb{R}\boldsymbol{G}_n \mathbb{P} \Delta \bx_n = -\mathbb{R}\boldsymbol{r}_n$
 \item Update solution: $\bx_{n+1} = \bx_{n} + \mathbb{P}\Delta \bx_{n}$
 \end{enumerate}
+
+\subsection{Sample source code}
+
+\subsubsection{Variable class}
+\begin{figure}
+\begin{lstlisting}
+classdef Variable < handle
+properties
+    value;
+end
+
+methods
+    function self = Variable(varargin)
+        self.value = col(varargin{:});
+    end
+    
+    function r = res(self)
+        r = self.value(:);
+    end
+    
+    function G = grad(self) 
+        G = speye(numel(self.value));
+    end
+    
+    function update(self, delta)
+        assert(numel(self.value) == numel(delta))
+        self.value = self.value + delta;
+    end
+end
+
+end
+\end{lstlisting}
+\end{figure}
+
+\subsubsection{Operator interface}
+\begin{lstlisting}
+% An operator base class.
+classdef Operator < handle
+properties
+    grid; % a grid object for the output
+end
+methods
+    function op = Operator(grid)
+        op.grid = grid;
+    end
+    function op = plus(op1, op2)
+        op = Sum(op1, op2);
+    end
+    function op = minus(op1, op2)
+        op = Minus(op1, op2);
+    end
+    function op = uminus(op)
+        op = Product(-1, op);
+    end
+    function op = mtimes(op1, op2)
+        op = Product(op1, op2);
+    end
+    function op = log(op)
+        op = Func(op, 'log(x)');
+    end
+    function op = exp(op)
+        op = Func(op, 'exp(x)');
+    end
+    function op = sinh(op)
+        op = Func(op, 'sinh(x)');
+    end
+    function op = cosh(op)
+        op = Func(op, 'cosh(x)');
+    end
+    function op = tanh(op)
+        op = Func(op, 'tanh(x)');
+    end
+end
+end
+\end{lstlisting}
+
+\subsubsection{Linear operators}
+\begin{lstlisting}
+% Linear Sparse operator.
+classdef Linear < Operator
+properties
+    L;
+    op;
+end
+
+methods
+    function self = Linear(grid, op, L)
+        self = self@Operator(grid);
+        self.op = op;
+        if (nargin < 3 || isempty(L))
+            L = 1;
+        end
+        if isequal(L, 1)
+            L = speye(grid.numel); % Default copy operator
+        end
+        assert(size(L, 1) == grid.numel);
+        assert(size(L, 2) == op.grid.numel);
+        self.L = L;
+    end
+    function r = res(self)
+        r = self.L * self.op.res();
+    end
+    function G = grad(self)
+        G = dot_prod(self.L, self.op.grad());
+    end
+end
+
+end
+\end{lstlisting}
+
+\begin{lstlisting}
+classdef Deriv < Linear
+
+methods
+    function self = Deriv(grid, op, dim)
+        dir = (1:2) == dim;
+        assert(any(dir));
+
+        J = true(op.grid.size);
+        J1 = shift(J, dir); % forward mask
+        J0 = shift(J1, -dir); % backward mask
+        J = [find(J0(:)) find(J1(:))]; % column indices
+        
+        N = size(J, 1); % # of equations
+        M = op.grid.numel; % # of variables
+        I = repmat(1:N, 1, 2); % row indices
+
+        % Finite difference operator
+        D = sparse(I, J, repmat([-1 1], N, 1), N, M); 
+        
+        switch dim % Choose coordinate
+            case 1, x = op.grid.R;
+            case 2, x = op.grid.T;
+        end
+        
+        % L = D/Dx
+        Dx = D * x(:);
+        assert(all(Dx));
+        
+        L = spdiag( 1./Dx ) * D;
+        self = self@Linear(grid, op, L);        
+    end
+end
+
+end
+\end{lstlisting}
+
+\begin{lstlisting}
+classdef Interp < Linear
+
+methods
+    function self = Interp(grid, op)
+        L = interpolate_grids(grid, op.grid);
+        self = self@Linear(grid, op, L);
+    end
+end
+
+end
+
+function S = interpolate_grids(dst, src)
+    n = fieldnames(src);
+    S1 = interpolate_matrix(src.(n{1}), dst.(n{1}));
+    S1 = kron(speye(numel(src.(n{2}))), S1); % Interpolate on 1st dimension
+    S2 = interpolate_matrix(src.(n{2}), dst.(n{2}));
+    S2 = kron(S2, speye(numel(dst.(n{1})))); % Interpolate on 2nd dimension
+    S = S2 * S1;    
+end
+
+function S = interpolate_matrix(x, xi)
+    x = x(:);
+    xi = xi(:);
+    N = numel(xi);
+    L = zeros(N, 1);
+    R = zeros(N, 1);
+    for k = 1:N
+        less = x <= xi(k);
+        more = x >= xi(k);
+        if any(less)
+            L(k) = find(less, 1, 'last');
+        end
+        if any(more)
+            R(k) = find(more, 1, 'first');
+        end
+    end
+    u = L & R; % valid interpolatory points
+    I = find(u);
+    L = L(u);
+    R = R(u);
+    xi = xi(u);
+    
+    I = [I I];
+    J = [L R];
+    dx = x(R) - x(L);
+    V = [(x(R)-xi), (xi-x(L))];
+    V(dx>0, :) = spdiag( 1./dx(dx>0) ) * V(dx>0, :);
+    V(~dx, :) = 1/2;
+    S = sparse(I, J, V, N, numel(x));
+end
+\end{lstlisting}
+
+\subsubsection{Binary Operators}
+\begin{lstlisting}
+% Abstract class for a binary operator
+classdef Binary < Operator
+properties
+    op1, op2;
+end
+
+methods
+    function self = Binary(op1, op2)
+        if isa(op1, 'Operator') && isa(op2, 'Operator')
+            assert(op1.grid == op2.grid);
+        end
+        if ~isa(op1, 'Operator')
+            op1 = Const(op2.grid, op1);
+        end
+        if ~isa(op2, 'Operator')
+            op2 = Const(op1.grid, op2);
+        end
+        self = self@Operator(op1.grid);
+        self.op1 = op1;
+        self.op2 = op2;
+    end
+end
+
+end
+\end{lstlisting}
+\begin{lstlisting}
+classdef Product < Binary
+
+methods
+    function self = Product(op1, op2)
+        self = self@Binary(op1, op2);
+    end
+    function r = res(self)
+        r = self.op1.res() .* self.op2.res();
+    end
+    function g = grad(self)
+        g1 = dot_prod(spdiag(self.op2.res()), self.op1.grad());
+        g2 = dot_prod(spdiag(self.op1.res()), self.op2.grad());
+        g = g1 + g2;
+    end
+end
+
+end
+\end{lstlisting}
+
+\begin{lstlisting}
+classdef Sum < Binary
+
+methods
+    function self = Sum(op1, op2)
+        self = self@Binary(op1, op2);
+    end
+    function r = res(self)
+        r = self.op1.res() + self.op2.res();
+    end
+    function g = grad(self)
+        g1 = self.op1.grad();
+        g2 = self.op2.grad();
+        g = g1 + g2;
+    end
+end
+
+end
+\end{lstlisting}
+
+\subsubsection{Unary operator}
+\begin{lstlisting}
+classdef Func < Operator
+properties
+    op; % Input operator
+    func; % y = f(x)
+    deriv; % dy/dx = f'(x)
+end
+
+methods
+    function self = Func(op, func)
+        grid = op.grid; % Reuse operator's grid
+        self = self@Operator(grid);
+        self.op = op;
+        if ~isempty(func)
+            if isa(func, 'char')
+                func = sym(func);
+            end % using symoblic toolbox
+            self.func = matlabFunction(func);
+            self.deriv = matlabFunction(diff(func));
+        else % just copy values to grid
+            self.func = @(x) x;
+            self.deriv = @(x) ones(size(x));
+        end
+    end
+    function r = res(self)
+        r = self.func( self.op.res() );
+    end
+    function G = grad(self)
+        r = self.op.res();
+        G = dot_prod(spdiag( self.deriv(r) ), self.op.grad());
+    end
+end
+
+end
+\end{lstlisting}
+
+\begin{lstlisting}
+classdef Const < Operator
+properties
+    val;
+end
+
+methods
+    function self = Const(grid, val)
+        self = self@Operator(grid);
+        if isa(val, 'float')
+            if numel(val) == 1
+                val = repmat(val, grid.size);
+            end
+            self.val = val;
+        else % function handle evaluated point-wise
+            if isa(val, 'char')
+                val = str2func(['@(r,t) ' val]);
+            end
+            self.val = arrayfun(val, grid.R, grid.T);
+        end
+    end
+    function r = res(self)
+        r = self.val(:);
+    end
+    function G = grad(self)
+        G = sparse(0); % [0]
+    end
+end
+
+end
+\end{lstlisting}
+
+\begin{lstlisting}
+\end{lstlisting}
+
 
 \chapter{Results and Discussion} \label{ch:results}
 
@@ -1208,13 +1550,17 @@ Moreover, two interesting phenomena (cubic regime and downstream vortex) were pr
 using the numerical results, and were verified using asymptotic expansion of the
 nonlinear system.
 
+For strong electric field ($\beta \gg 1)$, the nonlinear effects become dominant and
+another boundary-layer structure is expected to form near the particle surface. 
+In order to achieve high numerical accuracy, the grid discretization should be made finer
+near the particle surface (at $r = 1$), while $R_{max}$ can be made smaller.
+In addition, the continuation of the solution between different $\beta$ values
+should advance in finer steps, for Newton method convergence.
+
 \section{Future Work}
 Future work may include replacing the full Newton step by an iterative linear solver
 (e.g. using preconditioned Krylov subspace methods \cite{saad2003book} or
 Multigrid), allowing finer grids to be used.
-Since it is expected that a boundary layer should form around the particle for $\beta \gg 1$,
-a numerical solver should be able to handle large grids to achieve good numeric accuracy.
-
 In addition, the framework may be used for automatic construction of Newton solvers 
 for other nonlinear PDE systems, for example -- for particle with different surface 
 properties, or different particle shape.
