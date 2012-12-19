@@ -18,7 +18,6 @@
 \usepackage{longtable}
 \usepackage[framed,numbered,autolinebreaks,useliterate]{mcode}
 
-
 \floatstyle{ruled}
 \newfloat{program}{thp}{lop}
 %-------------------------------------------
@@ -102,6 +101,16 @@
 
 % Unit vector
 \newcommand\ui{\boldsymbol{\hat{\imath}}}
+
+\setlength{\textheight}{9in}
+\setlength{\textwidth}{7in}
+\setlength{\topmargin}{0.05in}
+\setlength{\headheight}{0.2in}
+\setlength{\headsep}{0.1in}
+\setlength{\evensidemargin}{0in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\parindent}{0.0 in}
+\setlength{\parskip}{0.1 in}
 
 % For some reason, the hebrew package clashes with the amsthm package. If you need a proof environment, you can uncomment the following:
 %\usepackage{amssymb} %Needed for \blacksquare. Take care not to add this package twice...
@@ -870,7 +879,7 @@ The MATLAB programming language is chosen due to strong numerical capabilities
 and high-level language features.
 The source code of the solver is provided in \cite{source}.
 
-\subsection{Operator Interface}
+\subsection{Operator Interface} \label{sec:operator-interface}
 The base \verb|Operator| interface is defined by 
 supporting the computation of a residual vector \verb|Operator::res()|
 and a gradient matrix \verb|Operator::grad()|, given an input vector $\bx$.
@@ -939,7 +948,7 @@ contain only their derivatives.
 In order to overcome the singularity of the linear system 
 $\bG \Delta\bx = -\br$, we set the variable at 
 a specific grid point to be $0$.
-In order to retain square system, we should remove one conservation equation at this grid point too.
+In order to retain a square system, we remove one conservation equation at this grid point too.
 In the case of pressure $P$, we remove one mass conservation equation,
 $\bnabla \cdot \bV = 0$, at this grid point. 
 In the case of electric potential, we remove the charge conservation
@@ -963,42 +972,62 @@ we apply the following algorithm until convergence ($\|\boldsymbol{r_n}\| < \eps
 \item Update solution: $\bx_{n+1} = \bx_{n} + \mathbb{P}\Delta \bx_{n}$
 \end{enumerate}
 
-\subsection{Sample source code}
+\section{Source code overview}
 
-\subsubsection{Variable class}
-\begin{figure}
+\subsection{Variable}
+We define the variable vector $\bx$ as \verb|Variable| 
+operator using the following MATLAB code:
+
 \begin{lstlisting}
 classdef Variable < handle
 properties
     value;
 end
-
 methods
     function self = Variable(varargin)
         self.value = col(varargin{:});
     end
-    
     function r = res(self)
         r = self.value(:);
     end
-    
     function G = grad(self) 
         G = speye(numel(self.value));
     end
-    
-    function update(self, delta)
-        assert(numel(self.value) == numel(delta))
-        self.value = self.value + delta;
+    function update(self, dv)
+        self.value = self.value + dv;
     end
 end
+\end{lstlisting}
+Then the initial solution for the solver is set using
+$\bx = \verb|Variable|(\varPhi, C, V_r, V_t, P)$
+from the initial conditions of the solver.
 
+\subsection{Grid}
+Most of the operators are defined a \verb|Grid| object,
+enabling validation of operators compatibility and 
+convenient interpolation between grids. Note that
+each operator must define its \verb|res()| and \verb|grad()|
+functions, for residual and gradient computation, respectively.
+\begin{lstlisting}
+% Regular structured grid class
+classdef Grid < handle
+properties
+    x, y;
+    X, Y;
+    size;    
+    numel;
+end
+methods
+    function self = Grid(x, y)
+        self.x = x(:);
+        self.y = y(:);
+        [self.X, self.Y] = ndgrid(self.x, self.y);
+        self.size = [numel(self.x), numel(self.y)];
+        self.numel = prod(self.size);
+    end
 end
 \end{lstlisting}
-\end{figure}
-
-\subsubsection{Operator interface}
 \begin{lstlisting}
-% An operator base class.
 classdef Operator < handle
 properties
     grid; % a grid object for the output
@@ -1035,243 +1064,25 @@ methods
         op = Func(op, 'tanh(x)');
     end
 end
-end
 \end{lstlisting}
+Thus, various computations can be applied on simple operators, 
+creating more complex operators, such as
+\verb|op4 = op1 * exp(op2 + tanh(op3))|. 
+Since each operator can compute its residual and gradient, we
+can compute automatically the residual and gradient of \verb|o4|
+from these of \verb|o1|, \verb|o2|, \verb|o3| using the derivation
+rules described at \ref{sec:operator-interface}.
 
-\subsubsection{Linear operators}
-\begin{lstlisting}
-% Linear Sparse operator.
-classdef Linear < Operator
-properties
-    L;
-    op;
-end
-
-methods
-    function self = Linear(grid, op, L)
-        self = self@Operator(grid);
-        self.op = op;
-        if (nargin < 3 || isempty(L))
-            L = 1;
-        end
-        if isequal(L, 1)
-            L = speye(grid.numel); % Default copy operator
-        end
-        assert(size(L, 1) == grid.numel);
-        assert(size(L, 2) == op.grid.numel);
-        self.L = L;
-    end
-    function r = res(self)
-        r = self.L * self.op.res();
-    end
-    function G = grad(self)
-        G = dot_prod(self.L, self.op.grad());
-    end
-end
-
-end
-\end{lstlisting}
-
-\begin{lstlisting}
-classdef Deriv < Linear
-
-methods
-    function self = Deriv(grid, op, dim)
-        dir = (1:2) == dim;
-        assert(any(dir));
-
-        J = true(op.grid.size);
-        J1 = shift(J, dir); % forward mask
-        J0 = shift(J1, -dir); % backward mask
-        J = [find(J0(:)) find(J1(:))]; % column indices
-        
-        N = size(J, 1); % # of equations
-        M = op.grid.numel; % # of variables
-        I = repmat(1:N, 1, 2); % row indices
-
-        % Finite difference operator
-        D = sparse(I, J, repmat([-1 1], N, 1), N, M); 
-        
-        switch dim % Choose coordinate
-            case 1, x = op.grid.R;
-            case 2, x = op.grid.T;
-        end
-        
-        % L = D/Dx
-        Dx = D * x(:);
-        assert(all(Dx));
-        
-        L = spdiag( 1./Dx ) * D;
-        self = self@Linear(grid, op, L);        
-    end
-end
-
-end
-\end{lstlisting}
-
-\begin{lstlisting}
-classdef Interp < Linear
-
-methods
-    function self = Interp(grid, op)
-        L = interpolate_grids(grid, op.grid);
-        self = self@Linear(grid, op, L);
-    end
-end
-
-end
-
-function S = interpolate_grids(dst, src)
-    n = fieldnames(src);
-    S1 = interpolate_matrix(src.(n{1}), dst.(n{1}));
-    S1 = kron(speye(numel(src.(n{2}))), S1); % Interpolate on 1st dimension
-    S2 = interpolate_matrix(src.(n{2}), dst.(n{2}));
-    S2 = kron(S2, speye(numel(dst.(n{1})))); % Interpolate on 2nd dimension
-    S = S2 * S1;    
-end
-
-function S = interpolate_matrix(x, xi)
-    x = x(:);
-    xi = xi(:);
-    N = numel(xi);
-    L = zeros(N, 1);
-    R = zeros(N, 1);
-    for k = 1:N
-        less = x <= xi(k);
-        more = x >= xi(k);
-        if any(less)
-            L(k) = find(less, 1, 'last');
-        end
-        if any(more)
-            R(k) = find(more, 1, 'first');
-        end
-    end
-    u = L & R; % valid interpolatory points
-    I = find(u);
-    L = L(u);
-    R = R(u);
-    xi = xi(u);
-    
-    I = [I I];
-    J = [L R];
-    dx = x(R) - x(L);
-    V = [(x(R)-xi), (xi-x(L))];
-    V(dx>0, :) = spdiag( 1./dx(dx>0) ) * V(dx>0, :);
-    V(~dx, :) = 1/2;
-    S = sparse(I, J, V, N, numel(x));
-end
-\end{lstlisting}
-
-\subsubsection{Binary Operators}
-\begin{lstlisting}
-% Abstract class for a binary operator
-classdef Binary < Operator
-properties
-    op1, op2;
-end
-
-methods
-    function self = Binary(op1, op2)
-        if isa(op1, 'Operator') && isa(op2, 'Operator')
-            assert(op1.grid == op2.grid);
-        end
-        if ~isa(op1, 'Operator')
-            op1 = Const(op2.grid, op1);
-        end
-        if ~isa(op2, 'Operator')
-            op2 = Const(op1.grid, op2);
-        end
-        self = self@Operator(op1.grid);
-        self.op1 = op1;
-        self.op2 = op2;
-    end
-end
-
-end
-\end{lstlisting}
-\begin{lstlisting}
-classdef Product < Binary
-
-methods
-    function self = Product(op1, op2)
-        self = self@Binary(op1, op2);
-    end
-    function r = res(self)
-        r = self.op1.res() .* self.op2.res();
-    end
-    function g = grad(self)
-        g1 = dot_prod(spdiag(self.op2.res()), self.op1.grad());
-        g2 = dot_prod(spdiag(self.op1.res()), self.op2.grad());
-        g = g1 + g2;
-    end
-end
-
-end
-\end{lstlisting}
-
-\begin{lstlisting}
-classdef Sum < Binary
-
-methods
-    function self = Sum(op1, op2)
-        self = self@Binary(op1, op2);
-    end
-    function r = res(self)
-        r = self.op1.res() + self.op2.res();
-    end
-    function g = grad(self)
-        g1 = self.op1.grad();
-        g2 = self.op2.grad();
-        g = g1 + g2;
-    end
-end
-
-end
-\end{lstlisting}
-
-\subsubsection{Unary operator}
-\begin{lstlisting}
-classdef Func < Operator
-properties
-    op; % Input operator
-    func; % y = f(x)
-    deriv; % dy/dx = f'(x)
-end
-
-methods
-    function self = Func(op, func)
-        grid = op.grid; % Reuse operator's grid
-        self = self@Operator(grid);
-        self.op = op;
-        if ~isempty(func)
-            if isa(func, 'char')
-                func = sym(func);
-            end % using symoblic toolbox
-            self.func = matlabFunction(func);
-            self.deriv = matlabFunction(diff(func));
-        else % just copy values to grid
-            self.func = @(x) x;
-            self.deriv = @(x) ones(size(x));
-        end
-    end
-    function r = res(self)
-        r = self.func( self.op.res() );
-    end
-    function G = grad(self)
-        r = self.op.res();
-        G = dot_prod(spdiag( self.deriv(r) ), self.op.grad());
-    end
-end
-
-end
-\end{lstlisting}
+\subsection{Operators}
+An operator can be created with $n$ existing operators as input.
+\verb|Const| is an operator that corresponds to $n=0$, whose 
+residual value is constant and gradient matrix is zero.
 
 \begin{lstlisting}
 classdef Const < Operator
 properties
     val;
 end
-
 methods
     function self = Const(grid, val)
         self = self@Operator(grid);
@@ -1294,13 +1105,148 @@ methods
         G = sparse(0); % [0]
     end
 end
+\end{lstlisting}
 
+\subsubsection{Unary operators}
+Unary operators have one existing operator as input. 
+\verb|Func| operator implements point-wise analytic function
+application (whose derivative is computed using symbolic differentiation toolbox) on the same grid of the input operator. 
+\verb|Linear| operator is implemented
+using multiplication by a constant sparse matrix 
+\verb|L|, which is also the gradient of the operator.
+\begin{lstlisting}
+classdef Func < Operator
+properties
+    op; % Input operator
+    func; % y = f(x)
+    deriv; % dy/dx = f'(x)
+end
+methods
+    function self = Func(op, func)
+        grid = op.grid; % Reuse operator's grid
+        self = self@Operator(grid);
+        self.op = op;
+        if isa(func, 'char')
+        	func = sym(func); 
+        end 
+        self.func = matlabFunction(func);
+        self.deriv = matlabFunction(diff(func));
+    end
+    function r = res(self)
+        r = self.func( self.op.res() );
+    end
+    function G = grad(self)
+        r = self.op.res();
+        G = spdiag( self.deriv(r) ) * self.op.grad();
+    end
+end
+\end{lstlisting}
+\begin{lstlisting}
+classdef Linear < Operator
+properties
+    L;
+    op;
+end
+methods
+    function self = Linear(grid, op, L)
+        self = self@Operator(grid);
+        self.op = op;
+        self.L = L;
+    end
+    function r = res(self)
+        r = self.L * self.op.res();
+    end
+    function G = grad(self)
+        G = self.L * self.op.grad();
+    end
+end
+\end{lstlisting}
+\verb|Deriv| and \verb|Interp| operators (implementing discrete
+differentiation and grid interpolation) derive from \verb|Linear|
+base class operator and specify \verb|L| sparse matrix accordingly.
+
+\subsubsection{Binary operators}
+Binary operators such as addition, subtraction and point-wise 
+multiplication are implemented as operators whose
+output grid is the as the grid of their inputs. 
+The implementation is used by operator overloading in 
+the base class \verb|Operator|.
+
+\subsubsection{$N$-ary operators}
+All equations and boundary condition operators are defined
+as operators \verb|{op1, op2, ... opN}|. 
+Then, they are combined using the $N$-ary operator 
+\verb|op = Join(op1, op2, ... opN)|, creating
+the system operator \verb|op|.
+
+\begin{lstlisting}
+classdef Join < handle
+properties
+    ops;
+end
+methods
+    function self = Join(varargin)
+        self.ops = varargin;
+        for k = 1:numel(self.ops),
+            op = self.ops{k};
+        end
+    end
+    function r = res(self)
+        r = cell(numel(self.ops), 1);
+        for k = 1:numel(self.ops)
+            r{k} = self.ops{k}.res();
+        end
+        r = cat(1, r{:});
+    end
+    function G = grad(self) 
+        G = cell(numel(self.ops), 1);
+        for k = 1:numel(self.ops)
+            G{k} = self.ops{k}.grad();
+        end
+        G = cat(1, G{:});
+    end
 end
 \end{lstlisting}
 
-\begin{lstlisting}
-\end{lstlisting}
+\subsection{Sample source code}
+The following example shows how to define the following boundary-value problem:
+\begin{align}
+\Laplacian F(x,y) &= 1 & (x,y) &\in [0,1]^2 \\
+F(0, y) = F(1, y) &= 0 & y &\in [0,1] \\
+\deriv{F}{y}(x, 0) = \deriv{F}{y}(x, 1) &= 0 & x &\in [0,1]
+\end{align}
 
+\begin{lstlisting}
+% Grid definition
+x = linspace(0, 1);
+y = linspace(0, 1);
+g = Grid(x, y);
+x_ = (x(1:end-1) + x(2:end)) * 0.5;
+y_ = (y(1:end-1) + y(2:end)) * 0.5;
+xi = x(2:end-1);
+yi = y(2:end-1);
+% Variable Definition
+v = Variable(zeros(g.size));
+F = Linear(g, v, speye(g.numel));
+% Equations
+Fx = Deriv(Grid(x_, y), F, 1);
+Fy = Deriv(Grid(x, y_), F, 2);
+Fxx = Deriv(Grid(xi, yi), Fx, 1);
+Fyy = Deriv(Grid(xi, yi), Fy, 2);
+eq = {(Fxx + Fyy) - Const(1)};             % Laplacian(F) = 1
+% Boundary conditions
+bnd = {Interp(Grid(x(1)  , y(2:end-1)), F); ... % F(0, y) = 0
+	   Interp(Grid(x(end), y(2:end-1)), F); ... % F(1, y) = 0
+       Interp(Grid(x, y_(1)  ), Fy); ...    % dF/dy(x, 0) = 0
+       Interp(Grid(x, y_(end)), Fy)}		% dF/dy(x, 1) = 0
+% System operator
+ops = cat(1, eq, bnd)
+op = Join(ops{:})
+% Solve by Newton iteration
+r = op.res()
+G = op.grad()
+v.update(-(G\r))
+\end{lstlisting}
 
 \chapter{Results and Discussion} \label{ch:results}
 
@@ -1309,7 +1255,7 @@ In order to validate the numerical results, an asymptotic analysis has been appl
 to the nonlinear systems of ion-exchanger migration 
 and highly charged particle electrophoresis.
 We present here the asymptotic analysis for the ion-exchanger case \cite{yariv2010migration},
-and the asymptotic analysis for the electrophoresis case \cite{schnitzer2012surface}
+while the asymptotic analysis for the electrophoresis case \cite{schnitzer2012surface}
 is derived by Schnitzer and Yariv at \cite{schnitzer2012cubic}.
 
 The derivation is performed as follows.
@@ -1324,7 +1270,6 @@ are expanded around $\beta = 0$:
 \begin{equation}
 \bzero = \cO(\bx) = \sum_i \cO_i(\bx_0, \ldots \bx_i) \beta^i.
 \end{equation}
-
 Thus, the $O(\beta^k)$ term $\bx_k$ can be found recursively by solving 
 $\cO_k(\bx_0, \bx_1, \ldots, \bx_k) = \bzero$,
 given the previous solutions for $\bx_0, \ldots, \bx_{k-1}$.
@@ -1341,14 +1286,12 @@ C_0(r,\theta) = 1, &
 \bV_0(r,\theta) = \bzero, &
 P_0(r,\theta) = 0.
 \end{array}\end{equation}
-
 Assuming $\beta \ll 1$, the linearized equations and boundary conditions are
 \begin{equation} \begin{array}{ccc}
 \Laplacian \varPhi_1 = 0, &
 \Laplacian C_1 = 0, &
 \bLaplacian \bV_1 - \bnabla P_1 = \bzero.
 \end{array}\end{equation}
-
 The first-order terms $\bx_1$ are given by (see \cite{yariv2010migration} for full derivation)
 \begin{equation} \begin{array}{cccc}
 \varPhi_1 = \pars{\frac{1}{4r^2} - r}\cos\theta, &
@@ -1392,7 +1335,6 @@ Therefore, $\cU_2 = 0$ and the next velocity term is the cubic one:
 \begin{equation} \label{eq:cubic}
 \cU(\beta) \approx \beta \cU_1 + \beta^3 \cU_3 + O(\beta^5).
 \end{equation}
-
 The cubic terms $\bx_3$ are computed by solving a linear PDE system 
 with a right-hand side determined by the linear terms $\bx_1$ and the quadratic terms $\bx_2$.
 
@@ -1443,17 +1385,14 @@ r^2 {\sin^2\theta} \left(\frac{{\cW_2}}{15} - \frac{{\cW_1}}{3} + \frac{209}{336
 \\ \nonumber &
 - \frac{297\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) + 54}{1024 \left(\sqrt{\gamma} + 1\right)}.
 \end{align*}
-
 The cubic solution satisfies the boundary conditions only when $\alpha\cU_1 = 0$,
 due to boundary conditions mismatch for $C$ at $r \rightarrow \infty$, when
 the diffusion and the advection terms become of the same order of magnitude.
-
 The cubic correction velocity terms (for $\alpha = 0$)
 turn out to be:
 \begin{equation}
 \cU_3(\gamma) = \frac{31}{320(\sqrt\gamma + 1)} - \frac{9}{320(\sqrt\gamma + 1)^2} + \frac{1}{1680} - \frac{11}{160} \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}.
 \end{equation}
-
 The cubic term becomes dominant for small $\beta$ when $\gamma \approx 1$.
 Note that, for $\gamma = 1$, the linear term vanishes and the cubic term 
 of the velocity is $\cU(\beta) = \frac{1129}{26880}\beta^3$.
