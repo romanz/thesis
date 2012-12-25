@@ -637,9 +637,14 @@ r_i &= (1+\Delta_r)^i, \\
 where a logarithmic grid spacing has been chosen for $r$ and a uniform grid for $\theta$.
 Note that $r_0 = 1$ and $R_{max} = (1+\Delta_r)^{n_r}$, where
 $\Delta_r = \pars{R_{max}} ^ {1/n_r} - 1$ and $\Delta_\theta = {\pi/n_\theta}$.
-Because the grid is finite, the choice 
-$R_{max}$ must be taken large enough so as to have a negligible effect
-on the solution.
+
+Because the grid is finite, the choice $R_{max}$ must be taken large enough 
+so as to have a negligible effect on the solution. 
+On the other hand, in order to have high resolution grid near the particle surface,
+$\Delta_r$ should be minimized. It should be noted that for given grid size $n_r$,
+these requirements cannot be satisfied simultaneously -- thus, a compromise is required
+between large $R_{max}$ and small $\Delta_r$.
+
 This grid induces a disjoint subdivision of the domain 
 $\Omega = [1, R_{max}] \times [0,\pi] = \bigcup_{ij}\Omega_{ij}$ into cells.
 A specific cell $\Omega_{ij}$ and its center $(\bar{r}_i, \bar{\theta}_j)$ are defined by \eqref{eq:grid}:
@@ -663,8 +668,7 @@ P^h_{[i,j]} &= P(\bar{r}_i, \bar{\theta}_j), \\
 \nonumber V_r^h{}_{[i,j]} &= V_r(r_i, \bar{\theta}_j), \\
 \nonumber V_\theta^h{}_{[i,j]} &= V_\theta(\bar{r}_i, {\theta}_j).
 \end{align}
-
-\begin{figure}[htbp]
+\begin{figure}[h]
     \begin{center}
 	\includegraphics[width=0.8\textwidth]{figs/grids.eps}
         \caption[Computational grid]{The computational grid is defined using
@@ -973,11 +977,13 @@ we apply the following algorithm until convergence ($\|\boldsymbol{r_n}\| < \eps
 \end{enumerate}
 
 \section{Source code overview}
-
+In the following section we present the source code of the numerical framework and demonstrate its
+usage for solving a boundary-value problem.
 \subsection{Variable}
 We define the variable vector $\bx$ as \verb|Variable| 
-operator using the following MATLAB code:
+operator (Figure \ref{fig:variable.m}).
 
+\begin{figure}[htpb]
 \begin{lstlisting}
 classdef Variable < handle
 properties
@@ -998,16 +1004,21 @@ methods
     end
 end
 \end{lstlisting}
+\caption{Variable class source code.} \label{fig:variable.m}
+\end{figure}
 Then the initial solution for the solver is set using
 $\bx = \verb|Variable|(\varPhi, C, V_r, V_t, P)$
 from the initial conditions of the solver.
 
 \subsection{Grid}
-Most of the operators are defined a \verb|Grid| object,
+Most of the operators are using a \verb|Grid| object (Figure \ref{fig:grid.m}),
 enabling validation of operators compatibility and 
 convenient interpolation between grids. Note that
 each operator must define its \verb|res()| and \verb|grad()|
 functions, for residual and gradient computation, respectively.
+An \verb|Operator| interface is used (Figure \ref{fig:operator.m}) 
+to support operator overloading MATLAB syntax.
+\begin{figure}[h]
 \begin{lstlisting}
 % Regular structured grid class
 classdef Grid < handle
@@ -1027,6 +1038,9 @@ methods
     end
 end
 \end{lstlisting}
+\caption{Grid class source code.} \label{fig:grid.m}
+\end{figure}
+\begin{figure}[h]
 \begin{lstlisting}
 classdef Operator < handle
 properties
@@ -1065,6 +1079,9 @@ methods
     end
 end
 \end{lstlisting}
+\caption{Operator interface source code.} \label{fig:operator.m}
+\end{figure}
+
 Thus, various computations can be applied on simple operators, 
 creating more complex operators, such as
 \verb|op4 = op1 * exp(op2 + tanh(op3))|. 
@@ -1076,8 +1093,9 @@ rules described at \ref{sec:operator-interface}.
 \subsection{Operators}
 An operator can be created with $n$ existing operators as input.
 \verb|Const| is an operator that corresponds to $n=0$, whose 
-residual value is constant and gradient matrix is zero.
+residual value is constant and gradient matrix is zero (see Figure \ref{fig:const.m}).
 
+\begin{figure}[h]
 \begin{lstlisting}
 classdef Const < Operator
 properties
@@ -1106,14 +1124,22 @@ methods
     end
 end
 \end{lstlisting}
+\caption{Constant operator source code.} \label{fig:const.m}
+\end{figure}
 
 \subsubsection{Unary operators}
 Unary operators have one existing operator as input. 
 \verb|Func| operator implements point-wise analytic function
-application (whose derivative is computed using symbolic differentiation toolbox) on the same grid of the input operator. 
+application (whose derivative is computed using symbolic differentiation toolbox) on the same grid of the input operator (Figure \ref{fig:func.m}). 
 \verb|Linear| operator is implemented
 using multiplication by a constant sparse matrix 
-\verb|L|, which is also the gradient of the operator.
+\verb|L|, which is also the gradient of the operator
+(Figure \ref{fig:linear.m}).
+\verb|Deriv| and \verb|Interp| operators (implementing discrete
+differentiation and grid interpolation) derive from \verb|Linear|
+base class operator and specify \verb|L| sparse matrix accordingly.
+
+\begin{figure}[h]
 \begin{lstlisting}
 classdef Func < Operator
 properties
@@ -1141,6 +1167,9 @@ methods
     end
 end
 \end{lstlisting}
+\caption{Pointwise function source code.} \label{fig:func.m}
+\end{figure}
+\begin{figure}[h]
 \begin{lstlisting}
 classdef Linear < Operator
 properties
@@ -1161,9 +1190,8 @@ methods
     end
 end
 \end{lstlisting}
-\verb|Deriv| and \verb|Interp| operators (implementing discrete
-differentiation and grid interpolation) derive from \verb|Linear|
-base class operator and specify \verb|L| sparse matrix accordingly.
+\caption{Linear operator source code.} \label{fig:linear.m}
+\end{figure}
 
 \subsubsection{Binary operators}
 Binary operators such as addition, subtraction and point-wise 
@@ -1177,18 +1205,19 @@ All equations and boundary condition operators are defined
 as operators \verb|{op1, op2, ... opN}|. 
 Then, they are combined using the $N$-ary operator 
 \verb|op = Join(op1, op2, ... opN)|, creating
-the system operator \verb|op|.
+the system operator \verb|op| (Figure \ref{fig:join.m}).
 
+\begin{figure}[htpb]
 \begin{lstlisting}
 classdef Join < handle
 properties
     ops;
 end
 methods
-    function self = Join(varargin)
-        self.ops = varargin;
-        for k = 1:numel(self.ops),
-            op = self.ops{k};
+    function self = Join(operators)
+        self.ops = operators;
+        for k = 1:numel(self.ops)
+        	op = self.ops{k}; 
         end
     end
     function r = res(self)
@@ -1207,6 +1236,8 @@ methods
     end
 end
 \end{lstlisting}
+\caption{Join operator source code.} \label{fig:join.m}
+\end{figure}
 
 \subsection{Sample source code}
 The following example shows how to define the following boundary-value problem:
@@ -1215,38 +1246,35 @@ The following example shows how to define the following boundary-value problem:
 F(0, y) = F(1, y) &= 0 & y &\in [0,1] \\
 \deriv{F}{y}(x, 0) = \deriv{F}{y}(x, 1) &= 0 & x &\in [0,1]
 \end{align}
-
+and solve it using one Newton method step.
+The source code is presented at Figure \ref{fig:sample.m}.
+\begin{figure}[htpb]
 \begin{lstlisting}
-% Grid definition
-x = linspace(0, 1);
+x = linspace(0, 1); 
 y = linspace(0, 1);
-g = Grid(x, y);
+g = Grid(x, y); % Grid definition
 x_ = (x(1:end-1) + x(2:end)) * 0.5;
 y_ = (y(1:end-1) + y(2:end)) * 0.5;
 xi = x(2:end-1);
 yi = y(2:end-1);
-% Variable Definition
-v = Variable(zeros(g.size));
-F = Linear(g, v, speye(g.numel));
-% Equations
+v = Variable(zeros(g.size)); 
+F = Linear(g, v, speye(g.numel)); % Variable Definition
 Fx = Deriv(Grid(x_, y), F, 1);
 Fy = Deriv(Grid(x, y_), F, 2);
 Fxx = Deriv(Grid(xi, yi), Fx, 1);
 Fyy = Deriv(Grid(xi, yi), Fy, 2);
-eq = {(Fxx + Fyy) - Const(1)};             % Laplacian(F) = 1
-% Boundary conditions
-bnd = {Interp(Grid(x(1)  , y(2:end-1)), F); ... % F(0, y) = 0
-	   Interp(Grid(x(end), y(2:end-1)), F); ... % F(1, y) = 0
-       Interp(Grid(x, y_(1)  ), Fy); ...    % dF/dy(x, 0) = 0
-       Interp(Grid(x, y_(end)), Fy)}		% dF/dy(x, 1) = 0
-% System operator
-ops = cat(1, eq, bnd)
-op = Join(ops{:})
-% Solve by Newton iteration
+eq = {(Fxx + Fyy) - Const(1)};               % Laplacian(F) = 1
+bnd = {Interp(Grid(0.0, y(2:end-1)), F); ... % F(0, y) = 0
+	   Interp(Grid(1.0, y(2:end-1)), F); ... % F(1, y) = 0
+       Interp(Grid(x, 0.0), Fy); ...         % dF/dy(x, 0) = 0
+       Interp(Grid(x, 1.0), Fy)}		     % dF/dy(x, 1) = 0       
+op = Join([eq; bnd]); % System operator
 r = op.res()
 G = op.grad()
-v.update(-(G\r))
+v.update(-(G\r)) % Solve by Newton iteration
 \end{lstlisting}
+\caption{Sample problem source code.} \label{fig:sample.m}
+\end{figure}
 
 \chapter{Results and Discussion} \label{ch:results}
 
@@ -1300,9 +1328,11 @@ C_1 = \frac{3}{4r^2} \cos\theta, &
 P_1 = 0,
 \end{array} \end{equation}
 and the linear velocity term is:
-\begin{equation} \label{eq:linear_velocity}
-\cU_1(\gamma) = 2 \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}.
-\end{equation}
+\begin{align} \label{eq:linear_velocity}
+\bV_1 &= \cU_1 \pars{ \pars{-1 + r^{-3}}\cos\theta \cdot \brhat 
++ \pars{1 + r^{-3} / 2} \sin\theta \cdot \bthetahat } \\
+\cU_1(\gamma) &= 2 \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}.
+\end{align}
 For $\gamma > 1$, the Debye layer has a positive space charge, 
 corresponding to a negative particle charge -- 
 yielding negative drift velocity, $\cU < 0$. 
@@ -1440,7 +1470,7 @@ an electric field value of $\beta = O(\sqrt{|\gamma - 1|})$.
 The numerical results $\cU^h$, 
 as well as the analytical ones \eqref{eq:cubic}, are given in Figure \ref{fig:IonExCubic}.
 The numerical solver uses $N_r \times N_\theta = (400 \times 50)$, 
-$R_{\max} = 10^7$,
+$R_{\max} = 10^7$ ($\Delta_r \approx 0.041$),
 $K = 3$, $M = 5$ and $\beta = 10^{t}$ for $t = -2:0.1:0.5$.
 
 
@@ -1474,8 +1504,9 @@ The results of the extrapolation and $\hat\cU$ the analytical results
 are given at Figures \ref{fig:Electrophoresis1} and \ref{fig:Electrophoresis2}.
 The numerical solver uses $R_{\max} = 10^2$,
 $K = 3$, $M = 5$ and $\beta = 0.1 \cdot 2^{t}$ for $t = -2:0.5:5$.
-The solver is applied to 2 grids of $N_r \times N_\theta = (128 \times 128)$ as the coarse grid,
-and $N_r \times N_\theta = (256 \times 256)$ as the fine grid, in order to use Richardson extrapolation for $\hat\cU$.
+The solver is applied to 2 grids of $N_r \times N_\theta = (128 \times 128)$ as the coarse grid 
+(with $\Delta_r \approx 0.037$), and $N_r \times N_\theta = (256 \times 256)$ as the fine grid
+(with $\Delta_r \approx 0.018$), in order to use Richardson extrapolation for $\hat\cU$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 \section{Discussion} \label{sec:discussion}
@@ -1488,6 +1519,11 @@ shown above.
 Moreover, two interesting phenomena (cubic regime and downstream vortex) were predicted
 using the numerical results, and were verified using asymptotic expansion of the
 nonlinear system.
+
+The computational grid is created to have fine resolution near the particle surface, while
+approximating the far-away boundary conditions. The logarithmic discretization is motivated
+by the solution of the linearized Stokes problem, where the largest gradients are near the particle
+and the solution approaches the outer boundary conditions far away from the particle.
 
 For strong electric field ($\beta \gg 1)$, the nonlinear effects become dominant and
 another boundary-layer structure is expected to form near the particle surface. 
