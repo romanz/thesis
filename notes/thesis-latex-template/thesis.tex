@@ -810,9 +810,10 @@ V^h_\theta &=& \cI_\theta(\zeta^h) \cdot \cD_\theta(\cI_r \varPhi^h - \log \cI_r
 Let $\cO : \R^N \rightarrow \R^N $ be an nonlinear operator.
 In order to solve the equation $\cO(\bx) = \bzero$, Newton's method is applied, 
 given an initial solution $\bx_0$.
-Each step requires the computation of the residual vector, $\br = \cO(\bx)$, and
-the gradient matrix of the operator, $\bG = \bnabla \cO(\bx)$, 
-given the current solution $\bx$.
+Each step requires the computation of the residual vector, $\br = \cO(\bx)$, 
+the gradient matrix of the operator, $\bG = \bnabla \cO(\bx)$
+(given the current solution $\bx$)
+and the solution of sparse linear system $\bG \Delta \bx = -\br$.
 
 \subsection{Operator Representation}
 System variable $\bx$ is defined as the concatenation $\bx = [\,\varPhi, C, V_r, V_\theta, P\,]$.
@@ -883,6 +884,12 @@ Object-Oriented Design methodology is used for implementation.
 The MATLAB programming language is chosen due to strong numerical capabilities
 and high-level language features.
 The source code of the solver is provided in \cite{source}.
+
+MATLAB direct solver is applied to solve the sparse linear system for each Newton step,
+using the backslash operator. 
+The library used for solving the linear system is UMFPACK 5.0 \cite{davis2004umfpack}
+(Unsymmetric MultiFrontal Sparse LU Factorization Package),
+as reported by MATLAB function call, \verb|spparms('spumoni', 2)|. 
 
 \subsection{Operator Interface} \label{sec:operator-interface}
 The base \verb|Operator| interface is defined by 
@@ -1537,7 +1544,9 @@ In addition, the continuation of the solution between different $\beta$ values
 should advance in finer steps, for Newton method convergence.
 
 \section{Future Work}
-Future work may include replacing the full Newton step by an iterative linear solver
+Future work may include optimizing the direct sparse linear solver 
+to use the ordering data from previous calls,
+or replacing the full Newton step by an iterative linear solver
 (e.g. using preconditioned Krylov subspace methods \cite{saad2003book} or
 Multigrid), allowing finer grids to be used.
 In addition, the framework may be used for automatic construction of Newton solvers 
