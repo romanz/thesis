@@ -1,0 +1,46 @@
+				            TAMNUN PBS QUEUES - CURRENT CONFIGURATION 
+						
+		
+**********************************************************************************************************
+General Group		Queue		Queue		  Queue 							
+Assotiation		Priority	Name		  definitions		            ACL (access groups)
+**********************************************************************************************************
+1) Nano (RBNI)        High	      nano_h_p	 	wall time limit=168 h 
+						        available hosts  
+							 n001 - n028	               	Nano, Trainig
+							job CPU number limit=84	   
+-----------------------------------------------------------------------------------------------------------			
+		      		      nano_l_p		    routing queue 	       						 		      								        
+===========================================================================================================
+2) Minerva		High	      minerva_h_p         wall time limit=168 h             Minerva, Trainig
+							  av. hosts n029 - n080
+							  job CPU number limit=168 
+-----------------------------------------------------------------------------------------------------------
+				      minerva_l_p	  	routing queue		         
+===========================================================================================================
+3) General queue    	 Low          all_l_p              wall time limit=24 h		    
+							   av. hosts n001-n080		       All Users
+							   user CPU number limit = 256
+===============================================================================================================
+4) GPU			High	      gpu_h_p	  	  wall time limit=168 h	             GPU, Trainig
+							  av. hosts gn01 - gn04
+							  CPU number limit=48
+------------------------------------------------------------------------------------------------------------
+
+			Low	      gpu_l_p	   	  wall time limit=24 h	      	       All Users
+ 						          av. hosts gn01 - gn04                
+							  CPU number limit=48
+===========================================================================================================
+
+5) Gaussian 		High	     gaussian_ld   	  wall time limit=168 h	         Gaussian, Training
+  Large Disk						  av. hosts n097 - n100
+						          job CPU number limit=12
+-----------------------------------------------------------------------------------------------------------
+   General		Low	     general_ld	    wall time limit=24 h            
+  Large Disk						    av. hosts n097 - n100             Nano, Minerva, Technion
+							    job CPU number limit=72
+===========================================================================================================
+                                                         wall time limit=168 h
+6) Dan Mordehai	group	             bimech_q        av. hosts n081 - n096           Dan Mordehai group 	 
+						 	        CPU number limit=192 		  		     			
+===========================================================================================================

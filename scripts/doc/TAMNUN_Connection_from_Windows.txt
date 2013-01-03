@@ -1,0 +1,63 @@
+Dear TAMNUN Users,
+
+Below please find instructions for connecting to the TAMNUN server and
+running jobs on it. Preliminary information on working in Linux
+environment can be found at the following link:
+
+http://phycomp.technion.ac.il/~tamnun/linenv/
+
+
+1) Connection to server TX via GoGlobal
+==========================================
+In order to connect to Linux servers from your Windows PC please
+use X-windows emulator s/w GoGlobal
+
+http://www.technion.ac.il/usg/x-emu/GoGlobal/GG2.2.8_InstallationInstruction.pdf
+
+NB: GoGlobal connection to TX is available from any computer (also from home and from abroad).
+
+2) Connection to TAMNUN
+=======================
+After you obtain connection to tx.technion.ac.il, please doubleclick on
+the Xterm icon from the GoGlobal connection panel. In the window that opens
+please write
+
+> ssh user@tamnun.technion.ac.il [Enter]
+
+and then your TAMNUN password at the prompt. Thus connection to the server
+TAMNUN is established. The default quota for the TAMNUN users is 10 Gb.
+You can check the disk space usage by typing
+
+> quota -v [Enter]
+
+in the TAMNUN Xterm window.
+
+3) Running programs on TAMNUN
+=============================
+By ssh to TAMNUN you login to the head node. Here you can create, edit
+and compile you code, and then submit it to the Portable Batch SYstem (PBS)
+for execution. For information about using PBS please consult the relevant
+documents at the web site
+
+http://tamnun.technion.ac.il/doc/Local-help/
+
+(e.g. TAMNUN_PBS_USAGE.pdf). It is not recommended to run your code interactively,
+but it is possible for debugging purposes.
+
+4) Secure File transfer from Windows to Linux
+=============================================
+In order to transfer files to/from your
+Windows PC please download and install WinSCP freeware. In the Login
+window specify
+
+ server: tamnun.technion.ac.il
+ Port: 22
+ user: username
+ password: your TAMNUN password
+ File Protocol: SCP
+
+You can save the Login definitions for further usage. After login WinSCP
+opens the window which represents your home directory on TAMNUN where you
+can transfer files by drag-n-drop action.
+
+NB: Winscp access to TAMNUN is available only in the Technion local network

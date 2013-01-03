@@ -1,0 +1,93 @@
+				Software on Tamnun
+
+ AMBER12 - Molecular Dynamics Package. Licensed to the single user 
+
+ ANSYS (Fluent14.0) - CFD simulations, Technion site license 
+
+ ASE  -  an Atomistic Simulation Environment written in Python
+Freeware, no license needed. 
+
+  AVIZ - atomostic visualisation tool. Licensed to Technion users
+
+   BOOST 1_49_0 -   suite of C++ scientific libraries.  Public license
+
+  COMSOL 4.2a, 3.5a   - Multiphysics numerical simulations.  Technion site license. 
+
+   CUDA  - GPU parallel programming environment. Freeware, no license needed. 
+
+   ECLIPSE -  multi-language software development environment. Public license  
+
+    EMAN2-2.0.6  -  suite of scientific image processing tools, with a primary focus 
+on processing data from  transmission electron microscopes. Based on Python.  
+Freeware, no license needed. 
+
+    EPD 7.3-1  - The Enthought Python Distribution, a comprehensive set of Python 
+tools & libraries. Freeware, no license needed.
+
+    EVOLVER 2.30c - The Surface Evolver is an interactive program for the study 
+of surfaces shaped by surface tension and other energies, and subject 
+to various constraints. Freeware, no license needed. 
+
+    FFTW-3.3.2    -  a C subroutine library for computing the discrete Fourier transform
+Freeware, no license needed. 
+
+ GRIDMATH-8.0  - paralel version of Matematika. Technion site license 
+
+ GSL - 1.15   - The GNU Scientific Library (GSL) is a numerical library for C and 
+C++ programmers. Free software under the GNU General Public License. 
+
+   G03,G09 - Gaussian, molecular dynamics simulations. Licensed  a group of users
+
+
+  H5UTILS - 1.12.1 - nanophotonics  Computations, visualization of HDF5 data files.
+  Freeware, no license needed. 
+
+  Ipopt-3.10.0 - Ipopt (Interior Point OPTimizer, pronounced eye-pea-Opt) 
+  is a software package for large-scale nonlinear optimization. Public license 
+
+  ISCFDC - EZNESS - CFD simulation packedge. Licensed to a single user. 
+
+ LUMERICAL-FDTD   -  FDTD-method Maxwell solver for the design, analysis and optimization 
+of nanophotonic devices, processes and materials.  Licensed to a single user 
+
+ MATLAB2012a,2012b - multipurpose numerical tool. Technion site license
+
+ MEEP1.1.1 - nanophotonics  Computations - finite-difference time-domain simulations 
+Freeware, installed by single user request.
+
+
+ MERCURIAL 2.2.2 - Mercurial is a cross-platform, distributed revision control tool 
+for software developers. It is mainly implemented using the Python programming language
+Freeware, no license needed. 
+
+ MOLDEN 4.4 Displays molecular orbitals or electron density as contour plots or 3D grid 
+plots and output to a number of graphical formats. Freeware, no license needed. 
+
+  MPB 1.4.2 - nanophotonics  Computations - electromagnetic eigenmode solver. 
+Freeware, no license needed. 
+
+  NBO - 5.9 Natural Bond Orbital  quantum chemistry analisys Associated with GAUSSIAN. 
+Licensing policy is not clear. Installed  per group of users request.
+
+  OpenFOAM-2.1.0 - CFD simulations. Freeware, no license needed. 
+
+  ORCA - 2.9 -  Molecular dynamics packedge, associated with Gaussian.  
+  Licensed to a group of users 
+                         
+ PETSC - 3.1p8 - a suite of data structures and routines for the scalable (parallel) 
+ solution of scientific applications modeled by partial differential equations.
+ Public Licesnse.
+
+ PGI - Portland group Fortran compiler - licensed to Gaussian group
+
+ SIMPLE  - Single-particle IMage Processing Linux Engine (SIMPLE) does ab initio 
+ 3D reconstruction, heterogeneity analysis, and high-resolution refinement 
+ GNU General Public License
+
+ VASP5.2 - package for performing ab initio quantum mechanical molecular dynamics.  
+ Licensed to a group of users 
+
+
+
+
+
