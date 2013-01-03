@@ -12,7 +12,8 @@ script = '''#!/bin/sh
 PBS_O_WORKDIR=$HOME/Code/thesis/src/
 cd $PBS_O_WORKDIR
 
+echo "%s" # Print scrpit to stdout for logging.
 echo "%s" | matlab -nodisplay -nosplash 
 '''
 args = sys.argv[1]
-print script % args
+print script % (args, args)
