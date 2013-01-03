@@ -109,9 +109,15 @@ function iter = update_solver(sol)
     iter = @iteration;
 end
 
+function res = isOK(x)
+    res = all(isfinite(x(:))) && all(isreal(x(:)));
+end
+
 % Solve linear system Ax = B
 function x = linsolve(A, B)
     sz = size(A);
+    assert(isOK(A))
+    assert(isOK(B))
     assert(sz(1) == sz(2), 'A must be square.');
     assert(sz(1) == size(B, 1), 'A and B must have same number of rows.')
     x = A \ B;
