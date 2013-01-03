@@ -79,6 +79,7 @@
 \newcommand\bzero{\boldsymbol{0}}
 \newcommand\bomega{\boldsymbol{\omega}}
 \newcommand\bpsi{\boldsymbol{\psi}}
+\newcommand\Du{\text{Du}}
 
 % Calligraphic symbols
 \newcommand\cB{\mathcal{B}}
@@ -463,7 +464,7 @@ of the nonlinear effective boundary conditions.
 Note that due to surface conduction, the resulting boundary conditions are:
 \begin{align} \label{eq:ephor_bnd}
 \nonumber
-0 &= {\deriv{C}{n} - \text{Du} \nabla^2_s \pars{\varPhi - \log C}}, \\
+0 &= {\deriv{C}{n} - \Du \nabla^2_s \pars{\varPhi - \log C}}, \\
 0 &= {\deriv{C}{n} + C \deriv{\varPhi}{n}}, \\
 \nonumber
 \bV &= \zeta \cdot \bnabla_\mathcal{S} \pars{\varPhi - \log C} +
@@ -794,7 +795,7 @@ V^h_\theta &=& 4\log\pars{\frac{1}{2}\pars{1 + \exp\left\{\cI_\theta(\zeta^h)/2\
 are implemented by:
 \begin{equation}
 \begin{array}{rcl}
-0 &=& \cD_r(C^h) - \text{Du} \cdot 
+0 &=& \cD_r(C^h) - \Du \cdot 
 \pars{\cD_\theta \pars{\sin\theta \cdot \cD_\theta \cI_r\pars{\varPhi^h - \log C}}}/{\sin\theta}, \\
 0 &=& \cD_r(C^h) + \cI_r(C^h) \cD_r(\varPhi^h), \\
 V^h_r &=& 0, \\
@@ -1329,8 +1330,8 @@ P_1 = 0,
 \end{array} \end{equation}
 and the linear velocity term is:
 \begin{align} \label{eq:linear_velocity}
-\bV_1 &= \cU_1 \pars{ \pars{-1 + r^{-3}}\cos\theta \cdot \brhat 
-+ \pars{1 + r^{-3} / 2} \sin\theta \cdot \bthetahat } \\
+\bV_1 &= \cU_1 \pars{ \brhat \pars{-1 + \frac{1}{r^3}}\cos\theta 
++ \bthetahat \pars{1 + \frac{1}{2r^3}} \sin\theta } \\
 \cU_1(\gamma) &= 2 \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}.
 \end{align}
 For $\gamma > 1$, the Debye layer has a positive space charge, 
@@ -1495,7 +1496,7 @@ the linear solution is compared to the cubic correction term.
 Since the leading order of the solution $\cU(\beta)$ is linear for $\beta \ll 1$, 
 the numerical discretization error is $O(\beta)$ as well.
 In order to reduce the discretization error of the numerical solution \eqref{eq:disc_zero_force}
-and after verifying that the discretization error converges as $O(h^2)$,
+and after verifying that the discretization error converges as $O(h^2)$ (Figure \ref{fig:quadratic}),
 we employ Richardson extrapolation to $\cU^h$ and $\cU^{2h}$:
 \begin{equation}
 \hat\cU = \frac{4}{3} \cU^h - \frac{1}{3} \cU^{2h}.
@@ -1522,8 +1523,11 @@ nonlinear system.
 
 The computational grid is created to have fine resolution near the particle surface, while
 approximating the far-away boundary conditions. The logarithmic discretization is motivated
-by the solution of the linearized Stokes problem, where the largest gradients are near the particle
-and the solution approaches the outer boundary conditions far away from the particle.
+by the solution of the linearized system at Section \ref{app:linear}, 
+where the largest gradients in the solution are near the particle surface.
+The discretization of boundary conditions far away from the particle may be improved
+by including the linear correction from the asymptotic solution, or applying 
+
 
 For strong electric field ($\beta \gg 1)$, the nonlinear effects become dominant and
 another boundary-layer structure is expected to form near the particle surface. 
@@ -1585,6 +1589,19 @@ properties, or different particle shape.
         The steady-state velocity $\cU$ is positive, so the
         ion-exchanger drifts to the right.}
     \label{fig:Vortex2}
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=1\textwidth]{figs/quadratic_order.eps}
+        \caption[Quadratic convergence of steady-state velocity]{
+        The discretization error between the numerical and analytical solutions for 
+        $\alpha = 0$ ,$\Du = 0.5$, $\bar\zeta = 6$ and $R_{max} = 100$. The markers represent
+        the discretization errors for various grid sizes, and the dotted lines correspond to linear
+        functions of $\beta$, scaled by $4^n$. As mesh cell size decreases by 2, the discretization
+        }
+	    \label{fig:quadratic}
     \end{center}
 \end{figure}
 
