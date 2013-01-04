@@ -34,7 +34,7 @@ function [sol] = main_ephor(init, g, betas, conf)
             fprintf('------------------------------------------------------------------\n')
         end
         V(k) = v(end);
-        fname = datestr(now, 'YYYY_mm_dd__hh_MM_ss');
+        fname = sprintf('sol_beta=%.3e_[%dx%d]_Rmax=%.1f_Du=%.2f_zeta=%.2f_alpha=%.2f.mat', sol.beta, numel(g.r), numel(g.t), max(g.r), sol.Du, sol.zeta, sol.alpha);
         fprintf('Saving to %s...', fname);
         save(fname)
         fprintf('\n');
@@ -116,7 +116,7 @@ end
 % Solve linear system Ax = B
 function x = linsolve(A, B)
     sz = size(A);
-    assert(isOK(A))
+    % assert(isOK(A))
     assert(isOK(B))
     assert(sz(1) == sz(2), 'A must be square.');
     assert(sz(1) == size(B, 1), 'A and B must have same number of rows.')
