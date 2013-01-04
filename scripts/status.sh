@@ -1,3 +1,3 @@
 #!/bin/sh
-qstat | grep `whoami`
+qstat -u `whoami`
 
