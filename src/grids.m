@@ -28,6 +28,7 @@ function [g] = grids(Rmax, Nr, Nt, a)
     dt = diff(t(1:2));
     fprintf('Nr:Nt = %d x %d\n', Nr, Nt)
     fprintf('dr:dt = %.4f:%.4f\n', dr, (mean(r(1:2) * dt)))
+    fprintf('Rmax  = %.1f\n', Rmax)
 end
 
 function r = Rgrid(Rmax, N, g)
