@@ -9,12 +9,18 @@ function main_run(N, Rmax, betas)
             sol = struct('alpha', 0.5, 'Du', 1.0, 'zeta', 10);
             fname = sprintf('sol_beta=%.3e_[%dx%d]_Rmax=%.1f_Du=%.2f_zeta=%.2f_alpha=%.2f.mat', ...
                 betas(1), numel(g.r), numel(g.t), max(g.r), sol.Du, sol.zeta, sol.alpha);
-            s = load(fname);
-            init.Phi = regrid(s.sol.Phi);
-            init.C   = regrid(s.sol.C);
-            init.Vr  = regrid(s.sol.Vr);
-            init.Vt  = regrid(s.sol.Vt);
-            init.P   = regrid(s.sol.P);
+            if exist(fname, 'file') == 2
+                fprintf('Loading from file %s...\n', fname);
+                s = load(fname);
+                init.Phi = regrid(s.sol.Phi);
+                init.C   = regrid(s.sol.C);
+                init.Vr  = regrid(s.sol.Vr);
+                init.Vt  = regrid(s.sol.Vt);
+                init.P   = regrid(s.sol.P);
+            else
+                fprintf('Initializing...\n')
+                init = [];
+            end
             main_ephor(init, g, betas, sol);
         end
     end
