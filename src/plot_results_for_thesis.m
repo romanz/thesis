@@ -7,6 +7,8 @@ function plot_results_for_thesis(filename)
 %             beta, N+1, N+1, Rmax);
 % load([filename '.mat'])
 load(filename)
+[p, n] = fileparts(filename);
+filename = fullfile(p, n);
 disp(filename)
 if 1
     clf;
@@ -28,7 +30,7 @@ if 1
     axis([-1 1 -1 1]*3)
     axis equal
     colorbar
-    title('Salt concentration (C)')
+    title(sprintf('Salt concentration (C): \\beta = %.2f', sol.beta))
     print('-depsc2', [filename '_C.eps'])
 end
 if 1
@@ -41,7 +43,7 @@ if 1
     z = s.Psi(I, :);
     x = R .* cos(T);
     y = R .* sin(T);
-    c = linspace(-1, 1, 61)*3 * sol.beta;
+    c = linspace(-1, 1, 101)*10;
     hold on;
     contour(x, y, z, c)
     contour(x, -y, z, c)
@@ -49,7 +51,7 @@ if 1
     fill(cos(t), sin(t), [1 1 1]*0.5)
     axis([-1 1 -1 1]*3)
     axis equal
-    title('Streamlines (\Psi)')
+    title(sprintf('Streamlines (\\Psi): \\beta = %.2f', sol.beta))
     print('-depsc2', [filename '_Psi.eps'])
 end
 
@@ -87,6 +89,11 @@ if 1
     quiver([x; x], [y; -y], scale*[Ex; Ex], scale*[Ey; -Ey], 0, 'k')
     axis([-1 1 -1 1]*2)
     axis equal
-    title('Electric potential (\phi) and field at the surface (E)')
+    title(sprintf('Electric potential (\\phi) and field at the surface (E): \\beta = %.2f', sol.beta))
     print('-depsc2', [filename '_PhiE.eps'])
+end
+
+if 1
+    sol = rmfield(sol, {'var', 'C', 'Phi', 'Vr', 'Vt', 'P', 'bnd', 'eqn', 'grid'});
+    save([filename '_lite.mat'], 'sol')
 end

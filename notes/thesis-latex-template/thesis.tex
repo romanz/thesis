@@ -1467,8 +1467,9 @@ system.
 The numerical results are compared 
 to the asymptotic solutions, and good correspondence is achieved.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Ion-exchanger results}
-For $\beta \ll 1$, the linear regime is dominant \eqref{eq:linear_velocity}.
+For $\beta \ll 1$, the linear regime \cite{yariv2010asymptotic} is dominant.
 When $\gamma \approx 1$, the cubic regime, where $\cU = O(\beta^3)$, 
 dominates the linear one, even for weak electric fields. 
 This phenomenon is confirmed both by the numerical
@@ -1481,7 +1482,6 @@ The numerical solver uses $N_r \times N_\theta = (400 \times 50)$,
 $R_{\max} = 10^7$ ($\Delta_r \approx 0.041$),
 $K = 3$, $M = 5$ and $\beta = 10^{t}$ for $t = -2:0.1:0.5$.
 
-
 The linear solution for $\gamma \approx 1$, 
 yields a sign change of the zeta potential $\zeta = \log (C/\gamma)$, when
 $|\log\gamma| \approx 3\beta / 4$. This results in a sign change in the slip velocity,
@@ -1493,10 +1493,60 @@ Note that there is a good correspondence between the numerical
 results and the analytical solution for $\beta < 1$, validating
 the vortex formation.
 
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=0.7\textwidth]{figs/Cubic/ionex_cubic1.eps}
+    \includegraphics[width=0.7\textwidth]{figs/Cubic/ionex_cubic2.eps}
+        \caption[Ion exchanger steady-state velocity]{
+        Steady-state velocity $\cU$ as a function of the 
+        electric field magnitude $\beta$, for $\gamma < 1$ (top) and $\gamma > 1$ (bottom). 
+        The analytic cubic solution \eqref{eq:cubic} is represented by curves
+        (solid for $\cU > 0$, dashed for $\cU < 0$), 
+        and the numerical results are represented by markers 
+        (circles for $\cU > 0$, squares for $\cU < 0$). Note that linear and
+        cubic regimes match well the numerical results, including the critical $\beta$ 
+        behaviour \eqref{eq:crit_beta}. 
+        }
+	    \label{fig:IonExCubic}
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+	\includegraphics[width=0.7\textwidth]{figs/Cubic/Stream/N1.eps}
+	\includegraphics[width=0.7\textwidth]{figs/Cubic/Stream/N2.eps}
+	\includegraphics[width=0.7\textwidth]{figs/Cubic/Stream/N5.eps}
+	\includegraphics[width=0.7\textwidth]{figs/Cubic/Stream/N10.eps}
+        \caption[Ion exchanger streamlines -- numerical results]{
+        Streamlines of the flow for various electric field $\beta$ values: 
+        numerical results for $\gamma = 0.9$.  
+        The steady-state velocity $\cU$ is positive, so the
+        ion-exchanger drifts to the right. }
+    \label{fig:Vortex1}
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+	\includegraphics[width=0.7\textwidth]{figs/Cubic/Stream/A1.eps}
+	\includegraphics[width=0.7\textwidth]{figs/Cubic/Stream/A2.eps}
+	\includegraphics[width=0.7\textwidth]{figs/Cubic/Stream/A5.eps}
+	\includegraphics[width=0.7\textwidth]{figs/Cubic/Stream/A10.eps}
+        \caption[Ion exchanger streamlines -- analytical results]{
+        Streamlines of the flow for various electric field $\beta$ values: 
+        analytical approximation for $\gamma = 0.9$ (see Section \ref{sec:asymp}).
+        The steady-state velocity $\cU$ is positive, so the
+        ion-exchanger drifts to the right.}
+    \label{fig:Vortex2}
+    \end{center}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Electrophoresis results}
-In this scenario the linear regime is dominant \eqref{eq:linear_velocity}.
+For $\beta \ll 1$, the linear regime \cite{schnitzer2012surface} is dominant.
 In order to verify the solver, the numerical steady-state velocity is compared to the
-analytical solution \cite{schnitzer2012cubic}. Since the cubic correction is much smaller than
+analytical solution \cite{schnitzer2012cubic}, derived by Schnitzer and Yariv. 
+Since the cubic correction is much smaller than
 the linear solution for $\beta \ll 1$, the difference between numerical results and
 the linear solution is compared to the cubic correction term. 
 
@@ -1516,99 +1566,16 @@ The solver is applied to 2 grids of $N_r \times N_\theta = (128 \times 128)$ as 
 (with $\Delta_r \approx 0.037$), and $N_r \times N_\theta = (256 \times 256)$ as the fine grid
 (with $\Delta_r \approx 0.018$), in order to use Richardson extrapolation for $\hat\cU$.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
-\section{Discussion} \label{sec:discussion}
-A numerical framework for solver construction for a
-nonlinear electrokinetic transport system is described.
-The framework is applied to two electrokinetic problems: the migration of ion-exchangers
-and surface-charged inert particle electrophoresis.
-The numerical results exhibit a good correspondence to the asymptotic linear model as
-shown above.
-Moreover, two interesting phenomena (cubic regime and downstream vortex) were predicted
-using the numerical results, and were verified using asymptotic expansion of the
-nonlinear system.
-
-The computational grid is created to have fine resolution near the particle surface, while
-approximating the far-away boundary conditions. The logarithmic discretization is motivated
-by the solution of the linearized system at Section \ref{app:linear}, 
-where the largest gradients in the solution are near the particle surface.
-The discretization of boundary conditions far away from the particle may be improved
-by including the linear correction from the asymptotic solution, or applying 
-
-
-For strong electric field ($\beta \gg 1)$, the nonlinear effects become dominant and
-another boundary-layer structure is expected to form near the particle surface. 
-In order to achieve high numerical accuracy, the grid discretization should be made finer
-near the particle surface (at $r = 1$), while $R_{max}$ can be made smaller.
-In addition, the continuation of the solution between different $\beta$ values
-should advance in finer steps, for Newton method convergence.
-
-\section{Future Work}
-Future work may include optimizing the direct sparse linear solver 
-to use the ordering data from previous calls,
-or replacing the full Newton step by an iterative linear solver
-(e.g. using preconditioned Krylov subspace methods \cite{saad2003book} or
-Multigrid), allowing finer grids to be used.
-In addition, the framework may be used for automatic construction of Newton solvers 
-for other nonlinear PDE systems, for example -- for particle with different surface 
-properties, or different particle shape.
-
-\begin{figure}
-    \begin{center}
-    \includegraphics[width=0.8\textwidth]{figs/Cubic/ionex_cubic1.eps}
-    \includegraphics[width=0.8\textwidth]{figs/Cubic/ionex_cubic2.eps}
-        \caption[Ion exchanger steady-state velocity]{
-        Steady-state velocity $\cU$ as a function of the 
-        electric field magnitude $\beta$, for $\gamma < 1$ (top) and $\gamma > 1$ (bottom). 
-        The analytic cubic solution \eqref{eq:cubic} is represented by curves
-        (solid for $\cU > 0$, dashed for $\cU < 0$), 
-        and the numerical results are represented by markers 
-        (circles for $\cU > 0$, squares for $\cU < 0$). Note that linear and
-        cubic regimes match well the numerical results, including the critical $\beta$ 
-        behaviour \eqref{eq:crit_beta}. 
-        }
-	    \label{fig:IonExCubic}
-    \end{center}
-\end{figure}
-
-\begin{figure}
-    \begin{center}
-	\includegraphics[width=0.8\textwidth]{figs/Cubic/Stream/N1.eps}
-	\includegraphics[width=0.8\textwidth]{figs/Cubic/Stream/N2.eps}
-	\includegraphics[width=0.8\textwidth]{figs/Cubic/Stream/N5.eps}
-	\includegraphics[width=0.8\textwidth]{figs/Cubic/Stream/N10.eps}
-        \caption[Ion exchanger streamlines -- numerical results]{
-        Streamlines of the flow for various electric field $\beta$ values: 
-        numerical results for $\gamma = 0.9$.  
-        The steady-state velocity $\cU$ is positive, so the
-        ion-exchanger drifts to the right. }
-    \label{fig:Vortex1}
-    \end{center}
-\end{figure}
-
-\begin{figure}
-    \begin{center}
-	\includegraphics[width=0.8\textwidth]{figs/Cubic/Stream/A1.eps}
-	\includegraphics[width=0.8\textwidth]{figs/Cubic/Stream/A2.eps}
-	\includegraphics[width=0.8\textwidth]{figs/Cubic/Stream/A5.eps}
-	\includegraphics[width=0.8\textwidth]{figs/Cubic/Stream/A10.eps}
-        \caption[Ion exchanger streamlines -- analytical results]{
-        Streamlines of the flow for various electric field $\beta$ values: 
-        analytical approximation for $\gamma = 0.9$ (see Section \ref{sec:asymp}).
-        The steady-state velocity $\cU$ is positive, so the
-        ion-exchanger drifts to the right.}
-    \label{fig:Vortex2}
-    \end{center}
-\end{figure}
-
 \begin{figure}
     \begin{center}
     \includegraphics[width=1\textwidth]{figs/quadratic_order.eps}
         \caption[Quadratic convergence of steady-state velocity]{
         The discretization error between the numerical and analytical solutions for 
-        $\alpha = 0$ ,$\Du = 0.5$, $\bar\zeta = 6$ and $R_{max} = 100$. The markers represent
+        $\alpha = 0$, $\Du = 0.5$, $\bar\zeta = 6$ and $R_{max} = 100$. The markers represent
         the discretization errors for various grid sizes, and the dotted lines correspond to linear
-        functions of $\beta$, scaled by $4^n$. As mesh cell size decreases by 2, the discretization
+        functions of $\beta$, scaled by $4^n$. 
+        The graph show that, as the number of grid points in each dimension increases by 2, 
+        the discretization error decreases by 4.
         }
 	    \label{fig:quadratic}
     \end{center}
@@ -1651,6 +1618,221 @@ properties, or different particle shape.
 	    \label{fig:Electrophoresis2}
     \end{center}
 \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Electrophoresis for large $\beta$ }
+When the electric field is large, nonlinear effects dominate the solution.
+In order to investigate the problem solution for strong electric fields, 
+we have run the solver on the TAMNUN HPC cluster \cite{tamnun}.
+Large grid sizes ($256 \times 256$ and $512 \times 512$)
+are used to verify that the numerical solution converges when the grid becomes finer
+and that no numerical artifacts are present in the solution.
+Moreover, several $R_{max} \in \{10, 30, 100\}$ values are used, to make sure it
+has no major impact on the solution.
+
+The results are shown at the following figures. 
+The steady-state velocity results are shown in Figure \ref{fig:LargeBetaV}. 
+When $\beta$ becomes large, the salt concentration $C$ near the front of the particle approaches zero,
+while creating a wake behind the particle.
+This is results in high gradients in $\log C$ near the front of the particle 
+(Figures \ref{fig:LargeBeta1a}, \ref{fig:LargeBeta1b} and \ref{fig:LargeBeta1c}) 
+and, therefore, strong electric field $\bE$ form near the particle surface 
+(Figures \ref{fig:LargeBeta2a}, \ref{fig:LargeBeta2b} and \ref{fig:LargeBeta2c})
+due to effective boundary conditions at Eq. \ref{eq:ephor_bnd}. 
+The streamline pattern doesn't change drastically for different electric field magnitudes, as shown in Figure \ref{fig:LargeBeta3}.
+
+It appears that a boundary layer starts to form around the front of the particle for strong
+electric fields. This causes numerical problems to the current solver -- yielding a convergence
+problems for $\beta > 5$. The convergence problems start earlier
+for smaller grid size, and for higher $R_{max}$ values, probably
+due to insufficient resolution at the $\brhat$ direction near
+the particle surface.
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=1\textwidth]{figs/LargeBetaV.eps}
+        \caption{Large $\beta$ results for $\cU$ ($\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$).}
+	    \label{fig:LargeBetaV}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+        \caption{Large $\beta$ results for $C$: grid size $128 \times 128$, 
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.}
+	    \label{fig:LargeBeta1a}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+        \caption{Large $\beta$ results for $C$: grid size $256 \times 256$, 
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.}
+	    \label{fig:LargeBeta1b}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+        \caption{Large $\beta$ results for $C$: grid size $512 \times 512$, 
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.}
+	    \label{fig:LargeBeta1c}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+        \caption{Large $\beta$ results for $\varPhi$:
+        grid size $128 \times 128$, $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.}
+	    \label{fig:LargeBeta2a}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+        \caption{Large $\beta$ results for $\varPhi$:
+        grid size $256 \times 256$, $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.}
+	    \label{fig:LargeBeta2b}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+        \caption{Large $\beta$ results for $\varPhi$:
+        grid size $512 \times 512$, $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.}
+	    \label{fig:LargeBeta2c}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
+    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
+        \caption{Large $\beta$ streamlines results: grid size $512 \times 512$, 
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.}
+	    \label{fig:LargeBeta3}	    
+    \end{center}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+\section{Discussion} \label{sec:discussion}
+A numerical framework for solver construction for a
+nonlinear electrokinetic transport system is described.
+The framework is applied to two electrokinetic problems: the migration of ion-exchangers
+and surface-charged inert particle electrophoresis.
+The numerical results exhibit a good correspondence to the asymptotic linear model as
+shown above.
+Moreover, two interesting phenomena (cubic regime and downstream vortex) were predicted
+using the numerical results, and were verified using asymptotic expansion of the
+nonlinear system.
+
+The computational grid is created to have fine resolution near the particle surface, while
+approximating the far-away boundary conditions. The logarithmic discretization is motivated
+by the solution of the linearized system at Section \ref{app:linear}, 
+where the largest gradients in the solution are near the particle surface.
+The discretization of boundary conditions far away from the particle may be improved
+by including the linear correction from the asymptotic solution, or applying 
+
+
+For strong electric field ($\beta \gg 1)$, the nonlinear effects become dominant and
+another boundary-layer structure is expected to form near the particle surface. 
+In order to achieve high numerical accuracy, the grid discretization should be made finer
+near the particle surface (at $r = 1$), while $R_{max}$ can be made smaller.
+In addition, the continuation of the solution between different $\beta$ values
+should advance in finer steps, for Newton method convergence.
+
+\section{Future Work}
+Future work may include optimizing the direct sparse linear solver 
+to use the ordering data from previous calls,
+or replacing the full Newton step by an iterative linear solver
+(e.g. using preconditioned Krylov subspace methods \cite{saad2003book} or
+Multigrid), allowing finer grids to be used.
+In addition, the framework may be used for automatic construction of Newton solvers 
+for other nonlinear PDE systems, for example -- for particle with different surface 
+properties, or different particle shape.
 
 \appendix
 
