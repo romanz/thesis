@@ -1814,15 +1814,18 @@ approximating the far-away boundary conditions. The logarithmic discretization i
 by the solution of the linearized system at Section \ref{app:linear}, 
 where the largest gradients in the solution are near the particle surface.
 The discretization of boundary conditions far away from the particle may be improved
-by including the linear correction from the asymptotic solution, or applying 
+by including the linear correction from the asymptotic solution, or reformulation of
+far-away boundary condition according to the asymptotic behavior of the analytic solution
+far away from the particle.
 
 
 For strong electric field ($\beta \gg 1)$, the nonlinear effects become dominant and
-another boundary-layer structure is expected to form near the particle surface. 
+another boundary-layer structure is begins to form near the particle surface. 
 In order to achieve high numerical accuracy, the grid discretization should be made finer
-near the particle surface (at $r = 1$), while $R_{max}$ can be made smaller.
+near the particle surface (at $r = 1$), while $R_{max}$ can be made smaller. Moreover, different discretization scheme may be used for
+the $r$ coordinate, to have higher grid resolution near the particle.
 In addition, the continuation of the solution between different $\beta$ values
-should advance in finer steps, for Newton method convergence.
+should advance in finer steps, to ensure Newton method convergence.
 
 \section{Future Work}
 Future work may include optimizing the direct sparse linear solver 
