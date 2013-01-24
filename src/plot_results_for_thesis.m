@@ -34,25 +34,27 @@ if 1
     print('-depsc2', [filename '_C.eps'])
 end
 if 1
-    clf;
-    hold on;
-    s = streamfunc(sol);
-    I = find(s.grid.Psi.r < 10);
-    R = s.grid.Psi.R(I, :);
-    T = s.grid.Psi.T(I, :);
-    z = s.Psi(I, :);
-    x = R .* cos(T);
-    y = R .* sin(T);
-    c = linspace(-1, 1, 101)*10;
-    hold on;
-    contour(x, y, z, c)
-    contour(x, -y, z, c)
-    t = linspace(0, 2*pi, 100);
-    fill(cos(t), sin(t), [1 1 1]*0.5)
-    axis([-1 1 -1 1]*3)
-    axis equal
-    title(sprintf('Streamlines (\\Psi): \\beta = %.2f', sol.beta))
-    print('-depsc2', [filename '_Psi.eps'])
+    for d = [1 -1]
+        clf;
+        hold on;
+        s = streamfunc(sol);
+        I = find(s.grid.Psi.r < 10);
+        R = s.grid.Psi.R(I, :);
+        T = s.grid.Psi.T(I, :);
+        z = s.Psi(I, :);
+        x = R .* cos(T);
+        y = R .* sin(T);
+        c = linspace(-1, 1, 101)*sol.beta*10;
+        hold on;
+        contour(d*x, y, z, c)
+        contour(d*x, -y, z, c)
+        t = linspace(0, 2*pi, 100);
+        fill(cos(t), sin(t), [1 1 1]*0.5)
+        axis([-1 1 -1 1]*3)
+        axis equal
+        title(sprintf('Streamlines (\\Psi): \\beta = %.2f', sol.beta))
+        print('-depsc2', [filename sprintf('_[%d]_Psi.eps', d)])
+    end
 end
 
 if 1
