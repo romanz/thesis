@@ -1624,175 +1624,226 @@ The solver is applied to 2 grids of $N_r \times N_\theta = (128 \times 128)$ as 
 When the electric field is large, nonlinear effects dominate the solution.
 In order to investigate the problem solution for strong electric fields, 
 we have run the solver on the TAMNUN HPC cluster \cite{tamnun}.
-Large grid sizes ($256 \times 256$ and $512 \times 512$)
-are used to verify that the numerical solution converges when the grid becomes finer
-and that no numerical artifacts are present in the solution.
-Moreover, several $R_{max} \in \{10, 30, 100\}$ values are used, to make sure it
-has no major impact on the solution.
-
+Large grid sizes are used to verify that the numerical solution converges when the grid becomes finer and that no numerical artifacts are present in the solution.
+Moreover, several $R_{max} \in \{10, 30, 100\}$ values are used, to make sure it has no major impact on the solution.
 The results are shown at the following figures. 
-The steady-state velocity results are shown in Figure \ref{fig:LargeBetaV}. 
-When $\beta$ becomes large, the salt concentration $C$ near the front of the particle approaches zero,
-while creating a wake behind the particle.
-This is results in high gradients in $\log C$ near the front of the particle 
-(Figures \ref{fig:LargeBeta1a}, \ref{fig:LargeBeta1b} and \ref{fig:LargeBeta1c}) 
-and, therefore, strong electric field $\bE$ form near the particle surface 
-(Figures \ref{fig:LargeBeta2a}, \ref{fig:LargeBeta2b} and \ref{fig:LargeBeta2c})
-due to effective boundary conditions at Eq. \ref{eq:ephor_bnd}. 
-The streamline pattern doesn't change drastically for different electric field magnitudes, as shown in Figure \ref{fig:LargeBeta3}.
+The steady-state velocity results are shown for several grid resolutions and several $R_{max}$ values in Figure \ref{fig:LargeBetaV_grids}, and the estimated rate of convergence is shown at Figure \ref{fig:LargeBetaRatio}.
 
-It appears that a boundary layer starts to form around the front of the particle for strong
-electric fields. This causes numerical problems to the current solver -- yielding a convergence
-problems for $\beta > 5$. The convergence problems start earlier
+When $\beta$ becomes large, the salt concentration $C$ near the front of the particle 
+(at $\theta \approx 0$) approaches zero, while creating a wake behind the particle 
+(at $\theta \approx \pi$).
+This is results in high gradients in $\log C$ near the front of the particle (Figures \ref{fig:LargeBeta_C1}, \ref{fig:LargeBeta_C2} and
+\ref{fig:LargeBeta_C3}) and, therefore, strong electric field $\bE$ form near the particle surface (Figures \ref{fig:LargeBeta_Phi1}, \ref{fig:LargeBeta_Phi2} and \ref{fig:LargeBeta_Phi3}) due to effective boundary conditions at Eq. \ref{eq:ephor_bnd}. 
+The streamline pattern doesn't change drastically for different electric field magnitudes, as shown in Figure \ref{fig:LargeBeta_Psi1}, \ref{fig:LargeBeta_Psi2} and \ref{fig:LargeBeta_Psi3}. 
+The resulting flow pattern is similar to the Stokes creeping flow, as shown in Figure
+\ref{fig:LargeBeta_PsiStokes}.
+
+The numerical results suggest that a boundary 
+layer starts to form around the front of the particle for strong
+electric fields (see Figure \ref{fig:LargeBeta_BoundaryLayer}). 
+This causes numerical problems to the current solver -- yielding a convergence
+problems for large $\beta$. The convergence problems start earlier
 for smaller grid size, and for higher $R_{max}$ values, probably
 due to insufficient resolution at the $\brhat$ direction near
 the particle surface.
 
 \begin{figure}
     \begin{center}
-    \includegraphics[width=1\textwidth]{figs/LargeBetaV.eps}
-        \caption{Large $\beta$ results for $\cU$ ($\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$).}
-	    \label{fig:LargeBetaV}	    
+    \includegraphics[width=.45\textwidth]{figs/LargeBetaV_[128_256_512]_Rmax=10.eps}
+    \includegraphics[width=.45\textwidth]{figs/LargeBetaV_[512x512]_Rmax=10_30_100.eps}
+        \caption[Large $\beta$ results for $\cU$]
+{Large $\beta$ results for $\cU$ ($\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$). 
+The left figure shows the numerical results of $\cU(\beta)$ for $R_{max} = 10$ and the following grid sizes: $128 \times 128$, $256 \times 256$, $512 \times 512$. 
+The right figure shows the numerical results of $\cU(\beta)$ for
+$512 \times 512$ grid for $R_{max} = 100, 30, 10$. For small values of $\beta$, the linear
+regime of $\cU(\beta)$ is dominant. However, for larger values of $\beta$, the numerical solution
+deviates significantly from the linear regime. For $\beta > 6$, the numerical solver convergence
+is slowing and for $\beta \sim 7$, the solver fails to converge. As the grid resolution near
+the particle surface becomes finer (when $N_r$ increases or $R_{max}$ decreases), the solver
+convergence is better.}
+	    \label{fig:LargeBetaV_grids}	    
+    \end{center}
+\end{figure}
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=.5\textwidth]{figs/LargeBetaRatio.eps}
+        \caption[Rate of convergence estimation for $\cU$ at large $\beta$]
+        {Rate of convergence estimation for $\cU$ at large $\beta$  
+        ($\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$). 
+        The numerical results of $\cU(\beta)$, for the grid sizes of 
+        $128 \times 128$, $256 \times 256$, $512 \times 512$. 
+        The rate of convergence $r(\beta)$ is estimated by 
+        $r(\beta) \triangleq \left(\cU^{4h}(\beta) - \cU^{2h}(\beta)\right)/\left(\cU^{2h}(\beta) - \cU^{h}(\beta)\right)$.
+        For small $\beta$, $r(\beta) \rightarrow 4$, showing 
+        quadratic convergence for the linear regime. 
+        For moderate $\beta$, the convergence rate slows down 
+        and deteriorates for large $\beta$ values.
+        }
+	    \label{fig:LargeBetaRatio}
     \end{center}
 \end{figure}
 
 \begin{figure}
     \begin{center}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-        \caption{Large $\beta$ results for $C$: grid size $128 \times 128$, 
-        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.}
-	    \label{fig:LargeBeta1a}	    
+    \includegraphics[width=1\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+        \caption[$\beta = 0.1$ results for $C$]
+        {$\beta = 0.1$ results for $C$: grid size $512 \times 512$, 
+        $R_{max} = 10$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
+        Here the linear regime dominates the solution for 
+        $C_\beta(r, \theta) \approx 1 - \beta \frac{\cos\theta}{2r^2}$.}
+	    \label{fig:LargeBeta_C1}	    
     \end{center}
 \end{figure}
 
 \begin{figure}
     \begin{center}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-        \caption{Large $\beta$ results for $C$: grid size $256 \times 256$, 
-        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.}
-	    \label{fig:LargeBeta1b}	    
+    \includegraphics[width=1\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+        \caption[$\beta = 0.8$ results for $C$]
+        {$\beta = 0.8$ results for $C$: grid size $512 \times 512$, 
+        $R_{max} = 10$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
+        For moderate $\beta$ values, the salt concentration starts
+        to form a wake behind the particle ($\theta \approx \pi$).}
+	    \label{fig:LargeBeta_C2}	    
     \end{center}
 \end{figure}
 
 \begin{figure}
     \begin{center}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
-        \caption{Large $\beta$ results for $C$: grid size $512 \times 512$, 
-        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.}
-	    \label{fig:LargeBeta1c}	    
+    \includegraphics[width=1\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+        \caption[$\beta = 5.0$ results for $C$]
+        {$\beta = 5.0$ results for $C$: grid size $512 \times 512$, 
+        $R_{max} = 10$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
+        For large values of $\beta$, there is a significant drop in
+        salt concentration at the front of the particle -- 
+        $C$ approaches zero at $\theta \approx 0$, such that 
+        $\deriv{C}{r}$ becomes large 
+        (since the change in $C$ happens at a small length scale).
+        Due to the boundary conditions of the electrophoresis problem
+        (given by Eq. \ref{eq:ephor_bnd}), the electric field radial
+        component given by 
+        $E_r = -\deriv{\varPhi}{r} = -\frac{1}{C}\deriv{C}{r}$, 
+        becomes singular where $C \rightarrow 0$.
+        }
+	    \label{fig:LargeBeta_C3}	    
     \end{center}
 \end{figure}
 
 \begin{figure}
     \begin{center}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e+00_[129x129]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-        \caption{Large $\beta$ results for $\varPhi$:
-        grid size $128 \times 128$, $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.}
-	    \label{fig:LargeBeta2a}	    
+    \includegraphics[width=1\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[129x129]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+        \caption[$\beta = 0.1$ results for $\varPhi$]
+        {$\beta = 0.1$ results for $\varPhi$:
+        grid size $512 \times 512$, $R_{max} = 10$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$. 
+        The electric potential and the electric field results are multiplied by $\beta^{-1}$,
+	    so the linear regime appears unchanged for different values of $\beta$.
+        Here the linear regime dominates the solution for 
+        $\varPhi_\beta(r, \theta) \approx -\beta {r \cos\theta}$,
+        hence the electric field is constant for weak electric fields:
+        $\bE \approx \beta \ui$.}
+	    \label{fig:LargeBeta_Phi1}
     \end{center}
 \end{figure}
 
 \begin{figure}
     \begin{center}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e+00_[257x257]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-        \caption{Large $\beta$ results for $\varPhi$:
-        grid size $256 \times 256$, $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.}
-	    \label{fig:LargeBeta2b}	    
+    \includegraphics[width=1\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[129x129]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+        \caption[$\beta = 0.8$ results for $\varPhi$]
+        {$\beta = 0.8$ results for $\varPhi$:
+        grid size $512 \times 512$, $R_{max} = 10$, $\Du = 1$, 
+        $\bar\zeta = 10$, $\alpha = 0.5$. 
+	    The electric potential and the electric field results are multiplied by $\beta^{-1}$,
+	    so the linear regime appears unchanged for different values of $\beta$.
+        For moderate values of $\beta$,
+        the symmetry breaks and the electric field becomes stronger 
+        near the front of the particle than at the back.}
+	    \label{fig:LargeBeta_Phi2}
     \end{center}
 \end{figure}
 
 \begin{figure}
     \begin{center}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
-        \caption{Large $\beta$ results for $\varPhi$:
-        grid size $512 \times 512$, $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.}
-	    \label{fig:LargeBeta2c}	    
+    \includegraphics[width=1\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[129x129]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+        \caption[$\beta = 5.0$ results for $\varPhi$]
+        {$\beta = 5.0$ results for $\varPhi$:
+        grid size $512 \times 512$, $R_{max} = 10$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
+        The electric potential and the electric field results are multiplied by $\beta^{-1}$,
+	    so the linear regime appears unchanged for different values of $\beta$.
+	    For large values of $\beta$, the electric field radial component $E_r = -\deriv{\varPhi}{r}$
+	    at the particle front becomes much larger than the electric field at the particle back.
+		}
+	    \label{fig:LargeBeta_Phi3}
     \end{center}
 \end{figure}
 
 \begin{figure}
     \begin{center}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=1.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=2.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=3.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=4.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
-    \includegraphics[width=0.32\textwidth]{figs/LargeBeta/sol_beta=6.000e+00_[513x513]_Rmax=30.0_Du=1.00_zeta=10.00_alpha=0.50_Psi.eps}
-        \caption{Large $\beta$ streamlines results: grid size $512 \times 512$, 
-        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.}
-	    \label{fig:LargeBeta3}	    
+    \includegraphics[width=1\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_[1]_Psi.eps}
+        \caption[$\beta = 0.1$ results for $\Psi$]
+        {$\beta = 0.1$ streamlines results: grid size $512 \times 512$, 
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
+        The numerical results for $\Psi$ is scaled by $\beta^{-1}$, so the linear regime
+        will appear the same for different $\beta$ values.}
+	    \label{fig:LargeBeta_Psi1}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=1\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_[1]_Psi.eps}
+        \caption[$\beta = 0.8$ results for $\Psi$]
+        {$\beta = 0.8$ streamlines results: grid size $512 \times 512$, 
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
+        The numerical results for $\Psi$ is scaled by $\beta^{-1}$, so the linear regime
+        will appear the same for different $\beta$ values.}
+	    \label{fig:LargeBeta_Psi2}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=1\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_[1]_Psi.eps}
+        \caption[$\beta = 5.0$ results for $\Psi$]
+        {$\beta = 5.0$ streamlines results: grid size $512 \times 512$, 
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
+        The numerical results for $\Psi$ is scaled by $\beta^{-1}$, so the linear regime
+        will appear the same for different $\beta$ values.}
+	    \label{fig:LargeBeta_Psi3}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=1\textwidth]{figs/LinearStokes_Psi.eps}
+        \caption[Stokes flow results]
+        {Stokes flow streamlines results: grid size $512 \times 512$, 
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
+        The numerical results for $\Psi$ is scaled by $\beta^{-1}$, so the linear regime
+        will appear the same for different $\beta$ values. Note that the numerical results
+        show very similar flow pattern to the analytical Stokes flow.}
+	    \label{fig:LargeBeta_PsiStokes}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=1\textwidth]{figs/BoundaryLayerWidth.eps}
+        \caption[Electric field boundary layer]
+        {Electric field boundary layer formation: grid size $512 \times 512$, 
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$. The left
+        graph shows normalized electric field radial component $E_r$ near the particle front
+        ($\theta \approx 0$). The numerical results for $e(\rho) = E_r(r=1+\rho, \theta=0)$
+        are normalized by $\hat{e}(\rho) = \left(e(\rho) - \beta\right)/\left(e(0) - \beta\right)$,
+        where $e(\rho = \infty) = \beta$.
+        The normalized electric field satisfies $\hat{e}(\rho) \in [0, 1]$ and is shown as function
+        of $\rho = r - 1$ at the left graph.
+        In order to estimate the width of the boundary layer, for each $\beta$, we compute the value 
+        of $\bar\rho(\beta) = \min_\rho \{ \rho : \hat{e}(\rho) < 0.5\}$. Each such $\bar\rho(\beta)$
+        is plotted at the left graph as a solid dot on the corresponding line.
+        In addition, $\bar\rho(\beta)$ is plotted as a function of $\beta$ using logarithmic 
+        $y$ axis at the right graph to show that $\bar\rho(\beta) \propto e^{-A\beta}$.
+        Thus, a boundary layer is indeed forming near the front of the particle.
+        }
+	    \label{fig:LargeBeta_BoundaryLayer}	    
     \end{center}
 \end{figure}
 
@@ -1820,7 +1871,7 @@ far away from the particle.
 
 
 For strong electric field ($\beta \gg 1)$, the nonlinear effects become dominant and
-another boundary-layer structure is begins to form near the particle surface. 
+another boundary-layer structure begins to form near the particle surface. 
 In order to achieve high numerical accuracy, the grid discretization should be made finer
 near the particle surface (at $r = 1$), while $R_{max}$ can be made smaller. Moreover, different discretization scheme may be used for
 the $r$ coordinate, to have higher grid resolution near the particle.

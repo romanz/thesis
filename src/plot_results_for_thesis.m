@@ -27,13 +27,13 @@ if 1
     contourf(x, -y, z, c, '-');
     t = linspace(0, 2*pi, 100);
     fill(cos(t), sin(t), [1 1 1]*0.5)
-    axis([-1 1 -1 1]*3)
+    axis([-1 1 -1 1]*2.5)
     axis equal
     colorbar
     title(sprintf('Salt concentration (C): \\beta = %.2f', sol.beta))
     print('-depsc2', [filename '_C.eps'])
 end
-if 1
+if 0
     for d = [1 -1]
         clf;
         hold on;
@@ -57,7 +57,7 @@ if 1
     end
 end
 
-if 1
+if 0
     clf;
     hold on;
     op = sol.Phi;
