@@ -1,10 +1,21 @@
 function plot_velocity_vs_beta
+    Du = 1;
+    zeta = 10;
+    beta = linspace(0, 6);
+    U = beta * (Du*log(16) + zeta)/(1 + 2*Du);
+    
     figure(1)
     clf; hold on; M = {};
     iter(128, 10,  '-o', [1 0 0]);
     iter(256, 10,  '-o', [0 .5 0]);
-    iter(512, 10,  '-o', [0 0 1]);
+    [b, v] = iter(512, 10,  '-o', [0 0 1]);
+    plot(beta, U, '--k');
+    M{end+1} = ['Linear Solution (small \beta): ' sprintf('%.3f \\beta', (Du*log(16) + zeta)/(1 + 2*Du))];
+    r = linreg(b(10:40), v(10:40))
+    plot(beta, r.a * beta + r.b, '-.k')
     xlim([0 6])
+    ylim([0 30])
+    M{end+1} = ['Linear Fit (moderate \beta): ' sprintf('%.3f \\beta %.3f', r.a, r.b)];
     legend(M, 'Location', 'NorthWest')
     xlabel('\beta')
     ylabel('Steady-state velocity')
@@ -14,8 +25,14 @@ function plot_velocity_vs_beta
     clf; hold on; M = {};
     iter(512, 100, '-o', [1 0 0]);
     iter(512, 30,  '-o', [0 .5 0]);
-    iter(512, 10,  '-o', [0 0 1]);
+    [b, v] = iter(512, 10,  '-o', [0 0 1]);
+    plot(beta, U, '--k');
+    M{end+1} = ['Linear Solution (small \beta): ' sprintf('%.3f \\beta', (Du*log(16) + zeta)/(1 + 2*Du))];
+    r = linreg(b(10:40), v(10:40))
+    plot(beta, r.a * beta + r.b, '-.k')
     xlim([0 6])
+    ylim([0 30])
+    M{end+1} = ['Linear Fit (moderate \beta): ' sprintf('%.3f \\beta %.3f', r.a, r.b)];
     legend(M, 'Location', 'NorthWest')
     xlabel('\beta')
     ylabel('Steady-state velocity')

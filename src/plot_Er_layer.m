@@ -26,7 +26,8 @@ I = 2:2:68;
 r = linreg(b(I), y(I))
 semilogy(b(I), q(I)-1, '.', b, exp(r.a*b + r.b))
 ylim([0.005 0.2])
-legend('Numerical results', 'Exponential fit')
+func = sprintf('\n%.3f e^{%.3f \\beta}', exp(r.b), r.a);
+legend('Numerical results', ['Exponential fit ' func])
 xlabel('\beta')
 ylabel('Boudary layer width')
 
