@@ -1292,7 +1292,7 @@ to the nonlinear systems of ion-exchanger migration
 and highly charged particle electrophoresis.
 We present here the asymptotic analysis for the ion-exchanger case \cite{yariv2010migration},
 while the asymptotic analysis for the electrophoresis case \cite{schnitzer2012surface}
-is derived by Schnitzer and Yariv at \cite{schnitzer2012cubic}.
+is derived by Schnitzer and Yariv in \cite{schnitzer2012cubic}.
 
 The derivation is performed as follows.
 The nonlinear system (composed of the governing equations and the boundary conditions) 
@@ -1309,7 +1309,7 @@ are expanded around $\beta = 0$:
 Thus, the $O(\beta^k)$ term $\bx_k$ can be found recursively by solving 
 $\cO_k(\bx_0, \bx_1, \ldots, \bx_k) = \bzero$,
 given the previous solutions for $\bx_0, \ldots, \bx_{k-1}$.
-The derivation is validated using MATLAB symbolic toolbox by the code 
+The derivation is validated using the MATLAB symbolic toolbox by the code 
 at \verb|symbolic/asymp.m| \cite{source}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1341,7 +1341,7 @@ and the linear velocity term is:
 + \bthetahat \pars{1 + \frac{1}{2r^3}} \sin\theta } \\
 \cU_1(\gamma) &= 2 \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}.
 \end{align}
-For $\gamma > 1$, the Debye layer has a positive space charge, 
+For $\gamma > 1$, the Debye layer has a positive charge, 
 corresponding to a negative particle charge -- 
 yielding negative drift velocity, $\cU < 0$. 
 For $\gamma < 1$, we have $\cU > 0$.
@@ -1465,12 +1465,12 @@ In order to validate the numerical solver, we employ
 the results of the asymptotic analysis of the nonlinear 
 system. 
 The numerical results are compared 
-to the asymptotic solutions, and good correspondence is achieved.
+to the asymptotic solutions, and a good correspondence is observed.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Ion-exchanger results}
 For $\beta \ll 1$, the linear regime \cite{yariv2010asymptotic} is dominant.
-When $\gamma \approx 1$, the cubic regime, where $\cU = O(\beta^3)$, 
+However, when $\gamma \approx 1$, the cubic regime, where $\cU = O(\beta^3)$, 
 dominates the linear one, even for weak electric fields. 
 This phenomenon is confirmed both by the numerical
 results and by asymptotic expansion of the nonlinear system (for $\alpha=0$).
@@ -1550,7 +1550,7 @@ Since the cubic correction is much smaller than
 the linear solution for $\beta \ll 1$, the difference between numerical results and
 the linear solution is compared to the cubic correction term. 
 
-Since the leading order of the solution $\cU(\beta)$ is linear for $\beta \ll 1$, 
+Because the leading order of the solution $\cU(\beta)$ is linear for $\beta \ll 1$, 
 the numerical discretization error is $O(\beta)$ as well.
 In order to reduce the discretization error of the numerical solution \eqref{eq:disc_zero_force}
 and after verifying that the discretization error converges as $O(h^2)$ (Figure \ref{fig:quadratic}),
@@ -1558,7 +1558,8 @@ we employ Richardson extrapolation to $\cU^h$ and $\cU^{2h}$:
 \begin{equation}
 \hat\cU = \frac{4}{3} \cU^h - \frac{1}{3} \cU^{2h}.
 \end{equation}
-The results of the extrapolation and $\hat\cU$ the analytical results 
+The results of the extrapolation $\hat\cU$ 
+and the analytical results 
 are given at Figures \ref{fig:Electrophoresis1} and \ref{fig:Electrophoresis2}.
 The numerical solver uses $R_{\max} = 10^2$,
 $K = 3$, $M = 5$ and $\beta = 0.1 \cdot 2^{t}$ for $t = -2:0.5:5$.
@@ -1622,26 +1623,26 @@ The solver is applied to 2 grids of $N_r \times N_\theta = (128 \times 128)$ as 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Electrophoresis for large $\beta$ }
 When the electric field is large, nonlinear effects dominate the solution.
-In order to investigate the problem solution for strong electric fields, 
+In order to investigate the solution for strong electric fields, 
 we have run the solver on the TAMNUN HPC cluster \cite{tamnun}.
 Large grid sizes are used to verify that the numerical solution converges when the grid becomes finer and that no numerical artifacts are present in the solution.
 Moreover, several $R_{max} \in \{10, 30, 100\}$ values are used, to make sure it has no major impact on the solution.
-The results are shown at the following figures. 
-The steady-state velocity results are shown for several grid resolutions and several $R_{max}$ values in Figure \ref{fig:LargeBetaV_grids}, and the estimated rate of convergence is shown at Figure \ref{fig:LargeBetaRatio}.
+The results are shown in the following figures. 
+The steady-state velocity results are shown for several grid resolutions and several $R_{max}$ values in Figure \ref{fig:LargeBetaV_grids}, and the estimated rate of convergence is shown in Figure \ref{fig:LargeBetaRatio}.
 
 When $\beta$ becomes large, the salt concentration $C$ near the front of the particle 
 (at $\theta \approx 0$) approaches zero, while creating a wake behind the particle 
 (at $\theta \approx \pi$).
-This is results in high gradients in $\log C$ near the front of the particle (Figures \ref{fig:LargeBeta_C1}, \ref{fig:LargeBeta_C2} and
-\ref{fig:LargeBeta_C3}) and, therefore, strong electric field $\bE$ form near the particle surface (Figures \ref{fig:LargeBeta_Phi1}, \ref{fig:LargeBeta_Phi2} and \ref{fig:LargeBeta_Phi3}) due to effective boundary conditions at Eq. \ref{eq:ephor_bnd}. 
-The streamline pattern doesn't change drastically for different electric field magnitudes. 
+This results in high gradients in $\log C$ near the front of the particle (Figures \ref{fig:LargeBeta_C1}, \ref{fig:LargeBeta_C2} and
+\ref{fig:LargeBeta_C3}) and, therefore, a strong electric field $\bE$ forms near the particle surface (Figures \ref{fig:LargeBeta_Phi1}, \ref{fig:LargeBeta_Phi2} and \ref{fig:LargeBeta_Phi3}) due to effective boundary conditions in (\ref{eq:ephor_bnd}). 
+The streamline pattern does not change drastically for different electric field magnitudes. 
 The resulting flow pattern is similar to the Stokes creeping flow, as shown in Figure
 \ref{fig:LargeBeta_Psi}.
 
 The numerical results suggest that a boundary 
 layer starts to form around the front of the particle for strong
 electric fields (see Figure \ref{fig:LargeBeta_BoundaryLayer}). 
-This causes numerical problems to the current solver -- yielding a convergence
+This causes numerical problems to the current solver -- yielding convergence
 problems for large $\beta$. The convergence problems start earlier
 for smaller grid size, and for higher $R_{max}$ values, probably
 due to insufficient resolution at the $\brhat$ direction near
@@ -1717,9 +1718,9 @@ convergence is better.}
         salt concentration at the front of the particle -- 
         $C$ approaches zero at $\theta \approx 0$, such that 
         $\deriv{C}{r}$ becomes large 
-        (since the change in $C$ happens at a small length scale).
+        (since the change in $C$ happens on a small length scale).
         Due to the boundary conditions of the electrophoresis problem
-        (given by Eq. \ref{eq:ephor_bnd}), the electric field radial
+        (given by (\ref{eq:ephor_bnd})), the electric field radial
         component given by 
         $E_r = -\deriv{\varPhi}{r} = -\frac{1}{C}\deriv{C}{r}$, 
         becomes singular where $C \rightarrow 0$.
@@ -1786,7 +1787,8 @@ convergence is better.}
         $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
         The numerical results for $\Psi$ is scaled by $\beta^{-1}$, so the linear regime
         will appear the same for different $\beta$ values.
-        Note that the numerical results show very similar flow pattern to the analytical Stokes flow.}
+        Note that the numerical results show 
+        flow pattern very similar to that of the analytical Stokes flow.}
 	    \label{fig:LargeBeta_Psi}	    
     \end{center}
 \end{figure}
@@ -1843,9 +1845,8 @@ Moreover, two interesting phenomena (cubic regime and downstream vortex) were pr
 using the numerical results, and were verified using asymptotic expansion of the
 nonlinear system.
 
-The computational grid is created to have fine resolution near the particle surface, while
-approximating the far-away boundary conditions. The logarithmic discretization is motivated
-by the solution of the linearized system at Section \ref{app:linear}, 
+The computational grid is created to have fine resolution near the particle surface, where the solutions vary sharply. The logarithmic discretization is motivated
+by the solution of the linearized system of Section \ref{app:linear}, 
 where the largest gradients in the solution are near the particle surface.
 The discretization of boundary conditions far away from the particle may be improved
 by including the linear correction from the asymptotic solution, or reformulation of
@@ -1854,10 +1855,10 @@ far away from the particle.
 
 
 For strong electric field ($\beta \gg 1)$, the nonlinear effects become dominant and
-another boundary-layer structure begins to form near the particle surface. 
+a boundary-layer structure begins to form near the particle surface. 
 In order to achieve high numerical accuracy, the grid discretization should be made finer
-near the particle surface (at $r = 1$), while $R_{max}$ can be made smaller. Moreover, different discretization scheme may be used for
-the $r$ coordinate, to have higher grid resolution near the particle.
+near the particle surface (at $r = 1$), while $R_{max}$ can be made smaller. Moreover, a different discretization scheme may be used for
+the $r$ coordinate, to have higher grid resolution near the particles.
 In addition, the continuation of the solution between different $\beta$ values
 should advance in finer steps, to ensure Newton method convergence.
 

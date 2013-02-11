@@ -10,7 +10,7 @@ load(filename)
 [p, n] = fileparts(filename);
 filename = fullfile(p, n);
 disp(filename)
-if 1
+if 0
     clf;
     hold on;
     op = sol.C;
@@ -33,7 +33,7 @@ if 1
     title(sprintf('Salt concentration (C): \\beta = %.2f', sol.beta))
     print('-depsc2', [filename '_C.eps'])
 end
-if 0
+if 1
     for d = [1 -1]
         clf;
         hold on;
@@ -54,6 +54,8 @@ if 0
         axis equal
         title(sprintf('Streamlines (\\Psi): \\beta = %.2f', sol.beta))
         print('-depsc2', [filename sprintf('_[%d]_Psi.eps', d)])
+        beta = sol.beta;
+        save([filename sprintf('_[%d]_Psi.mat', d)], 'R', 'T', 'z', 'x', 'y', 'c', 'd', 't', 'beta')
     end
 end
 

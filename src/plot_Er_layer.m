@@ -12,22 +12,28 @@ clf;
 subplot(1,2,1)
 hold on;
 I = 1:2:numel(q);
-plot(r-1, F(:, I), '-');
-plot(q(I)-1, 0.5, '.');
-xlim([0 0.2])
-ylim([0 1])
-xlabel('Radial distance from particle surface')
-ylabel('Normalized electric field radial component')
-
+for i = I
+    f = @(x) x * exp(b(i) / 2);
+    plot(f(r-1), F(:, i), '-');
+    plot(f(q(i)-1), 0.5, '.');
+    drawnow;
+    pause(.1)
+    title(sprintf('\\beta = %.2f', b(i)));
+    xlim([0 1])
+    ylim([0 1])
+    xlabel('Radial distance from particle surface (scaled by e^{\beta/2})')
+    ylabel('Normalized electric field radial component')
+end
+title('')
 subplot(1,2,2)
 %hold on
 y = log(q-1);
-I = 2:2:68;
+I = 10:50;
 r = linreg(b(I), y(I))
-semilogy(b(I), q(I)-1, '.', b, exp(r.a*b + r.b))
+semilogy(b, q-1, '.', b(I), q(I)-1, '.', b, exp(r.a*b + r.b))
 ylim([0.005 0.2])
 func = sprintf('\n%.3f e^{%.3f \\beta}', exp(r.b), r.a);
-legend('Numerical results', ['Exponential fit ' func])
+legend('Numerical results', 'Points to fit', ['Exponential fit ' func])
 xlabel('\beta')
 ylabel('Boudary layer width')
 
