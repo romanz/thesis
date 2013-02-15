@@ -9,7 +9,21 @@ for j = 1:size(F, 2)
     q(j) = interp1(f, r, 0.5);
 end
 clf;
-subplot(1,2,1)
+subplot(2,2,1)
+hold on;
+I = 1:2:numel(q);
+for i = I
+    f = @(x) x;
+    plot(f(r-1), F(:, i), '-');
+    plot(f(q(i)-1), 0.5, '.');
+    drawnow;
+    pause(.1)
+    xlim([0 1])
+    ylim([0 1])
+    xlabel('Radial distance from particle surface')
+    ylabel('Normalized electric field radial component')
+end
+subplot(2,2,2)
 hold on;
 I = 1:2:numel(q);
 for i = I
@@ -18,14 +32,12 @@ for i = I
     plot(f(q(i)-1), 0.5, '.');
     drawnow;
     pause(.1)
-    title(sprintf('\\beta = %.2f', b(i)));
     xlim([0 1])
     ylim([0 1])
     xlabel('Radial distance from particle surface (scaled by e^{\beta/2})')
     ylabel('Normalized electric field radial component')
 end
-title('')
-subplot(1,2,2)
+subplot(2,2,3)
 %hold on
 y = log(q-1);
 I = 10:50;
@@ -36,6 +48,12 @@ func = sprintf('\n%.3f e^{%.3f \\beta}', exp(r.b), r.a);
 legend('Numerical results', 'Points to fit', ['Exponential fit ' func])
 xlabel('\beta')
 ylabel('Boudary layer width')
+
+subplot(2,2,4)
+%hold on
+semilogy(b, E(1, :) ./ b, '.')
+xlabel('\beta')
+ylabel('E_r(r=1, \theta=0)')
 
 print -depsc2 BoundaryLayerWidth.eps
 end

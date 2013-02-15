@@ -1,0 +1,22 @@
+TODOs:
+------
+Say that the numerical results are OK for beta < 5.
+The electric field boundary layer scales approximately like exp(-beta/2).
+The streamline solution is approximately symmetrical - error as the function of beta.
+The physics:
+* For small beta, the linear regime dominates.
+* For moderate beta, the velocity results fit well to affine function of beta.
+do - correlation of the numerical Psi to Stokes Psi.
+
+* Validation of numerical results
+* Ion-exchanger.
+* Large beta results.
+ * Numerical Results
+ * Physical results
+  - Affine fit
+  - Boundary layer for Er (exp(beta/2))
+  - Show a plot of C boundary layer (without normalization)
+  - Fluid velocity
+* Future work:
+ - Analytic model
+ - More parameters tuning
