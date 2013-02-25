@@ -9,51 +9,61 @@ for j = 1:size(F, 2)
     q(j) = interp1(f, r, 0.5);
 end
 clf;
-subplot(2,2,1)
+
 hold on;
 I = 1:2:numel(q);
-for i = I
+% for i = I
     f = @(x) x;
-    plot(f(r-1), F(:, i), '-');
-    plot(f(q(i)-1), 0.5, '.');
-    drawnow;
-    pause(.1)
-    xlim([0 1])
+    plot(f(r-1), F(:, I), '-', 'LineWidth', 2);
+    plot(f(q(I)-1), 0.5, 'o', 'MarkerSize', 5);
+    xlim([0 0.2])
     ylim([0 1])
-    xlabel('Radial distance from particle surface')
-    ylabel('Normalized electric field radial component')
-end
-subplot(2,2,2)
+    xlabel('Radial distance from particle surface', 'FontSize', 16)
+    ylabel('Normalized electric field radial component', 'FontSize', 16)
+% end
+print -depsc2 BoundaryLayerWidth_E1.eps
+
+clf;
 hold on;
 I = 1:2:numel(q);
-for i = I
-    f = @(x) x * exp(b(i) / 2);
-    plot(f(r-1), F(:, i), '-');
-    plot(f(q(i)-1), 0.5, '.');
-    drawnow;
-    pause(.1)
+% for i = I
+    plot((r-1) * exp(b(I) / 2), F(:, I), '-', 'LineWidth', 2);
+    plot((q(I)-1) .* exp(b(I) / 2), 0.5, 'o', 'MarkerSize', 5);
     xlim([0 1])
     ylim([0 1])
-    xlabel('Radial distance from particle surface (scaled by e^{\beta/2})')
-    ylabel('Normalized electric field radial component')
-end
-subplot(2,2,3)
+    xlabel('Radial distance from particle surface (scaled by e^{\beta/2})', 'FontSize', 16)
+    ylabel('Normalized electric field radial component', 'FontSize', 16)
+% end
+print -depsc2 BoundaryLayerWidth_E2.eps
+
+clf;
 %hold on
 y = log(q-1);
 I = 10:50;
 r = linreg(b(I), y(I))
-semilogy(b, q-1, '.', b(I), q(I)-1, '.', b, exp(r.a*b + r.b))
-ylim([0.005 0.2])
+semilogy(b, q-1, 'o', b(I), q(I)-1, 'o', b, exp(r.a*b + r.b), '-' ...
+    , 'MarkerSize', 5, 'LineWidth', 2)
+xlim([0 5])
+ylim([0.01 0.2])
 func = sprintf('\n%.3f e^{%.3f \\beta}', exp(r.b), r.a);
-legend('Numerical results', 'Points to fit', ['Exponential fit ' func])
-xlabel('\beta')
-ylabel('Boudary layer width')
+legend({'Numerical results', 'Points to fit', ['Exponential fit ' func]}, ...
+    'FontSize', 16)
+xlabel('\beta', 'FontSize', 16)
+ylabel('E_r boudary layer width', 'FontSize', 16)
+print -depsc2 BoundaryLayerWidth_E3.eps
 
-subplot(2,2,4)
-%hold on
-semilogy(b, E(1, :) ./ b, '.')
-xlabel('\beta')
-ylabel('E_r(r=1, \theta=0)')
-
-print -depsc2 BoundaryLayerWidth.eps
+clf; 
+e_ = E(1, :) ./ b;
+I = 10:50;
+r = linreg(b(I), log(e_(I)))
+semilogy(b, e_, 'o', b(I), e_(I), 'o', b, exp(r.a * b + r.b), '-' ...
+        , 'MarkerSize', 5, 'LineWidth', 2)
+xlabel('\beta', 'FontSize', 16)
+ylabel('E_r(r=1, \theta=0) / \beta', 'FontSize', 16)
+xlim([0 5])
+ylim([1 10])
+func = sprintf('\n%.3f e^{%.3f \\beta}', exp(r.b), r.a);
+legend('Numerical results', 'Points to fit', ['Exponential fit ' func], ...
+    'Location', 'SouthEast')
+print -depsc2 BoundaryLayerWidth_E4.eps
 end

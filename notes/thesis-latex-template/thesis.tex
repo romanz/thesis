@@ -1630,39 +1630,57 @@ Moreover, several $R_{max} \in \{10, 30, 100\}$ values are used, to make sure it
 The results are shown in the following figures. 
 The steady-state velocity results are shown for several grid resolutions and several $R_{max}$ values in Figure \ref{fig:LargeBetaV_grids}, and the estimated rate of convergence is shown in Figure \ref{fig:LargeBetaRatio}.
 
+The numerical solver converges well for $\beta < 5$ and the resulting steady-state velocity 
+for moderate $\beta$ values is very close to being an affine function of $\beta$.
 When $\beta$ becomes large, the salt concentration $C$ near the front of the particle 
 (at $\theta \approx 0$) approaches zero, while creating a wake behind the particle 
-(at $\theta \approx \pi$).
-This results in high gradients in $\log C$ near the front of the particle (Figures \ref{fig:LargeBeta_C1}, \ref{fig:LargeBeta_C2} and
-\ref{fig:LargeBeta_C3}) and, therefore, a strong electric field $\bE$ forms near the particle surface (Figures \ref{fig:LargeBeta_Phi1}, \ref{fig:LargeBeta_Phi2} and \ref{fig:LargeBeta_Phi3}) due to effective boundary conditions in (\ref{eq:ephor_bnd}). 
-The streamline pattern does not change drastically for different electric field magnitudes. 
-The resulting flow pattern is similar to the Stokes creeping flow, as shown in Figure
-\ref{fig:LargeBeta_Psi}.
+(at $\theta \approx \pi$) as shown in Figures \ref{fig:LargeBeta_C1}, \ref{fig:LargeBeta_C2} and
+\ref{fig:LargeBeta_C3}.
+This results in high gradients in $\log C$ near the front of the particle  and, therefore, a strong electric field $\bE$ forms near the particle surface (Figures \ref{fig:LargeBeta_Phi1}, \ref{fig:LargeBeta_Phi2} and \ref{fig:LargeBeta_Phi3}) due to effective boundary conditions in (\ref{eq:ephor_bnd}). 
+From Figs. \ref{fig:LargeBetaV_grids}-\ref{fig:LargeBetaRatio} we conclude that even our most accurate numerical solution is valid only up to $\beta = 5$ approximately, and therefore we only further examine solutions in this range.
 
-The numerical results suggest that a boundary 
-layer starts to form around the front of the particle for strong
-electric fields (see Figure \ref{fig:LargeBeta_BoundaryLayer}). 
-This causes numerical problems to the current solver -- yielding convergence
-problems for large $\beta$. The convergence problems start earlier
-for smaller grid size, and for higher $R_{max}$ values, probably
-due to insufficient resolution at the $\brhat$ direction near
-the particle surface.
+The streamline pattern does not change drastically for different electric field magnitudes. 
+The resulting fluid flow is nearly proportional to that of the Stokes creeping flow, 
+as shown in Figure \ref{fig:LargeBeta_Psi}. 
+The difference between $\Psi(r, \theta)$ and $\Psi(r, \pi-\theta)$ is shown in Figure \ref{fig:LargeBeta_PsiAsymm}, demonstrating that the flow is almost symmetric (with relative
+difference up to approximately $0.5\%$) for $\beta < 5$.
+
+The numerical results show that a boundary layer starts to form near the front 
+of the particle for strong electric fields (see Figures \ref{fig:LargeBeta_BoundaryLayer_E}
+and \ref{fig:LargeBeta_BoundaryLayer_C}).
+The width of the boundary layer with respect to the electric field scales, to a good approximation, is: $\bar\rho(\beta) \approx 0.2 e^{-0.5 \beta}$.
+This causes numerical problems for the current solver at large $\beta$, due to insufficient
+grid resolution at the boundary layer of $C$ and $\bE$.
 
 \begin{figure}
     \begin{center}
     \includegraphics[width=.45\textwidth]{figs/LargeBetaV_[128_256_512]_Rmax=10.eps}
     \includegraphics[width=.45\textwidth]{figs/LargeBetaV_[512x512]_Rmax=10_30_100.eps}
         \caption[Large $\beta$ results for $\cU$]
-{Large $\beta$ results for $\cU$ ($\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$). 
+{Large $\beta$ results for $\cU(\beta)$ ($\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$). 
 The left figure shows the numerical results of $\cU(\beta)$ for $R_{max} = 10$ and the following grid sizes: $128 \times 128$, $256 \times 256$, $512 \times 512$. 
 The right figure shows the numerical results of $\cU(\beta)$ for
 $512 \times 512$ grid for $R_{max} = 100, 30, 10$. For small values of $\beta$, the linear
-regime of $\cU(\beta)$ is dominant. However, for larger values of $\beta$, the numerical solution
-deviates significantly from the linear regime. For $\beta > 6$, the numerical solver convergence
-is slowing and for $\beta \sim 7$, the solver fails to converge. As the grid resolution near
-the particle surface becomes finer (when $N_r$ increases or $R_{max}$ decreases), the solver
-convergence is better.}
+regime of $\cU(\beta)$ is dominant. 
+For moderate $\beta$ values, the steady state velocity is very close to affine function of $\beta$.
+However, for larger values of $\beta$, the numerical solution
+deviates significantly from the linear regime, due to convergence problems at $\beta > 6$, 
+and for $\beta \sim 7$, the solver fails to converge. The numerical convergence 
+depends on the grid resolution near the particle surface -- 
+as it becomes finer (when $N_r$ increases or $R_{max}$ decreases), the solver convergence improves.}
 	    \label{fig:LargeBetaV_grids}	    
+    \end{center}
+\end{figure}
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=.45\textwidth]{figs/LargeBetaV_DeltaFromLinear[128_256_512]_Rmax=10.eps}
+    \includegraphics[width=.45\textwidth]{figs/LargeBetaV_DeltaFromLinear[512x512]_Rmax=10_30_100.eps}
+        \caption[Large $\beta$ results for $\cU$ -- difference from linear regime]
+{Large $\beta$ results for $\cU(\beta) - \beta\cU_1$ ($\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$ and $\cU_1 \approx 4.258$ is linear regime coefficient). 
+The left figure shows the numerical results of $\cU(\beta)$ for $R_{max} = 10$ and the following grid sizes: $128 \times 128$, $256 \times 256$, $512 \times 512$. 
+The right figure shows the numerical results of $\cU(\beta)$ for
+$512 \times 512$ grid for $R_{max} = 100, 30, 10$.}
+	    \label{fig:LargeBetaV_DeltaFromLinear_grids}	    
     \end{center}
 \end{figure}
 \begin{figure}
@@ -1670,15 +1688,15 @@ convergence is better.}
     \includegraphics[width=.5\textwidth]{figs/LargeBetaRatio.eps}
         \caption[Rate of convergence estimation for $\cU$ at large $\beta$]
         {Rate of convergence estimation for $\cU$ at large $\beta$  
-        ($\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$). 
-        The numerical results of $\cU(\beta)$, for the grid sizes of 
+        ($\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$), 
+        based on the numerical results of $\cU(\beta)$, for the grid sizes of 
         $128 \times 128$, $256 \times 256$, $512 \times 512$. 
         The rate of convergence $r(\beta)$ is estimated by 
         $r(\beta) \triangleq \left(\cU^{4h}(\beta) - \cU^{2h}(\beta)\right)/\left(\cU^{2h}(\beta) - \cU^{h}(\beta)\right)$.
         For small $\beta$, $r(\beta) \rightarrow 4$, showing 
         quadratic convergence for the linear regime. 
-        For moderate $\beta$, the convergence rate slows down 
-        and deteriorates for large $\beta$ values.
+        For moderate $\beta$, the convergence rate slows down, 
+        and it deteriorates for large $\beta$ values.
         }
 	    \label{fig:LargeBetaRatio}
     \end{center}
@@ -1795,65 +1813,114 @@ convergence is better.}
 
 \begin{figure}
     \begin{center}
-    \includegraphics[width=1\textwidth]{figs/BoundaryLayerWidth.eps}
+    \includegraphics[width=1\textwidth]{figs/streamlines_asymmetry.eps}
+        \caption[Streamfunction asymmetry]
+        {Streamline results: grid size $512 \times 512$, 
+        $R_{max} = 10$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
+        The relative streamline asymmetry is computed by 
+        $\|\Psi(r, \theta) - \Psi(r, \pi-\theta)\|/\|\Psi(r, \theta)\|$
+        as a function of $\beta$. The results show that the streamline pattern is almost 
+        symmetric, even for moderately large $\beta$ values.}
+	    \label{fig:LargeBeta_PsiAsymm}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=.45\textwidth]{figs/BoundaryLayerWidth_E1.eps}
+    \includegraphics[width=.45\textwidth]{figs/BoundaryLayerWidth_E2.eps}
+    \includegraphics[width=.45\textwidth]{figs/BoundaryLayerWidth_E3.eps}
+    \includegraphics[width=.45\textwidth]{figs/BoundaryLayerWidth_E4.eps}
         \caption[Electric field boundary layer]
         {Electric field boundary layer formation: grid size $512 \times 512$, 
-        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$. The left
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$. The upper left
         graph shows normalized electric field radial component $E_r$ near the particle front
-        ($\theta \approx 0$). The numerical results for $e(\rho) = E_r(r=1+\rho, \theta=0)$
+        ($\theta = 0$). The numerical results for $e(\rho) = E_r(r=1+\rho, \theta=0)$
         are normalized by $\hat{e}(\rho) = \left(e(\rho) - \beta\right)/\left(e(0) - \beta\right)$,
         where $e(\rho = \infty) = \beta$.
         The normalized electric field satisfies $\hat{e}(\rho) \in [0, 1]$ and is shown as function
-        of $\rho = r - 1$ at the left graph.
+        of $\rho = r - 1$ at the upper left graph and as function of $\rho e^{0.5 \beta}$ at
+        the upper right graph.
         In order to estimate the width of the boundary layer, for each $\beta$, we compute the value 
         of $\bar\rho(\beta) = \min_\rho \{ \rho : \hat{e}(\rho) < 0.5\}$. Each such $\bar\rho(\beta)$
         is plotted at the left graph as a solid dot on the corresponding line.
         In addition, $\bar\rho(\beta)$ is plotted as a function of $\beta$ using logarithmic 
-        $y$ axis at the right graph to show that $\bar\rho(\beta) \propto e^{-A\beta}$.
+        $y$ axis at the lower left graph to show that $\bar\rho(\beta) \approx 0.2 e^{-0.5 \beta}$.
+        Moreover, $E_r(\beta; r=1, \theta=0) / \beta$ grows exponentially as a function of $\beta$,
+        as shown at the lower right graph.
         Thus, a boundary layer is indeed forming near the front of the particle.
         }
-	    \label{fig:LargeBeta_BoundaryLayer}	    
+	    \label{fig:LargeBeta_BoundaryLayer_E}	    
+    \end{center}
+\end{figure}
+
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=.45\textwidth]{figs/boundary_layer_C1.eps}
+    \includegraphics[width=.45\textwidth]{figs/boundary_layer_C2.eps}
+        \caption[Ionic concentration boundary layer]
+        {Ionic concentration boundary layer formation: grid size $512 \times 512$, 
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$. The left
+        graph shows the ionic concentration $C$ near the particle front
+        ($\theta = 0$). 
+        In addition, $C_\beta(r=1, \theta=0)$ is plotted as a function of $\beta$ using logarithmic 
+        $y$ axis at the right graph to show that 
+        $C_\beta(r=1, \theta=0) \approx 0.94 e^{-0.45 \beta}$.
+        The ionic concentration becomes very close to zero for $\beta \approx 7$ at $r = 1$, 
+        creating a singularity near the particle front.
+        }
+	    \label{fig:LargeBeta_BoundaryLayer_C}	    
     \end{center}
 \end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 \section{Discussion} \label{sec:discussion}
-A numerical framework for solver construction for a
+A numerical framework for a
 nonlinear electrokinetic transport system is described.
-The framework is applied to two electrokinetic problems: the migration of ion-exchangers
+The framework is used to construct numerical solvers 
+for two electrokinetic problems: the migration of ion-exchangers
 and surface-charged inert particle electrophoresis.
-The numerical results exhibit a good correspondence to the asymptotic linear model as
-shown above.
-Moreover, two interesting phenomena (cubic regime and downstream vortex) were predicted
-using the numerical results, and were verified using asymptotic expansion of the
-nonlinear system.
+The numerical results for weak electric field 
+exhibit a good correspondence to the asymptotic models as shown above.
+Two interesting phenomena (cubic regime and downstream vortex) were predicted for the ion-exchanger
+using the numerical results, and were verified using asymptotic expansion of the nonlinear system.
+The electrophoresis problem was solved on a high-resolution grid to validate the asymptotic 
+cubic correction of the steady-state velocity, as well as providing insights of the solution behavior 
+for moderate and strong electric fields.
+For strong electric field, the nonlinear effects become dominant and
+a boundary-layer structure begins to form.
+Due to diminishing ion concentration $C$ at the front of the particle,
+a boundary layer of thickness approximately $0.2 e^{-0.5\beta}$ 
+is formed with respect to the electric field $\bE$ at the front of the particle.
+The value of $E_r$ at ($r = 1$, $\theta = 0$) is given approximately by 
+$e^{\beta/2}$, while the value of $C(r = 1, \theta = 0)$ is given approximately 
+by $e^{-\beta/2}$, and their product remains close to 1 for all $\beta$ that we could compute.
+However, the velocity of the particle remains nearly linear with $\beta$
+and the velocity field is very close to being symmetric.
 
-The computational grid is created to have fine resolution near the particle surface, where the solutions vary sharply. The logarithmic discretization is motivated
-by the solution of the linearized system of Section \ref{app:linear}, 
-where the largest gradients in the solution are near the particle surface.
-The discretization of boundary conditions far away from the particle may be improved
-by including the linear correction from the asymptotic solution, or reformulation of
-far-away boundary condition according to the asymptotic behavior of the analytic solution
-far away from the particle.
-
-
-For strong electric field ($\beta \gg 1)$, the nonlinear effects become dominant and
-a boundary-layer structure begins to form near the particle surface. 
+\section{Future Work}
+Future work may include using the numerical results described in this work to develop
+an analytical solution for the strong field regime of the electrophoresis problem, which is 
+of interest. The solver may be used to investigate how the solution
+(and the evolving boundary layer, in particular) depends on the problem parameters.
+Optimizing the direct sparse linear solver can be done by
+using the ordering data from previous calls,
+or replacing the full Newton step by an iterative linear solver
+(e.g., using preconditioned Krylov subspace methods \cite{saad2003book} or
+Multigrid), allowing finer grids to be used.
 In order to achieve high numerical accuracy, the grid discretization should be made finer
 near the particle surface (at $r = 1$), while $R_{max}$ can be made smaller. Moreover, a different discretization scheme may be used for
 the $r$ coordinate, to have higher grid resolution near the particles.
 In addition, the continuation of the solution between different $\beta$ values
 should advance in finer steps, to ensure Newton method convergence.
-
-\section{Future Work}
-Future work may include optimizing the direct sparse linear solver 
-to use the ordering data from previous calls,
-or replacing the full Newton step by an iterative linear solver
-(e.g. using preconditioned Krylov subspace methods \cite{saad2003book} or
-Multigrid), allowing finer grids to be used.
-In addition, the framework may be used for automatic construction of Newton solvers 
-for other nonlinear PDE systems, for example -- for particle with different surface 
+The discretization of boundary conditions far away from the particle may be improved
+by including the linear correction from the asymptotic solution, or reformulation of
+far-away boundary condition according to the asymptotic behavior of the analytic solution
+far away from the particle.
+Moreover, the framework may be used for automatic construction of Newton solvers 
+for other nonlinear PDE systems, for example, for particles with different surface 
 properties, or different particle shape.
 
 \appendix

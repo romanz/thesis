@@ -1,14 +1,20 @@
 function plot_Psi_symmetry
+clf;
 L = glob('MATs/Psi/*.mat');
 res = cellfun(@show, L, 'UniformOutput', false);
 res = cat(1, res{:});
 res = sortrows(res);
 plot(res(:, 1), res(:, 2), '.-')
+xlabel('\beta')
+ylabel('Relative streamlines asymmetry')
+xlim([0 5])
+ylim([0 0.01])
+print -depsc2 streamlines_asymmetry
 
 function res = show(f)
 s = load(f);
 err = s.z - fliplr(s.z);
-err = norm(err(:)) / s.beta;
+err = norm(err(:)) / norm(s.z);
 % clf; hold on;
 % contour(s.x, s.y, s.z, s.c)
 % contour(s.x, -s.y, s.z, s.c)

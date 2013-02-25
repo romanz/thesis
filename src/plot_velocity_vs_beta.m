@@ -2,7 +2,8 @@ function plot_velocity_vs_beta
     Du = 1;
     zeta = 10;
     beta = linspace(0, 6);
-    U = beta * (Du*log(16) + zeta)/(1 + 2*Du);
+    U1 = (Du*log(16) + zeta)/(1 + 2*Du);
+    U = beta * U1;
     
     figure(1)
     clf; hold on; M = {};
@@ -17,9 +18,22 @@ function plot_velocity_vs_beta
     ylim([0 30])
     M{end+1} = ['Linear Fit (moderate \beta): ' sprintf('%.3f \\beta %.3f', r.a, r.b)];
     legend(M, 'Location', 'NorthWest')
-    xlabel('\beta')
-    ylabel('Steady-state velocity')
+    xlabel('\beta', 'FontSize', 16)
+    ylabel('Steady-state velocity', 'FontSize', 16)
     print -depsc2 LargeBetaV_[128_256_512]_Rmax=10.eps
+    
+    % Plot the difference between linear regime and numerical results
+    clf; hold on; M = {};
+    [b, v] = iter(128, 10,  [], []); plot(b, v - U1*b, '-s', 'Color', [1 0 0])
+    [b, v] = iter(256, 10,  [], []); plot(b, v - U1*b, '-s', 'Color', [0 .5 0])
+    [b, v] = iter(512, 10,  [], []); plot(b, v - U1*b, '-s', 'Color', [0 0 1])
+    
+    xlim([0 5])
+    ylim([0 5])
+    legend(M, 'Location', 'NorthWest')
+    xlabel('\beta', 'FontSize', 16)
+    ylabel('Difference of steady-state velocity from the linear regime', 'FontSize', 16)
+    print -depsc2 LargeBetaV_DeltaFromLinear[128_256_512]_Rmax=10.eps
 
     figure(2)
     clf; hold on; M = {};
@@ -34,10 +48,23 @@ function plot_velocity_vs_beta
     ylim([0 30])
     M{end+1} = ['Linear Fit (moderate \beta): ' sprintf('%.3f \\beta %.3f', r.a, r.b)];
     legend(M, 'Location', 'NorthWest')
-    xlabel('\beta')
-    ylabel('Steady-state velocity')
+    xlabel('\beta', 'FontSize', 16)
+    ylabel('Steady-state velocity', 'FontSize', 16)
     print -depsc2 LargeBetaV_[512x512]_Rmax=10_30_100.eps
+
+    % Plot the difference between linear regime and numerical results
+    clf; hold on; M = {};
+    [b, v] = iter(512, 100,  [], []); plot(b, v - U1*b, '-s', 'Color', [1 0 0])
+    [b, v] = iter(512, 30,  [], []); plot(b, v - U1*b, '-s', 'Color', [0 .5 0])
+    [b, v] = iter(512, 10,  [], []); plot(b, v - U1*b, '-s', 'Color', [0 0 1])
     
+    xlim([0 5])
+    ylim([0 5])
+    legend(M, 'Location', 'NorthWest')
+    xlabel('\beta', 'FontSize', 16)
+    ylabel('Difference of steady-state velocity from the linear regime', 'FontSize', 16)
+    print -depsc2 LargeBetaV_DeltaFromLinear[512x512]_Rmax=10_30_100.eps
+
     figure(3)
     clf; hold on; M = {};
     [b1, v1] = iter(128, 100, '-d', [1 0 0]);
@@ -49,8 +76,8 @@ function plot_velocity_vs_beta
     [b2, v2] = select(b2, v2, @(x) x < x_max);
     [b3, v3] = select(b3, v3, @(x) x < x_max);
     plot(b1, [(v2 - v1) ./ (v3 - v2)], '.-');
-    xlabel('\beta')
-    ylabel('(V_{128x128} - V_{256x256}) / (V_{256x256} - V_{512x512})')
+    xlabel('\beta', 'FontSize', 16)
+    ylabel('(V_{128x128} - V_{256x256}) / (V_{256x256} - V_{512x512})', 'FontSize', 16)
     print -depsc2 LargeBetaRatio.eps
 
     function [beta, V] = iter(N, Rmax, linespec, c)
