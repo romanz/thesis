@@ -1628,7 +1628,9 @@ we have run the solver on the TAMNUN HPC cluster \cite{tamnun}.
 Large grid sizes are used to verify that the numerical solution converges when the grid becomes finer and that no numerical artifacts are present in the solution.
 Moreover, several $R_{max} \in \{10, 30, 100\}$ values are used, to make sure it has no major impact on the solution.
 The results are shown in the following figures. 
-The steady-state velocity results are shown for several grid resolutions and several $R_{max}$ values in Figure \ref{fig:LargeBetaV_grids}, and the estimated rate of convergence is shown in Figure \ref{fig:LargeBetaRatio}.
+The steady-state velocity results are shown for several grid resolutions and several $R_{max}$ values in Figure \ref{fig:LargeBetaV_grids}, and the differences between the numerical results for
+steady-state velocity and the linear regime are shown in Figure \ref{fig:LargeBetaV_DeltaFromLinear_grids}.
+The estimated rate of convergence is shown in Figure \ref{fig:LargeBetaRatio}.
 
 The numerical solver converges well for $\beta < 5$ and the resulting steady-state velocity 
 for moderate $\beta$ values is very close to being an affine function of $\beta$.
@@ -1641,7 +1643,7 @@ From Figs. \ref{fig:LargeBetaV_grids}-\ref{fig:LargeBetaRatio} we conclude that 
 
 The streamline pattern does not change drastically for different electric field magnitudes. 
 The resulting fluid flow is nearly proportional to that of the Stokes creeping flow, 
-as shown in Figure \ref{fig:LargeBeta_Psi}. 
+as shown in Figure \ref{fig:LargeBeta_Psi} and \ref{fig:LargeBeta_PsiMinusUniformFlow}. 
 The difference between $\Psi(r, \theta)$ and $\Psi(r, \pi-\theta)$ is shown in Figure \ref{fig:LargeBeta_PsiAsymm}, demonstrating that the flow is almost symmetric (with relative
 difference up to approximately $0.5\%$) for $\beta < 5$.
 
@@ -1813,6 +1815,24 @@ $512 \times 512$ grid for $R_{max} = 100, 30, 10$.}
 
 \begin{figure}
     \begin{center}
+    \includegraphics[width=.45\textwidth]{figs/PsiMinusUniformFlow/sol_beta=1.000e-01_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_[1]_Psi.eps}
+    \includegraphics[width=.45\textwidth]{figs/PsiMinusUniformFlow/sol_beta=8.000e-01_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_[1]_Psi.eps}
+    \includegraphics[width=.45\textwidth]{figs/PsiMinusUniformFlow/sol_beta=5.000e+00_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_[1]_Psi.eps}
+    \includegraphics[width=.45\textwidth]{figs/PsiMinusUniformFlow/LinearStokes_Psi-uniformflow.eps}
+        \caption[Streamfunction results]
+        {$\beta = 0.1, 0.8, 5.0$ and Stokes streamlines results after subtraction of the uniform
+        flow streamfunction ($\frac{\cU}{2}r^2 \sin^2\theta$): grid size $512 \times 512$, 
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
+        The numerical results for $\Psi$ is scaled by $\beta^{-1}$, so the linear regime
+        will appear the same for different $\beta$ values.
+        Even for the largest beta we could compute, the velocity remains fairly symmetric and 		
+        "uneventful" also in the framework of the "laboratory" rather than that of the particle.}
+	    \label{fig:LargeBeta_PsiMinusUniformFlow}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
     \includegraphics[width=1\textwidth]{figs/streamlines_asymmetry.eps}
         \caption[Streamfunction asymmetry]
         {Streamline results: grid size $512 \times 512$, 
@@ -1874,6 +1894,15 @@ $512 \times 512$ grid for $R_{max} = 100, 30, 10$.}
     \end{center}
 \end{figure}
 
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=.6\textwidth]{figs/C_Er_product.eps}
+        \caption{The product of $C(r=1, \theta=0) E_r(r=1, \theta=0) / \beta$ as
+        a function of $\beta$.}
+	    \label{fig:C_Er_product}	    
+    \end{center}
+\end{figure}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 \section{Discussion} \label{sec:discussion}
@@ -1894,11 +1923,13 @@ a boundary-layer structure begins to form.
 Due to diminishing ion concentration $C$ at the front of the particle,
 a boundary layer of thickness approximately $0.2 e^{-0.5\beta}$ 
 is formed with respect to the electric field $\bE$ at the front of the particle.
-The value of $E_r$ at ($r = 1$, $\theta = 0$) is given approximately by 
+The value of $E_r / \beta$ at ($r = 1$, $\theta = 0$) is given approximately by 
 $e^{\beta/2}$, while the value of $C(r = 1, \theta = 0)$ is given approximately 
-by $e^{-\beta/2}$, and their product remains close to 1 for all $\beta$ that we could compute.
+by $e^{-\beta/2}$, and their product remains close to 1 for all $\beta$ that we could compute
+(as shown in Figure \ref{fig:C_Er_product}).
 However, the velocity of the particle remains nearly linear with $\beta$
 and the velocity field is very close to being symmetric.
+
 
 \section{Future Work}
 Future work may include using the numerical results described in this work to develop
