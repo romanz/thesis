@@ -12,7 +12,7 @@ U = beta * (Du*log(16) + zeta)/(1 + 2*Du);
 Psi = U * 0.5 * (R.^(-2) - 0*R) .* sin(T);
 
 z = Psi;
-z(:, [1 end]) = 0;
+z(:, [1 end]) = 1e-10;
 x = R .* cos(T);
 y = R .* sin(T);
 c = linspace(-1, 1, 101)*beta*10;
