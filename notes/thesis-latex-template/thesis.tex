@@ -17,9 +17,10 @@
 \usepackage{url}
 \usepackage{longtable}
 \usepackage[framed,numbered,autolinebreaks,useliterate]{mcode}
+\usepackage{minted}
 
 \floatstyle{ruled}
-\newfloat{program}{thp}{lop}
+\newfloat{progfram}{thp}{lop}
 %-------------------------------------------
 \newcommand{\sign}{\ensuremath{\mathrm{sign}}}
 \newcommand{\diag}{\ensuremath{\mathrm{diag}}}
@@ -27,7 +28,7 @@
 \newcommand{\norm}[1]{\ensuremath{\left\|#1\right\|_2^2}}
 \newcommand{\func}[2]{\ensuremath{\mathrm{#1}\left( #2 \right)}}
 \newcommand\eps \epsilon
-\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\RR}{\ensuremath{\mathbb{R}}}
 \newcommand{\N}{\ensuremath{\mathbb{N}}}
 \newcommand{\real}{\ensuremath{\mathbb{R}}}
 \newcommand{\cl}[1]{\ensuremath{\mathcal{#1}}}
@@ -125,8 +126,8 @@
 \supervisorEnglish{The research thesis was done under the supervision
 of Prof. Irad Yavneh in the Computer Science Department.}
 
-\GregorianDateEnglish{XXXX 2012}
-\JewishDateEnglish{YYYY 5773}
+\GregorianDateEnglish{March 2013}
+\JewishDateEnglish{Adar 5773}
 
 \personalThanksEnglish{Write thanks to professor and others}
 \financialThanksEnglish{The generous financial support of the Technion is gratefully acknowledged.}
@@ -182,6 +183,7 @@ $\cU$		& --- & Dimensionless steady-state velocity
 
 \section{The Physical Problem}
 \subsection{Electrokinetic Phenomena}
+
 Electrokinetic theory describes the dynamics of charged particles
 in ionic fluids \cite{masliyah2005book,kirby2010book}.
 When a particle acquires surface charge, a layer
@@ -807,7 +809,7 @@ V^h_\theta &=& \cI_\theta(\zeta^h) \cdot \cD_\theta(\cI_r \varPhi^h - \log \cI_r
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Solver Design}
-Let $\cO : \R^N \rightarrow \R^N $ be an nonlinear operator.
+Let $\cO : \RR^N \rightarrow \RR^N $ be an nonlinear operator.
 In order to solve the equation $\cO(\bx) = \bzero$, Newton's method is applied, 
 given an initial solution $\bx_0$.
 Each step requires the computation of the residual vector, $\br = \cO(\bx)$, 
@@ -893,8 +895,8 @@ as reported by MATLAB function call, \verb|spparms('spumoni', 2)|.
 
 \subsection{Operator Interface} \label{sec:operator-interface}
 The base \verb|Operator| interface is defined by 
-supporting the computation of a residual vector \verb|Operator::res()|
-and a gradient matrix \verb|Operator::grad()|, given an input vector $\bx$.
+supporting the computation of a residual vector \verb|Operator.res()|
+and a gradient matrix \verb|Operator.grad()|, given an input vector $\bx$.
 This interface is implemented by specific operator classes,
 which are used to construct the system operator $\cO$, so that 
 the Newton solver (that requires computing the residual and the gradient) 
@@ -916,8 +918,8 @@ This way, the computation of the residual is very fast, taking $O(\dim \bx)$ tim
 and the gradient does not depend on $\bx$.
 
 \subsubsection{Pointwise scalar function}
-Let $f: \R \rightarrow \R$ be a differentiable 1D function, whose derivative is
-denoted by $f': \R \rightarrow \R$. The operator $\cF$ can be defined to
+Let $f: \RR \rightarrow \RR$ be a differentiable 1D function, whose derivative is
+denoted by $f': \RR \rightarrow \RR$. The operator $\cF$ can be defined to
 represent pointwise application of $f$:
 \begin{equation}\begin{array}{cc}
 \cF(\bx) = [f(x_1); \ldots; f(x_n)], &
@@ -992,7 +994,7 @@ We define the variable vector $\bx$ as \verb|Variable|
 operator (Figure \ref{fig:variable.m}).
 
 \begin{figure}[htpb]
-\begin{lstlisting}
+\begin{minted}[mathescape,linenos,numbersep=6pt,frame=single,framesep=2mm]{matlab}
 classdef Variable < handle
 properties
     value;
@@ -1011,7 +1013,7 @@ methods
         self.value = self.value + dv;
     end
 end
-\end{lstlisting}
+\end{minted}
 \caption{Variable class source code.} \label{fig:variable.m}
 \end{figure}
 Then the initial solution for the solver is set using
@@ -1027,7 +1029,7 @@ functions, for residual and gradient computation, respectively.
 An \verb|Operator| interface is used (Figure \ref{fig:operator.m}) 
 to support operator overloading MATLAB syntax.
 \begin{figure}[h]
-\begin{lstlisting}
+\begin{minted}[mathescape,linenos,numbersep=6pt,frame=single,framesep=2mm]{matlab}
 % Regular structured grid class
 classdef Grid < handle
 properties
@@ -1045,11 +1047,11 @@ methods
         self.numel = prod(self.size);
     end
 end
-\end{lstlisting}
+\end{minted}
 \caption{Grid class source code.} \label{fig:grid.m}
 \end{figure}
 \begin{figure}[h]
-\begin{lstlisting}
+\begin{minted}[mathescape,linenos,numbersep=6pt,frame=single,framesep=2mm]{matlab}
 classdef Operator < handle
 properties
     grid; % a grid object for the output
@@ -1086,7 +1088,7 @@ methods
         op = Func(op, 'tanh(x)');
     end
 end
-\end{lstlisting}
+\end{minted}
 \caption{Operator interface source code.} \label{fig:operator.m}
 \end{figure}
 
@@ -1104,7 +1106,7 @@ An operator can be created with $n$ existing operators as input.
 residual value is constant and gradient matrix is zero (see Figure \ref{fig:const.m}).
 
 \begin{figure}[h]
-\begin{lstlisting}
+\begin{minted}[mathescape,linenos,numbersep=6pt,frame=single,framesep=2mm]{matlab}
 classdef Const < Operator
 properties
     val;
@@ -1131,7 +1133,7 @@ methods
         G = sparse(0); % [0]
     end
 end
-\end{lstlisting}
+\end{minted}
 \caption{Constant operator source code.} \label{fig:const.m}
 \end{figure}
 
@@ -1148,7 +1150,7 @@ differentiation and grid interpolation) derive from \verb|Linear|
 base class operator and specify \verb|L| sparse matrix accordingly.
 
 \begin{figure}[h]
-\begin{lstlisting}
+\begin{minted}[mathescape,linenos,numbersep=6pt,frame=single,framesep=2mm]{matlab}
 classdef Func < Operator
 properties
     op; % Input operator
@@ -1174,11 +1176,11 @@ methods
         G = spdiag( self.deriv(r) ) * self.op.grad();
     end
 end
-\end{lstlisting}
+\end{minted}
 \caption{Pointwise function source code.} \label{fig:func.m}
 \end{figure}
 \begin{figure}[h]
-\begin{lstlisting}
+\begin{minted}[mathescape,linenos,numbersep=6pt,frame=single,framesep=2mm]{matlab}
 classdef Linear < Operator
 properties
     L;
@@ -1197,7 +1199,7 @@ methods
         G = self.L * self.op.grad();
     end
 end
-\end{lstlisting}
+\end{minted}
 \caption{Linear operator source code.} \label{fig:linear.m}
 \end{figure}
 
@@ -1216,7 +1218,7 @@ Then, they are combined using the $N$-ary operator
 the system operator \verb|op| (Figure \ref{fig:join.m}).
 
 \begin{figure}[htpb]
-\begin{lstlisting}
+\begin{minted}[mathescape,linenos,numbersep=6pt,frame=single,framesep=2mm]{matlab}
 classdef Join < handle
 properties
     ops;
@@ -1243,7 +1245,7 @@ methods
         G = cat(1, G{:});
     end
 end
-\end{lstlisting}
+\end{minted}
 \caption{Join operator source code.} \label{fig:join.m}
 \end{figure}
 
@@ -1257,7 +1259,7 @@ F(0, y) = F(1, y) &= 0 & y &\in [0,1] \\
 and solve it using one Newton method step.
 The source code is presented at Figure \ref{fig:sample.m}.
 \begin{figure}[htpb]
-\begin{lstlisting}
+\begin{minted}[mathescape,linenos,numbersep=6pt,frame=single,framesep=2mm]{matlab}
 x = linspace(0, 1); 
 y = linspace(0, 1);
 g = Grid(x, y); % Grid definition
@@ -1280,7 +1282,7 @@ op = Join([eq; bnd]); % System operator
 r = op.res()
 G = op.grad()
 v.update(-(G\r)) % Solve by Newton iteration
-\end{lstlisting}
+\end{minted}
 \caption{Sample problem source code.} \label{fig:sample.m}
 \end{figure}
 
@@ -1639,7 +1641,7 @@ When $\beta$ becomes large, the salt concentration $C$ near the front of the par
 (at $\theta \approx \pi$) as shown in Figures \ref{fig:LargeBeta_C1}, \ref{fig:LargeBeta_C2} and
 \ref{fig:LargeBeta_C3}.
 This results in high gradients in $\log C$ near the front of the particle  and, therefore, a strong electric field $\bE$ forms near the particle surface (Figures \ref{fig:LargeBeta_Phi1}, \ref{fig:LargeBeta_Phi2} and \ref{fig:LargeBeta_Phi3}) due to effective boundary conditions in (\ref{eq:ephor_bnd}). 
-From Figs. \ref{fig:LargeBetaV_grids}-\ref{fig:LargeBetaRatio} we conclude that even our most accurate numerical solution is valid only up to $\beta = 5$ approximately, and therefore we only further examine solutions in this range.
+From Figs. \ref{fig:LargeBetaV_grids}-\ref{fig:LargeBetaV_DeltaFromLinear_grids} we conclude that even our most accurate numerical solution is valid only up to $\beta = 5$ approximately, and therefore we only further examine solutions in this range.
 
 The streamline pattern does not change drastically for different electric field magnitudes. 
 The resulting fluid flow is nearly proportional to that of the Stokes creeping flow, 
@@ -1650,7 +1652,7 @@ difference up to approximately $0.5\%$) for $\beta < 5$.
 The numerical results show that a boundary layer starts to form near the front 
 of the particle for strong electric fields (see Figures \ref{fig:LargeBeta_BoundaryLayer_E}
 and \ref{fig:LargeBeta_BoundaryLayer_C}).
-The width of the boundary layer with respect to the electric field scales, to a good approximation, is: $\bar\rho(\beta) \approx 0.2 e^{-0.5 \beta}$.
+The width of the boundary layer with respect to the electric field scales, to a good approximation, as: $\bar\rho(\beta) \approx 0.2 e^{-0.5 \beta}$.
 This causes numerical problems for the current solver at large $\beta$, due to insufficient
 grid resolution at the boundary layer of $C$ and $\bE$.
 
@@ -1826,7 +1828,7 @@ $512 \times 512$ grid for $R_{max} = 100, 30, 10$.}
         The numerical results for $\Psi$ is scaled by $\beta^{-1}$, so the linear regime
         will appear the same for different $\beta$ values.
         Even for the largest beta we could compute, the velocity remains fairly symmetric and 		
-        "uneventful" also in the framework of the "laboratory" rather than that of the particle.}
+        ``uneventful'' also in the framework of the ``laboratory'' rather than that of the particle.}
 	    \label{fig:LargeBeta_PsiMinusUniformFlow}	    
     \end{center}
 \end{figure}
@@ -1917,7 +1919,7 @@ Two interesting phenomena (cubic regime and downstream vortex) were predicted fo
 using the numerical results, and were verified using asymptotic expansion of the nonlinear system.
 The electrophoresis problem was solved on a high-resolution grid to validate the asymptotic 
 cubic correction of the steady-state velocity, as well as providing insights of the solution behavior 
-for moderate and strong electric fields.
+for moderately strong electric fields.
 For strong electric field, the nonlinear effects become dominant and
 a boundary-layer structure begins to form.
 Due to diminishing ion concentration $C$ at the front of the particle,
@@ -2362,8 +2364,6 @@ Since $V_\phi = 0$ and $\deriv{}{\phi}(\cdot) = 0$, we get:
 \bibliographystyle{unsrt}
 \bibliography{thesis}
 
-%\include{hebrewPart}
-
-% Actually, I found it much easier to have each chapter in a file of its own. Except for the Hebrew part, I put it all together in this example just to make things clear.
+\include{hebrewPart}
 
 \end{document}

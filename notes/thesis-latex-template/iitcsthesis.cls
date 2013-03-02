@@ -6,7 +6,7 @@
 
 \LoadClass[11pt,twoside]{report}
 
-%\RequirePackage[hebrew,english]{babel}
+\RequirePackage[hebrew,english]{babel}
 \RequirePackage{setspace}
 
 \renewcommand{\baselinestretch}{1.1}
@@ -160,7 +160,7 @@ the Technion --- Israel Institute of Technology \\ }
 \vfill
 \parbox{3in}{
 \normalsize
-{\center הוגש לסנט הטכניון \L{--} מכון טכנולוגי לישראל \\ }
+{\center הוגש לסנט הטכניון - מכון טכנולוגי לישראל \\ }
 \@JewishDateHebrew
 \hfill חיפה \hfill
 \@GregorianDateHebrew
