@@ -33,4 +33,5 @@
 *.tua
 *.top
 *.lof
-
+*.cot
+*.fol
