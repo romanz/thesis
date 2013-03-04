@@ -140,10 +140,10 @@ of Prof. Irad Yavneh in the Computer Science Department.}
 In this work we study the electrokinetic 
 migration of particles in an electrolyte solution 
 due to the application of an external electric field,
-and propose a numerical framework for iterative solution of such problems.
+and propose a numerical framework for the iterative solution of such problems.
 The electrokinetic transport process can be used for
 transporting and manipulating micro- and nanoscale objects in 
-many nanotechnology applications, nano-fluidic devices, packed bed separation, 
+many nanotechnology applications, nano-fluidic devices, packed-bed separation, 
 desalination processes and various electrophoresis applications.
 Due to strong electrostatic forces, a thin boundary layer forms near the particle
 surface. This results in scale disparity of the boundary layer, which makes a 
@@ -223,7 +223,7 @@ problem under consideration and defined by the particle's
 geometry, chemical characteristics, and the fluid dynamics.
 The partial differential equations that describe the system dynamics
 under an external electric field, are coupled and nonlinear, and
-in general they have no analytic solution. 
+in general have no analytic solution. 
 Moreover, any numerical solver must handle the scale disparity caused by the
 Debye layer width being much smaller than the particle size. 
 An effective boundary condition outside the Debye layer
@@ -246,7 +246,7 @@ filters, separators, heaters etc., and are combined into lab-on-a-chip systems.
 The manipulation can be achieved by either applying the external field at inlets and outlets, or it can be applied locally in the microchannel by integrated components.
 A typical microchannel is produced with lithographic techniques. Normally the Reynolds
 number is very low (on the order of unity or smaller) which means that viscosity dominates
-and the convective term of the Navier-Stokes equations are insignificant. This also means that
+and the convective term of the Navier-Stokes equations is insignificant. This also means that
 microflows most often are laminar.
 
 In the last decade there has been an increase in microfluidics research, 
@@ -642,10 +642,10 @@ where a logarithmic grid spacing has been chosen for $r$ and a uniform grid for 
 Note that $r_0 = 1$ and $R_{max} = (1+\Delta_r)^{n_r}$, where
 $\Delta_r = \pars{R_{max}} ^ {1/n_r} - 1$ and $\Delta_\theta = {\pi/n_\theta}$.
 
-Because the grid is finite, the choice $R_{max}$ must be taken large enough 
+Because the grid is finite, the choice of $R_{max}$ must be large enough 
 so as to have a negligible effect on the solution. 
-On the other hand, in order to have high resolution grid near the particle surface,
-$\Delta_r$ should be minimized. It should be noted that for given grid size $n_r$,
+On the other hand, in order to have a high resolution grid near the particle surface,
+$\Delta_r$ should be minimized. It should be noted that for a given grid size $n_r$,
 these requirements cannot be satisfied simultaneously -- thus, a compromise is required
 between large $R_{max}$ and small $\Delta_r$.
 
@@ -660,7 +660,7 @@ A specific cell $\Omega_{ij}$ and its center $(\bar{r}_i, \bar{\theta}_j)$ are d
 \bar{\theta}_j &= (\theta_{j-1} + \theta_{j})/2.
 \end{align}
 
-Each discrete variable is located with respect of its cell 
+Each discrete variable is located with respect to its cell 
 as shown at Figure \ref{fig:grids}.
 $\varPhi$, $C$ and $P$ are represented by their value at the center of each cell, 
 using an all-centered grid, whereas $\bV$ is represented by its values at cell 
@@ -739,7 +739,7 @@ J^h_\theta = -\frac{\cD_\theta(C^h)}{r} + \alpha V^h_\theta \cdot \mathcal{U}^{\
 Mass flux $\bV$ is discretized on grid cells boundaries, 
 using the staggered velocity grid.
 Force components ($\bF = -\bnabla P + \bLaplacian \bV + \bnabla \varPhi \Laplacian \varPhi$) 
-are discretized on the staggered velocity grid using finite difference
+are discretized on the staggered velocity grid using the finite difference
 method, where linear interpolation is used for the Coulomb force and 
 for vector Laplacian components.
 \begin{align}
@@ -810,23 +810,23 @@ V^h_\theta &=& \cI_\theta(\zeta^h) \cdot \cD_\theta(\cI_r \varPhi^h - \log \cI_r
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Solver Design}
-Let $\cO : \RR^N \rightarrow \RR^N $ be an nonlinear operator.
+Let $\cO : \RR^N \rightarrow \RR^N $ be a nonlinear operator.
 In order to solve the equation $\cO(\bx) = \bzero$, Newton's method is applied, 
 given an initial solution $\bx_0$.
 Each step requires the computation of the residual vector, $\br = \cO(\bx)$, 
 the gradient matrix of the operator, $\bG = \bnabla \cO(\bx)$
 (given the current solution $\bx$)
-and the solution of sparse linear system $\bG \Delta \bx = -\br$.
+and the solution of the sparse linear system $\bG \Delta \bx = -\br$.
 
 \subsection{Operator Representation}
-System variable $\bx$ is defined as the concatenation $\bx = [\,\varPhi, C, V_r, V_\theta, P\,]$.
+The system variable $\bx$ is defined as the concatenation $\bx = [\,\varPhi, C, V_r, V_\theta, P\,]$.
 Thus, each problem variable can be computed by applying an appropriate projection operator on $\bx$.
 The system can be written as a nonlinear operator $\cO(\bx) = \bzero$ 
 acting on the system variable ${\bx}$, 
 where $\cO$ is the system equations operator, 
 derived by concatenation of the system equations (described in Subsection \ref{sec:disc_equations})
 and the boundary conditions operators (described in Subsection \ref{sec:disc_boundary}).
-This way, the same numerical solver handles both the nonlinear system equation and nonlinear
+This way, the same numerical solver handles both the nonlinear system equations and nonlinear
 boundary conditions.
 
 \subsection{Steady-state}
@@ -921,7 +921,7 @@ and the gradient does not depend on $\bx$.
 \subsubsection{Pointwise scalar function}
 Let $f: \RR \rightarrow \RR$ be a differentiable 1D function, whose derivative is
 denoted by $f': \RR \rightarrow \RR$. The operator $\cF$ can be defined to
-represent pointwise application of $f$:
+represent a pointwise application of $f$:
 \begin{equation}\begin{array}{cc}
 \cF(\bx) = [f(x_1); \ldots; f(x_n)], &
 \bnabla\cF(\bx) = \diag\{f'(x_1), \ldots, f'(x_n)\}.
@@ -929,15 +929,15 @@ represent pointwise application of $f$:
 $f$ is defined and differentiated automatically using the MATLAB symbolic toolbox.
 
 \subsubsection{Constant value}
-A constant operator $\mathcal{C}$ is defined by constant vector $\bc$ 
-(that does not depend on $\bx$):
+A constant operator $\mathcal{C}$ is defined by the constant vector $\bc$ 
+(which does not depend on $\bx$):
 \begin{equation}\begin{array}{cc}
 \mathcal{C}(\bx) = \bc, &
 \bnabla\mathcal{C} = \bzero.
 \end{array}\end{equation}
 
 \subsubsection{Binary operators}
-Let $\cO_1$ and $\cO_2$ be two operators, so their pointwise addition, subtraction,
+Let $\cO_1$ and $\cO_2$ be two operators, so that their pointwise addition, subtraction,
 and multiplication, are defined as follows:
 \begin{align}
 (\cO_1 \pm \cO_2)(\bx) &= \cO_1(\bx) \pm \cO_2(\bx), \\
