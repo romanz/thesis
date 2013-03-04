@@ -2,6 +2,8 @@ function plot_C_layer
 clear
 load results_C(beta)_512x512_Rmax=10.mat
 b = betas(1:end-1);
+C = C(:, b <= 5);
+b = b(b <= 5);
 clf;
 I = 1:numel(b);
 R = [];

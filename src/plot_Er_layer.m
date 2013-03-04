@@ -2,6 +2,8 @@ function plot_Er_layer
 clear
 load results_Er(beta)_512x512_Rmax=10.mat
 b = betas(1:end-1);
+E = E(:, b <= 5);
+b = b(:, b <= 5);
 F = (E - repmat(E(end, :), size(E, 1), 1));
 F = F * diag(1./max(F));
 for j = 1:size(F, 2)

@@ -2,6 +2,7 @@
 % beforeExam (to make the personal thanks invisible)
 \documentclass[MSc,beforeExam]{iitcsthesis}
 
+\usepackage[format=plain]{caption}
 \usepackage{graphicx}
 \usepackage{tikz}
 \usepackage{amsmath} 
@@ -1577,7 +1578,7 @@ The solver is applied to 2 grids of $N_r \times N_\theta = (128 \times 128)$ as 
         $\alpha = 0$, $\Du = 0.5$, $\bar\zeta = 6$ and $R_{max} = 100$. The markers represent
         the discretization errors for various grid sizes, and the dotted lines correspond to linear
         functions of $\beta$, scaled by $4^n$. 
-        The graph show that, as the number of grid points in each dimension increases by 2, 
+        The graph shows that, as the number of grid points in each dimension increases by 2, 
         the discretization error decreases by 4.
         }
 	    \label{fig:quadratic}
@@ -1666,7 +1667,7 @@ The left figure shows the numerical results of $\cU(\beta)$ for $R_{max} = 10$ a
 The right figure shows the numerical results of $\cU(\beta)$ for
 $512 \times 512$ grid for $R_{max} = 100, 30, 10$. For small values of $\beta$, the linear
 regime of $\cU(\beta)$ is dominant. 
-For moderate $\beta$ values, the steady state velocity is very close to affine function of $\beta$.
+For moderate $\beta$ values, the steady state velocity is very close to an affine function of $\beta$.
 However, for larger values of $\beta$, the numerical solution
 deviates significantly from the linear regime, due to convergence problems at $\beta > 6$, 
 and for $\beta \sim 7$, the solver fails to converge. The numerical convergence 
@@ -1680,10 +1681,11 @@ as it becomes finer (when $N_r$ increases or $R_{max}$ decreases), the solver co
     \includegraphics[width=.45\textwidth]{figs/LargeBetaV_DeltaFromLinear[128_256_512]_Rmax=10.eps}
     \includegraphics[width=.45\textwidth]{figs/LargeBetaV_DeltaFromLinear[512x512]_Rmax=10_30_100.eps}
         \caption[Large $\beta$ results for $\cU$ -- difference from linear regime]
-{Large $\beta$ results for $\cU(\beta) - \beta\cU_1$ ($\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$ and $\cU_1 \approx 4.258$ is linear regime coefficient). 
+{Large $\beta$ results for $\cU(\beta) - \beta\cU_1$ ($\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$ and $\cU_1 \approx 4.258$ is the linear regime coefficient). 
 The left figure shows the numerical results of $\cU(\beta)$ for $R_{max} = 10$ and the following grid sizes: $128 \times 128$, $256 \times 256$, $512 \times 512$. 
 The right figure shows the numerical results of $\cU(\beta)$ for
-$512 \times 512$ grid for $R_{max} = 100, 30, 10$.}
+$512 \times 512$ grid for $R_{max} = 100, 30, 10$.
+It is seen that the difference is indeed nearly an affine function of $\beta$ in the large-$\beta$ regime, so long as the numerical solution remains sufficiently accurate.}
 	    \label{fig:LargeBetaV_DeltaFromLinear_grids}	    
     \end{center}
 \end{figure}
@@ -1807,9 +1809,9 @@ $512 \times 512$ grid for $R_{max} = 100, 30, 10$.}
         \caption[Streamfunction results]
         {$\beta = 0.1, 0.8, 5.0$ and Stokes streamlines results: grid size $512 \times 512$, 
         $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
-        The numerical results for $\Psi$ is scaled by $\beta^{-1}$, so the linear regime
+        The numerical results for $\Psi$ are scaled by $\beta^{-1}$, so the linear regime
         will appear the same for different $\beta$ values.
-        Note that the numerical results show 
+        Note that the numerical results show a
         flow pattern very similar to that of the analytical Stokes flow.}
 	    \label{fig:LargeBeta_Psi}	    
     \end{center}
@@ -1825,7 +1827,7 @@ $512 \times 512$ grid for $R_{max} = 100, 30, 10$.}
         {$\beta = 0.1, 0.8, 5.0$ and Stokes streamlines results after subtraction of the uniform
         flow streamfunction ($\frac{\cU}{2}r^2 \sin^2\theta$): grid size $512 \times 512$, 
         $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
-        The numerical results for $\Psi$ is scaled by $\beta^{-1}$, so the linear regime
+        The numerical results for $\Psi$ are scaled by $\beta^{-1}$, so the linear regime
         will appear the same for different $\beta$ values.
         Even for the largest beta we could compute, the velocity remains fairly symmetric and 		
         ``uneventful'' also in the framework of the ``laboratory'' rather than that of the particle.}
@@ -1916,10 +1918,10 @@ and surface-charged inert particle electrophoresis.
 The numerical results for weak electric field 
 exhibit a good correspondence to the asymptotic models as shown above.
 Two interesting phenomena (cubic regime and downstream vortex) were predicted for the ion-exchanger
-using the numerical results, and were verified using asymptotic expansion of the nonlinear system.
+using the numerical results, and were verified using an asymptotic expansion of the nonlinear system.
 The electrophoresis problem was solved on a high-resolution grid to validate the asymptotic 
-cubic correction of the steady-state velocity, as well as providing insights of the solution behavior 
-for moderately strong electric fields.
+cubic correction of the steady-state velocity, as well as providing insights into
+the solution behavior for moderately strong electric fields.
 For strong electric field, the nonlinear effects become dominant and
 a boundary-layer structure begins to form.
 Due to diminishing ion concentration $C$ at the front of the particle,
