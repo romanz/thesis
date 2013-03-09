@@ -1098,8 +1098,8 @@ Thus, various computations can be applied on simple operators,
 creating more complex operators, such as
 \verb|op4 = op1 * exp(op2 + tanh(op3))|. 
 Since each operator can compute its residual and gradient, we
-can compute automatically the residual and gradient of \verb|o4|
-from these of \verb|o1|, \verb|o2|, \verb|o3| using the derivation
+can compute automatically the residual and gradient of \verb|op4|
+from these of \verb|op1|, \verb|op2|, \verb|op3| using the derivation
 rules described at \ref{sec:operator-interface}.
 
 \subsection{Operators}
@@ -1142,7 +1142,7 @@ end
 \subsubsection{Unary operators}
 Unary operators have one existing operator as input. 
 \verb|Func| operator implements point-wise analytic function
-application (whose derivative is computed using symbolic differentiation toolbox) on the same grid of the input operator (Figure \ref{fig:func.m}). 
+application (whose derivative is computed using the symbolic differentiation toolbox) on the same grid of the input operator (Figure \ref{fig:func.m}). 
 \verb|Linear| operator is implemented
 using multiplication by a constant sparse matrix 
 \verb|L|, which is also the gradient of the operator
@@ -1208,7 +1208,7 @@ end
 \subsubsection{Binary operators}
 Binary operators such as addition, subtraction and point-wise 
 multiplication are implemented as operators whose
-output grid is the as the grid of their inputs. 
+output grid is the same as the grid of their inputs. 
 The implementation is used by operator overloading in 
 the base class \verb|Operator|.
 
@@ -1579,8 +1579,8 @@ The solver is applied to 2 grids of $N_r \times N_\theta = (128 \times 128)$ as 
         $\alpha = 0$, $\Du = 0.5$, $\bar\zeta = 6$ and $R_{max} = 100$. The markers represent
         the discretization errors for various grid sizes, and the dotted lines correspond to linear
         functions of $\beta$, scaled by $4^n$. 
-        The graph shows that, as the number of grid points in each dimension increases by 2, 
-        the discretization error decreases by 4.
+        The graph shows that, as the number of grid points in each dimension increases by a factor of 2, 
+        the discretization error decreases by a factor of 4.
         }
 	    \label{fig:quadratic}
     \end{center}
@@ -1921,7 +1921,7 @@ exhibit a good correspondence to the asymptotic models as shown above.
 Two interesting phenomena (cubic regime and downstream vortex) were predicted for the ion-exchanger
 using the numerical results, and were verified using an asymptotic expansion of the nonlinear system.
 The electrophoresis problem was solved on a high-resolution grid to validate the asymptotic 
-cubic correction of the steady-state velocity, as well as providing insights into
+cubic correction of the steady-state velocity, as well as to provide insights into
 the solution behavior for moderately strong electric fields.
 For strong electric field, the nonlinear effects become dominant and
 a boundary-layer structure begins to form.
