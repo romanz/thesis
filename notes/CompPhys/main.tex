@@ -1,0 +1,1460 @@
+\documentclass[preprint,10pt]{elsarticle}
+
+\usepackage[format=plain]{caption}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{amsmath} 
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{units}   
+\usepackage{float}   
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{mathrsfs}
+\usepackage[colorlinks]{hyperref}
+\usepackage{framed}
+\usepackage{url}
+\usepackage{longtable}
+
+\floatstyle{ruled}
+\newfloat{progfram}{thp}{lop}
+%-------------------------------------------
+\newcommand{\sign}{\ensuremath{\mathrm{sign}}}
+\newcommand{\diag}{\ensuremath{\mathrm{diag}}}
+\newcommand{\trace}[1]{\ensuremath{\mathrm{trace}\left( #1 \right)}}
+\newcommand{\norm}[1]{\ensuremath{\left\|#1\right\|_2^2}}
+\newcommand{\func}[2]{\ensuremath{\mathrm{#1}\left( #2 \right)}}
+\newcommand\eps \epsilon
+\newcommand{\RR}{\ensuremath{\mathbb{R}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\real}{\ensuremath{\mathbb{R}}}
+\newcommand{\cl}[1]{\ensuremath{\mathcal{#1}}}
+\newcommand{\suppsize}[1]{\ensuremath{|\mathcal{#1}|}}
+\newcommand{\vect}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\matr}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\deriv}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\arr}[2]{\begin{array}{#1}#2\end{array}}
+\newcommand{\mat}[2]{\left(\begin{array}{#1}#2\end{array}\right)}
+\newcommand{\brc}[2]{\left\{\begin{array}{#1}#2\end{array}\right.}
+\newcommand{\pars}[1]{\left(#1\right)}
+\newcommand{\brcs}[1]{\left\{#1\right\}}
+\newcommand{\half}{\frac{1}{2}}
+
+% Bold symbols and operators
+\newcommand\Laplacian{\nabla^2}
+\newcommand\bnabla{\boldsymbol{\nabla}}
+\newcommand\bLaplacian{\boldsymbol{\nabla}^2}
+\newcommand\bcdot{\boldsymbol{\cdot}}
+\newcommand\bU{\mathscr{\boldsymbol{U}}}
+\newcommand\bv{\boldsymbol{v}}
+\newcommand\bV{\boldsymbol{V}}
+\newcommand\bE{\boldsymbol{E}}
+\newcommand\be{\boldsymbol{\hat{e}}}
+\newcommand\bn{\boldsymbol{\hat{n}}}
+\newcommand\bk{\boldsymbol{\hat{k}}}
+\newcommand\bj{\boldsymbol{j}}
+\newcommand\bi{\boldsymbol{i}}
+\newcommand\bs{\boldsymbol{s}}
+\newcommand\bA{\boldsymbol{A}}
+\newcommand\bF{\boldsymbol{F}}
+\newcommand\bG{\boldsymbol{G}}
+\newcommand\bI{\boldsymbol{I}}
+\newcommand\bJ{\boldsymbol{J}}
+\newcommand\bx{\boldsymbol{x}}
+\newcommand\by{\boldsymbol{y}}
+\newcommand\bz{\boldsymbol{z}}
+\newcommand\br{\boldsymbol{r}}
+\newcommand\bc{\boldsymbol{c}}
+\newcommand\bxhat{\hat{\bx}}
+\newcommand\byhat{\hat{\by}}
+\newcommand\bzhat{\hat{\bz}}
+\newcommand\brhat{\hat{\br}}
+\newcommand\bnhat{\hat{\boldsymbol{n}}}
+\newcommand\btheta{\boldsymbol{\theta}}
+\newcommand\bthetahat{\hat{\btheta}}
+\newcommand\bphi{\boldsymbol{\phi}}
+\newcommand\bphihat{\hat{\bphi}}
+\newcommand\bzero{\boldsymbol{0}}
+\newcommand\bomega{\boldsymbol{\omega}}
+\newcommand\bpsi{\boldsymbol{\psi}}
+\newcommand\Du{\text{Du}}
+
+% Calligraphic symbols
+\newcommand\cB{\mathcal{B}}
+\newcommand\cE{\mathcal{E}}
+\newcommand\cF{\mathcal{F}}
+\newcommand\cO{\mathcal{O}}
+\newcommand\cG{\mathcal{G}}
+\newcommand\cI{\mathcal{I}}
+\newcommand\cP{\mathcal{P}}
+\newcommand\cD{\mathcal{D}}
+\newcommand\cL{\mathcal{L}}
+\newcommand\cU{\mathscr{U}}
+\newcommand\cV{\mathscr{V}}
+\newcommand\cW{\mathscr{W}}
+
+% Tensors
+\newcommand\tI{\mathsf{I}}
+\newcommand\tS{\mathsf{S}}
+\newcommand\tT{\mathsf{T}}
+
+% Unit vector
+\newcommand\ui{\boldsymbol{\hat{\imath}}}
+
+
+\journal{Computational Physics}
+
+% For some reason, the hebrew package clashes with the amsthm package. If you need a proof environment, you can uncomment the following:
+%\usepackage{amssymb} %Needed for \blacksquare. Take care not to add this package twice...
+%\newenvironment{proof}[1][Proof]{\par \textbf{#1.} }{\hspace{10pt}\hfill$\blacksquare$\par}
+\begin{document}
+
+\begin{frontmatter}
+
+\author{Roman Zeyde}
+\ead{romanz@cs.technion.ac.il}
+
+\author{Irad Yavneh}
+\ead{irad@cs.technion.ac.il}
+
+\address{Technion -- Israel Institute of Technology, Haifa 32000, Israel}
+
+\title{Computational Electrokinetics}
+
+\begin{abstract}
+In this work we study the electrokinetic 
+migration of particles in an electrolyte solution 
+due to the application of an external electric field,
+and propose a numerical framework for the iterative solution of such problems.
+The electrokinetic transport process can be used for
+transporting and manipulating micro- and nanoscale objects in 
+many nanotechnology applications, nano-fluidic devices, packed-bed separation, 
+desalination processes and various electrophoresis applications.
+Due to strong electrostatic forces, a thin boundary layer forms near the particle
+surface. This results in scale disparity of the boundary layer, which makes a 
+full numerical solution challenging. 
+We employ nonlinear macroscale effective boundary conditions that have been derived
+using the specific chemical properties of the particle
+(for an ion-exchanger particle by Yariv in \cite{yariv2010migration}
+and for a surface charged inert particle by Schnitzer and Yariv in \cite{schnitzer2012surface}).
+The resulting macroscale nonlinear partial differential system 
+is discretized and an iterative Newton solver is
+constructed automatically from the discrete equations.
+Numerical results are obtained for an ion-exchanger and 
+for a surface charged inert particle. 
+An asymptotic analytical solution is 
+used for the validation of the solver. 
+The numerical results are compared to the asymptotic solutions, 
+and good correspondence is achieved.
+Finally, the new solver is applied in the regime of moderately large values of the external field, where no analytical results are known. The numerical results uncover the strong-field scaling behavior, including a new boundary layer at the front of the particle that scales exponentially with respect to the external field, and also a well-defined dependence of the particle steady-state velocity on this field.
+\end{abstract}
+
+\end{frontmatter}
+
+\section{Introduction}
+
+\subsection{The Physical Problem}
+
+Electrokinetic theory describes the dynamics of charged particles
+in ionic fluids \cite{masliyah2005book,kirby2010book}.
+When a particle acquires surface charge, a layer
+of ions of opposite charge is attracted to the surface via    
+electric forces, creating a double-layer structure around the
+particle (see Figure \ref{fig:EDL}). This structure, called
+``Debye layer'', electrically screens the surface charge,
+creating a potential difference between the particle and the outer
+layer of the fluid bulk.
+In cases where the layer width is much smaller than the particle
+size, an analytical asymptotic solution for the Debye layer
+dynamics can be derived \cite{yariv2010asymptotic}.
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=0.3\textwidth]
+            {figs/debye.eps}
+        \caption[Schematic structure of the double layer]{
+        Schematic structure of the double layer:
+        (1) charged particle surface, (2) Debye layer, (3) fluid bulk.
+        If the particle surface has positive (black) surface charge,
+        it attracts negative (white) ions from the fluid making the
+        Debye layer negatively charged (as opposed to the rest of
+        the fluid bulk, which is electrically neutral).
+        The zeta potential is defined as the voltage drop across 
+        the Debye layer (2).}
+        \label{fig:EDL}
+    \end{center}
+\end{figure}
+% \begin{tikzpicture}\end{tikzpicture}
+
+The variables of the electrokinetic flow equations are the electrostatic
+potential $\varphi$, fluid velocity $\bv$ and its pressure $p$, and
+ionic concentration $c$.
+The boundary conditions are determined by the specific
+problem under consideration and defined by the particle's
+geometry, chemical characteristics, and the fluid dynamics.
+The partial differential equations that describe the system dynamics
+under an external electric field, are coupled and nonlinear, and
+in general have no analytic solution. 
+Moreover, any numerical solver must handle the scale disparity caused by the
+Debye layer width being much smaller than the particle size. 
+An effective boundary condition outside the Debye layer
+has been developed for spherical particles, yielding a macroscale 
+model in \cite{yariv2010migration, schnitzer2012surface}.
+The model is solved for weak electric field in an axisymmetric setting 
+but it is hard to extend this analytic solution to more general systems.
+Once the electric field becomes stronger, 
+significant nonlinear phenomena emerge.
+This interesting regime has not yet been explored extensively.
+
+\subsection{Applications}
+
+Recently, it has been conceived that such type of phenomena
+can be very useful in microfluidics
+devices and methods for controlling and manipulating fluid flows in micro- and nanoscale. 
+Many different components are used in microfluidics such as valves, pumps, sensors, mixers, 
+filters, separators, heaters etc., and are combined into lab-on-a-chip systems.
+
+The manipulation can be achieved by either applying the external field at inlets and outlets, or it can be applied locally in the microchannel by integrated components.
+A typical microchannel is produced with lithographic techniques. Normally the Reynolds
+number is very low (on the order of unity or smaller) which means that viscosity dominates
+and the convective term of the Navier-Stokes equations is insignificant. This also means that
+microflows most often are laminar.
+
+In the last decade there has been an increase in microfluidics research, 
+due to the spread of tools for microfluidic systems fabrication, 
+production of cheap and portable devices for fast medical analysis, 
+and fundamental research of physical, chemical and biological processes.
+Various applications are \cite{whitesides2006origins, erickson2004integrated, squires2005microfluidics, hardt2007microfluidic}:
+DNA separation and sequencing \cite{wainright2003preconcentration},
+cell analysis and forensic identification \cite{wu2004chemical, weinberger1993practical, horsman2007forensic},
+integrated microchemical systems \cite{kothare2006dynamics},
+packed-bed separation \cite{leinweber2004, losey2001microfabricated},
+desalination processes \cite{kim2010direct},
+drug delivery and pathogen detection \cite{santini2000microchips}.
+
+
+Because the nonlinear macroscale model for these electrokinetic
+phenomena has no closed-form analytic solution, a numerical
+solver for this system is of importance.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Governing Equations} \label{sec:equations}
+
+\subsubsection{Nondimensionalization}
+We follow the derivation presented by Yariv in \cite{yariv2010asymptotic}.
+Spatial coordinates $\br$ are normalized by $a^*$ 
+(the characteristic size of the particle).
+Positive and negative ionic concentrations are denoted by $c_+$ and $c_-$, respectively, and
+are normalized by the ambient ionic concentration $c^*$. The ionic valences are $\pm z$.
+The dimensional ionic fluxes, $\bj_\pm$, are given by the Nernst-Plank equation 
+(using the Einstein relation for the electric mobility, $\mu_q^* = D^* / k_B^* T^*$, 
+where $D^*$ is the ionic diffusivity):
+\begin{equation}
+\bj^*_\pm = 
+-D^* \bnabla c^*_\pm + \bv^* c^*_\pm \mp \frac{z e^* D^*}{k_B^* T^*} c^*_\pm \bnabla \varphi^*,
+\end{equation}
+
+The electric potential $\varphi$ is normalized by the thermal voltage:
+$\varphi^* = {k_B^* T^*}/{z e^*} = {R^* T^*}/{z F^*},$
+where $R^* = k_B^* N_A$, $F^* = e^* N_A$ is the Faraday number and $N_A$ is the Avogadro constant.
+
+The dimensional Stokes equations with electrostatic forces are given by:
+\begin{equation} \begin{array}{cc}
+\bnabla \cdot \bv = 0, &
+-\bnabla p^* + \mu^* \bLaplacian \bv^* + \eps^* \Laplacian \varphi^* 
+\bnabla \varphi^* = 0.
+\end{array}\end{equation}
+
+The velocity $\bv$ is normalized by $v^* = {\eps^* (\varphi^*)^2}/{a^* \mu^*}$,
+and the pressure $p$ is normalized by $p^* = {\mu^* v^*}/{a^*} = {\eps^* (\varphi^*)^2}/{(a^*)^2}$.
+The fluxes $\bj^*_\pm$ are normalized by $j^* = {D^* c^*}/{a^*}$.
+
+The dimensional Poisson equation can be written as
+\begin{equation}
+(c^*_+ - c^*_-) z e^* = -\eps^* \Laplacian \varphi^*,
+\end{equation}
+
+After nondimensionalization, the Nernst-Plank, Stokes and Poisson equations read:
+\begin{equation} \label{eq:nernst}
+\bj_\pm = 
+-\bnabla c_\pm + \alpha \bv c_\pm \mp c_\pm \bnabla \varphi,
+\end{equation}
+\begin{equation} \label{eq:stokes}
+\begin{array}{cc}
+\bnabla \cdot \bv = 0, &
+-\bnabla p + \bLaplacian \bv + \Laplacian \varphi \bnabla \varphi = 0, 
+\end{array}
+\end{equation}
+\begin{equation} \label{eq:poisson}
+c_+ - c_- = -2\delta^2 \Laplacian \varphi,
+\end{equation}
+where $\delta = {\delta^*}/{a^*}$ is the dimensionless Debye thickness 
+($\delta^* = \sqrt{{\eps^* \varphi^*}/{2 c^* e^* z}}$) and 
+$\alpha = {v^* a^*}/{D^*} = {\eps^* (\varphi^*)^2}/{\mu^* D^*}$ 
+is the dimensionless Peclet number.
+The force on the particle is denoted by $\bF$ normalized by $\mu^* v^* a^* = \eps^* (\varphi^*)^2$.
+The stress tensor is denoted by $\tT$ and normalized by $p^* = \mu^* v^* / a^*$.
+The electric field is denoted by $\bE$ and normalized by $E^* = \varphi^* / a^*$.
+The surface charge is denoted by $\sigma$ and normalized by $\sigma^* = \eps^* \varphi^* / \delta^*$.
+
+The ionic fluxes are given by ion diffusion, electrostatic forces and ion advection by the fluid
+in \eqref{eq:nernst}. Due to conservation of ion concentrations, the fluxes are divergence-free:
+\begin{equation*}
+\bnabla \cdot \bj_\pm = 0.
+\end{equation*}
+These equations may be re-written by using salt $c = (c_+ + c_-)/2$ and charge $q = (c_+ - c_-)/2$.
+Thus, salt and charge fluxes are defined by:
+\begin{equation}\label{eq:fluxes}\begin{array}{cc}
+  \bj = \frac{\bj_+ + \bj_-}{2} = -\bnabla c - q \bnabla \varphi + \alpha \bv c, & 
+  \bi = \frac{\bj_+ - \bj_-}{2} = -\bnabla q - c \bnabla \varphi + \alpha \bv q,
+\end{array}\end{equation}
+and are divergence-free as well:
+\begin{equation}\label{eq:zero_flux}\begin{array}{cc}
+\bnabla \cdot \bj = 0, & 
+\bnabla \cdot \bi = 0. 
+\end{array}\end{equation}
+In addition, the charge concentration is governed by the Poisson equation \eqref{eq:poisson}
+\begin{equation}
+q = -\delta^2 \Laplacian \varphi.
+\end{equation}
+
+\subsubsection{Boundary conditions}
+We assume that a constant electric field of nondimensional magnitude $\beta$,
+is applied to the system, in the direction denoted by the unit vector $\ui$.
+As a result, the particle will equilibrate at 
+a non-zero steady-state velocity $\cU \ui$, which is
+a function of the applied field, and is not known a priori.
+
+We employ the reference frame of the particle.
+Far away from the particle, we have a uniform applied electrostatic field, uniform flow,
+and ambient ionic concentrations:
+\begin{equation}\label{eq:bndcond_inf}\begin{array}{ccc}
+\bv \rightarrow -\cU \ui, &
+\bnabla \varphi \rightarrow -\beta\ui, &
+ c_\pm \rightarrow 1.
+\end{array}\end{equation}
+
+We consider a spherical particle.
+The chemical properties of the particle's surface $\mathcal{S}$ (defined at $r=1$ 
+with normal $\bn = \brhat$), determine the boundary conditions on $\mathcal{S}$.
+We consider the following scenarios:
+\paragraph{Ion-exchanger}
+We follow the microscale model presented at \cite{yariv2010migration}
+and assume high conductance of the particle (yielding a uniform electric potential),
+zero slip, anion impermeability, cation selectivity 
+(with fast Butler-Volmer\cite{bard2000book} kinetics
+$\bn \cdot \bj_+ = k (1 - c_+/\gamma)$, where $k \rightarrow \infty$):
+\begin{equation}
+\begin{array}{cccc}
+\varphi = \cV, &
+\bv = \bzero, &
+\bn \cdot \bj_- = 0, &
+c_+ = \gamma,
+\end{array}
+\end{equation}
+where $\gamma$ is the ratio between the cationic concentration on the surface and the cationic
+concentration in the fluid bulk and $\cV$ is an unknown constant electric potential at
+the ion-exchanger surface. 
+
+\paragraph{Inert particle}
+We follow the microscale model presented at \cite{schnitzer2012surface}
+and assume constant surface charge
+zero slip and ion impermeability:
+\begin{equation}
+\begin{array}{cccc}
+\bn \cdot (\bnabla \varphi - \chi \bnabla \varphi_s) = \delta^{-1} \sigma, &
+\bv = \bzero, &
+\bn \cdot \bj_\pm = 0,
+\end{array}
+\end{equation}
+where $\chi$ is the ratio between the dielectric constants of the 
+particle and the fluid.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Separation of scales}
+When $\delta \ll 1$, 
+the fluid remains electroneutral ($q \approx 0$, thus $c_+ \approx c_-$), 
+except inside a thin boundary layer of width $O(\delta)$ 
+surrounding the particle (the ``Debye layer'').
+This boundary layer makes it very hard to construct 
+a direct numerical solver for the full electrokinetic problem.
+However, the scale disparity at the Debye layer can be exploited
+(as shown by Yariv in \cite{yariv2010asymptotic}), 
+which allows the PDE system to be rewritten in the ``inner'' region 
+as an ODE system using the asymptotic limit of $\delta \rightarrow 0$.
+This system can be integrated and solved analytically,
+yielding ``effective'' boundary conditions near
+the particle surface for the ``outer'' bulk region equations.
+
+\subsubsection  {Bulk-scale equations}
+The Nernst-Planck equations above \eqref{eq:fluxes} for the fluid bulk outside
+the boundary layer \cite{yariv2010asymptotic}, 
+using bulk variables denoted by uppercase letters, read:
+\begin{equation} \begin{array}{cccc} \label{eq:bulk_flux}
+  Q = 0, &
+  C = C_+ = C_-, &
+\bJ = -\bnabla C + \alpha \bV C, &
+\bI = -C \bnabla \varPhi.
+\end{array}\end{equation}
+Because the flow is incompressible ($\bnabla \cdot V = 0$), 
+ion conservation results in the following 
+salt and charge conservation equations -- the salt and charge fluxes above 
+\eqref{eq:bulk_flux} are divergence-free
+\eqref{eq:zero_flux}:
+\begin{equation} \begin{array}{ccc}
+\label{eq:salt_charge}
+\Laplacian C - \alpha \bV \cdot \bnabla C = 0, &
+\bnabla \cdot \pars{ C \bnabla \varPhi } = 0.
+\end{array}\end{equation}
+The macroscale Stokes flow equations have the same form as before \eqref{eq:stokes}:
+\begin{equation}
+\begin{array}{ccc}
+\bnabla \cdot \bV = 0, &   
+\Laplacian \bV - \bnabla P + \bnabla \varPhi \Laplacian \varPhi = \bzero.
+\end{array}
+\end{equation}
+
+\subsection{Bulk-scale effective boundary conditions}
+By integrating the equations across the Debye layer,
+the effective boundary conditions at the particle surface are:
+\subsubsection{Ion-exchanger} See \cite{yariv2010migration} for full derivation
+of the nonlinear effective boundary conditions:
+\begin{align}
+\label{eq:ionex_bnd}
+0 = \varPhi + \log C, 0 = \deriv{}{n} \pars{\varPhi - \log C}, 
+\bV = 
+\zeta \cdot \bnabla_\mathcal{S} \varPhi 
++ 2\log\pars{1-\tanh^2\frac{\zeta}{4}} \cdot \bnabla_\mathcal{S} \log C,
+\end{align}
+where $\zeta = \cV - \varPhi = \log (C / \gamma)$ 
+is the zeta potential.
+
+\subsubsection{Highly charged inert particle}
+See \cite{schnitzer2012surface} for full derivation
+of the nonlinear effective boundary conditions. 
+Note that due to surface conduction, the resulting boundary conditions are:
+\begin{align} \label{eq:ephor_bnd}
+0 = {\deriv{C}{n} - \Du \nabla^2_s \pars{\varPhi - \log C}}, 
+0 = {\deriv{C}{n} + C \deriv{\varPhi}{n}}, 
+\bV = \zeta \cdot \bnabla_\mathcal{S} \pars{\varPhi - \log C} +
+4 \log 2 \cdot \bnabla_\mathcal{S} \log C,
+\end{align}
+where $\zeta = \bar{\zeta} - \log C$ 
+is the zeta potential and $\bar{\zeta} = 2 \log \sigma$.
+
+\subsection{Steady-state velocity}
+The stress tensor in the fluid is composed of Newtonian and Maxwel stresses:
+\begin{equation}
+\label{eq:tensor}
+\tT = \bnabla \bV + (\bnabla \bV)^\dagger - P \tI
++ \bnabla \varPhi \bnabla \varPhi - \frac{1}{2} (\bnabla \varPhi \cdot \bnabla \varPhi). 
+\end{equation} 
+In steady state (constant particle drift velocity $\cU$), the total force acting on the particle 
+(computed by the following surface integral) must vanish:
+\begin{equation} \label{eq:zero_force}
+ \bF(\beta, \cU) = \oint_\mathcal{S} \tT \cdot \bnhat dA = \bzero.
+\end{equation}
+
+The total force $\bF(\beta, \cU)$ is a function of the applied electric field $\beta$ and
+the velocity $\cU$.
+For any given electric field $\beta$, the force-free constraint above 
+can be solved numerically for $\cU$ to yield the corresponding steady-state velocity.
+
+\subsection{Objective of this work}
+
+The goal of this work is to develop and implement a software toolbox 
+for the generation of iterative numerical solvers for nonlinear macroscale 
+electrokinetic problems, and to apply it to the study
+of systems that have no closed-form solutions, 
+such as ion-exchanger migration \cite{yariv2010migration} 
+and the electrophoresis problem \cite{schnitzer2012surface}.
+This solver can be used to gain insight into the chemical 
+and physical behavior in far more general regimes than 
+are currently well-understood, 
+and also to possibly lead to further analytical developments, 
+based on new scaling behavior
+discovered numerically. 
+We may also target interesting physical
+phenomena that have been observed experimentally.
+One such phenomenon is nonlinear electrokinetic vortex flow, 
+which is useful for microfluidic mixing applications 
+\cite{wang2004mix, ben2002vortex}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Numerical Scheme} \label{ch:algorithm}
+
+\subsection{Algorithm Description} \label{sec:algorithm}
+The numerical solver first requires constructing a discrete 
+approximation for the nonlinear PDE system,
+for a given electric field $\beta$ and assumed velocity $\cU$. 
+The resulting nonlinear discrete system is
+solved numerically using Newton's Method, so the total force on the
+particle can be computed. 
+We seek the steady-state velocity $\cU$, 
+which corresponds to zero total force, $F(\beta, \cU) = 0$,
+which we solve by the standard secant method.
+
+\subsubsection{Spherical Coordinates}
+Because the system is axisymmetric and the particle is a sphere, we employ
+spherical coordinates $(r,\theta,\phi)$ (as described in the appendix).
+
+Note that in the spherical coordinate system,
+the vector Laplacian operator cannot be computed in a decoupled manner as in the Cartesian system,
+because the unit vectors $\brhat, \bthetahat, \bphihat$ are functions of the coordinates
+in a curvilinear coordinate system.
+
+\subsubsection{Computational Grid}
+A regular grid of size $n_r \times n_\theta$ is defined, with:
+\begin{align} \label{eq:grid}
+(r_i,\theta_j) \in [1, \infty) \times [0,\pi], 
+r_i = (1+\Delta_r)^i, 
+\theta_j = \Delta_\theta \cdot j,
+\end{align}
+where a logarithmic grid spacing has been chosen for $r$ and a uniform grid for $\theta$.
+Note that $r_0 = 1$ and $R_{max} = (1+\Delta_r)^{n_r}$, where
+$\Delta_r = \pars{R_{max}} ^ {1/n_r} - 1$ and $\Delta_\theta = {\pi/n_\theta}$.
+
+Because the grid is finite, the choice of $R_{max}$ must be large enough 
+so as to have a negligible effect on the solution. 
+On the other hand, in order to have a high resolution grid near the particle surface,
+$\Delta_r$ should be minimized. It should be noted that for a given grid size $n_r$,
+these requirements cannot be satisfied simultaneously -- thus, a compromise is required
+between large $R_{max}$ and small $\Delta_r$.
+
+This grid induces a disjoint subdivision of the domain 
+$\Omega = [1, R_{max}] \times [0,\pi] = \bigcup_{ij}\Omega_{ij}$ into cells.
+A specific cell $\Omega_{ij}$ and its center $(\bar{r}_i, \bar{\theta}_j)$ are defined by \eqref{eq:grid}:
+\begin{align}
+\Omega_{ij} = [r_{i-1}, r_{i}] \times [\theta_{j-1}, \theta_{j}], 
+\bar{r}_i = (r_{i-1} + r_{i})/2, 
+\bar{\theta}_j = (\theta_{j-1} + \theta_{j})/2.
+\end{align}
+
+Each discrete variable is located with respect to its cell 
+as shown at Figure \ref{fig:grids}.
+$\varPhi$, $C$ and $P$ are represented by their value at the center of each cell, 
+using an all-centered grid, whereas $\bV$ is represented by its values at cell 
+boundaries, using a staggered grid:
+\begin{align}
+\varPhi^h_{[i,j]} = \varPhi(\bar{r}_i, \bar{\theta}_j), 
+C^h_{[i,j]} = C(\bar{r}_i, \bar{\theta}_j), 
+P^h_{[i,j]} = P(\bar{r}_i, \bar{\theta}_j), 
+V_r^h{}_{[i,j]} = V_r(r_i, \bar{\theta}_j), 
+V_\theta^h{}_{[i,j]} = V_\theta(\bar{r}_i, {\theta}_j).
+\end{align}
+\begin{figure}[h]
+    \begin{center}
+	\includegraphics[width=0.5\textwidth]{figs/grids.eps}
+        \caption[Computational grid]{The computational grid is defined using
+        a spherical coordinate system, due to axisymmetry of the physical problem
+        and boundary conditions discretization on the particle surface.}
+    \label{fig:grids}
+    \end{center}
+\end{figure}
+
+\subsection{Operator Discretization} 
+A finite-volume method with linear interpolation is used for flux discretization. 
+Define the following discrete central difference operators:
+\begin{align} \label{eq:disc_diff}
+\cD_r(f^h){}_{\left[i+\half,j\right]} = \frac{f^h_{\left[i+1,j\right]} - f^h_{\left[i,j\right]}}
+                       {r_{\left[i+1,j\right]} - r_{\left[i,j\right]}}, 
+\cD_\theta(f^h){}_{\left[i,j+\half\right]} = \frac{f^h_{\left[i,j+1\right]} - f^h_{\left[i,j\right]}}
+					   {\theta_{\left[i,j+1\right]} - \theta_{\left[i,j\right]}}.
+\end{align}
+
+Define the following linear interpolation operators:
+\begin{align} \label{eq:disc_interp}
+\cI_r(f^h)_{\left[i+\half,j\right]} = 
+\frac{r_{\left[i+\half,j\right]} - r_{\left[i,j\right]}}
+{r_{\left[i+1,j\right]} - r_{\left[i,j\right]}} 
+f^h_{\left[i+1,j\right]} 
++ 
+\frac{r_{\left[i+1,j\right]} - r_{\left[i+\half,j\right]}}
+{r_{\left[i+1,j\right]} - r_{\left[i,j\right]}}
+f^h_{\left[i,j\right]},
+\\
+\cI_\theta(f^h)_{\left[i,j+\half\right]} =
+\frac{r_{\left[i,j+\half\right]} - r_{\left[i,j\right]}}
+{r_{\left[i,j+1\right]} - r_{\left[i,j\right]}}
+  f^h_{\left[i,j+1\right]} + 
+\frac{ r_{\left[i,j+1\right]} - r_{\left[i,j+\half\right]}}
+{r_{\left[i,j+1\right]} - r_{\left[i,j\right]}}
+  f^h_{\left[i,j\right]}.
+\end{align}
+
+If the total flux of a cell is equal to zero ($\bnabla \cdot \boldsymbol{f} = 0$), 
+then using \eqref{eq:disc_diff}, we have
+\begin{eqnarray}
+\frac{1}{r^2} \cD_r\pars{f^h_r r^2} + 
+\frac{1}{r \sin\theta} \cD_\theta\pars{f^h_\theta \sin\theta} = 0. 
+\end{eqnarray}
+
+\subsection{System Equations} \label{sec:disc_equations}
+Charge and salt fluxes \eqref{eq:bulk_flux} are discretized on grid cell boundaries 
+(using an upwind scheme $\mathcal{U}$ for numerical stability at large cell Peclet number)  
+using \eqref{eq:disc_diff} and \eqref{eq:disc_interp}:
+\begin{align} 
+\nonumber
+I^h_r = -\cI_r(C^h) \cdot \cD_r(\varPhi^h), &
+I^h_\theta = -\cI_\theta(C^h) \cdot \frac{\cD_\theta(\varPhi^h)}{r}, \\
+J^h_r = -\cD_r(C^h) + \alpha V^h_r \cdot \mathcal{U}^{\bV^h}_r (C^h), &
+J^h_\theta = -\frac{\cD_\theta(C^h)}{r} + \alpha V^h_\theta \cdot \mathcal{U}^{\bV^h}_\theta (C^h), 
+\\ \nonumber
+ \mathcal{U}^{\bV^h}_r(C^h)[i,j] = C^h\left[i-\frac{\sign(V^h_r)}{2}, j\right], &
+ \mathcal{U}^{\bV^h}_\theta(C^h)[i,j] = C^h\left[i, j-\frac{\sign(V^h_\theta)}{2}\right]. 
+\end{align}
+Mass flux $\bV$ is discretized on grid cells boundaries, 
+using the staggered velocity grid.
+Force components ($\bF = -\bnabla P + \bLaplacian \bV + \bnabla \varPhi \Laplacian \varPhi$) 
+are discretized on the staggered velocity grid using the finite difference
+method, where linear interpolation is used for the Coulomb force and 
+for vector Laplacian components.
+\begin{align}
+\nonumber
+F^h_r &= -\cD_r(P^h) 
+          + \cL(V^h_r) - \frac{2}{r^2} V^h_r 
+		  - \frac{2}{r^2 \sin\theta} \cI_r(\cD_\theta (V^h_\theta \sin\theta))
+          + \cD_r(\varPhi^h) \cdot \cI_r(\cL(\varPhi^h)), \\
+\nonumber
+F^h_\theta &= -\frac{\cD_\theta(P^h)}{r} 
+		  + \cL(V^h_\theta) - \frac{F^h_\theta}{r^2 \sin^2\theta} 
+		  + \frac{2}{r^2} \cI_\theta(\cD_\theta(F^h_r))
+		  + \frac{\cD_\theta(\varPhi^h)}{r} \cdot \cI_\theta(\cL(\varPhi^h)), \\
+\cL(f^h) &= \frac{1}{r^2}\cD_r\pars{\cD_r(f^h) r^2} + 
+\frac{1}{r^2 \sin\theta} \cD_\theta\pars{\cD_\theta(f^h) \cdot \sin\theta}.
+\end{align}
+
+
+\subsection{Boundary Conditions} \label{sec:disc_boundary}
+
+Far away from the particle boundary \eqref{eq:bndcond_inf}, we have:
+\begin{equation}
+\begin{array}{cccc}
+\cD_r \pars{\varPhi^h} = -\beta \cos\bar{\theta}, &
+\cI_r \pars{C^h} = 1 &
+V_r^h = -\cU \cos\theta, &
+V_\theta^h = \cU \sin\theta.
+\end{array}\end{equation}
+For $\theta = 0$ and $\theta = \pi$, the ``ghost'' points are defined by axial 
+symmetry considerations:
+\begin{equation} 
+\begin{array}{cccc}
+\cD_\theta \pars{\varPhi^h} = 0, &
+\cD_\theta \pars{C^h} = 0, &
+\cD_\theta \pars{V_r^h} = 0, &
+V_\theta^h = 0
+\end{array}
+\end{equation}
+The specific boundary conditions at $r=1$
+depend on the chemical properties of particle surface.
+
+\subsubsection{Ion-exchanger} The boundary conditions \eqref{eq:ionex_bnd} 
+are implemented by:
+\begin{equation}
+\begin{array}{lll}
+0 = \cI_r(\varPhi^h + \log C^h), & 0 = \cD_r(\varPhi^h - \log C^h), \\
+V^h_r = 0, V^h_\theta = 4\log\pars{\frac{1}{2}\pars{1 + \exp\left\{\cI_\theta(\zeta^h)/2\right\}}} \cdot \cD_\theta(\zeta^h), &
+\zeta^h = - \log \gamma - \cI_r(\varPhi^h)\\.
+\end{array}
+\end{equation}
+
+\subsubsection{Highly charged inert particle} The boundary conditions \eqref{eq:ephor_bnd} 
+are implemented by:
+\begin{equation}
+\begin{array}{lll}
+0 = \cD_r(C^h) - \Du \cdot 
+\pars{\cD_\theta \pars{\sin\theta \cdot \cD_\theta \cI_r\pars{\varPhi^h - \log C}}}/{\sin\theta}, &
+0 = \cD_r(C^h) + \cI_r(C^h) \cD_r(\varPhi^h), \\
+V^h_r = 0, 
+V^h_\theta = \cI_\theta(\zeta^h) \cdot \cD_\theta(\cI_r \varPhi^h - \log \cI_r C^h) + 
+4 \log 2 \cdot \cD_\theta(\log \cI_r C^h), 
+& \zeta^h = \bar{\zeta} - \log \cI_r C.
+\end{array}
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Solver Design}
+
+\subsubsection{System Equations}
+
+Let $\cO : \RR^N \rightarrow \RR^N $ be a nonlinear operator.
+In order to solve the equation $\cO(\bx) = \bzero$, Newton's method is applied, 
+given an initial solution $\bx_0$.
+Each step requires the computation of the residual vector, $\br = \cO(\bx)$, 
+the gradient matrix of the operator, $\bG = \bnabla \cO(\bx)$
+(given the current solution $\bx$)
+and the solution of the sparse linear system $\bG \Delta \bx = -\br$.
+
+The system variable $\bx$ is defined as the concatenation $\bx = [\,\varPhi, C, V_r, V_\theta, P\,]$.
+Thus, each problem variable can be computed by applying an appropriate projection operator on $\bx$.
+The system can be written as a nonlinear operator $\cO(\bx) = \bzero$ 
+acting on the system variable ${\bx}$, 
+where $\cO$ is the system equations operator, 
+derived by concatenation of the system equations (described in Subsection \ref{sec:disc_equations})
+and the boundary conditions operators (described in Subsection \ref{sec:disc_boundary}).
+This way, the same numerical solver handles both the nonlinear system equations and nonlinear
+boundary conditions.
+
+\subsubsection{Steady-state}
+Let $\beta$ be a given nondimensional electric field.
+Assume that $\cU \ui$ is the drift velocity of the particle 
+(given that the fluid is at rest far away from it).
+After the convergence of the solver, once the residual norm is below
+a prescribed threshold $\|\cO(\bx_n)\| < \epsilon$, 
+the total force acting on the particle  
+can be computed by integrating $\tT \cdot \bn$ over the particle surface.
+
+Due to symmetry considerations, the total force $\bF$ is 
+aligned with $\ui$ and it vanishes iff $f_\imath = \ui \cdot \bF = 0$.
+\begin{equation}
+f_\imath = \pars{-P + 2\cD_r(V_r) + 
+\frac{\pars{\cD_r(\varPhi)}^2}{2} - \frac{\pars{\cD_\theta(\varPhi)}^2}{2r^2}}\cos\theta 
+ -\pars{\cD_r(V_\theta) - \frac{V_\theta}{r}
++ \frac{\cD_r(\varPhi)}{r} \cD_{\theta}(\varPhi)}\sin\theta.
+\end{equation}
+The integral above is approximated by 1D numerical quadrature
+(using the mid-point rule)
+\begin{equation}
+F_\imath^h(\beta, \cU^h) = \sum_{i=1}^{n_\theta} f^h(\bar\theta_i) \cdot 
+              2 \pi \sin\bar\theta_i \cdot \Delta\theta_i,
+\end{equation}
+to yield the total force $F_\imath^h(\beta, \cU^h)$ as a function of the drift velocity $\cU^h$.
+Since the goal is to find the steady-state solution, $F_\imath^h$ 
+is required to be zero --
+and the appropriate $\cU^h$ is found by a simple 1D root-finding algorithm,
+applied as an outer loop:
+\begin{equation} \label{eq:disc_zero_force}
+F_\imath^h(\beta, \cU^h(\beta)) = 0
+\end{equation}
+
+\subsubsection{Continuation}
+
+The iterative solver above can in principle be used 
+to compute the steady-state solution for any given $\beta$.
+For $\beta \ll 1$, the linear terms are the dominant ones, 
+so the solution is approximately linear in $\beta$ 
+(as derived in \cite{yariv2010migration}), and the solver convergence is fast.
+However, this is no longer true for $\beta \gtrsim 1$, because the nonlinear terms become dominant
+and the iterative solver may not converge at all if we start with an arbitrary initial guess.
+In order to find a solution for such $\beta$, a continuation method is used:
+the solver is applied to a sequence of $\{\beta_i\}_{i=0}^n$ such that $\beta_0 = 0$,
+$\beta_n = \beta$ and the solution $\bx_i$ for $\beta_i$ is used as the solver initializer
+for the problem of $\beta_{i+1}$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Solver Implementation}
+
+Object-Oriented Design methodology is used for implementation.
+The MATLAB programming language is chosen due to strong numerical capabilities
+and high-level language features.
+The source code of the solver is provided in \cite{source}.
+MATLAB direct solver is applied to solve the sparse linear system for each Newton step,
+using the backslash operator. 
+The library used for solving the linear system is UMFPACK 5.0 \cite{davis2004umfpack}
+(Unsymmetric MultiFrontal Sparse LU Factorization Package).
+
+\subsubsection{Operator Interface} \label{sec:operator-interface}
+The base \verb|Operator| interface is defined by 
+supporting the computation of a residual vector \verb|Operator.res()|
+and a gradient matrix \verb|Operator.grad()|, given an input vector $\bx$.
+This interface is implemented by specific operator classes,
+which are used to construct the system operator $\cO$, so that 
+the Newton solver (that requires computing the residual and the gradient) 
+can be applied automatically.
+Each such operator may have other operators as its inputs, so the residual
+and the gradient are computed recursively, using the chain rule (applied to operators).
+
+\paragraph{Linear operator}
+If $\cO$ is linear, it can be represented by a matrix $L$, such that:
+$\cO(\bx) = L \bx$ and $\bnabla\cO = L$.
+Note that finite difference $\cD$, interpolation $\cI$ and 
+upwind selection $\mathcal{U}$ operators
+can be implemented as linear sparse operators, by constructing 
+an appropriate sparse matrix $L$, having $O(\dim \bx)$ non-zeroes.
+This way, the computation of the residual is very fast, taking $O(\dim \bx)$ time,
+and the gradient does not depend on $\bx$.
+
+\paragraph{Pointwise scalar function}
+Let $f: \RR \rightarrow \RR$ be a differentiable 1D function, whose derivative is
+denoted by $f': \RR \rightarrow \RR$. The operator $\cF$ can be defined to
+represent a pointwise application of $f$:
+$\cF(\bx) = [f(x_1); \ldots; f(x_n)]$ and $\bnabla\cF(\bx) = \diag\{f'(x_1), \ldots, f'(x_n)\}$.
+$f$ is defined and differentiated automatically using the MATLAB symbolic toolbox.
+
+\paragraph{Constant value}
+A constant operator $\mathcal{C}$ is defined by the constant vector $\bc$ 
+(which does not depend on $\bx$):
+$\mathcal{C}(\bx) = \bc$ and $\bnabla\mathcal{C} = \bzero$.
+
+\paragraph{Binary operators}
+Let $\cO_1$ and $\cO_2$ be two operators, so that their pointwise addition, subtraction,
+are defined as follows:
+$(\cO_1 \pm \cO_2)(\bx) = \cO_1(\bx) \pm \cO_2(\bx)$ and
+$\bnabla (\cO_1 \pm \cO_2)(\bx) = \bnabla\cO_1(\bx) \pm \bnabla\cO_2(\bx)$.
+The point-wise multiplication of $\cO_1$ and $\cO_2$ is defined as follows: 
+$(\cO_1 \cdot \cO_2)(\bx) = \cO_1(\bx) \cdot \cO_2(\bx)$ and 
+$\bnabla (\cO_1 \cdot \cO_2)(\bx) = \diag(\cO_2(\bx)) \bnabla\cO_1(\bx)
+                                  + \diag(\cO_1(\bx)) \bnabla\cO_2(\bx)$.
+
+\paragraph{N-ary operators}
+Given $N$ operators $\{\cO_i\}_{i=1}^N$, their concatenation $\cO$ is defined as:
+$\cO(\bx) = [\cO_1(\bx); \ldots; \cO_N(\bx)]$ and  
+$(\bnabla\cO)(\bx) = [(\bnabla\cO_1)(\bx); \ldots; (\bnabla\cO_N)(\bx)]$.
+
+\subsubsection{Handling the Singularity} \label{sec:singular}
+The electric potential $\varPhi$ (in electrophoresis case) and the pressure $P$ (in both cases) 
+are defined up to an additive constant, since the system equations and the boundary conditions
+contain only their derivatives.
+In order to overcome the singularity of the linear system 
+$\bG \Delta\bx = -\br$, we set the variable at 
+a specific grid point to be $0$.
+In order to retain a square system, we remove one conservation equation at this grid point too.
+In the case of pressure $P$, we remove one mass conservation equation,
+$\bnabla \cdot \bV = 0$, at this grid point. 
+In the case of electric potential, we remove the charge conservation
+equation, $\bnabla \cdot \pars{C \bnabla \varPhi} = 0$, at this grid point.
+For $\br = \cO(\bx)$ and $\bG = \bnabla \cO(\bx)$, the new square linear system reads:
+$\mathbb{R} \bG \mathbb{P} \cdot \delta\bx = -\mathbb{R} \br$,
+where $\mathbb{P}$ matrix is used to remove the columns
+and $\mathbb{R}$ matrix is used to remove the rows of $\bG$,
+where the update step is $\Delta \bx = \mathbb{P} \cdot \delta \bx$.
+
+\section{Results and Discussion} \label{ch:results}
+
+The numerical solver is applied to the nonlinear problem of an ion-exchanger migration 
+driven by an electric field \cite{yariv2010migration}
+and the electrophoresis of highly charged surface inert particle 
+\cite{schnitzer2012surface}. 
+The solver is applied to a series of values of the electric field $\beta$, ranging 
+from $\beta \ll 1$ to $\beta \sim 1$.
+For each $\beta$ value, the Newton solver is initialized with the linear solution and is iterated $K$ times.
+Secant method iteration is applied $M$ times to find the steady-state velocity 
+by finding $\cU$ such that $F_\imath(\cU, \beta) = 0$, thus computing 
+the steady-state velocity $\cU(\beta)$. 
+The resulting $\cU(\beta)$ is plotted on a log-log scale, so that the asymptotic behaviour
+of the solution may be examined for a wide range of $\beta$ values.
+ 
+In order to validate the numerical solver, we employ 
+the results of the asymptotic analysis of the nonlinear 
+system (which are presented in \ref{sec:asymp}). 
+The numerical results are compared 
+to the asymptotic solutions, and a good correspondence is observed.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Ion-exchanger results}
+For $\beta \ll 1$, the linear regime \cite{yariv2010asymptotic} is dominant.
+However, when $\gamma \approx 1$, the cubic regime, where $\cU = O(\beta^3)$, 
+dominates the linear one, even for weak electric fields. 
+This phenomenon is confirmed both by the numerical
+results and by asymptotic expansion of the nonlinear system (for $\alpha=0$).
+The switch from the linear regime to the cubic regime occurs at 
+an electric field value of $\beta = O(\sqrt{|\gamma - 1|})$.
+The numerical results $\cU^h$, 
+as well as the analytical ones \eqref{eq:cubic}, are given in Figure \ref{fig:IonExCubic}.
+The numerical solver uses $N_r \times N_\theta = (400 \times 50)$, 
+$R_{\max} = 10^7$ ($\Delta_r \approx 0.041$),
+$K = 3$, $M = 5$ and $\beta = 10^{t}$ for $t = -2:0.1:0.5$.
+
+The linear solution for $\gamma \approx 1$, 
+yields a sign change of the zeta potential $\zeta = \log (C/\gamma)$, when
+$|\log\gamma| \approx 3\beta / 4$. This results in a sign change in the slip velocity,
+which can be approximated for small $|\zeta| \ll 1$ as $V_\theta \approx \zeta \cdot \bnabla_S \varPhi$.
+This sign change creates a vortex at the downstream end of the ion-exchanger, 
+as demonstrated by the numerical solution and the asymptotic analysis results 
+in Figures \ref{fig:Vortex1} and \ref{fig:Vortex2}.
+Note that there is a good correspondence between the numerical
+results and the analytical solution for $\beta < 1$, validating
+the vortex formation.
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=0.33\textwidth]{figs/Cubic/ionex_cubic1.eps}
+    \includegraphics[width=0.33\textwidth]{figs/Cubic/ionex_cubic2.eps}
+        \caption[Ion exchanger steady-state velocity]{
+        Steady-state velocity $\cU$ as a function of the 
+        electric field magnitude $\beta$, for $\gamma < 1$ (left) and $\gamma > 1$ (right). 
+        The analytic cubic solution \eqref{eq:cubic} is represented by curves
+        (solid for $\cU > 0$, dashed for $\cU < 0$), 
+        and the numerical results are represented by markers 
+        (circles for $\cU > 0$, squares for $\cU < 0$). Note that linear and
+        cubic regimes match well the numerical results, including the critical $\beta$ 
+        behaviour \eqref{eq:crit_beta}. 
+        }
+	    \label{fig:IonExCubic}
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+	\includegraphics[width=0.33\textwidth]{figs/Cubic/Stream/N1.eps}
+	\includegraphics[width=0.33\textwidth]{figs/Cubic/Stream/N2.eps}
+	\includegraphics[width=0.33\textwidth]{figs/Cubic/Stream/N5.eps}
+	\includegraphics[width=0.33\textwidth]{figs/Cubic/Stream/N10.eps}
+        \caption[Ion exchanger streamlines -- numerical results]{
+        Streamlines of the flow for various electric field $\beta$ values: 
+        numerical results for $\gamma = 0.9$.  
+        The steady-state velocity $\cU$ is positive, so the
+        ion-exchanger drifts to the right. }
+    \label{fig:Vortex1}
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+	\includegraphics[width=0.33\textwidth]{figs/Cubic/Stream/A1.eps}
+	\includegraphics[width=0.33\textwidth]{figs/Cubic/Stream/A2.eps}
+	\includegraphics[width=0.33\textwidth]{figs/Cubic/Stream/A5.eps}
+	\includegraphics[width=0.33\textwidth]{figs/Cubic/Stream/A10.eps}
+        \caption[Ion exchanger streamlines -- analytical results]{
+        Streamlines of the flow for various electric field $\beta$ values: 
+        analytical approximation for $\gamma = 0.9$ (see Section \ref{sec:asymp}).
+        The steady-state velocity $\cU$ is positive, so the
+        ion-exchanger drifts to the right.}
+    \label{fig:Vortex2}
+    \end{center}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Electrophoresis results}
+For $\beta \ll 1$, the linear regime \cite{schnitzer2012surface} is dominant.
+In order to verify the solver, the numerical steady-state velocity is compared to the
+analytical solution \cite{schnitzer2012cubic}, derived by Schnitzer and Yariv. 
+Since the cubic correction is much smaller than
+the linear solution for $\beta \ll 1$, the difference between numerical results and
+the linear solution is compared to the cubic correction term. 
+
+Because the leading order of the solution $\cU(\beta)$ is linear for $\beta \ll 1$, 
+the numerical discretization error is $O(\beta)$ as well.
+In order to reduce the discretization error of the numerical solution \eqref{eq:disc_zero_force}
+and after verifying that the discretization error converges as $O(h^2)$ (Figure \ref{fig:quadratic}),
+we employ Richardson extrapolation to $\cU^h$ and $\cU^{2h}$ using $\hat\cU = \frac{4}{3} \cU^h - \frac{1}{3} \cU^{2h}$.
+
+The results of the extrapolation $\hat\cU$ 
+and the analytical results 
+are given at Figures \ref{fig:Electrophoresis1} and \ref{fig:Electrophoresis2}.
+The numerical solver uses $R_{\max} = 10^2$,
+$K = 3$, $M = 5$ and $\beta = 0.1 \cdot 2^{t}$ for $t = -2:0.5:5$.
+The solver is applied to 2 grids of $N_r \times N_\theta = (128 \times 128)$ as the coarse grid 
+(with $\Delta_r \approx 0.037$), and $N_r \times N_\theta = (256 \times 256)$ as the fine grid
+(with $\Delta_r \approx 0.018$), in order to use Richardson extrapolation for $\hat\cU$.
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=.45\textwidth]{figs/quadratic_order.eps}
+        \caption[Quadratic convergence of steady-state velocity]{
+        The discretization error between the numerical and analytical solutions for 
+        $\alpha = 0$, $\Du = 0.5$, $\bar\zeta = 6$ and $R_{max} = 100$. The markers represent
+        the discretization errors for various grid sizes, and the dotted lines correspond to linear
+        functions of $\beta$, scaled by $4^n$. 
+        The graph shows that, as the number of grid points in each dimension increases by a factor of 2, 
+        the discretization error decreases by a factor of 4.
+        }
+	    \label{fig:quadratic}
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=0.33\textwidth]{figs/Electrophoresis/numerical_vs_analytical_alpha=0.0_Du=0.5_zeta=6.0_Rmax=100.eps}
+    \includegraphics[width=0.33\textwidth]{figs/Electrophoresis/departure_from_linear_alpha=0.0_Du=0.5_zeta=6.0_Rmax=100.eps}
+        \caption[Highly-charged surface particle steady-state velocity]{
+        Steady-state velocity $\cU$ as a function of the 
+        electric field magnitude $\beta$, for highly-charged surface particle
+        electrophoresis (with $\alpha = 0, \text{Du} = 0.5, \bar\zeta = 6$).
+        The analytic solution velocity is represented by solid lines, 
+        and the numerical results are represented by markers.
+        The left figure shows the full numerical solution 
+        compared to the analytical one \eqref{eq:cubic}, and
+        the right figure compares the analytic cubic correction \cite{schnitzer2012cubic} 
+        to the difference between the numerical results and the linear regime.}
+	    \label{fig:Electrophoresis1}
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=0.33\textwidth]{figs/Electrophoresis/numerical_vs_analytical_alpha=0.5_Du=1.0_zeta=10.0_Rmax=100.eps}
+    \includegraphics[width=0.33\textwidth]{figs/Electrophoresis/departure_from_linear_alpha=0.5_Du=1.0_zeta=10.0_Rmax=100.eps}
+        \caption[Highly-charged surface particle steady-state velocity]{
+        Steady-state velocity $\cU$ as a function of the 
+        electric field magnitude $\beta$, for highly-charged surface particle
+        electrophoresis (with $\alpha = 0.5, \text{Du} = 1, \bar\zeta = 10$).
+        The analytic solution velocity is represented by solid lines, 
+        and the numerical results are represented by markers.
+        The left figure shows the full numerical solution 
+        compared to the analytical one \eqref{eq:cubic}, and
+        the right figure compares the analytic cubic correction \cite{schnitzer2012cubic} 
+        to the difference between the numerical results and the linear regime.
+        When $\beta$ is large, the analytical cubic solution loses its validity 
+        because higher-order terms become significant.}
+	    \label{fig:Electrophoresis2}
+    \end{center}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Electrophoresis for large $\beta$ }
+When the electric field is large, nonlinear effects dominate the solution.
+In order to investigate the solution for strong electric fields, 
+we have run the solver on the TAMNUN HPC cluster \cite{tamnun}.
+Large grid sizes are used to verify that the numerical solution converges when the grid becomes finer and that no numerical artifacts are present in the solution.
+Moreover, several $R_{max} \in \{10, 30, 100\}$ values are used, to make sure it has no major impact on the solution.
+The results are shown in the following figures. 
+The steady-state velocity results are shown for several grid resolutions and several $R_{max}$ values in Figure \ref{fig:LargeBetaV_grids}, and the differences between the numerical results for
+steady-state velocity and the linear regime are shown in Figure \ref{fig:LargeBetaV_DeltaFromLinear_grids}.
+The estimated rate of convergence is shown in Figure \ref{fig:LargeBetaRatio}.
+
+The numerical solver converges well for $\beta < 5$ and the resulting steady-state velocity 
+for moderate $\beta$ values is very close to being an affine function of $\beta$.
+When $\beta$ becomes large, the salt concentration $C$ near the front of the particle 
+(at $\theta \approx 0$) approaches zero, while creating a wake behind the particle 
+(at $\theta \approx \pi$) as shown in Figure \ref{fig:LargeBeta_C}. 
+This results in high gradients in $\log C$ near the front of the particle  and, therefore, a strong electric field $\bE$ forms near the particle surface (Figure \ref{fig:LargeBeta_Phi}) due to effective boundary conditions in (\ref{eq:ephor_bnd}). 
+From Figs. \ref{fig:LargeBetaV_grids}-\ref{fig:LargeBetaV_DeltaFromLinear_grids} we conclude that even our most accurate numerical solution is valid only up to $\beta = 5$ approximately, and therefore we only further examine solutions in this range.
+
+The streamline pattern does not change drastically for different electric field magnitudes. 
+The resulting fluid flow is nearly proportional to that of the Stokes creeping flow, 
+as shown in Figure \ref{fig:LargeBeta_Psi} and \ref{fig:LargeBeta_PsiMinusUniformFlow}. 
+The difference between $\Psi(r, \theta)$ and $\Psi(r, \pi-\theta)$ is shown in Figure \ref{fig:LargeBeta_PsiAsymm}, demonstrating that the flow is almost symmetric (with relative
+difference up to approximately $0.5\%$) for $\beta < 5$.
+
+The numerical results show that a boundary layer starts to form near the front 
+of the particle for strong electric fields (see Figures \ref{fig:LargeBeta_BoundaryLayer_E}
+and \ref{fig:LargeBeta_BoundaryLayer_C}).
+The width of the boundary layer with respect to the electric field scales, to a good approximation, as: $\bar\rho(\beta) \approx 0.2 e^{-0.5 \beta}$.
+This causes numerical problems for the current solver at large $\beta$, due to insufficient
+grid resolution at the boundary layer of $C$ and $\bE$.
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=.3\textwidth]{figs/LargeBetaV_[128_256_512]_Rmax=10.eps}
+    \includegraphics[width=.3\textwidth]{figs/LargeBetaV_[512x512]_Rmax=10_30_100.eps}
+        \caption[Large $\beta$ results for $\cU$]
+{Large $\beta$ results for $\cU(\beta)$ ($\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$). 
+The left figure shows the numerical results of $\cU(\beta)$ for $R_{max} = 10$ and the following grid sizes: $128 \times 128$, $256 \times 256$, $512 \times 512$. 
+The right figure shows the numerical results of $\cU(\beta)$ for
+$512 \times 512$ grid for $R_{max} = 100, 30, 10$. For small values of $\beta$, the linear
+regime of $\cU(\beta)$ is dominant. 
+For moderate $\beta$ values, the steady state velocity is very close to an affine function of $\beta$.
+However, for larger values of $\beta$, the numerical solution
+deviates significantly from the linear regime, due to convergence problems at $\beta > 6$, 
+and for $\beta \sim 7$, the solver fails to converge. The numerical convergence 
+depends on the grid resolution near the particle surface -- 
+as it becomes finer (when $N_r$ increases or $R_{max}$ decreases), the solver convergence improves.}
+	    \label{fig:LargeBetaV_grids}	    
+    \end{center}
+\end{figure}
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=.3\textwidth]{figs/LargeBetaV_DeltaFromLinear[128_256_512]_Rmax=10.eps}
+    \includegraphics[width=.3\textwidth]{figs/LargeBetaV_DeltaFromLinear[512x512]_Rmax=10_30_100.eps}
+        \caption[Large $\beta$ results for $\cU$ -- difference from linear regime]
+{Large $\beta$ results for $\cU(\beta) - \beta\cU_1$ ($\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$ and $\cU_1 \approx 4.258$ is the linear regime coefficient). 
+The left figure shows the numerical results of $\cU(\beta)$ for $R_{max} = 10$ and the following grid sizes: $128 \times 128$, $256 \times 256$, $512 \times 512$. 
+The right figure shows the numerical results of $\cU(\beta)$ for
+$512 \times 512$ grid for $R_{max} = 100, 30, 10$.
+It is seen that the difference is indeed nearly an affine function of $\beta$ in the large-$\beta$ regime, so long as the numerical solution remains sufficiently accurate.}
+	    \label{fig:LargeBetaV_DeltaFromLinear_grids}	    
+    \end{center}
+\end{figure}
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=.33\textwidth]{figs/LargeBetaRatio.eps}
+        \caption[Rate of convergence estimation for $\cU$ at large $\beta$]
+        {Rate of convergence estimation for $\cU$ at large $\beta$  
+        ($\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$), 
+        based on the numerical results of $\cU(\beta)$, for the grid sizes of 
+        $128 \times 128$, $256 \times 256$, $512 \times 512$. 
+        The rate of convergence $r(\beta)$ is estimated by 
+        $r(\beta) \triangleq \left(\cU^{4h}(\beta) - \cU^{2h}(\beta)\right)/\left(\cU^{2h}(\beta) - \cU^{h}(\beta)\right)$.
+        For small $\beta$, $r(\beta) \rightarrow 4$, showing 
+        quadratic convergence for the linear regime. 
+        For moderate $\beta$, the convergence rate slows down, 
+        and it deteriorates for large $\beta$ values.
+        }
+	    \label{fig:LargeBetaRatio}
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=0.3\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.3\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+    \includegraphics[width=0.3\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_C.eps}
+        \caption[Electrophoresis results for $C$]
+        {Electrophoresis results for $C$: grid size $512 \times 512$, 
+        $R_{max} = 10$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
+        
+        For weak field (left), 
+        the linear regime dominates the solution for 
+        $C_\beta(r, \theta) \approx 1 - \beta \frac{\cos\theta}{2r^2}$.
+        For moderate $\beta$ values (middle), the salt concentration starts
+        to form a wake behind the particle ($\theta \approx \pi$).
+        For large values of $\beta$ (right), there is a significant drop in
+        salt concentration at the front of the particle -- 
+        $C$ approaches zero at $\theta \approx 0$, such that 
+        $\deriv{C}{r}$ becomes large 
+        (since the change in $C$ happens on a small length scale).
+        Due to the boundary conditions of the electrophoresis problem
+        (given by (\ref{eq:ephor_bnd})), the electric field radial
+        component given by 
+        $E_r = -\deriv{\varPhi}{r} = -\frac{1}{C}\deriv{C}{r}$, 
+        becomes singular where $C \rightarrow 0$.
+        }
+	    \label{fig:LargeBeta_C}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=0.3\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[129x129]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.3\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[129x129]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+    \includegraphics[width=0.3\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[129x129]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_PhiE.eps}
+        \caption[Electrophoresis results for $\varPhi$]
+        {Electrophoresis results for $\varPhi$:
+        grid size $512 \times 512$, $R_{max} = 10$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$. 
+        
+        The electric potential and the electric field results are multiplied by $\beta^{-1}$,
+	    so the linear regime appears unchanged for different values of $\beta$.
+        For weak field (left), the linear regime dominates the solution for 
+        $\varPhi_\beta(r, \theta) \approx -\beta {r \cos\theta}$,
+        hence the electric field is constant for weak electric fields:
+        $\bE \approx \beta \ui$.
+        For moderate values of $\beta$ (middle),
+        the symmetry breaks and the electric field becomes stronger 
+        near the front of the particle than at the back.
+	    For large values of $\beta$ (right), 
+	    the electric field radial component $E_r = -\deriv{\varPhi}{r}$
+	    at the particle front becomes much larger than the electric field at the particle back.
+        }
+	    \label{fig:LargeBeta_Phi}
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=.33\textwidth]{figs/LargeBeta/sol_beta=1.000e-01_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_[1]_Psi.eps}
+    \includegraphics[width=.33\textwidth]{figs/LargeBeta/sol_beta=8.000e-01_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_[1]_Psi.eps}
+    \includegraphics[width=.33\textwidth]{figs/LargeBeta/sol_beta=5.000e+00_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_[1]_Psi.eps}
+    \includegraphics[width=.33\textwidth]{figs/LinearStokes_Psi.eps}
+        \caption[Streamfunction results]
+        {$\beta = 0.1, 0.8, 5.0$ and Stokes streamlines results: grid size $512 \times 512$, 
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
+        The numerical results for $\Psi$ are scaled by $\beta^{-1}$, so the linear regime
+        will appear the same for different $\beta$ values.
+        Note that the numerical results show a
+        flow pattern very similar to that of the analytical Stokes flow.}
+	    \label{fig:LargeBeta_Psi}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=.33\textwidth]{figs/PsiMinusUniformFlow/sol_beta=1.000e-01_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_[1]_Psi.eps}
+    \includegraphics[width=.33\textwidth]{figs/PsiMinusUniformFlow/sol_beta=8.000e-01_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_[1]_Psi.eps}
+    \includegraphics[width=.33\textwidth]{figs/PsiMinusUniformFlow/sol_beta=5.000e+00_[513x513]_Rmax=10.0_Du=1.00_zeta=10.00_alpha=0.50_[1]_Psi.eps}
+    \includegraphics[width=.33\textwidth]{figs/PsiMinusUniformFlow/LinearStokes_Psi-uniformflow.eps}
+        \caption[Streamfunction results]
+        {$\beta = 0.1, 0.8, 5.0$ and Stokes streamlines results after subtraction of the uniform
+        flow streamfunction ($\frac{\cU}{2}r^2 \sin^2\theta$): grid size $512 \times 512$, 
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
+        The numerical results for $\Psi$ are scaled by $\beta^{-1}$, so the linear regime
+        will appear the same for different $\beta$ values.
+        Even for the largest beta we could compute, the velocity remains fairly symmetric and 		
+        ``uneventful'' also in the framework of the ``laboratory'' rather than that of the particle.}
+	    \label{fig:LargeBeta_PsiMinusUniformFlow}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=0.33\textwidth]{figs/streamlines_asymmetry.eps}
+        \caption[Streamfunction asymmetry]
+        {Streamline results: grid size $512 \times 512$, 
+        $R_{max} = 10$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$.
+        The relative streamline asymmetry is computed by 
+        $\|\Psi(r, \theta) - \Psi(r, \pi-\theta)\|/\|\Psi(r, \theta)\|$
+        as a function of $\beta$. The results show that the streamline pattern is almost 
+        symmetric, even for moderately large $\beta$ values.}
+	    \label{fig:LargeBeta_PsiAsymm}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=.33\textwidth]{figs/BoundaryLayerWidth_E1.eps}
+    \includegraphics[width=.33\textwidth]{figs/BoundaryLayerWidth_E2.eps}
+    \includegraphics[width=.33\textwidth]{figs/BoundaryLayerWidth_E3.eps}
+    \includegraphics[width=.33\textwidth]{figs/BoundaryLayerWidth_E4.eps}
+        \caption[Electric field boundary layer]
+        {Electric field boundary layer formation: grid size $512 \times 512$, 
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$. The upper left
+        graph shows normalized electric field radial component $E_r$ near the particle front
+        ($\theta = 0$). The numerical results for $e(\rho) = E_r(r=1+\rho, \theta=0)$
+        are normalized by $\hat{e}(\rho) = \left(e(\rho) - \beta\right)/\left(e(0) - \beta\right)$,
+        where $e(\rho = \infty) = \beta$.
+        The normalized electric field satisfies $\hat{e}(\rho) \in [0, 1]$ and is shown as function
+        of $\rho = r - 1$ at the upper left graph and as function of $\rho e^{0.5 \beta}$ at
+        the upper right graph.
+        In order to estimate the width of the boundary layer, for each $\beta$, we compute the value 
+        of $\bar\rho(\beta) = \min_\rho \{ \rho : \hat{e}(\rho) < 0.5\}$. Each such $\bar\rho(\beta)$
+        is plotted at the left graph as a solid dot on the corresponding line.
+        In addition, $\bar\rho(\beta)$ is plotted as a function of $\beta$ using logarithmic 
+        $y$ axis at the lower left graph to show that $\bar\rho(\beta) \approx 0.2 e^{-0.5 \beta}$.
+        Moreover, $E_r(\beta; r=1, \theta=0) / \beta$ grows exponentially as a function of $\beta$,
+        as shown at the lower right graph.
+        Thus, a boundary layer is indeed forming near the front of the particle.
+        }
+	    \label{fig:LargeBeta_BoundaryLayer_E}	    
+    \end{center}
+\end{figure}
+
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=.33\textwidth]{figs/boundary_layer_C1.eps}
+    \includegraphics[width=.33\textwidth]{figs/boundary_layer_C2.eps}
+        \caption[Ionic concentration boundary layer]
+        {Ionic concentration boundary layer formation: grid size $512 \times 512$, 
+        $R_{max} = 30$, $\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$. The left
+        graph shows the ionic concentration $C$ near the particle front
+        ($\theta = 0$). 
+        In addition, $C_\beta(r=1, \theta=0)$ is plotted as a function of $\beta$ using logarithmic 
+        $y$ axis at the right graph to show that 
+        $C_\beta(r=1, \theta=0) \approx 0.94 e^{-0.45 \beta}$.
+        The ionic concentration becomes very close to zero for $\beta \approx 7$ at $r = 1$, 
+        creating a singularity near the particle front.
+        }
+	    \label{fig:LargeBeta_BoundaryLayer_C}	    
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \includegraphics[width=.33\textwidth]{figs/C_Er_product.eps}
+        \caption{The product of $C(r=1, \theta=0) E_r(r=1, \theta=0) / \beta$ as
+        a function of $\beta$.}
+	    \label{fig:C_Er_product}	    
+    \end{center}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+\section{Discussion} \label{sec:discussion}
+A numerical framework for a
+nonlinear electrokinetic transport system is described.
+The framework is used to construct numerical solvers 
+for two electrokinetic problems: the migration of ion-exchangers
+and surface-charged inert particle electrophoresis.
+The numerical results for weak electric field 
+exhibit a good correspondence to the asymptotic models as shown above.
+Two interesting phenomena (cubic regime and downstream vortex) were predicted for the ion-exchanger
+using the numerical results, and were verified using an asymptotic expansion of the nonlinear system.
+The electrophoresis problem was solved on a high-resolution grid to validate the asymptotic 
+cubic correction of the steady-state velocity, as well as to provide insights into
+the solution behavior for moderately strong electric fields.
+For strong electric field, the nonlinear effects become dominant and
+a boundary-layer structure begins to form.
+Due to diminishing ion concentration $C$ at the front of the particle,
+a boundary layer of thickness approximately $0.2 e^{-0.5\beta}$ 
+is formed with respect to the electric field $\bE$ at the front of the particle.
+The value of $E_r / \beta$ at ($r = 1$, $\theta = 0$) is given approximately by 
+$e^{\beta/2}$, while the value of $C(r = 1, \theta = 0)$ is given approximately 
+by $e^{-\beta/2}$, and their product remains close to 1 for all $\beta$ that we could compute
+(as shown in Figure \ref{fig:C_Er_product}).
+However, the velocity of the particle remains nearly linear with $\beta$
+and the velocity field is very close to being symmetric.
+
+
+\section{Future Work}
+Future work may include using the numerical results described in this work to develop
+an analytical solution for the strong field regime of the electrophoresis problem, which is 
+of interest. The solver may be used to investigate how the solution
+(and the evolving boundary layer, in particular) depends on the problem parameters.
+Optimizing the direct sparse linear solver can be done by
+using the ordering data from previous calls,
+or replacing the full Newton step by an iterative linear solver
+(e.g., using preconditioned Krylov subspace methods \cite{saad2003book} or
+Multigrid), allowing finer grids to be used.
+In order to achieve high numerical accuracy, the grid discretization should be made finer
+near the particle surface (at $r = 1$), while $R_{max}$ can be made smaller. Moreover, a different discretization scheme may be used for
+the $r$ coordinate, to have higher grid resolution near the particles.
+In addition, the continuation of the solution between different $\beta$ values
+should advance in finer steps, to ensure Newton method convergence.
+The discretization of boundary conditions far away from the particle may be improved
+by including the linear correction from the asymptotic solution, or reformulation of
+far-away boundary condition according to the asymptotic behavior of the analytic solution
+far away from the particle.
+Moreover, the framework may be used for automatic construction of Newton solvers 
+for other nonlinear PDE systems, for example, for particles with different surface 
+properties, or different particle shape.
+
+\appendix
+
+\section{Asymptotic Analysis} \label{sec:asymp}
+In order to validate the numerical results, an asymptotic analysis has been applied 
+to the nonlinear systems of ion-exchanger migration 
+and highly charged particle electrophoresis.
+We present here the asymptotic analysis for the ion-exchanger case \cite{yariv2010migration},
+while the asymptotic analysis for the electrophoresis case \cite{schnitzer2012surface}
+is derived by Schnitzer and Yariv in \cite{schnitzer2012cubic}.
+
+The derivation is performed as follows.
+The nonlinear system (composed of the governing equations and the boundary conditions) 
+is written as $\cO(\bx;\beta) = \bzero$.
+For small $\beta$, the solution to the nonlinear system can be expanded in a Taylor series in $\beta$:
+\begin{equation}
+\bx = \bx(\beta) \approx \sum_n \bx_n \beta^n.
+\end{equation}
+The nonlinear terms
+are expanded around $\beta = 0$:
+\begin{equation}
+\bzero = \cO(\bx) = \sum_i \cO_i(\bx_0, \ldots \bx_i) \beta^i.
+\end{equation}
+Thus, the $O(\beta^k)$ term $\bx_k$ can be found recursively by solving 
+$\cO_k(\bx_0, \bx_1, \ldots, \bx_k) = \bzero$,
+given the previous solutions for $\bx_0, \ldots, \bx_{k-1}$.
+The derivation is validated using the MATLAB symbolic toolbox by the code 
+at \verb|symbolic/asymp.m| \cite{source}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{First-Order (linear in $\beta$) Solution} \label{app:linear}
+
+For $\beta = 0$ (no electric field is applied), the steady-state solution is $\cU = 0$:
+\begin{equation}\begin{array}{cccc}
+\varPhi_0(r,\theta) = 0, &
+C_0(r,\theta) = 1, &
+\bV_0(r,\theta) = \bzero, &
+P_0(r,\theta) = 0.
+\end{array}\end{equation}
+Assuming $\beta \ll 1$, the linearized equations and boundary conditions are
+\begin{equation} \begin{array}{ccc}
+\Laplacian \varPhi_1 = 0, &
+\Laplacian C_1 = 0, &
+\bLaplacian \bV_1 - \bnabla P_1 = \bzero.
+\end{array}\end{equation}
+The first-order terms $\bx_1$ are given by (see \cite{yariv2010migration} for full derivation)
+\begin{equation} \begin{array}{cccc}
+\varPhi_1 = \pars{\frac{1}{4r^2} - r}\cos\theta, &
+C_1 = \frac{3}{4r^2} \cos\theta, &
+\Psi_1 = \cU_1 \pars{\frac{1}{r} - r^2} \frac{\sin^2\theta}{2}, &
+P_1 = 0,
+\end{array} \end{equation}
+and the linear velocity term is:
+\begin{align} \label{eq:linear_velocity}
+\bV_1 &= \cU_1 \pars{ \brhat \pars{-1 + \frac{1}{r^3}}\cos\theta 
++ \bthetahat \pars{1 + \frac{1}{2r^3}} \sin\theta } \\
+\cU_1(\gamma) &= 2 \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}.
+\end{align}
+For $\gamma > 1$, the Debye layer has a positive charge, 
+corresponding to a negative particle charge -- 
+yielding negative drift velocity, $\cU < 0$. 
+For $\gamma < 1$, we have $\cU > 0$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Second-Order (quadratic in $\beta$) Solution} \label{app:quadratic}
+The quadratic terms $\bx_2$ are computed by solving a linear PDE system 
+with a right-hand side determined by the linear terms $\bx_1$, yielding
+\begin{equation}
+\varPhi_2 = \pars{\frac{\cU_1\, \alpha}{32} - \frac{1}{16}}
+\frac{3\, {\cos^2\theta} - 1}{r^3} - \frac{3 + 3\, {\sin^2\theta}\, \left(4\, r^3 - 1\right)}{32\, r^4} - \frac{3\, \cU_1\, \alpha - 6}{32\, r},
+\end{equation}
+\begin{equation}
+C_2 = \left(\frac{5\, \cU_1\, \alpha}{32} + \frac{1}{16}\right)
+\frac{3\, {\cos^2\theta} - 1}{r^3} - \frac{3\, \cU_1\, \alpha - 6}{32\, r} + \frac{3\, \cU_1\, \alpha\, \left(2\, r^3\, {\sin^2\theta} + {\sin^2\theta} - 1\right)}{16\, r^4},
+\end{equation}
+\begin{equation}
+\Psi_2 = \pars{\frac{9}{16(\sqrt{\gamma}+1)} - \frac{3}{16} \cU_1 (\cU_1 \alpha + 1)}
+ \left(\frac{1}{r^2} - 1\right) \sin^2\theta \cos\theta.
+\end{equation}
+Note that the quadratic term does not contribute to the total force and steady-state 
+velocity terms, but it does change the fluid flow, 
+the electric potential and the ionic concentration.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Third-Order (cubic in $\beta$) Solution} \label{app:cubic}
+Note that, due to symmetry considerations, $\cU(\beta)$ is an anti-symmetric function.
+Therefore, $\cU_2 = 0$ and the next velocity term is the cubic one:
+\begin{equation} \label{eq:cubic}
+\cU(\beta) \approx \beta \cU_1 + \beta^3 \cU_3 + O(\beta^5).
+\end{equation}
+The cubic terms $\bx_3$ are computed by solving a linear PDE system 
+with a right-hand side determined by the linear terms $\bx_1$ and the quadratic terms $\bx_2$.
+
+\begin{align*}
+\varPhi_3 &= \frac{15\cU_1\alpha + 6 }{64}\cos\theta  - \frac{3 \cU_1\alpha}{32} {\cos}^3\theta
+ + \frac{183 {\cU_1}^2\alpha^2 - 839 \cU_1\alpha - 470}{2560 r^2} \cos\theta 
+\\ \nonumber &
++ \frac{3 \cos\theta \left(5 \cU_1\alpha - 6 {\cos^2\theta} - 4 \cU_1\alpha {\cos^2\theta} + 4\right)}{64 r^3} + \frac{\left(2 \cU_1\alpha - 1\right) \left(\cos\theta - 3 {\cos}^3\theta\right)}{64 r^5} 
+\\ &+ {{\cos}^3\theta \left(\frac{15 \cU_1\alpha}{64} + \frac{3}{32}\right)}{r^{-2}} 
+- \left(3 \cos\theta - 5 {\cos}^3\theta\right) \left( - \frac{19 {\cU_1}^2\alpha^2}{5120} + \frac{97 \cU_1\alpha}{5120} + \frac{3 \cU_2\alpha}{320} + \frac{21}{1280}\right){r^{-4}} 
+\\ \nonumber &
++ {{\cos}^3\theta \left(\frac{\cU_1\alpha}{64} + \frac{3}{64}\right)}{r^{-6}},
+\end{align*}
+\begin{align*}
+C_3 &=
+\frac{3 {{\cU_1}}^2\alpha^2 {\cos^3\theta}}{32} + \frac{\cos\theta \left(797 {{\cU_1}}^2\alpha^2 + 419 {\cU_1}\alpha - 512 {\cU_2}\alpha + 174\right)}{2560 r^2} 
+- \frac{3 {\cU_1}\alpha \cos\theta \left(5 {\cU_1}\alpha + 2\right)}{64} 
+\\ \nonumber &
+- {\left(3 \cos\theta - 5 {\cos^3\theta}\right) \left(\frac{59 {{\cU_1}}^2\alpha^2}{5120} + \frac{103 {\cU_1}\alpha}{5120} + \frac{69 {\cU_2}\alpha}{320} + \frac{3}{1280}\right)}{r^{-4}} 
+\\ \nonumber &
++ \frac{\alpha \left(\cos\theta - 3 {\cos^3\theta}\right) \left(5\alpha {{\cU_1}}^2 + 2 {\cU_1} + 16 {\cU_2}\right)}{128 r^5} 
+\\ \nonumber &
+- \frac{3\alpha \cos\theta \left( - 8\alpha {{\cU_1}}^2 {\cos^2\theta} + 7\alpha {{\cU_1}}^2 + 2 {\cU_1} + 32 {\cU_2} {\cos^2\theta} - 32 {\cU_2}\right)}{128 r^3} 
+\\ \nonumber &
++ \frac{{{\cU_1}}^2\alpha^2 {\cos^3\theta}}{32 r^6} - \frac{3 {\cU_1}\alpha {\cos^3\theta} \left(5 {\cU_1}\alpha + 2\right)}{64 r^2},
+\end{align*}
+\begin{align*}
+\Psi_3 &=
+r^2 {\sin^2\theta} \left(\frac{{\cW_2}}{15} - \frac{{\cW_1}}{3} + \frac{209}{3360}\right) 
+ - {{\sin^2\theta} \left(\frac{5 {\cW_2}}{3} - \frac{{\cW_1}}{3} + \frac{35}{264}\right)}{r^{-1}}
+ + {{\sin^4\theta} \left(2 {\cW_2} + \frac{761}{5632}\right)}{r^{-1}} 
+\\ \nonumber & 
+- \frac{{\sin^2\theta} \left(1848 r^6 {\sin^2\theta} - 2079 r^3 {\sin^2\theta} + 924 r^3 - 7 {\sin^2\theta} + 10\right)}{19712 r^5} 
+%\\ \nonumber & 
+\frac{4 {\sin^2\theta} - 5 {\sin^4\theta}}{r^3} \\ & + \left(\frac{{\cU_1}\alpha}{16} - \frac{1}{8}\right) \frac{2 r^3 - 3 r^2 + 1}{4 r} {\sin^2\theta},
+\end{align*}
+\begin{align*}
+\cW_1 &= \frac{69}{512 \left(\sqrt{\gamma} + 1\right)} - \frac{1407\alpha^2 {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^3}{1280} - \frac{123 \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{1280} - \frac{27}{512 {\left(\sqrt{\gamma} + 1\right)}^2} 
+\\ & -\frac{1899\alpha {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^2}{2560} 
+- \frac{\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) \left(\frac{81}{16 \left(\sqrt{\gamma} + 1\right)} - \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) \left(\frac{27\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{4} + \frac{27}{8}\right)\right)}{320} 
+\\ & + \frac{21\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{128 \left(\sqrt{\gamma} + 1\right)},
+\end{align*}
+\begin{align*}
+\cW_2 &= \frac{9 \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}{256} 
++ \frac{21\alpha^2 {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^3 + 
+15\alpha {\log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right)}^2}{64} 
+- \frac{27}{512 {\left(\sqrt{\gamma} + 1\right)}^2}
+\\ \nonumber &
+- \frac{297\alpha \log\left(\frac{\sqrt{\gamma} + 1}{2 \sqrt{\gamma}}\right) + 54}{1024 \left(\sqrt{\gamma} + 1\right)}.
+\end{align*}
+The cubic solution satisfies the boundary conditions only when $\alpha\cU_1 = 0$,
+due to boundary conditions mismatch for $C$ at $r \rightarrow \infty$, when
+the diffusion and the advection terms become of the same order of magnitude.
+The cubic correction velocity terms (for $\alpha = 0$)
+turn out to be:
+\begin{equation}
+\cU_3(\gamma) = \frac{31}{320(\sqrt\gamma + 1)} - \frac{9}{320(\sqrt\gamma + 1)^2} + \frac{1}{1680} - \frac{11}{160} \log \pars{\frac{1 + \gamma^{-\frac{1}{2}}}{2}}.
+\end{equation}
+The cubic term becomes dominant for small $\beta$ when $\gamma \approx 1$.
+Note that, for $\gamma = 1$, the linear term vanishes and the cubic term 
+of the velocity is $\cU(\beta) = \frac{1129}{26880}\beta^3$.
+
+Observe that a $\cU = 0$ solution may exist for a critical $\beta_c > 0$ and $\alpha = 0$, 
+if it satisfies:
+\begin{equation} \label{eq:crit_beta}
+\beta_c^2 = -\frac{\cU_1(\gamma)}{\cU_3(\gamma)}.
+\end{equation}
+Specifically, for $\gamma = 1 + \eps$, where $0 < \eps \ll 1$, $\beta_c = O\pars{\sqrt{\eps}}$:
+\begin{equation}
+\beta_c \approx \sqrt{-{\cU_1'(1) \eps}/{\cU_3(1)}} = 
+ \sqrt{{13440 \eps}/{1129}} \approx 3.45 \sqrt{\eps}.
+\end{equation}
+That is, there may be a specific nonzero external field for which the particle remains at rest. The physical viability of this solution has yet to be explored.
+
+\clearpage
+\addcontentsline{toc}{chapter}{Bibliography}
+
+\bibliographystyle{unsrt}
+\bibliography{thesis}
+
+\end{document}
