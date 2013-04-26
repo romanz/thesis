@@ -1,6 +1,8 @@
-function prepare_results_for_Udi
+% prepare_results_for_Udi('MATs/513x513_Rmax=10/*beta=*_[513x513]_Rmax=10.0*0.mat', '512x512_Rmax=10_zeta=10_alpha=0.5_Du=1_r=1.mat')
+                        
+function prepare_results_for_Udi(globber, result_filename)
 
-L = glob('MATs/513x513_Rmax=10/*beta=*_[513x513]_Rmax=10.0*0.mat');
+L = glob(globber);
 S = cell(size(L));
 i = 0;
 for f = L
@@ -41,7 +43,7 @@ for f = {'r', 't', 'zeta', 'alpha', 'Du'}
     w = w(:, 1);
     res.(f) = w;
 end
-save('512x512_Rmax=10_zeta=10_alpha=0.5_Du=1_r=1.mat', 'res');
+save(result_filename, 'res');
 
 function res = extract(S, r)
 res.r = r;
