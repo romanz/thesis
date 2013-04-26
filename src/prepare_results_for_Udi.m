@@ -63,3 +63,22 @@ res.beta = S.sol.beta;
 res.zeta = S.sol.zeta;
 res.alpha = S.sol.alpha;
 res.Du = S.sol.Du;
+
+% Boundary layers
+thetas = [0, pi/6];
+radius = S.sol.grid.r;
+g = Grid(radius, thetas);
+Er = regrid(Interp(g, Er));
+
+Er = Er - repmat(Er(end, :), size(Er, 1), 1);
+Er = Er ./ repmat(Er(1, :), size(Er, 1), 1);
+
+thickness = thetas;
+for index = 1:numel(thetas)
+    e = Er(:, index);
+    w = interp1(e, radius, 0.5) - 1;
+    thickness(index) = w;
+end
+
+res.boundary_thetas = thetas;
+res.boundary_thickness = thickness;
