@@ -538,7 +538,7 @@ This method ensures that the discretization is conservative in the discrete sens
 
 In order to define the fluxes on the boundaries of each control volume, we employ the 
 conservative formulation of the governing equations above. 
-The flux terms are defined using finite differences and linear interpolation of the disrete 
+The flux terms are defined using finite differences and linear interpolation of the discrete 
 variables (defined at the centroid of each cell), except for the advection flux which should not be 
 discretized using linear interpolation -- due to a numerical instability 
 for large cell Peclet numbers \cite{strikwerda2004finite}.
@@ -594,7 +594,8 @@ which we solve by the standard secant method.
 
 \subsection{Spherical Coordinates}
 Because the system is axisymmetric and the particle is a sphere, we employ
-spherical coordinates $(r,\theta,\phi)$.
+spherical coordinates $(r,\theta,\phi)$, as shown in Figure \ref{fig:SphericalCoordinateSystem}.
+
 The scalar gradient and the divergence can be written as:
 \begin{align}
 \bnabla f &= \deriv{f}{r}\brhat + \frac{1}{r}\deriv{f}{\theta}\bthetahat, \\
@@ -629,6 +630,15 @@ because the unit vectors $\brhat, \bthetahat, \bphihat$ are functions of the coo
 in a curvilinear coordinate system.
 See Appendix \ref{append:spherical} for the full derivation of the identities above.
 
+\begin{figure}[p]
+    \begin{center}
+        \includegraphics[width=0.2\textwidth]
+            {figs/spherical_coordinate_system.eps}
+        \caption[Spherical coordinate system]{Spherical coordinate system is employed for
+        computational grid construction.}
+        \label{fig:SphericalCoordinateSystem}
+    \end{center}
+\end{figure}
 
 \subsection{Computational Grid}
 A regular grid of size $n_r \times n_\theta$ is defined, with:
@@ -673,9 +683,9 @@ P^h_{[i,j]} &= P(\bar{r}_i, \bar{\theta}_j), \\
 \nonumber V_r^h{}_{[i,j]} &= V_r(r_i, \bar{\theta}_j), \\
 \nonumber V_\theta^h{}_{[i,j]} &= V_\theta(\bar{r}_i, {\theta}_j).
 \end{align}
-\begin{figure}[h]
+\begin{figure}[p]
     \begin{center}
-	\includegraphics[width=0.8\textwidth]{figs/grids.eps}
+	\includegraphics[width=0.5\textwidth]{figs/grids.eps}
         \caption[Computational grid]{The computational grid is defined using
         a spherical coordinate system, due to axisymmetry of the physical problem
         and boundary conditions discretization on the particle surface.}
@@ -1301,7 +1311,7 @@ is derived by Schnitzer and Yariv in \cite{schnitzer2012cubic}.
 The derivation is performed as follows.
 The nonlinear system (composed of the governing equations and the boundary conditions) 
 is written as $\cO(\bx;\beta) = \bzero$.
-For small $\beta$, the solution to the nonlinear system can be expanded in a Taylor series in $\beta$:
+For small $\beta$, the solution to the nonlinear system can be expanded in an asymptotic series in $\beta$:
 \begin{equation}
 \bx = \bx(\beta) \approx \sum_n \bx_n \beta^n.
 \end{equation}
@@ -1506,7 +1516,7 @@ the vortex formation.
         electric field magnitude $\beta$, for $\gamma < 1$ (top) and $\gamma > 1$ (bottom). 
         The analytic cubic solution \eqref{eq:cubic} is represented by curves
         (solid for $\cU > 0$, dashed for $\cU < 0$), 
-        and the numerical results are represented by markers 
+        and the numerical results are represented by symbols 
         (circles for $\cU > 0$, squares for $\cU < 0$). Note that linear and
         cubic regimes match well the numerical results, including the critical $\beta$ 
         behaviour \eqref{eq:crit_beta}. 
@@ -1575,8 +1585,9 @@ The solver is applied to 2 grids of $N_r \times N_\theta = (128 \times 128)$ as 
     \begin{center}
     \includegraphics[width=1\textwidth]{figs/quadratic_order.eps}
         \caption[Quadratic convergence of steady-state velocity]{
-        The discretization error between the numerical and analytical solutions for 
-        $\alpha = 0$, $\Du = 0.5$, $\bar\zeta = 6$ and $R_{max} = 100$. The markers represent
+        The discretization error $\hat{\cU}^h - \cU_1$ between the numerical results
+        and the linear asymptotic solutions for 
+        $\alpha = 0$, $\Du = 0.5$, $\bar\zeta = 6$ and $R_{max} = 100$. The symbols represent
         the discretization errors for various grid sizes, and the dotted lines correspond to linear
         functions of $\beta$, scaled by $4^n$. 
         The graph shows that, as the number of grid points in each dimension increases by a factor of 2, 
@@ -1595,7 +1606,7 @@ The solver is applied to 2 grids of $N_r \times N_\theta = (128 \times 128)$ as 
         electric field magnitude $\beta$, for highly-charged surface particle
         electrophoresis (with $\alpha = 0, \text{Du} = 0.5, \bar\zeta = 6$).
         The analytic solution velocity is represented by solid lines, 
-        and the numerical results are represented by markers.
+        and the numerical results are represented by symbols.
         The top figure shows the full numerical solution 
         compared to the analytical one \eqref{eq:cubic}, and
         the bottom figure compares the analytic cubic correction \cite{schnitzer2012cubic} 
@@ -1613,7 +1624,7 @@ The solver is applied to 2 grids of $N_r \times N_\theta = (128 \times 128)$ as 
         electric field magnitude $\beta$, for highly-charged surface particle
         electrophoresis (with $\alpha = 0.5, \text{Du} = 1, \bar\zeta = 10$).
         The analytic solution velocity is represented by solid lines, 
-        and the numerical results are represented by markers.
+        and the numerical results are represented by symbols.
         The top figure shows the full numerical solution 
         compared to the analytical one \eqref{eq:cubic}, and
         the bottom figure compares the analytic cubic correction \cite{schnitzer2012cubic} 
@@ -1692,15 +1703,17 @@ It is seen that the difference is indeed nearly an affine function of $\beta$ in
 \end{figure}
 \begin{figure}
     \begin{center}
-    \includegraphics[width=.5\textwidth]{figs/LargeBetaRatio.eps}
+    \includegraphics[width=.45\textwidth]{figs/LargeBetaRatio.eps}
+    \includegraphics[width=.45\textwidth]{figs/LargeBetaRatio_p.eps}
         \caption[Rate of convergence estimation for $\cU$ at large $\beta$]
         {Rate of convergence estimation for $\cU$ at large $\beta$  
         ($\Du = 1$, $\bar\zeta = 10$, $\alpha = 0.5$), 
         based on the numerical results of $\cU(\beta)$, for the grid sizes of 
         $128 \times 128$, $256 \times 256$, $512 \times 512$. 
         The rate of convergence $r(\beta)$ is estimated by 
-        $r(\beta) \triangleq \left(\cU^{4h}(\beta) - \cU^{2h}(\beta)\right)/\left(\cU^{2h}(\beta) - \cU^{h}(\beta)\right)$.
-        For small $\beta$, $r(\beta) \rightarrow 4$, showing 
+        $r(\beta) \triangleq \left(\cU^{4h}(\beta) - \cU^{2h}(\beta)\right)/\left(\cU^{2h}(\beta) - \cU^{h}(\beta)\right)$ (left). 
+        The order of convergence is estimated by $p(\beta) \triangleq \log_2 r(\beta)$ (right).
+        For small $\beta$, $p(\beta) \rightarrow 2$, showing 
         quadratic convergence for the linear regime. 
         For moderate $\beta$, the convergence rate slows down, 
         and it deteriorates for large $\beta$ values.
@@ -1912,7 +1925,7 @@ It is seen that the difference is indeed nearly an affine function of $\beta$ in
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 \section{Discussion} \label{sec:discussion}
 A numerical framework for a
-nonlinear electrokinetic transport system is described.
+nonlinear electrokinetic transport system is developed.
 The framework is used to construct numerical solvers 
 for two electrokinetic problems: the migration of ion-exchangers
 and surface-charged inert particle electrophoresis.
@@ -1920,7 +1933,7 @@ The numerical results for weak electric field
 exhibit a good correspondence to the asymptotic models as shown above.
 Two interesting phenomena (cubic regime and downstream vortex) were predicted for the ion-exchanger
 using the numerical results, and were verified using an asymptotic expansion of the nonlinear system.
-The electrophoresis problem was solved on a high-resolution grid to validate the asymptotic 
+The electrophoresis problem was solved on a high-resolution grid to confirm the asymptotic 
 cubic correction of the steady-state velocity, as well as to provide insights into
 the solution behavior for moderately strong electric fields.
 For strong electric field, the nonlinear effects become dominant and
@@ -1934,7 +1947,8 @@ by $e^{-\beta/2}$, and their product remains close to 1 for all $\beta$ that we 
 (as shown in Figure \ref{fig:C_Er_product}).
 However, the velocity of the particle remains nearly linear with $\beta$
 and the velocity field is very close to being symmetric.
-
+Finally, we emphasize the importance of the analytical asymptotic derivation. This approach provides effective boundary conditions for the macroscale problem and thus eliminates the inherent physical scale disparity. This elimination enables the construction of the numerical scheme.
+Furthermore, the analytical asymptotic solutions for the weak field regime enable important mutual verification of the numerical results.
 
 \section{Future Work}
 Future work may include using the numerical results described in this work to develop
