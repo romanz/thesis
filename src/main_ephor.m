@@ -15,7 +15,6 @@ function [sol] = main_ephor(init, g, betas, conf)
     
     betas = betas(:);
     V = zeros(size(betas));
-    tic;
     for k = 1:numel(betas)
         fprintf('======================= Electrophoresis ===============================\n')
         sol.beta = betas(k);
@@ -32,18 +31,21 @@ function [sol] = main_ephor(init, g, betas, conf)
             fprintf('------------------------------------------------------------------\n')
             fprintf('B = %e \t V = %e \t F = %e\n', betas(k), v(i), f(i))
             fprintf('------------------------------------------------------------------\n')
+            whos
         end
         V(k) = v(end);
         fname = sprintf('sol_beta=%.3e_[%dx%d]_Rmax=%.1f_Du=%.2f_zeta=%.2f_alpha=%.2f.mat', sol.beta, numel(g.r), numel(g.t), max(g.r), sol.Du, sol.zeta, sol.alpha);
         fprintf('Saving to %s...', fname);
         save(fname)
         fprintf('\n');
+        whos
     end
-    toc
 end
 
 function [sol, res] = solver(sol, iters)
+    tic;
     [sol, iter] = update(sol); % update equations and iterators
+    fprintf('||| solver update = %.3f [s]\n', toc)
     res = zeros(iters, 1);
     for k = 1:iters
         [r, dx] = iter();
@@ -91,6 +93,7 @@ function iter = update_solver(sol)
     R = speye(n); R(J2, :) = [];
     
     function [r, dx] = iteration()
+        tic;
         Gb = bnd.grad();
         rb = bnd.res();
         
@@ -103,7 +106,10 @@ function iter = update_solver(sol)
         % R G P (-dx) = R r
         A = R*G*P;
         b = R*r;
+        fprintf('||| compute res & grad = %.3f [s]\n', toc)
+        tic
         dx = linsolve(A, b);
+        fprintf('||| linear solution = %.3f [s]\n', toc)
         var.update(-P*dx);
     end
     iter = @iteration;
