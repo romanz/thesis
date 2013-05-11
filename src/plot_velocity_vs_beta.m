@@ -1,5 +1,6 @@
 function plot_velocity_vs_beta
     Du = 1;
+
     zeta = 10;
     beta = linspace(0, 6);
     U1 = (Du*log(16) + zeta)/(1 + 2*Du);
@@ -79,6 +80,22 @@ function plot_velocity_vs_beta
     xlabel('\beta', 'FontSize', 16)
     ylabel('(V_{128x128} - V_{256x256}) / (V_{256x256} - V_{512x512})', 'FontSize', 16)
     print -depsc2 LargeBetaRatio.eps
+
+    figure(4)
+    clf; hold on; M = {};
+    [b1, v1] = iter(128, 100, '-d', [1 0 0]);
+    [b2, v2] = iter(256, 100, '-d', [0 .5 0]);
+    [b3, v3] = iter(512, 100, '-d', [0 0 1]);
+    clf;
+    x_max = 5;
+    [b1, v1] = select(b1, v1, @(x) x < x_max);
+    [b2, v2] = select(b2, v2, @(x) x < x_max);
+    [b3, v3] = select(b3, v3, @(x) x < x_max);
+    p = log([(v2 - v1) ./ (v3 - v2)]) / log(2);
+    plot(b1, p, '.-');
+    xlabel('\beta', 'FontSize', 16)
+    ylabel('Convergence order', 'FontSize', 16)
+    print -depsc2 LargeBetaRatio_p.eps
 
     function [beta, V] = iter(N, Rmax, linespec, c)
         f = sprintf('MATs/*[%dx%d]_Rmax=%.1f*_lite.mat', N+1, N+1, Rmax);
