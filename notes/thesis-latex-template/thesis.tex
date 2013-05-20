@@ -504,11 +504,11 @@ can be solved numerically for $\cU$ to yield the corresponding steady-state velo
 
 \section{Summary of achievements in this work}
 
-In this work, we develop and implement a novel software framework, that enables the generation of iterative numerical solvers for nonlinear macroscale electrokinetic problems, with the boundary layer replaced by nonlinear analytical boundary conditions.
-We apply this framework to the study of systems that have no closed-form solutions, such as ion-exchanger migration \cite{yariv2010migration} and the electrophoresis problem \cite{schnitzer2012surface}.
-The numerical results of the can be used to gain insight into the chemical and physical behavior in far more general regimes than are currently well-understood, and also to possibly lead to further analytical developments, based on new scaling behavior that is discovered numerically.
-We have also discovered interesting physical phenomena that may be observed experimentally. One such phenomenon is nonlinear electrokinetic vortex flow, which is useful for microfluidic mixing applications \cite{wang2004mix, ben2002vortex}.
-In addition, we develop and present an asymptotic derivation for the ion-exchanger migration problem up to the third order terms. This new analytical result is also used to verify the numerical framework and the obtained numerical results.
+In this work, we develop and implement a novel software framework, that enables the generation of iterative numerical solvers for nonlinear macroscale electrokinetic problems. A novel feature is the combination of a numerical framework with an analytical solution of the thin Debye layer, that is available from the literature and provides effective boundary conditions. Therefore, the Debye layer does not need to be resolved by the computational grid, saving a tremendous amount of numerical resources.
+
+We apply this framework to the study of systems that have no closed-form solutions, such as ion-exchanger migration \cite{yariv2010migration} and the electrophoresis problem \cite{schnitzer2012surface} for a spherical particle in an infinite domain. The numerical results can be used to gain insight into the chemical and physical behavior in far more general regimes than are currently well-understood, and also to possibly lead to further analytical developments, based on new scaling behavior that is discovered numerically. We have also discovered interesting physical phenomena that may be observed experimentally. One such phenomenon is nonlinear electrokinetic vortex flow, which is useful for microfluidic mixing applications \cite{wang2004mix, ben2002vortex}.
+
+In addition, we develop and present an asymptotic derivation for the ion-exchanger migration problem up to third order terms. This new analytical result is also used to verify the numerical framework and the numerical results.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Numerical Scheme} \label{ch:algorithm}
